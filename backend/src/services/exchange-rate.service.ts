@@ -7,14 +7,15 @@ import { logger } from '../utils/logger';
  */
 
 interface ExchangeRateResponse {
-  result: string;
-  base_code: string;
-  conversion_rates: Record<string, number>;
-  time_last_update_unix: number;
+  result?: string;
+  base_code?: string;
+  conversion_rates?: Record<string, number>;
+  rates?: Record<string, number>;
+  time_last_update_unix?: number;
 }
 
 // In-memory cache for exchange rates (refresh every 24 hours)
-let cachedRates: Record<string, number> | null = null;
+let cachedRates: Record<string, number> = {};
 let cacheTimestamp: number = 0;
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
@@ -25,7 +26,7 @@ const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 export const getExchangeRates = async (): Promise<Record<string, number>> => {
   // Return cached rates if still valid
   const now = Date.now();
-  if (cachedRates && (now - cacheTimestamp) < CACHE_DURATION) {
+  if (Object.keys(cachedRates).length > 0 && (now - cacheTimestamp) < CACHE_DURATION) {
     logger.info('Using cached exchange rates');
     return cachedRates;
   }
@@ -52,7 +53,7 @@ export const getExchangeRates = async (): Promise<Record<string, number>> => {
     logger.error('Failed to fetch exchange rates:', error.message);
 
     // Return cached rates even if expired as fallback
-    if (cachedRates) {
+    if (Object.keys(cachedRates).length > 0) {
       logger.warn('Using expired cached exchange rates as fallback');
       return cachedRates;
     }
@@ -147,14 +148,14 @@ const getDefaultRates = (): Record<string, number> => {
  */
 export const areRatesCached = (): boolean => {
   const now = Date.now();
-  return cachedRates !== null && (now - cacheTimestamp) < CACHE_DURATION;
+  return Object.keys(cachedRates).length > 0 && (now - cacheTimestamp) < CACHE_DURATION;
 };
 
 /**
  * Clear exchange rate cache (useful for testing)
  */
 export const clearRateCache = (): void => {
-  cachedRates = null;
+  cachedRates = {};
   cacheTimestamp = 0;
   logger.info('Exchange rate cache cleared');
 };
