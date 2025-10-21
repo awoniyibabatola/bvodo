@@ -69,7 +69,11 @@ interface SearchParams {
   origin?: string;
   destination?: string;
   directOnly?: boolean;
+  directFlight?: boolean;
   cabinClass?: 'Economy' | 'Business' | 'First';
+  adults?: number;
+  children?: number;
+  infants?: number;
 }
 
 interface Message {
