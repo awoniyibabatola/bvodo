@@ -1073,7 +1073,7 @@ export default function PassengerDetailsModal({
                             <div className="font-semibold text-gray-900">{bookingDetails?.hotelName}</div>
                           </div>
                         </div>
-                        {bookingDetails?.checkInDate && (
+                        {bookingDetails?.checkInDate && bookingDetails?.checkOutDate && (
                           <div className="flex items-start gap-2">
                             <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
                             <div>
