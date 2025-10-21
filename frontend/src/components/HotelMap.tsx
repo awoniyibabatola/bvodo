@@ -24,10 +24,6 @@ const Popup = dynamic(
   () => import('react-leaflet').then((mod) => mod.Popup),
   { ssr: false }
 );
-const useMapHook = dynamic(
-  () => import('react-leaflet').then((mod) => ({ default: mod.useMap })),
-  { ssr: false }
-);
 
 // Fix for default marker icons in Next.js
 if (typeof window !== 'undefined') {
