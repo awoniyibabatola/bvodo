@@ -1658,7 +1658,7 @@ export default function PassengerDetailsModal({
                   className="group relative px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <CreditCard className="w-5 h-5 relative z-10" />
+                  <CreditCardIcon className="w-5 h-5 relative z-10" />
                   <span className="relative z-10">Proceed to Checkout</span>
                 </button>
               )}
