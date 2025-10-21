@@ -434,7 +434,7 @@ export default function FlightSearchPage() {
               const stops = outbound.segments.length - 1;
 
               // Get unique airlines
-              const airlines = [...new Set(outbound.segments.map((seg: any) => seg.carrierCode))];
+              const airlines = [...new Set(outbound.segments.map((seg: any) => seg.carrierCode))] as string[];
               const airlineNames = airlines.join(', ');
 
               return (
@@ -470,7 +470,7 @@ export default function FlightSearchPage() {
                           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full">
                             <Plane className="w-3.5 h-3.5 text-blue-600" />
                             <span className="text-sm font-semibold text-blue-700">
-                              {airlines.map((code: string) => AIRLINE_NAMES[code] || code).join(', ')}
+                              {airlines.map(code => AIRLINE_NAMES[code] || code).join(', ')}
                             </span>
                             {airlines.length > 1 && (
                               <span className="text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
