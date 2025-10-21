@@ -1,0 +1,584 @@
+// Prisma Schema for Corporate Travel Platform
+// Database: Neon PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================================
+// ORGANIZATIONS
+// ============================================================================
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  subdomain String   @unique
+  email     String   @unique
+  phone     String?
+  country   String?
+  address   String?
+  city      String?
+  state     String?
+  postalCode String? @map("postal_code")
+  logoUrl   String?  @map("logo_url")
+  website   String?
+
+  // Credit Configuration
+  totalCredits       Decimal @default(0) @map("total_credits") @db.Decimal(12, 2)
+  availableCredits   Decimal @default(0) @map("available_credits") @db.Decimal(12, 2)
+  creditCurrency     String  @default("USD") @map("credit_currency") @db.VarChar(3)
+  lowBalanceThreshold Decimal @default(500) @map("low_balance_threshold") @db.Decimal(12, 2)
+
+  // Approval Settings
+  requireApprovalAll Boolean @default(false) @map("require_approval_all")
+  approvalThreshold  Decimal @default(0) @map("approval_threshold") @db.Decimal(12, 2)
+
+  // Status
+  status           String @default("active") @db.VarChar(20) // active, suspended, inactive
+  subscriptionPlan String @default("free") @map("subscription_plan") @db.VarChar(50)
+
+  // Timestamps
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  users              User[]
+  bookings           Booking[]
+  creditTransactions CreditTransaction[]
+  creditApplications CreditApplication[]
+
+  @@index([subdomain])
+  @@index([status])
+  @@map("organizations")
+}
+
+// ============================================================================
+// USERS
+// ============================================================================
+
+model User {
+  id               String   @id @default(uuid())
+  organizationId   String   @map("organization_id")
+
+  // Authentication
+  email            String
+  passwordHash     String   @map("password_hash")
+  emailVerified    Boolean  @default(false) @map("email_verified")
+  emailVerifiedAt  DateTime? @map("email_verified_at")
+
+  // Personal Information
+  firstName        String   @map("first_name") @db.VarChar(100)
+  lastName         String   @map("last_name") @db.VarChar(100)
+  phone            String?  @db.VarChar(50)
+  dateOfBirth      DateTime? @map("date_of_birth") @db.Date
+  nationality      String?  @db.VarChar(100)
+
+  // Passport Information
+  passportNumber   String?  @map("passport_number") @db.VarChar(100)
+  passportExpiry   DateTime? @map("passport_expiry") @db.Date
+  passportCountry  String?  @map("passport_country") @db.VarChar(100)
+
+  // Role & Permissions
+  role             String   @default("traveler") @db.VarChar(20) // super_admin, admin, company_admin, manager, traveler
+  department       String?  @db.VarChar(100)
+
+  // Credit Allocation
+  creditLimit      Decimal  @default(0) @map("credit_limit") @db.Decimal(12, 2)
+  availableCredits Decimal  @default(0) @map("available_credits") @db.Decimal(12, 2)
+
+  // Approval Settings
+  approverId       String?  @map("approver_id")
+  autoApprove      Boolean  @default(false) @map("auto_approve")
+
+  // Profile
+  avatarUrl        String?  @map("avatar_url") @db.VarChar(500)
+
+  // User Preferences
+  preferredCurrency    String   @default("USD") @map("preferred_currency") @db.VarChar(3)
+  preferredLanguage    String?  @default("en") @map("preferred_language") @db.VarChar(10)
+  preferredTimezone    String?  @default("UTC") @map("preferred_timezone") @db.VarChar(50)
+
+  // Status
+  status               String   @default("pending") @db.VarChar(20) // active, pending, inactive, suspended
+  lastLoginAt          DateTime? @map("last_login_at")
+  failedLoginAttempts  Int      @default(0) @map("failed_login_attempts")
+  lockedUntil          DateTime? @map("locked_until")
+
+  // Invitation
+  invitationToken      String?  @map("invitation_token") @db.VarChar(255)
+  invitationSentAt     DateTime? @map("invitation_sent_at")
+  invitationAcceptedAt DateTime? @map("invitation_accepted_at")
+
+  // Password Reset
+  resetToken           String?  @map("reset_token") @db.VarChar(255)
+  resetTokenExpiresAt  DateTime? @map("reset_token_expires_at")
+
+  // Timestamps
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  // Relations
+  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  approver            User?        @relation("UserApprover", fields: [approverId], references: [id], onDelete: SetNull)
+  approvees           User[]       @relation("UserApprover")
+  bookings            Booking[]
+  approvedBookings    Booking[]    @relation("BookingApprover")
+  confirmedBookings   Booking[]    @relation("BookingConfirmer")
+  creditTransactions  CreditTransaction[]
+  createdTransactions CreditTransaction[] @relation("TransactionCreator")
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@index([approverId])
+  @@map("users")
+}
+
+// ============================================================================
+// BOOKINGS
+// ============================================================================
+
+model Booking {
+  id                          String   @id @default(uuid())
+  organizationId              String   @map("organization_id")
+  userId                      String   @map("user_id")
+
+  // Booking Details
+  bookingReference            String   @unique @map("booking_reference") @db.VarChar(50)
+  bookingType                 String   @map("booking_type") @db.VarChar(20) // flight, hotel, package
+
+  // Group Booking
+  isGroupBooking              Boolean  @default(false) @map("is_group_booking")
+  numberOfTravelers           Int      @default(1) @map("number_of_travelers")
+  groupName                   String?  @map("group_name") @db.VarChar(200)
+
+  // Trip Information
+  origin                      String?  @db.VarChar(100)
+  destination                 String   @db.VarChar(100)
+  departureDate               DateTime @map("departure_date") @db.Date
+  returnDate                  DateTime? @map("return_date") @db.Date
+  isRoundTrip                 Boolean  @default(false) @map("is_round_trip")
+
+  // Passenger/Guest Information
+  passengers                  Int      @default(1)
+  passengerDetails            Json     @map("passenger_details") // JSON array of passenger info
+
+  // Pricing
+  basePrice                   Decimal  @map("base_price") @db.Decimal(12, 2)
+  taxesFees                   Decimal  @default(0) @map("taxes_fees") @db.Decimal(12, 2)
+  totalPrice                  Decimal  @map("total_price") @db.Decimal(12, 2)
+  currency                    String   @default("USD") @db.VarChar(3)
+
+  // Multi-Currency Support
+  exchangeRate                Decimal? @map("exchange_rate") @db.Decimal(10, 6) // Rate used for conversion
+  totalPriceOrgCurrency       Decimal? @map("total_price_org_currency") @db.Decimal(12, 2) // Converted to org currency
+
+  // Booking Status
+  status                      String   @default("pending") @db.VarChar(30)
+  // pending, pending_approval, approved, awaiting_confirmation, confirmed, cancelled, rejected, completed, failed
+
+  // Two-Tier Approval Workflow
+  requiresApproval            Boolean  @default(false) @map("requires_approval")
+
+  // First Tier: Company Admin/Manager Approval
+  approverId                  String?  @map("approver_id")
+  approvedAt                  DateTime? @map("approved_at")
+  approvalNotes               String?  @map("approval_notes") @db.Text
+
+  // Second Tier: Super Admin Confirmation
+  confirmerId                 String?  @map("confirmer_id")
+  confirmedByAt               DateTime? @map("confirmed_by_at")
+  confirmationNotes           String?  @map("confirmation_notes") @db.Text
+
+  // Rejection (can happen at either tier)
+  rejectionReason             String?  @map("rejection_reason") @db.Text
+  rejectedBy                  String?  @map("rejected_by") // Who rejected (approverId or confirmerId)
+
+  // Travel Purpose
+  travelReason                String?  @map("travel_reason") @db.Text
+  notes                       String?  @db.Text
+
+  // Provider Information
+  providerName                String?  @map("provider_name") @db.VarChar(100)
+  providerBookingReference    String?  @map("provider_booking_reference") @db.VarChar(100)
+  providerConfirmationNumber  String?  @map("provider_confirmation_number") @db.VarChar(100)
+
+  // Documents
+  confirmationUrl             String?  @map("confirmation_url") @db.VarChar(500)
+  ticketUrl                   String?  @map("ticket_url") @db.VarChar(500)
+  invoiceUrl                  String?  @map("invoice_url") @db.VarChar(500)
+
+  // Additional Data
+  bookingData                 Json?    @map("booking_data")
+
+  // Timestamps
+  bookedAt        DateTime  @default(now()) @map("booked_at")
+  confirmedAt     DateTime? @map("confirmed_at")
+  cancelledAt     DateTime? @map("cancelled_at")
+  cancellationReason String? @map("cancellation_reason") @db.Text
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  // Relations
+  organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approver           User?               @relation("BookingApprover", fields: [approverId], references: [id], onDelete: SetNull)
+  confirmer          User?               @relation("BookingConfirmer", fields: [confirmerId], references: [id], onDelete: SetNull)
+  creditTransactions CreditTransaction[]
+  flightBookings     FlightBooking[]
+  hotelBookings      HotelBooking[]
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([status])
+  @@index([bookingType])
+  @@index([departureDate])
+  @@index([bookingReference])
+  @@index([isGroupBooking])
+  @@map("bookings")
+}
+
+// ============================================================================
+// FLIGHT BOOKINGS
+// ============================================================================
+
+model FlightBooking {
+  id                    String   @id @default(uuid())
+  bookingId             String   @map("booking_id")
+
+  // Flight Details
+  airline               String   @db.VarChar(100)
+  airlineCode           String?  @map("airline_code") @db.VarChar(10)
+  flightNumber          String   @map("flight_number") @db.VarChar(20)
+
+  // Route
+  departureAirport      String   @map("departure_airport") @db.VarChar(100)
+  departureAirportCode  String   @map("departure_airport_code") @db.VarChar(10)
+  arrivalAirport        String   @map("arrival_airport") @db.VarChar(100)
+  arrivalAirportCode    String   @map("arrival_airport_code") @db.VarChar(10)
+
+  // Times
+  departureTime         DateTime @map("departure_time")
+  arrivalTime           DateTime @map("arrival_time")
+  duration              Int?     // Duration in minutes
+
+  // Flight Details
+  cabinClass            String   @map("cabin_class") @db.VarChar(50) // economy, premium_economy, business, first
+  stops                 Int      @default(0) // Number of stops
+  layoverInfo           Json?    @map("layover_info") // Array of layover details
+
+  // Baggage
+  baggageAllowance      String?  @map("baggage_allowance") @db.VarChar(200)
+  carryOnAllowance      String?  @map("carry_on_allowance") @db.VarChar(200)
+
+  // Seat Information
+  seatNumbers           Json?    @map("seat_numbers") // Array of seat assignments
+
+  // Additional Info
+  aircraft              String?  @db.VarChar(100)
+  terminal              String?  @db.VarChar(50)
+  gate                  String?  @db.VarChar(50)
+
+  // E-ticket
+  eTicketNumbers        Json?    @map("e_ticket_numbers") // Array of e-ticket numbers
+  pnr                   String?  @db.VarChar(20) // Passenger Name Record
+
+  // Timestamps
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  booking               Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([flightNumber])
+  @@index([departureTime])
+  @@map("flight_bookings")
+}
+
+// ============================================================================
+// HOTEL BOOKINGS
+// ============================================================================
+
+model HotelBooking {
+  id                    String   @id @default(uuid())
+  bookingId             String   @map("booking_id")
+
+  // Hotel Details
+  hotelId               String   @map("hotel_id") @db.VarChar(100)
+  hotelName             String   @map("hotel_name") @db.VarChar(200)
+  hotelChain            String?  @map("hotel_chain") @db.VarChar(100)
+  photoUrl              String?  @map("photo_url") @db.VarChar(500)
+
+  // Location
+  address               String   @db.VarChar(500)
+  city                  String   @db.VarChar(100)
+  country               String   @db.VarChar(100)
+  postalCode            String?  @map("postal_code") @db.VarChar(20)
+  latitude              Decimal? @db.Decimal(10, 8)
+  longitude             Decimal? @db.Decimal(11, 8)
+
+  // Stay Details
+  checkInDate           DateTime @map("check_in_date") @db.Date
+  checkOutDate          DateTime @map("check_out_date") @db.Date
+  numberOfNights        Int      @map("number_of_nights")
+  numberOfRooms         Int      @default(1) @map("number_of_rooms")
+
+  // Multi-room support
+  isMultiRoom           Boolean  @default(false) @map("is_multi_room")
+
+  // Room Details (for single room backward compatibility)
+  roomType              String   @map("room_type") @db.VarChar(100)
+  roomDescription       String?  @map("room_description") @db.Text
+  bedType               String?  @map("bed_type") @db.VarChar(100)
+  guestsPerRoom         Int      @default(1) @map("guests_per_room")
+
+  // Amenities & Services
+  amenities             Json?    // Array of amenities
+  mealPlan              String?  @map("meal_plan") @db.VarChar(50) // breakfast_included, half_board, full_board, all_inclusive
+
+  // Special Requests
+  specialRequests       String?  @map("special_requests") @db.Text
+
+  // Room Numbers (assigned after check-in)
+  roomNumbers           Json?    @map("room_numbers") // Array of room numbers
+
+  // Contact
+  hotelPhone            String?  @map("hotel_phone") @db.VarChar(50)
+  hotelEmail            String?  @map("hotel_email") @db.VarChar(200)
+
+  // Cancellation Policy
+  cancellationPolicy    String?  @map("cancellation_policy") @db.Text
+  freeCancellationUntil DateTime? @map("free_cancellation_until")
+
+  // Confirmation
+  confirmationNumber    String?  @map("confirmation_number") @db.VarChar(100)
+
+  // Timestamps
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  booking               Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  rooms                 RoomBookingItem[] // Multi-room bookings
+
+  @@index([bookingId])
+  @@index([hotelId])
+  @@index([checkInDate])
+  @@index([checkOutDate])
+  @@index([isMultiRoom])
+  @@map("hotel_bookings")
+}
+
+// ============================================================================
+// ROOM BOOKING ITEMS (Multi-Room Support)
+// ============================================================================
+
+model RoomBookingItem {
+  id                String   @id @default(uuid())
+  hotelBookingId    String   @map("hotel_booking_id")
+
+  // Room Details
+  roomNumber        Int      @map("room_number") // Room 1, Room 2, etc.
+  offerId           String   @map("offer_id") @db.VarChar(100)
+  roomType          String   @map("room_type") @db.VarChar(100)
+  bedType           String?  @map("bed_type") @db.VarChar(100)
+  roomDescription   String?  @map("room_description") @db.Text
+
+  // Pricing
+  price             Decimal  @db.Decimal(12, 2)
+  currency          String   @default("USD") @db.VarChar(3)
+
+  // Guest Count
+  numberOfGuests    Int      @map("number_of_guests")
+
+  // Assigned Room Number (after check-in)
+  assignedRoomNumber String? @map("assigned_room_number") @db.VarChar(20)
+
+  // Timestamps
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  hotelBooking      HotelBooking @relation(fields: [hotelBookingId], references: [id], onDelete: Cascade)
+  guests            Guest[] // Guests assigned to this room
+
+  @@index([hotelBookingId])
+  @@index([roomNumber])
+  @@map("room_booking_items")
+}
+
+// ============================================================================
+// GUESTS (Per Room)
+// ============================================================================
+
+model Guest {
+  id                String   @id @default(uuid())
+  roomBookingId     String   @map("room_booking_id")
+
+  // Personal Information
+  firstName         String   @map("first_name") @db.VarChar(100)
+  lastName          String   @map("last_name") @db.VarChar(100)
+  email             String   @db.VarChar(200)
+  phone             String   @db.VarChar(50)
+  dateOfBirth       String   @map("date_of_birth") @db.VarChar(50)
+
+  // Address
+  address           String?  @db.VarChar(500)
+  city              String?  @db.VarChar(100)
+  country           String?  @db.VarChar(100)
+
+  // Passport Information
+  passportNumber    String?  @map("passport_number") @db.VarChar(100)
+  passportExpiry    String?  @map("passport_expiry") @db.VarChar(50)
+  passportCountry   String?  @map("passport_country") @db.VarChar(100)
+
+  // Timestamps
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  roomBooking       RoomBookingItem @relation(fields: [roomBookingId], references: [id], onDelete: Cascade)
+
+  @@index([roomBookingId])
+  @@index([email])
+  @@map("guests")
+}
+
+// ============================================================================
+// CREDIT APPLICATIONS
+// ============================================================================
+
+model CreditApplication {
+  id                    String   @id @default(uuid())
+  organizationId        String   @map("organization_id")
+
+  // Application Details
+  requestedAmount       Decimal  @map("requested_amount") @db.Decimal(12, 2)
+  currency              String   @default("USD") @db.VarChar(3)
+
+  // Business Information
+  companyName           String   @map("company_name") @db.VarChar(200)
+  registrationNumber    String?  @map("registration_number") @db.VarChar(100)
+  businessType          String?  @map("business_type") @db.VarChar(100)
+  industry              String?  @db.VarChar(100)
+  yearEstablished       Int?     @map("year_established")
+  numberOfEmployees     Int?     @map("number_of_employees")
+  annualRevenue         Decimal? @map("annual_revenue") @db.Decimal(15, 2)
+
+  // Contact Information
+  contactPersonName     String   @map("contact_person_name") @db.VarChar(200)
+  contactPersonTitle    String?  @map("contact_person_title") @db.VarChar(100)
+  contactEmail          String   @map("contact_email") @db.VarChar(200)
+  contactPhone          String   @map("contact_phone") @db.VarChar(50)
+
+  // Address
+  businessAddress       String   @map("business_address") @db.VarChar(500)
+  city                  String   @db.VarChar(100)
+  state                 String?  @db.VarChar(100)
+  country               String   @db.VarChar(100)
+  postalCode            String   @map("postal_code") @db.VarChar(20)
+
+  // Financial Information
+  bankName              String?  @map("bank_name") @db.VarChar(200)
+  bankAccountNumber     String?  @map("bank_account_number") @db.VarChar(100)
+  taxId                 String?  @map("tax_id") @db.VarChar(100)
+
+  // Credit Terms
+  proposedCreditTerm    Int?     @map("proposed_credit_term") // In days (e.g., 30, 60, 90)
+  estimatedMonthlySpend Decimal? @map("estimated_monthly_spend") @db.Decimal(12, 2)
+
+  // Documents
+  documentsUploaded     Json?    @map("documents_uploaded") // Array of document URLs
+
+  // Application Status
+  status                String   @default("pending") @db.VarChar(30)
+  // pending, under_review, approved, rejected, additional_info_required
+
+  // Review Information
+  reviewedBy            String?  @map("reviewed_by")
+  reviewedAt            DateTime? @map("reviewed_at")
+  reviewNotes           String?  @map("review_notes") @db.Text
+  rejectionReason       String?  @map("rejection_reason") @db.Text
+
+  // Approved Terms
+  approvedAmount        Decimal? @map("approved_amount") @db.Decimal(12, 2)
+  approvedCreditTerm    Int?     @map("approved_credit_term")
+  creditLimitEffectiveDate DateTime? @map("credit_limit_effective_date")
+
+  // Timestamps
+  submittedAt           DateTime @default(now()) @map("submitted_at")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([submittedAt])
+  @@map("credit_applications")
+}
+
+// ============================================================================
+// CREDIT TRANSACTIONS
+// ============================================================================
+
+model CreditTransaction {
+  id               String   @id @default(uuid())
+  organizationId   String   @map("organization_id")
+  userId           String?  @map("user_id")
+
+  // Transaction Details
+  transactionType  String   @map("transaction_type") @db.VarChar(20)
+  // credit_added, credit_deducted, credit_held, credit_released, credit_allocated, credit_refunded
+
+  // Amount
+  amount           Decimal  @db.Decimal(12, 2)
+  currency         String   @default("USD") @db.VarChar(3)
+
+  // Balance After Transaction
+  balanceBefore    Decimal  @map("balance_before") @db.Decimal(12, 2)
+  balanceAfter     Decimal  @map("balance_after") @db.Decimal(12, 2)
+
+  // Related Records
+  bookingId        String?  @map("booking_id")
+  paymentId        String?  @map("payment_id")
+
+  // Payment Information
+  paymentMethod    String?  @map("payment_method") @db.VarChar(50)
+  paymentReference String?  @map("payment_reference") @db.VarChar(100)
+  paymentProvider  String?  @map("payment_provider") @db.VarChar(50)
+
+  // Description
+  description      String   @db.Text
+  notes            String?  @db.Text
+
+  // Metadata
+  createdAt        DateTime @default(now()) @map("created_at")
+  createdBy        String?  @map("created_by")
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  booking      Booking?     @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  creator      User?        @relation("TransactionCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([bookingId])
+  @@index([transactionType])
+  @@index([createdAt])
+  @@map("credit_transactions")
+}
