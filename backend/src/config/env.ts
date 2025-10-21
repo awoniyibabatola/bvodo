@@ -10,8 +10,8 @@ const envSchema = z.object({
   API_VERSION: z.string().default('v1'),
 
   // Database
-  DATABASE_URL: z.string().url(),
-  DIRECT_URL: z.string().url().optional(),
+  DATABASE_URL: z.string().min(1),
+  DIRECT_URL: z.string().min(1).optional(),
 
   // JWT
   JWT_SECRET: z.string().min(10),
