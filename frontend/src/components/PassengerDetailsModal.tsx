@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Users, Plus, Trash2, UserPlus, Check, CreditCard as CreditCardIcon, Plane, Shield, Lock, MapPin, Hotel, Calendar, Clock, ChevronDown, Bed } from 'lucide-react';
 import CreditCard from './CreditCard';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface PassengerDetail {
   firstName: string;
@@ -218,7 +219,7 @@ export default function PassengerDetailsModal({
             const token = localStorage.getItem('accessToken');
             if (!token) return;
 
-            const response = await fetch('http://localhost:5000/api/v1/dashboard/stats', {
+            const response = await fetch(getApiEndpoint('dashboard/stats'), {
               headers: {
                 'Authorization': `Bearer ${token}`,
               },

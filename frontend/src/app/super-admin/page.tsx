@@ -13,6 +13,7 @@ import {
   LogOut,
   AlertTriangle,
 } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface Organization {
   id: string;
@@ -64,10 +65,10 @@ export default function SuperAdminDashboard() {
       }
 
       const [statsRes, orgsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/v1/super-admin/stats', {
+        fetch(getApiEndpoint('super-admin/stats'), {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch('http://localhost:5000/api/v1/super-admin/organizations?limit=10', {
+        fetch(`${getApiEndpoint('super-admin/organizations')}?limit=10`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -89,7 +90,7 @@ export default function SuperAdminDashboard() {
     try {
       const token = localStorage.getItem('accessToken');
       const res = await fetch(
-        `http://localhost:5000/api/v1/super-admin/organizations?search=${searchTerm}&limit=10`,
+        `${getApiEndpoint('super-admin/organizations')}?search=${searchTerm}&limit=10`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -108,7 +109,7 @@ export default function SuperAdminDashboard() {
     try {
       const token = localStorage.getItem('accessToken');
 
-      await fetch('http://localhost:5000/api/v1/auth/logout', {
+      await fetch(getApiEndpoint('auth/logout'), {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -134,7 +135,7 @@ export default function SuperAdminDashboard() {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const res = await fetch('http://localhost:5000/api/v1/super-admin/reset-platform', {
+      const res = await fetch(getApiEndpoint('super-admin/reset-platform'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

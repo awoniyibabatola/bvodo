@@ -38,6 +38,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { getCityCode } from '@/utils/cityMapping';
+import { getApiEndpoint } from '@/lib/api-config';
 import CityAutocomplete from '@/components/CityAutocomplete';
 import AIChatbox from '@/components/AIChatbox';
 import PassengerDetailsModal from '@/components/PassengerDetailsModal';
@@ -178,7 +179,7 @@ export default function HotelDetailsPage() {
         },
       };
 
-      const response = await fetch('http://localhost:5000/api/v1/bookings', {
+      const response = await fetch(getApiEndpoint('bookings'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -227,7 +228,7 @@ export default function HotelDetailsPage() {
         currency: 'USD',
       });
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || getApiEndpoint('').replace('/api/v1/', '');
       const fullUrl = `${apiUrl}/api/v1/hotels/${hotelId}/offers?${params}`;
       console.log('Fetching hotel offers from:', fullUrl);
       const response = await fetch(fullUrl);
@@ -1222,7 +1223,7 @@ export default function HotelDetailsPage() {
 
             console.log('Submitting multi-room booking:', bookingData);
 
-            const response = await fetch('http://localhost:5000/api/v1/bookings', {
+            const response = await fetch(getApiEndpoint('bookings'), {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

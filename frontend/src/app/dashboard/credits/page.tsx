@@ -14,6 +14,7 @@ import {
   Search,
   Calendar
 } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface OrganizationStats {
   organization: {
@@ -65,7 +66,7 @@ export default function ManageCreditsPage() {
       const token = localStorage.getItem('accessToken');
 
       // Fetch stats
-      const statsResponse = await fetch('http://localhost:5000/api/v1/company-admin/stats', {
+      const statsResponse = await fetch(getApiEndpoint('company-admin/stats'), {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const statsData = await statsResponse.json();
@@ -74,7 +75,7 @@ export default function ManageCreditsPage() {
       }
 
       // Fetch users
-      const usersResponse = await fetch('http://localhost:5000/api/v1/company-admin/users?status=active', {
+      const usersResponse = await fetch(`${getApiEndpoint('company-admin/users')}?status=active`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const usersData = await usersResponse.json();
@@ -94,7 +95,7 @@ export default function ManageCreditsPage() {
     setProcessing(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/v1/company-admin/users/${selectedUser.id}/credit/allocate`, {
+      const response = await fetch(getApiEndpoint(`company-admin/users/${selectedUser.id}/credit/allocate`), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

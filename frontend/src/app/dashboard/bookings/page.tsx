@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface Booking {
   id: string;
@@ -83,7 +84,7 @@ export default function BookingsPage() {
       });
 
       const response = await fetch(
-        `http://localhost:5000/api/v1/bookings?${queryParams}`,
+        `${getApiEndpoint('bookings')}?${queryParams}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

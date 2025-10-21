@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Building2, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface Organization {
   id: string;
@@ -48,7 +49,7 @@ export default function OrganizationsPage() {
       setLoading(true);
       const token = localStorage.getItem('accessToken');
       const searchParam = search || searchTerm;
-      const url = `http://localhost:5000/api/v1/super-admin/organizations?page=${pagination.page}&limit=20${searchParam ? `&search=${searchParam}` : ''}`;
+      const url = `${getApiEndpoint('super-admin/organizations')}?page=${pagination.page}&limit=20${searchParam ? `&search=${searchParam}` : ''}`;
 
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -74,7 +75,7 @@ export default function OrganizationsPage() {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      await fetch('http://localhost:5000/api/v1/auth/logout', {
+      await fetch(getApiEndpoint('auth/logout'), {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
       });

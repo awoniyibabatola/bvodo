@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Plane, Building2, User, Mail, Lock, Check, ArrowRight, Sparkles, Shield, Zap, TrendingUp, Users, Globe, Star } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/v1/auth/register', {
+      const response = await fetch(getApiEndpoint('auth/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

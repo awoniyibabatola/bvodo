@@ -24,6 +24,7 @@ import {
   PartyPopper,
 } from 'lucide-react';
 import { getCityCode as getCityCodeFromMap, getCityCodeWithContext, getAmbiguousCityOptions } from '@/utils/cityMapping';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface FlightResult {
   id: string;
@@ -221,7 +222,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
   useEffect(() => {
     const checkClaudeAvailability = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/v1/ai-chat/availability');
+        const response = await fetch(getApiEndpoint('ai-chat/availability'));
         const data = await response.json();
         setClaudeAvailable(data.available);
         console.log('[Claude AI] Availability:', data.available);
@@ -311,7 +312,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
         queryParams.append('travelClass', classMap[params.cabinClass] || 'ECONOMY');
       }
 
-      const apiUrl = `http://localhost:5000/api/v1/flights/search?${queryParams}`;
+      const apiUrl = `${getApiEndpoint('flights/search')}?${queryParams}`;
       console.log('[searchFlights] Making API call to:', apiUrl);
 
       const response = await fetch(apiUrl);
@@ -387,7 +388,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
         console.log('[searchHotels] Using address-based search for:', location);
       }
 
-      const apiUrl = `http://localhost:5000/api/v1/hotels/search?${queryParams}`;
+      const apiUrl = `${getApiEndpoint('hotels/search')}?${queryParams}`;
       console.log('[searchHotels] Making API call to:', apiUrl);
 
       const response = await fetch(apiUrl);
@@ -630,7 +631,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/v1/ai-chat/parse', {
+      const response = await fetch(getApiEndpoint('ai-chat/parse'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

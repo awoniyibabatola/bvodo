@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatCurrency } from '@/utils/currency';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import UserMenu from '@/components/UserMenu';
+import { getApiEndpoint } from '@/lib/api-config';
 import {
   CheckCircle,
   XCircle,
@@ -408,7 +409,7 @@ export default function ApprovalsPage() {
       });
 
       const response = await fetch(
-        `http://localhost:5000/api/v1/bookings?${queryParams}`,
+        `${getApiEndpoint('bookings')}?${queryParams}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -440,7 +441,7 @@ export default function ApprovalsPage() {
       const token = localStorage.getItem('accessToken');
 
       const response = await fetch(
-        `http://localhost:5000/api/v1/bookings/${bookingId}/approve`,
+        getApiEndpoint(`bookings/${bookingId}/approve`),
         {
           method: 'PUT',
           headers: {
@@ -474,7 +475,7 @@ export default function ApprovalsPage() {
       const token = localStorage.getItem('accessToken');
 
       const response = await fetch(
-        `http://localhost:5000/api/v1/bookings/${bookingId}/confirm`,
+        getApiEndpoint(`bookings/${bookingId}/confirm`),
         {
           method: 'PUT',
           headers: {
@@ -507,7 +508,7 @@ export default function ApprovalsPage() {
       const token = localStorage.getItem('accessToken');
 
       const response = await fetch(
-        `http://localhost:5000/api/v1/bookings/${bookingId}/reject`,
+        getApiEndpoint(`bookings/${bookingId}/reject`),
         {
           method: 'PUT',
           headers: {

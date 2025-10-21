@@ -13,6 +13,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import CurrencySwitcher from './CurrencySwitcher';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface UserMenuProps {
   user: {
@@ -45,7 +46,7 @@ export default function UserMenu({ user }: UserMenuProps) {
     try {
       const token = localStorage.getItem('accessToken');
 
-      await fetch('http://localhost:5000/api/v1/auth/logout', {
+      await fetch(getApiEndpoint('auth/logout'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

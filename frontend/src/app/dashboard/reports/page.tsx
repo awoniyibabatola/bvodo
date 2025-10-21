@@ -15,6 +15,7 @@ import {
   MapPin,
   Filter
 } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface Booking {
   id: string;
@@ -74,7 +75,7 @@ export default function ReportsPage() {
       const token = localStorage.getItem('accessToken');
 
       // Fetch stats
-      const statsResponse = await fetch('http://localhost:5000/api/v1/company-admin/stats', {
+      const statsResponse = await fetch(getApiEndpoint('company-admin/stats'), {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const statsData = await statsResponse.json();
@@ -89,7 +90,7 @@ export default function ReportsPage() {
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
 
-      const tripsResponse = await fetch(`http://localhost:5000/api/v1/company-admin/trips?${params}`, {
+      const tripsResponse = await fetch(`${getApiEndpoint('company-admin/trips')}?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const tripsData = await tripsResponse.json();

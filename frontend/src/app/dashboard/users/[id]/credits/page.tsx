@@ -15,6 +15,7 @@ import {
   CheckCircle,
   User
 } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface UserData {
   id: string;
@@ -51,7 +52,7 @@ export default function UserCreditsPage() {
   const fetchUser = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/v1/company-admin/users', {
+      const response = await fetch(getApiEndpoint('company-admin/users'), {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
@@ -84,7 +85,7 @@ export default function UserCreditsPage() {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/v1/company-admin/users/${userId}/credit/allocate`, {
+      const response = await fetch(getApiEndpoint(`company-admin/users/${userId}/credit/allocate`), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -126,7 +127,7 @@ export default function UserCreditsPage() {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/v1/company-admin/users/${userId}/credit/reduce`, {
+      const response = await fetch(getApiEndpoint(`company-admin/users/${userId}/credit/reduce`), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

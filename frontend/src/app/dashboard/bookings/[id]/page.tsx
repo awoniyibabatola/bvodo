@@ -24,6 +24,7 @@ import {
   Info,
   Loader2,
 } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface HotelBooking {
   id: string;
@@ -138,7 +139,7 @@ export default function BookingDetailPage() {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/v1/bookings/${bookingId}`, {
+      const response = await fetch(getApiEndpoint(`bookings/${bookingId}`), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -166,7 +167,7 @@ export default function BookingDetailPage() {
       const token = localStorage.getItem('accessToken');
 
       const response = await fetch(
-        `http://localhost:5000/api/v1/bookings/${booking.id}/approve`,
+        getApiEndpoint(`bookings/${booking.id}/approve`),
         {
           method: 'PUT',
           headers: {
@@ -206,7 +207,7 @@ export default function BookingDetailPage() {
       const token = localStorage.getItem('accessToken');
 
       const response = await fetch(
-        `http://localhost:5000/api/v1/bookings/${booking.id}/reject`,
+        getApiEndpoint(`bookings/${booking.id}/reject`),
         {
           method: 'PUT',
           headers: {

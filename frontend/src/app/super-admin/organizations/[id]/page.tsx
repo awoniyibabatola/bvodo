@@ -15,6 +15,7 @@ import {
   Trash2,
   RotateCcw,
 } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface Organization {
   id: string;
@@ -56,7 +57,7 @@ export default function OrganizationDetailPage() {
       setLoading(true);
       const token = localStorage.getItem('accessToken');
       const res = await fetch(
-        `http://localhost:5000/api/v1/super-admin/organizations/${organizationId}`,
+        getApiEndpoint(`super-admin/organizations/${organizationId}`),
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -86,7 +87,7 @@ export default function OrganizationDetailPage() {
           ? { amount: parseFloat(creditAmount), operation: creditOperation }
           : { amount: parseFloat(creditAmount) };
 
-      const res = await fetch(`http://localhost:5000${endpoint}`, {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -113,7 +114,7 @@ export default function OrganizationDetailPage() {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      await fetch('http://localhost:5000/api/v1/auth/logout', {
+      await fetch(getApiEndpoint('auth/logout'), {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -136,9 +137,9 @@ export default function OrganizationDetailPage() {
       let method = 'POST';
 
       if (resetType === 'credits') {
-        endpoint = `http://localhost:5000/api/v1/super-admin/organizations/${organizationId}/credits/reset`;
+        endpoint = getApiEndpoint(`super-admin/organizations/${organizationId}/credits/reset`);
       } else {
-        endpoint = `http://localhost:5000/api/v1/super-admin/organizations/${organizationId}/bookings`;
+        endpoint = getApiEndpoint(`super-admin/organizations/${organizationId}/bookings`);
         method = 'DELETE';
       }
 

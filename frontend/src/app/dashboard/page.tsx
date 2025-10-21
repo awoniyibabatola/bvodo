@@ -23,6 +23,7 @@ import {
 import AIChatbox from '@/components/AIChatbox';
 import CreditCard from '@/components/CreditCard';
 import UserMenu from '@/components/UserMenu';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface DashboardStats {
   credits: {
@@ -95,7 +96,7 @@ export default function DashboardPage() {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/v1/dashboard/stats', {
+      const response = await fetch(getApiEndpoint('dashboard/stats'), {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

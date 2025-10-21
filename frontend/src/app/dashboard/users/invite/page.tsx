@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, UserPlus, Mail, Loader2, AlertCircle } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 export default function InviteUserPage() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function InviteUserPage() {
         const token = localStorage.getItem('accessToken');
         const org = JSON.parse(localStorage.getItem('organization') || '{}');
 
-        const res = await fetch('http://localhost:5000/api/v1/company-admin/stats', {
+        const res = await fetch(getApiEndpoint('company-admin/stats'), {
           headers: { 'Authorization': `Bearer ${token}` },
         });
 
@@ -68,7 +69,7 @@ export default function InviteUserPage() {
     try {
       const token = localStorage.getItem('accessToken');
 
-      const response = await fetch('http://localhost:5000/api/v1/company-admin/users/invite', {
+      const response = await fetch(getApiEndpoint('company-admin/users/invite'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

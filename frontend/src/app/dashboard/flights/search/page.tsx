@@ -17,6 +17,7 @@ import {
   Luggage,
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
+import { getApiEndpoint } from '@/lib/api-config';
 
 // Airline names mapping
 const AIRLINE_NAMES: { [key: string]: string } = {
@@ -109,7 +110,7 @@ export default function FlightSearchPage() {
         max: '50',
       });
 
-      const response = await fetch(`http://localhost:5000/api/v1/flights/search?${params}`);
+      const response = await fetch(`${getApiEndpoint('flights/search')}?${params}`);
       const data = await response.json();
 
       if (data.success) {
@@ -144,7 +145,7 @@ export default function FlightSearchPage() {
         max: '50',
       });
 
-      const response = await fetch(`http://localhost:5000/api/v1/flights/search?${params}`);
+      const response = await fetch(`${getApiEndpoint('flights/search')}?${params}`);
       const data = await response.json();
 
       if (data.success) {

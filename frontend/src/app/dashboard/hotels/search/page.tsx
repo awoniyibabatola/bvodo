@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { getCityCode } from '@/utils/cityMapping';
 import CityAutocomplete from '@/components/CityAutocomplete';
 import FancyLoader from '@/components/FancyLoader';
+import { getApiEndpoint } from '@/lib/api-config';
 
 // Lazy load the map component
 const HotelMap = lazy(() => import('@/components/HotelMap'));
@@ -121,7 +122,7 @@ export default function HotelSearchPage() {
       });
 
       console.log('[Hotels Search] Fetching with params:', params.toString());
-      const response = await fetch(`http://localhost:5000/api/v1/hotels/search?${params}`);
+      const response = await fetch(`${getApiEndpoint('hotels/search')}?${params}`);
       const data = await response.json();
       console.log('[Hotels Search] API response:', data);
 
@@ -267,7 +268,7 @@ export default function HotelSearchPage() {
         params.append('address', address);
       }
 
-      const response = await fetch(`http://localhost:5000/api/v1/hotels/search?${params}`);
+      const response = await fetch(`${getApiEndpoint('hotels/search')}?${params}`);
       const data = await response.json();
 
       if (data.success) {
@@ -306,7 +307,7 @@ export default function HotelSearchPage() {
         params.append('address', address);
       }
 
-      const response = await fetch(`http://localhost:5000/api/v1/hotels/search?${params}`);
+      const response = await fetch(`${getApiEndpoint('hotels/search')}?${params}`);
       const data = await response.json();
 
       if (data.success) {

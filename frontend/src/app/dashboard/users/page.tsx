@@ -16,6 +16,7 @@ import {
   Clock,
   XCircle
 } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface User {
   id: string;
@@ -52,7 +53,7 @@ export default function ManageUsersPage() {
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (roleFilter !== 'all') params.append('role', roleFilter);
 
-      const response = await fetch(`http://localhost:5000/api/v1/company-admin/users?${params}`, {
+      const response = await fetch(`${getApiEndpoint('company-admin/users')}?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -74,7 +75,7 @@ export default function ManageUsersPage() {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/v1/company-admin/users/${userId}`, {
+      const response = await fetch(getApiEndpoint(`company-admin/users/${userId}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { UserPlus, Lock, Eye, EyeOff, CheckCircle, AlertCircle, Loader2, Building2 } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 function AcceptInvitationContent() {
   const router = useRouter();
@@ -50,7 +51,7 @@ function AcceptInvitationContent() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/v1/auth/accept-invitation', {
+      const response = await fetch(getApiEndpoint('auth/accept-invitation'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

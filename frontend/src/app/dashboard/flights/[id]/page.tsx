@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import PassengerDetailsModal from '@/components/PassengerDetailsModal';
+import { getApiEndpoint } from '@/lib/api-config';
 
 // Airline names mapping
 const AIRLINE_NAMES: { [key: string]: string } = {
@@ -159,7 +160,7 @@ export default function FlightDetailsPage() {
         },
       };
 
-      const response = await fetch('http://localhost:5000/api/v1/bookings', {
+      const response = await fetch(getApiEndpoint('bookings'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

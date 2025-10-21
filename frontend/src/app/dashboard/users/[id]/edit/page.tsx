@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2, User, Mail, Briefcase, Shield } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface UserData {
   id: string;
@@ -43,7 +44,7 @@ export default function EditUserPage() {
   const fetchUser = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:5000/api/v1/company-admin/users', {
+      const response = await fetch(getApiEndpoint('company-admin/users'), {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
@@ -79,7 +80,7 @@ export default function EditUserPage() {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/v1/company-admin/users/${userId}`, {
+      const response = await fetch(getApiEndpoint(`company-admin/users/${userId}`), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
