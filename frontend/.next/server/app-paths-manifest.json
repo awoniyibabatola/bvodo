@@ -3,5 +3,6 @@
   "/login/page": "app/login/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/register/page": "app/register/page.js",
-  "/dashboard/flights/search/page": "app/dashboard/flights/search/page.js"
+  "/dashboard/flights/search/page": "app/dashboard/flights/search/page.js",
+  "/dashboard/flights/[id]/page": "app/dashboard/flights/[id]/page.js"
 }
