@@ -31,10 +31,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/super-admin/page.js"
     ],
-    "/not-found": [
+    "/dashboard/hotels/search/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/not-found.js"
+      "static/chunks/app/dashboard/hotels/search/page.js"
+    ],
+    "/dashboard/flights/search/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/flights/search/page.js"
     ]
   }
 }
