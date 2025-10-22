@@ -266,13 +266,13 @@ export default function DashboardPage() {
         <div className="flex flex-col lg:flex-row gap-3 mb-8 md:mb-10">
           {/* Credit Card - Flippable */}
           <div
-            className="group cursor-pointer flex-shrink-0 w-full max-w-[400px] h-[220px] mx-auto lg:mx-0"
+            className="group cursor-pointer flex-shrink-0 w-full max-w-[400px] h-[240px] md:h-[220px] mx-auto lg:mx-0"
             onClick={() => setIsCardFlipped(!isCardFlipped)}
           >
             <div className="relative w-full h-full perspective-1000">
               <div className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${isCardFlipped ? 'rotate-y-180' : ''}`}>
               {/* Front of Card */}
-              <div className="absolute w-full h-full backface-hidden">
+              <div className="absolute w-full h-full backface-hidden" style={{backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden'}}>
                 <CreditCard
                   organizationName={user.organization}
                   availableBalance={dashboardStats?.credits.available || 0}
@@ -281,7 +281,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Back of Card */}
-              <div className="absolute w-full h-full backface-hidden rotate-y-180">
+              <div className="absolute w-full h-full backface-hidden rotate-y-180" style={{backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden'}}>
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur-xl opacity-30"></div>
                 <div className="relative h-full bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl shadow-2xl overflow-hidden flex flex-col">
                   {/* Magnetic stripe */}
@@ -396,14 +396,14 @@ export default function DashboardPage() {
 
           {/* Corporate Travel Tips */}
           <div className="flex-1 w-full max-w-[400px] mx-auto lg:max-w-none lg:mx-0">
-            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 backdrop-blur-xl rounded-xl p-4 md:p-5 border border-blue-200 shadow-sm h-auto lg:h-[220px] overflow-hidden">
+            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 backdrop-blur-xl rounded-xl p-4 md:p-5 pb-5 md:pb-6 border border-blue-200 shadow-sm h-auto lg:h-[220px]">
               <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                 <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Travel Smart</h3>
               </div>
-              <div className="grid grid-cols-2 gap-2.5 md:gap-3">
+              <div className="grid grid-cols-2 gap-2.5 md:gap-3 pb-1">
                 <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-blue-100">
                   <div className="flex-shrink-0 w-1 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
                   <div>

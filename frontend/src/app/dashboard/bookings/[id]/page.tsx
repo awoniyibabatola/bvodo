@@ -333,10 +333,79 @@ export default function BookingDetailPage() {
   const hotelDetails = hotelBooking; // Hotel details are on the hotelBooking object itself
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
+    <>
+      <style jsx global>{`
+        @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+
+          body {
+            background: white !important;
+            margin: 0;
+            padding: 0;
+          }
+
+          .no-print {
+            display: none !important;
+          }
+
+          .print-only {
+            display: block !important;
+          }
+
+          .print-container {
+            max-width: 210mm !important;
+            margin: 0 auto !important;
+            padding: 20mm !important;
+            background: white !important;
+          }
+
+          .print-full-width {
+            max-width: 100% !important;
+          }
+
+          .page-break-before {
+            page-break-before: always;
+          }
+
+          .page-break-after {
+            page-break-after: always;
+          }
+
+          .avoid-break {
+            page-break-inside: avoid;
+          }
+
+          /* Hide sidebar on print, show invoice at top */
+          .print-hide-sidebar {
+            display: none !important;
+          }
+
+          .print-invoice {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+          }
+
+          /* Ensure gradients and colors print */
+          .print-preserve-bg {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        }
+
+        .print-only {
+          display: none;
+        }
+      `}</style>
+
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 md:p-8 print:bg-white print:p-0">
+        <div className="max-w-6xl mx-auto print-full-width">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6 no-print">
           <Link
             href="/dashboard/bookings"
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold mb-4"
@@ -353,7 +422,7 @@ export default function BookingDetailPage() {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 no-print">
               <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${getStatusColor(booking.status)}`}>
                 {getStatusIcon(booking.status)}
                 <span className="font-semibold capitalize">{booking.status.replace('_', ' ')}</span>
@@ -396,9 +465,35 @@ export default function BookingDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Print-only Company Header */}
+        <div className="print-only mb-8 pb-6 border-b-2 border-gray-300">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">B</span>
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">bvodo</h1>
+                  <p className="text-sm text-gray-600">Corporate Travel Solutions</p>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 space-y-0.5">
+                <p>Email: support@bvodo.com</p>
+                <p>Web: www.bvodo.com</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold text-gray-900 mb-1">INVOICE</p>
+              <p className="text-sm text-gray-600">#{booking.bookingReference}</p>
+              <p className="text-sm text-gray-600">{formatDate(booking.bookedAt)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 print:grid-cols-1">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 print-hide-sidebar">
             {/* Hotel Overview with Image */}
             {hotelDetails && (
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-200">
@@ -681,44 +776,136 @@ export default function BookingDetailPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Price Summary */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-200">
-              <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-6 h-6 text-white" />
-                  <h2 className="text-xl font-bold text-white">Price Summary</h2>
+          <div className="space-y-6 print-invoice">
+            {/* Invoice - Enhanced Design */}
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 print-preserve-bg avoid-break">
+              {/* Invoice Header */}
+              <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 px-6 py-8">
+                {/* Decorative pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute inset-0" style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                  }}></div>
+                </div>
+                <div className="relative">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white mb-1">INVOICE</h2>
+                      <p className="text-blue-200 text-sm">Payment Receipt</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <CreditCard className="w-4 h-4 text-emerald-400" />
+                        <span className="text-white text-sm font-semibold">PAID</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-200 text-xs uppercase tracking-wider">Invoice #</span>
+                      <span className="text-white font-mono text-sm">{booking.bookingReference}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-200 text-xs uppercase tracking-wider">Date</span>
+                      <span className="text-white text-sm">{formatDate(booking.bookedAt)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-6 space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Base Price</span>
-                  <span className="font-semibold text-gray-900">
-                    {booking.currency} ${parseFloat(booking.basePrice.toString()).toFixed(2)}
-                  </span>
+              {/* Invoice Details */}
+              <div className="p-6 space-y-6">
+                {/* Billing Info */}
+                <div className="pb-6 border-b border-gray-200">
+                  <h3 className="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-3">Bill To</h3>
+                  <div className="space-y-1">
+                    <p className="font-semibold text-gray-900 text-lg">
+                      {booking.user.firstName} {booking.user.lastName}
+                    </p>
+                    <p className="text-gray-600 text-sm">{booking.user.email}</p>
+                    <p className="text-gray-600 text-sm">{booking.user.phone}</p>
+                  </div>
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Taxes & Fees</span>
-                  <span className="font-semibold text-gray-900">
-                    {booking.currency} ${parseFloat(booking.taxesFees.toString()).toFixed(2)}
-                  </span>
+                {/* Line Items */}
+                <div>
+                  <h3 className="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-4">Description</h3>
+                  <div className="space-y-3">
+                    {/* Hotel Service */}
+                    <div className="flex justify-between items-start pb-3 border-b border-gray-100">
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900 mb-1">
+                          {hotelDetails?.hotelName || 'Hotel Accommodation'}
+                        </p>
+                        <div className="space-y-0.5">
+                          <p className="text-xs text-gray-500">
+                            {formatDate(hotelDetails?.checkInDate || booking.departureDate)} - {formatDate(hotelDetails?.checkOutDate || booking.returnDate)}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {hotelDetails?.numberOfRooms || 1} Room{(hotelDetails?.numberOfRooms || 1) > 1 ? 's' : ''} × {hotelDetails?.numberOfNights || 1} Night{(hotelDetails?.numberOfNights || 1) > 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-gray-900 ml-4">
+                        {booking.currency} {parseFloat(booking.basePrice.toString()).toFixed(2)}
+                      </span>
+                    </div>
+
+                    {/* Taxes & Fees */}
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-gray-600 text-sm">Taxes & Service Fees</span>
+                      <span className="font-medium text-gray-900">
+                        {booking.currency} {parseFloat(booking.taxesFees.toString()).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="border-t-2 border-gray-200 pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-gray-900">Total</span>
-                    <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                      {booking.currency} ${parseFloat(booking.totalPrice.toString()).toFixed(2)}
-                    </span>
+                {/* Total Section */}
+                <div className="pt-4 border-t-2 border-gray-300">
+                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 border border-emerald-200">
+                    <div className="flex justify-between items-center mb-2">
+                      <div>
+                        <p className="text-xs uppercase tracking-wider text-emerald-700 font-semibold mb-1">Amount Due</p>
+                        <p className="text-xs text-emerald-600">Paid via Company Credits</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-3xl font-bold text-gray-900">
+                          {booking.currency} {parseFloat(booking.totalPrice.toString()).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Method */}
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <CreditCard className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider">Payment Method</p>
+                      <p className="font-semibold text-gray-900">Company Travel Credits</p>
+                    </div>
+                    <CheckCircle className="w-5 h-5 text-emerald-500" />
+                  </div>
+                </div>
+
+                {/* Footer Note */}
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-start gap-2 text-xs text-gray-500">
+                    <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <p className="leading-relaxed">
+                      This is an automated invoice for your booking. For any questions or concerns, please contact our support team.
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Booking Information */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-200">
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-gray-200 no-print">
               <div className="bg-gray-100 px-6 py-4">
                 <h2 className="text-lg font-bold text-gray-900">Booking Information</h2>
               </div>
@@ -755,7 +942,7 @@ export default function BookingDetailPage() {
 
             {/* Actions */}
             {booking.status?.toLowerCase() === 'confirmed' && (
-              <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+              <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl shadow-lg p-6 text-white no-print">
                 <h3 className="text-lg font-bold mb-3">Need Help?</h3>
                 <p className="text-blue-100 text-sm mb-4">
                   Contact our support team if you need to modify or cancel your booking.
@@ -765,6 +952,29 @@ export default function BookingDetailPage() {
                 </button>
               </div>
             )}
+
+            {/* Print-only Footer */}
+            <div className="print-only mt-12 pt-6 border-t-2 border-gray-300">
+              <div className="text-center space-y-4">
+                <div className="flex items-center justify-center gap-8 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4" />
+                    <span>support@bvodo.com</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4" />
+                    <span>+1 (555) 123-4567</span>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500">
+                  <p className="mb-1">Thank you for choosing bvodo for your corporate travel needs.</p>
+                  <p>This invoice was generated electronically and is valid without signature.</p>
+                </div>
+                <div className="text-xs text-gray-400 pt-4">
+                  <p>© {new Date().getFullYear()} bvodo. All rights reserved.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -895,7 +1105,8 @@ export default function BookingDetailPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
