@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { Plane, ArrowLeft } from 'lucide-react';
+import { Plane, ArrowLeft, Menu, X } from 'lucide-react';
 import UserMenu from './UserMenu';
 
 interface NavLink {
@@ -32,6 +33,7 @@ export default function UnifiedNavBar({
   backButtonHref = '/dashboard',
   backButtonLabel = 'Back to Dashboard',
 }: UnifiedNavBarProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // Define navigation links based on user role
   const getNavLinks = (): NavLink[] => {
     if (user.role === 'super_admin') {
@@ -75,7 +77,7 @@ export default function UnifiedNavBar({
     <nav className="relative bg-white/80 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
       <div className="w-full px-4 md:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4 md:gap-8">
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-3 group">
               <div className="relative">
@@ -100,7 +102,7 @@ export default function UnifiedNavBar({
               </Link>
             )}
 
-            {/* Navigation Links */}
+            {/* Desktop Navigation Links */}
             {!showBackButton && (
               <div className="hidden md:flex gap-2">
                 {navLinks.map((link) => (
@@ -122,9 +124,46 @@ export default function UnifiedNavBar({
             )}
           </div>
 
-          {/* User Menu */}
-          <UserMenu user={user} />
+          <div className="flex items-center gap-2">
+            {/* Mobile Menu Button */}
+            {!showBackButton && (
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            )}
+
+            {/* User Menu */}
+            <UserMenu user={user} />
+          </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {!showBackButton && mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 py-4">
+            <div className="flex flex-col gap-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.key}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={
+                    link.gradient
+                      ? 'px-4 py-3 text-white font-medium bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl hover:shadow-lg transition text-center'
+                      : isActive(link.key)
+                      ? 'px-4 py-3 text-gray-900 font-medium bg-gray-100 rounded-xl'
+                      : 'px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition'
+                  }
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
