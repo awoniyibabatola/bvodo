@@ -21,6 +21,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
+import UnifiedNavBar from '@/components/UnifiedNavBar';
 
 interface OrganizationStats {
   organization: {
@@ -54,6 +55,12 @@ interface User {
 
 export default function ManageCreditsPage() {
   const router = useRouter();
+  const [user, setUser] = useState({
+    name: 'User',
+    role: 'traveler',
+    email: '',
+    organization: '',
+  });
   const [stats, setStats] = useState<OrganizationStats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,6 +73,16 @@ export default function ManageCreditsPage() {
   const [creditApplications, setCreditApplications] = useState<any[]>([]);
 
   useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser({
+        name: `${parsedUser.firstName} ${parsedUser.lastName}`,
+        role: parsedUser.role,
+        email: parsedUser.email,
+        organization: parsedUser.organization || '',
+      });
+    }
     fetchData();
   }, []);
 
@@ -156,16 +173,12 @@ export default function ManageCreditsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
+      {/* Navigation */}
+      <UnifiedNavBar currentPage="dashboard" user={user} />
+
       <div className="w-full px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </Link>
           <div className="flex items-center gap-3">
             <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg">
               <DollarSign className="w-6 h-6 text-white" />

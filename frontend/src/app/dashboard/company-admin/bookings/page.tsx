@@ -17,6 +17,7 @@ import {
   User,
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
+import UnifiedNavBar from '@/components/UnifiedNavBar';
 
 interface Booking {
   id: string;
@@ -39,6 +40,12 @@ interface Booking {
 type ViewMode = 'calendar' | 'table';
 
 export default function CompanyAdminBookingsPage() {
+  const [user, setUser] = useState({
+    name: 'User',
+    role: 'traveler',
+    email: '',
+    organization: '',
+  });
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
@@ -46,6 +53,16 @@ export default function CompanyAdminBookingsPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser({
+        name: `${parsedUser.firstName} ${parsedUser.lastName}`,
+        role: parsedUser.role,
+        email: parsedUser.email,
+        organization: parsedUser.organization || '',
+      });
+    }
     fetchBookings();
   }, []);
 
@@ -349,6 +366,9 @@ export default function CompanyAdminBookingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <UnifiedNavBar currentPage="bookings" user={user} />
+
       <div className="w-full px-4 md:px-6 lg:px-8 py-6 md:py-8">
         {/* Header */}
         <div className="mb-6 md:mb-8">

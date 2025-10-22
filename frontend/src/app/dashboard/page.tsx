@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import CreditCard from '@/components/CreditCard';
-import UserMenu from '@/components/UserMenu';
+import UnifiedNavBar from '@/components/UnifiedNavBar';
 import { getApiEndpoint } from '@/lib/api-config';
 
 interface DashboardStats {
@@ -58,6 +58,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState({
     name: 'John Doe',
     role: 'admin',
+    email: '',
     organization: 'Acme Corporation',
     avatar: '',
   });
@@ -79,6 +80,7 @@ export default function DashboardPage() {
       setUser({
         name: `${parsedUser.firstName} ${parsedUser.lastName}`,
         role: parsedUser.role,
+        email: parsedUser.email,
         organization: parsedOrg.name,
         avatar: parsedUser.avatarUrl || '',
       });
@@ -132,45 +134,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Navigation */}
-      <nav className="relative bg-white/80 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
-        <div className="w-full px-4 md:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center gap-3 group">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-50 group-hover:opacity-75 transition"></div>
-                  <div className="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                    <Plane className="text-white w-5 h-5" />
-                  </div>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">bvodo</span>
-              </Link>
-              <div className="hidden md:flex gap-2">
-                <Link href="/dashboard" className="px-4 py-2 text-gray-900 font-medium bg-gray-100 rounded-xl">Dashboard</Link>
-                {user.role === 'super_admin' ? (
-                  <Link href="/super-admin" className="px-4 py-2 text-white font-medium bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl hover:shadow-lg transition">Super Admin</Link>
-                ) : (
-                  <>
-                    <Link href="/dashboard/bookings" className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition">Bookings</Link>
-                    <Link href="/dashboard/flights/search" className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition">Flights</Link>
-                    <Link href="/dashboard/hotels/search" className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition">Hotels</Link>
-                    {(user.role === 'admin' || user.role === 'manager' || user.role === 'company_admin') && (
-                      <Link href="/dashboard/approvals" className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition">Approvals</Link>
-                    )}
-                    {(user.role === 'admin' || user.role === 'company_admin') && (
-                      <>
-                        <Link href="/dashboard/users" className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition">Users</Link>
-                        <Link href="/dashboard/reports" className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition">Reports</Link>
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-            <UserMenu user={user} />
-          </div>
-        </div>
-      </nav>
+      <UnifiedNavBar currentPage="dashboard" user={user} />
 
       {/* Main Content */}
       <main className="relative w-full px-4 md:px-6 lg:px-8 py-8">

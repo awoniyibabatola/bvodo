@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import { getApiEndpoint } from '@/lib/api-config';
+import UnifiedNavBar from '@/components/UnifiedNavBar';
 
 // Airline names mapping
 const AIRLINE_NAMES: { [key: string]: string } = {
@@ -52,6 +53,12 @@ const getAirlineLogo = (code: string) => {
 
 export default function FlightSearchPage() {
   const searchParams = useSearchParams();
+  const [user, setUser] = useState({
+    name: 'User',
+    role: 'traveler',
+    email: '',
+    organization: '',
+  });
   const [tripType, setTripType] = useState<'roundtrip' | 'oneway'>('roundtrip');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -64,6 +71,19 @@ export default function FlightSearchPage() {
   const [error, setError] = useState('');
   const [selectedAirline, setSelectedAirline] = useState<string>('all');
   const [showSearchForm, setShowSearchForm] = useState(false);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser({
+        name: `${parsedUser.firstName} ${parsedUser.lastName}`,
+        role: parsedUser.role,
+        email: parsedUser.email,
+        organization: parsedUser.organization || '',
+      });
+    }
+  }, []);
 
   // Read URL params and trigger search on mount
   useEffect(() => {
@@ -174,20 +194,8 @@ export default function FlightSearchPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
-        <div className="w-full px-4 md:px-6 lg:px-8">
-          <div className="flex items-center gap-2 md:gap-4 h-12 md:h-16">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-1.5 md:gap-2 text-gray-600 hover:text-gray-900 transition"
-            >
-              <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="text-sm md:text-base font-medium">Back</span>
-            </Link>
-          </div>
-        </div>
-      </div>
+      {/* Navigation */}
+      <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
 
       {/* Main Content */}
       <div className="w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">

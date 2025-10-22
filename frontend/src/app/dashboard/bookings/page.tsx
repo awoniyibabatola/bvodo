@@ -24,6 +24,7 @@ import {
   List,
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
+import UnifiedNavBar from '@/components/UnifiedNavBar';
 
 interface Booking {
   id: string;
@@ -58,6 +59,12 @@ interface Booking {
 type ViewMode = 'list' | 'calendar' | 'table';
 
 export default function BookingsPage() {
+  const [user, setUser] = useState({
+    name: 'User',
+    role: 'traveler',
+    email: '',
+    organization: '',
+  });
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -75,6 +82,16 @@ export default function BookingsPage() {
   });
 
   useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser({
+        name: `${parsedUser.firstName} ${parsedUser.lastName}`,
+        role: parsedUser.role,
+        email: parsedUser.email,
+        organization: parsedUser.organization || '',
+      });
+    }
     fetchBookings();
   }, [pagination.page, filters]);
 
@@ -215,51 +232,7 @@ export default function BookingsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
-        <div className="w-full px-4 md:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center gap-3 group">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-50 group-hover:opacity-75 transition"></div>
-                  <div className="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                    <Plane className="text-white w-5 h-5" />
-                  </div>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  bvodo
-                </span>
-              </Link>
-              <div className="hidden md:flex gap-2">
-                <Link
-                  href="/dashboard"
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/dashboard/bookings"
-                  className="px-4 py-2 text-gray-900 font-medium bg-gray-100 rounded-xl"
-                >
-                  Bookings
-                </Link>
-                <Link
-                  href="/dashboard/flights/search"
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition"
-                >
-                  Flights
-                </Link>
-                <Link
-                  href="/dashboard/hotels/search"
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition"
-                >
-                  Hotels
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <UnifiedNavBar currentPage="bookings" user={user} />
 
       {/* Main Content */}
       <main className="w-full px-4 md:px-6 lg:px-8 py-8">
