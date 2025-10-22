@@ -23,6 +23,8 @@ export const sendEmail = async (options: EmailOptions): Promise<boolean> => {
   try {
     if (!env.SENDGRID_API_KEY || !env.SENDGRID_FROM_EMAIL) {
       logger.warn('SendGrid not configured. Email not sent:', options.subject);
+      logger.warn('SENDGRID_API_KEY present:', !!env.SENDGRID_API_KEY);
+      logger.warn('SENDGRID_FROM_EMAIL present:', !!env.SENDGRID_FROM_EMAIL);
       return false;
     }
 
@@ -34,11 +36,20 @@ export const sendEmail = async (options: EmailOptions): Promise<boolean> => {
       text: options.text || '',
     };
 
+    logger.info(`Attempting to send email to ${options.to}: ${options.subject}`);
+    logger.info(`Using from email: ${env.SENDGRID_FROM_EMAIL}`);
+
     await sgMail.send(msg);
-    logger.info(`Email sent successfully to ${options.to}: ${options.subject}`);
+    logger.info(`✅ Email sent successfully to ${options.to}: ${options.subject}`);
     return true;
-  } catch (error) {
-    logger.error('Error sending email:', error);
+  } catch (error: any) {
+    logger.error('❌ Error sending email:', {
+      message: error.message,
+      code: error.code,
+      response: error.response?.body,
+      to: options.to,
+      subject: options.subject,
+    });
     return false;
   }
 };
