@@ -349,7 +349,7 @@ export default function CompanyAdminBookingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-3 md:px-4 py-6 md:py-8">
+      <div className="w-full px-4 md:px-6 lg:px-8 py-6 md:py-8">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Company Bookings</h1>

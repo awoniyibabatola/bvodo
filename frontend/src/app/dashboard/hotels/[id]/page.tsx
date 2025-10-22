@@ -326,7 +326,7 @@ export default function HotelDetailsPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
         <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-4 md:px-6 lg:px-8">
             <div className="flex items-center gap-4 h-16">
               <Link
                 href="/dashboard/hotels/search"
@@ -338,7 +338,7 @@ export default function HotelDetailsPage() {
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full px-4 md:px-6 lg:px-8 py-8">
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
             <p className="text-red-700">{error}</p>
             <p className="text-sm text-gray-600 mt-2">Please try another hotel or different dates.</p>
@@ -352,7 +352,7 @@ export default function HotelDetailsPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
         <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-4 md:px-6 lg:px-8">
             <div className="flex items-center gap-4 h-16">
               <Link
                 href="/dashboard/hotels/search"
@@ -364,7 +364,7 @@ export default function HotelDetailsPage() {
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="w-full px-4 md:px-6 lg:px-8 py-8">
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
             <p className="text-yellow-700">Hotel information not available</p>
           </div>
@@ -416,7 +416,7 @@ export default function HotelDetailsPage() {
     <div className="min-h-screen bg-white">
       {/* Floating Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-4">
+        <div className="w-full px-4 md:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link
               href="/dashboard/hotels/search"
@@ -446,7 +446,7 @@ export default function HotelDetailsPage() {
       </header>
 
       {/* Hero Section - Modern Image Gallery */}
-      <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-12 py-4 md:py-6">
+      <div className="w-full px-4 md:px-6 lg:px-8 py-4 md:py-6">
         {/* Photo Gallery Grid */}
         <div className="relative mb-8">
           <div className="grid grid-cols-4 gap-2 h-[300px] md:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden">
