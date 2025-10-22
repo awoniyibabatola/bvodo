@@ -161,7 +161,7 @@ export default function DashboardPage() {
             <span className="px-2 py-0.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[10px] md:text-xs font-bold rounded-full">NEW</span>
           </div>
           {/* Horizontal scrollable container */}
-          <div className="overflow-x-auto pb-3 md:pb-4 -mx-4 px-4 scrollbar-hide">
+          <div className="overflow-x-auto pb-3 md:pb-4 -mx-4 px-4 scrollbar-hide py-2">
             <div className="flex gap-3 md:gap-4 min-w-max">
             {/* Suggestion 1 - Quick Flight */}
             <button
@@ -395,15 +395,15 @@ export default function DashboardPage() {
           </div>
 
           {/* Corporate Travel Tips */}
-          <div className="flex-1 w-full max-w-[400px] mx-auto lg:max-w-none lg:mx-0">
-            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 backdrop-blur-xl rounded-xl p-4 md:p-5 pb-5 md:pb-6 border border-blue-200 shadow-sm h-auto lg:h-[220px]">
-              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg">
-                  <Sparkles className="w-5 h-5 text-white" />
+          <div className="flex-1 w-full max-w-[400px] mx-auto lg:max-w-none lg:mx-0 h-auto lg:h-[220px]">
+            <div className="bg-white backdrop-blur-xl rounded-xl p-3 md:p-4 border border-gray-200 shadow-sm h-full flex flex-col">
+              <div className="flex items-center gap-2 mb-2 md:mb-3 flex-shrink-0">
+                <div className="p-1.5 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg">
+                  <Sparkles className="w-4 h-4 text-white" />
                 </div>
-                <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Travel Smart</h3>
+                <h3 className="text-sm md:text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Travel Smart</h3>
               </div>
-              <div className="grid grid-cols-2 gap-2.5 md:gap-3 pb-1">
+              <div className="grid grid-cols-2 gap-2 md:gap-2.5 flex-1">
                 <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-blue-100">
                   <div className="flex-shrink-0 w-1 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
                   <div>

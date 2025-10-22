@@ -72,14 +72,14 @@ export const sendCreditApplicationSubmittedEmail = async (
       <title>Credit Application Received</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">
                     ✅ Application Received
                   </h1>
@@ -88,7 +88,7 @@ export const sendCreditApplicationSubmittedEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Hello ${companyName},
                   </h2>
@@ -98,9 +98,9 @@ export const sendCreditApplicationSubmittedEmail = async (
                   </p>
 
                   <!-- Application Summary Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">
                           Application Summary
                         </h3>
@@ -123,7 +123,7 @@ export const sendCreditApplicationSubmittedEmail = async (
                   </table>
 
                   <!-- What's Next -->
-                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 24px; margin: 30px 0;">
+                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 16px 0; color: #1e40af; font-size: 18px; font-weight: 600;">
                       📋 What Happens Next?
                     </h3>
@@ -146,7 +146,7 @@ export const sendCreditApplicationSubmittedEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     Best regards,<br>
                     <strong style="color: #111827;">The bvodo Team</strong>
@@ -214,14 +214,14 @@ export const sendCreditApplicationApprovedEmail = async (
       <title>Credit Application Approved!</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">
                     🎉 Congratulations!
                   </h1>
@@ -233,7 +233,7 @@ export const sendCreditApplicationApprovedEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Great news, ${companyName}!
                   </h2>
@@ -243,9 +243,9 @@ export const sendCreditApplicationApprovedEmail = async (
                   </p>
 
                   <!-- Approved Amount Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 32px; text-align: center;">
+                      <td style="padding: 20px; text-align: center;">
                         <p style="margin: 0 0 8px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
                           Approved Credit Amount
                         </p>
@@ -257,7 +257,7 @@ export const sendCreditApplicationApprovedEmail = async (
                   </table>
 
                   <!-- Next Steps -->
-                  <div style="background-color: #f9fafb; border-radius: 12px; border-left: 4px solid #10b981; padding: 24px; margin: 30px 0;">
+                  <div style="background-color: #f9fafb; border-radius: 12px; border-left: 4px solid #10b981; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">
                       ✨ Start Using Your Credits
                     </h3>
@@ -277,7 +277,7 @@ export const sendCreditApplicationApprovedEmail = async (
 
               <!-- CTA Button -->
               <tr>
-                <td style="padding: 0 30px 40px 30px; text-align: center;">
+                <td style="padding: 0 20px 24px 20px; text-align: center;">
                   <a href="${env.FRONTEND_URL}/dashboard" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
                     Go to Dashboard
                   </a>
@@ -286,7 +286,7 @@ export const sendCreditApplicationApprovedEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     Best regards,<br>
                     <strong style="color: #111827;">The bvodo Team</strong>
@@ -352,14 +352,14 @@ export const sendCreditApplicationRejectedEmail = async (
       <title>Credit Application Update</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">
                     Credit Application Update
                   </h1>
@@ -368,7 +368,7 @@ export const sendCreditApplicationRejectedEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Hello ${companyName},
                   </h2>
@@ -378,9 +378,9 @@ export const sendCreditApplicationRejectedEmail = async (
                   </p>
 
                   <!-- Reason Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef2f2; border-radius: 12px; border-left: 4px solid #ef4444; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef2f2; border-radius: 12px; border-left: 4px solid #ef4444; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <h3 style="margin: 0 0 12px 0; color: #991b1b; font-size: 16px; font-weight: 600;">
                           Reason for Decline
                         </h3>
@@ -392,7 +392,7 @@ export const sendCreditApplicationRejectedEmail = async (
                   </table>
 
                   <!-- Alternative Options -->
-                  <div style="background-color: #f9fafb; border-radius: 12px; padding: 24px; margin: 30px 0;">
+                  <div style="background-color: #f9fafb; border-radius: 12px; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">
                       📌 Next Steps
                     </h3>
@@ -411,7 +411,7 @@ export const sendCreditApplicationRejectedEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     Best regards,<br>
                     <strong style="color: #111827;">The bvodo Team</strong>
@@ -476,14 +476,14 @@ export const sendAccountCreatedEmail = async (
       <title>Welcome to bvodo!</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">
                     🎉 Welcome to bvodo!
                   </h1>
@@ -495,7 +495,7 @@ export const sendAccountCreatedEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Hello ${firstName}!
                   </h2>
@@ -505,9 +505,9 @@ export const sendAccountCreatedEmail = async (
                   </p>
 
                   <!-- Organization Details Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">
                           Your Account Details
                         </h3>
@@ -536,7 +536,7 @@ export const sendAccountCreatedEmail = async (
                   </table>
 
                   <!-- Getting Started -->
-                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 24px; margin: 30px 0;">
+                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 16px 0; color: #1e40af; font-size: 18px; font-weight: 600;">
                       🚀 Get Started in 3 Easy Steps
                     </h3>
@@ -555,7 +555,7 @@ export const sendAccountCreatedEmail = async (
 
               <!-- CTA Button -->
               <tr>
-                <td style="padding: 0 30px 40px 30px; text-align: center;">
+                <td style="padding: 0 20px 24px 20px; text-align: center;">
                   <a href="${env.FRONTEND_URL}/dashboard" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
                     Go to Dashboard
                   </a>
@@ -564,7 +564,7 @@ export const sendAccountCreatedEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     Best regards,<br>
                     <strong style="color: #111827;">The bvodo Team</strong>
@@ -639,14 +639,14 @@ export const sendTeamInvitationEmail = async (
       <title>You're Invited to bvodo</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">
                     ✉️ You're Invited!
                   </h1>
@@ -658,7 +658,7 @@ export const sendTeamInvitationEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Hello ${firstName} ${lastName},
                   </h2>
@@ -668,9 +668,9 @@ export const sendTeamInvitationEmail = async (
                   </p>
 
                   <!-- Invitation Details Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">
                           Invitation Details
                         </h3>
@@ -707,7 +707,7 @@ export const sendTeamInvitationEmail = async (
                   </table>
 
                   <!-- Instructions -->
-                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 24px; margin: 30px 0;">
+                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 16px 0; color: #1e40af; font-size: 18px; font-weight: 600;">
                       📋 Complete Your Registration
                     </h3>
@@ -719,7 +719,7 @@ export const sendTeamInvitationEmail = async (
                   </div>
 
                   <!-- Warning Box -->
-                  <div style="background-color: #fef3c7; border-radius: 12px; border-left: 4px solid #f59e0b; padding: 16px; margin: 30px 0;">
+                  <div style="background-color: #fef3c7; border-radius: 12px; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0;">
                     <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
                       ⚠️ <strong>Important:</strong> This invitation expires in 7 days. Please accept it soon to maintain access.
                     </p>
@@ -729,7 +729,7 @@ export const sendTeamInvitationEmail = async (
 
               <!-- CTA Button -->
               <tr>
-                <td style="padding: 0 30px 40px 30px; text-align: center;">
+                <td style="padding: 0 20px 24px 20px; text-align: center;">
                   <a href="${invitationLink}" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
                     Accept Invitation
                   </a>
@@ -738,7 +738,7 @@ export const sendTeamInvitationEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     If you're having trouble clicking the button, copy and paste this URL into your browser:<br>
                     <a href="${invitationLink}" style="color: #3b82f6; text-decoration: none; word-break: break-all;">${invitationLink}</a>
@@ -816,14 +816,14 @@ export const sendBookingRequestEmail = async (
       <title>Booking Request ${requiresApproval ? 'Pending Approval' : 'Submitted'}</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">
                     ${requiresApproval ? '📝 Booking Pending Approval' : '✅ Booking Request Submitted'}
                   </h1>
@@ -832,7 +832,7 @@ export const sendBookingRequestEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Hello ${travelerName},
                   </h2>
@@ -842,9 +842,9 @@ export const sendBookingRequestEmail = async (
                   </p>
 
                   <!-- Booking Details Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">
                           Booking Details
                         </h3>
@@ -902,7 +902,7 @@ export const sendBookingRequestEmail = async (
 
                   ${requiresApproval ? `
                   <!-- Approval Status -->
-                  <div style="background-color: #fef3c7; border-radius: 12px; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0;">
+                  <div style="background-color: #fef3c7; border-radius: 12px; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 12px 0; color: #92400e; font-size: 16px; font-weight: 600;">
                       ⏳ Approval Required
                     </h3>
@@ -912,7 +912,7 @@ export const sendBookingRequestEmail = async (
                   </div>
                   ` : `
                   <!-- Next Steps -->
-                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 24px; margin: 30px 0;">
+                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 16px 0; color: #1e40af; font-size: 18px; font-weight: 600;">
                       📋 What's Next?
                     </h3>
@@ -932,7 +932,7 @@ export const sendBookingRequestEmail = async (
 
               <!-- CTA Button -->
               <tr>
-                <td style="padding: 0 30px 40px 30px; text-align: center;">
+                <td style="padding: 0 20px 24px 20px; text-align: center;">
                   <a href="${env.FRONTEND_URL}/dashboard/bookings" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
                     View Booking
                   </a>
@@ -941,7 +941,7 @@ export const sendBookingRequestEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     Best regards,<br>
                     <strong style="color: #111827;">The bvodo Team</strong>
@@ -1021,14 +1021,14 @@ export const sendBookingApprovalEmail = async (
       <title>Booking Approved</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">
                     ✅ Booking Approved!
                   </h1>
@@ -1040,7 +1040,7 @@ export const sendBookingApprovalEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Great news, ${travelerName}!
                   </h2>
@@ -1050,7 +1050,7 @@ export const sendBookingApprovalEmail = async (
                   </p>
 
                   <!-- Booking Reference Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; margin: 20px 0;">
                     <tr>
                       <td style="padding: 24px; text-align: center;">
                         <p style="margin: 0 0 8px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
@@ -1064,9 +1064,9 @@ export const sendBookingApprovalEmail = async (
                   </table>
 
                   <!-- Approval Details -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <table width="100%" cellpadding="8" cellspacing="0">
                           <tr>
                             <td style="color: #6b7280; font-size: 14px;">Approved By:</td>
@@ -1086,7 +1086,7 @@ export const sendBookingApprovalEmail = async (
                   </table>
 
                   <!-- Next Steps -->
-                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 24px; margin: 30px 0;">
+                  <div style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%); border-radius: 12px; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 16px 0; color: #1e40af; font-size: 18px; font-weight: 600;">
                       📋 What's Next?
                     </h3>
@@ -1105,7 +1105,7 @@ export const sendBookingApprovalEmail = async (
 
               <!-- CTA Button -->
               <tr>
-                <td style="padding: 0 30px 40px 30px; text-align: center;">
+                <td style="padding: 0 20px 24px 20px; text-align: center;">
                   <a href="${env.FRONTEND_URL}/dashboard/bookings" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
                     View Booking
                   </a>
@@ -1114,7 +1114,7 @@ export const sendBookingApprovalEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     Best regards,<br>
                     <strong style="color: #111827;">The bvodo Team</strong>
@@ -1190,14 +1190,14 @@ export const sendBookingConfirmationEmail = async (
       <title>Booking Confirmed</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">
                     🎉 Booking Confirmed!
                   </h1>
@@ -1209,7 +1209,7 @@ export const sendBookingConfirmationEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Hello ${travelerName},
                   </h2>
@@ -1219,9 +1219,9 @@ export const sendBookingConfirmationEmail = async (
                   </p>
 
                   <!-- Booking Reference Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 28px; text-align: center;">
+                      <td style="padding: 20px; text-align: center;">
                         <p style="margin: 0 0 8px 0; color: #065f46; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
                           Your Booking Reference
                         </p>
@@ -1233,9 +1233,9 @@ export const sendBookingConfirmationEmail = async (
                   </table>
 
                   <!-- Trip Details -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">
                           Trip Details
                         </h3>
@@ -1286,7 +1286,7 @@ export const sendBookingConfirmationEmail = async (
                   </table>
 
                   <!-- Important Information -->
-                  <div style="background-color: #fef3c7; border-radius: 12px; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0;">
+                  <div style="background-color: #fef3c7; border-radius: 12px; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 12px 0; color: #92400e; font-size: 16px; font-weight: 600;">
                       📌 Important Information
                     </h3>
@@ -1306,7 +1306,7 @@ export const sendBookingConfirmationEmail = async (
 
               <!-- CTA Button -->
               <tr>
-                <td style="padding: 0 30px 40px 30px; text-align: center;">
+                <td style="padding: 0 20px 24px 20px; text-align: center;">
                   <a href="${env.FRONTEND_URL}/dashboard/bookings" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
                     View Full Itinerary
                   </a>
@@ -1315,7 +1315,7 @@ export const sendBookingConfirmationEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     Safe travels,<br>
                     <strong style="color: #111827;">The bvodo Team</strong>
@@ -1393,14 +1393,14 @@ export const sendBookingRejectionEmail = async (
       <title>Booking Update</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">
                     Booking Update
                   </h1>
@@ -1409,7 +1409,7 @@ export const sendBookingRejectionEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Hello ${travelerName},
                   </h2>
@@ -1419,9 +1419,9 @@ export const sendBookingRejectionEmail = async (
                   </p>
 
                   <!-- Rejection Details Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef2f2; border-radius: 12px; border-left: 4px solid #ef4444; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef2f2; border-radius: 12px; border-left: 4px solid #ef4444; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <h3 style="margin: 0 0 12px 0; color: #991b1b; font-size: 16px; font-weight: 600;">
                           Reason for Rejection
                         </h3>
@@ -1446,7 +1446,7 @@ export const sendBookingRejectionEmail = async (
                   </div>
 
                   <!-- Next Steps -->
-                  <div style="background-color: #f9fafb; border-radius: 12px; padding: 24px; margin: 30px 0;">
+                  <div style="background-color: #f9fafb; border-radius: 12px; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">
                       Next Steps
                     </h3>
@@ -1466,7 +1466,7 @@ export const sendBookingRejectionEmail = async (
 
               <!-- CTA Button -->
               <tr>
-                <td style="padding: 0 30px 40px 30px; text-align: center;">
+                <td style="padding: 0 20px 24px 20px; text-align: center;">
                   <a href="${env.FRONTEND_URL}/dashboard/bookings" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
                     View My Bookings
                   </a>
@@ -1475,7 +1475,7 @@ export const sendBookingRejectionEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     Best regards,<br>
                     <strong style="color: #111827;">The bvodo Team</strong>
@@ -1553,14 +1553,14 @@ export const sendBookingCancellationEmail = async (
       <title>Booking Cancelled</title>
     </head>
     <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 15px;">
         <tr>
           <td align="center">
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
 
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); padding: 24px 20px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">
                     Booking Cancelled
                   </h1>
@@ -1569,7 +1569,7 @@ export const sendBookingCancellationEmail = async (
 
               <!-- Content -->
               <tr>
-                <td style="padding: 40px 30px;">
+                <td style="padding: 24px 20px;">
                   <h2 style="margin: 0 0 20px 0; color: #111827; font-size: 24px; font-weight: 600;">
                     Hello ${travelerName},
                   </h2>
@@ -1579,9 +1579,9 @@ export const sendBookingCancellationEmail = async (
                   </p>
 
                   <!-- Booking Reference Box -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; border-radius: 12px; border: 2px solid #e5e7eb; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <h3 style="margin: 0 0 16px 0; color: #111827; font-size: 18px; font-weight: 600;">
                           Cancellation Details
                         </h3>
@@ -1611,7 +1611,7 @@ export const sendBookingCancellationEmail = async (
 
                   ${cancellationReason ? `
                   <!-- Cancellation Reason -->
-                  <div style="background-color: #fef3c7; border-radius: 12px; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0;">
+                  <div style="background-color: #fef3c7; border-radius: 12px; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0;">
                     <h3 style="margin: 0 0 12px 0; color: #92400e; font-size: 16px; font-weight: 600;">
                       Cancellation Reason
                     </h3>
@@ -1622,9 +1622,9 @@ export const sendBookingCancellationEmail = async (
                   ` : ''}
 
                   <!-- Credit Refund -->
-                  <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; margin: 30px 0;">
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; margin: 20px 0;">
                     <tr>
-                      <td style="padding: 24px;">
+                      <td style="padding: 16px;">
                         <h3 style="margin: 0 0 12px 0; color: #065f46; font-size: 16px; font-weight: 600;">
                           💳 Credit Refund Processed
                         </h3>
@@ -1646,7 +1646,7 @@ export const sendBookingCancellationEmail = async (
 
               <!-- CTA Button -->
               <tr>
-                <td style="padding: 0 30px 40px 30px; text-align: center;">
+                <td style="padding: 0 20px 24px 20px; text-align: center;">
                   <a href="${env.FRONTEND_URL}/dashboard" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);">
                     Go to Dashboard
                   </a>
@@ -1655,7 +1655,7 @@ export const sendBookingCancellationEmail = async (
 
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                <td style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                   <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
                     Best regards,<br>
                     <strong style="color: #111827;">The bvodo Team</strong>

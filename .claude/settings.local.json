@@ -49,7 +49,9 @@
       "Bash(findstr:*)",
       "Bash(git log:*)",
       "Bash(git push)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(node -e:*)",
+      "Bash(powershell -Command:*)"
     ],
     "deny": [],
     "ask": []

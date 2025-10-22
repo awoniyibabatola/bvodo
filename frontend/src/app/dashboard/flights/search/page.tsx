@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -15,10 +15,13 @@ import {
   DollarSign,
   Briefcase,
   Luggage,
+  Plus,
+  Minus,
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import { getApiEndpoint } from '@/lib/api-config';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
+import AirportAutocomplete from '@/components/AirportAutocomplete';
 
 // Airline names mapping
 const AIRLINE_NAMES: { [key: string]: string } = {
@@ -46,6 +49,110 @@ const AIRLINE_NAMES: { [key: string]: string } = {
   'NZ': 'Air New Zealand',
 };
 
+// Airport/City names mapping (common airports)
+const AIRPORT_CITY_NAMES: { [key: string]: string } = {
+  // USA
+  'JFK': 'New York',
+  'LGA': 'New York',
+  'EWR': 'Newark',
+  'LAX': 'Los Angeles',
+  'SFO': 'San Francisco',
+  'ORD': 'Chicago',
+  'MIA': 'Miami',
+  'DFW': 'Dallas',
+  'SEA': 'Seattle',
+  'BOS': 'Boston',
+  'ATL': 'Atlanta',
+  'IAD': 'Washington DC',
+  'DCA': 'Washington DC',
+  'LAS': 'Las Vegas',
+  'PHX': 'Phoenix',
+  'DEN': 'Denver',
+  'MCO': 'Orlando',
+  'MSP': 'Minneapolis',
+  'DTW': 'Detroit',
+  'PHL': 'Philadelphia',
+
+  // Europe
+  'LHR': 'London',
+  'LGW': 'London',
+  'CDG': 'Paris',
+  'ORY': 'Paris',
+  'AMS': 'Amsterdam',
+  'FRA': 'Frankfurt',
+  'MUC': 'Munich',
+  'FCO': 'Rome',
+  'MAD': 'Madrid',
+  'BCN': 'Barcelona',
+  'LIS': 'Lisbon',
+  'BRU': 'Brussels',
+  'VIE': 'Vienna',
+  'ZRH': 'Zurich',
+  'CPH': 'Copenhagen',
+  'ARN': 'Stockholm',
+  'OSL': 'Oslo',
+  'HEL': 'Helsinki',
+  'DUB': 'Dublin',
+  'ATH': 'Athens',
+  'IST': 'Istanbul',
+  'PRG': 'Prague',
+  'WAW': 'Warsaw',
+  'BUD': 'Budapest',
+
+  // Middle East
+  'DXB': 'Dubai',
+  'DWC': 'Dubai',
+  'AUH': 'Abu Dhabi',
+  'DOH': 'Doha',
+  'CAI': 'Cairo',
+  'TLV': 'Tel Aviv',
+  'AMM': 'Amman',
+  'JED': 'Jeddah',
+  'RUH': 'Riyadh',
+
+  // Asia
+  'HKG': 'Hong Kong',
+  'SIN': 'Singapore',
+  'NRT': 'Tokyo',
+  'HND': 'Tokyo',
+  'ICN': 'Seoul',
+  'PVG': 'Shanghai',
+  'PEK': 'Beijing',
+  'BKK': 'Bangkok',
+  'KUL': 'Kuala Lumpur',
+  'DEL': 'Delhi',
+  'BOM': 'Mumbai',
+  'BLR': 'Bangalore',
+  'MNL': 'Manila',
+  'CGK': 'Jakarta',
+
+  // Africa
+  'JNB': 'Johannesburg',
+  'CPT': 'Cape Town',
+  'LOS': 'Lagos',
+  'ACC': 'Accra',
+  'NBO': 'Nairobi',
+  'ADD': 'Addis Ababa',
+  'CMN': 'Casablanca',
+  'ALG': 'Algiers',
+  'TUN': 'Tunis',
+
+  // Oceania
+  'SYD': 'Sydney',
+  'MEL': 'Melbourne',
+  'AKL': 'Auckland',
+  'BNE': 'Brisbane',
+  'PER': 'Perth',
+
+  // South America
+  'GRU': 'São Paulo',
+  'GIG': 'Rio de Janeiro',
+  'EZE': 'Buenos Aires',
+  'BOG': 'Bogotá',
+  'LIM': 'Lima',
+  'SCL': 'Santiago',
+};
+
 // Function to get airline logo URL
 const getAirlineLogo = (code: string) => {
   return `https://images.kiwi.com/airlines/64/${code}.png`;
@@ -61,7 +168,9 @@ export default function FlightSearchPage() {
   });
   const [tripType, setTripType] = useState<'roundtrip' | 'oneway'>('roundtrip');
   const [from, setFrom] = useState('');
+  const [fromDisplay, setFromDisplay] = useState('');
   const [to, setTo] = useState('');
+  const [toDisplay, setToDisplay] = useState('');
   const [departureDate, setDepartureDate] = useState('');
   const [returnDate, setReturnDate] = useState('');
   const [passengers, setPassengers] = useState({ adults: 1, children: 0, infants: 0 });
@@ -71,6 +180,20 @@ export default function FlightSearchPage() {
   const [error, setError] = useState('');
   const [selectedAirline, setSelectedAirline] = useState<string>('all');
   const [showSearchForm, setShowSearchForm] = useState(false);
+  const [showPassengerSelector, setShowPassengerSelector] = useState(false);
+  const passengerSelectorRef = useRef<HTMLDivElement>(null);
+
+  // Close passenger selector when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (passengerSelectorRef.current && !passengerSelectorRef.current.contains(event.target as Node)) {
+        setShowPassengerSelector(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -183,9 +306,12 @@ export default function FlightSearchPage() {
   };
 
   const swapLocations = () => {
-    const temp = from;
+    const tempCode = from;
+    const tempDisplay = fromDisplay;
     setFrom(to);
-    setTo(temp);
+    setFromDisplay(toDisplay);
+    setTo(tempCode);
+    setToDisplay(tempDisplay);
   };
 
   const getTotalPassengers = () => {
@@ -252,19 +378,16 @@ export default function FlightSearchPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 mb-4 md:mb-6">
               {/* From */}
               <div className="lg:col-span-3">
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">From</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={from}
-                    onChange={(e) => setFrom(e.target.value.toUpperCase())}
-                    placeholder="JFK"
-                    maxLength={3}
-                    required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300 uppercase"
-                  />
-                </div>
+                <AirportAutocomplete
+                  value={from}
+                  onChange={(code, display) => {
+                    setFrom(code);
+                    setFromDisplay(display);
+                  }}
+                  placeholder="City or Airport"
+                  label="From"
+                  required
+                />
               </div>
 
               {/* Swap Button */}
@@ -280,19 +403,16 @@ export default function FlightSearchPage() {
 
               {/* To */}
               <div className="lg:col-span-3">
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">To</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={to}
-                    onChange={(e) => setTo(e.target.value.toUpperCase())}
-                    placeholder="LAX"
-                    maxLength={3}
-                    required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300 uppercase"
-                  />
-                </div>
+                <AirportAutocomplete
+                  value={to}
+                  onChange={(code, display) => {
+                    setTo(code);
+                    setToDisplay(display);
+                  }}
+                  placeholder="City or Airport"
+                  label="To"
+                  required
+                />
               </div>
 
               {/* Departure Date */}
@@ -330,19 +450,119 @@ export default function FlightSearchPage() {
               )}
 
               {/* Passengers */}
-              <div className={tripType === 'roundtrip' ? 'lg:col-span-1' : 'lg:col-span-3'}>
+              <div className={tripType === 'roundtrip' ? 'lg:col-span-1' : 'lg:col-span-3'} ref={passengerSelectorRef}>
                 <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Passengers</label>
                 <div className="relative">
-                  <Users className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                  <Users className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400 z-10" />
                   <input
-                    type="number"
-                    value={getTotalPassengers()}
+                    type="text"
+                    value={`${getTotalPassengers()} ${getTotalPassengers() === 1 ? 'Passenger' : 'Passengers'}`}
                     readOnly
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl bg-gray-50 cursor-pointer"
-                    onClick={() => {
-                      // TODO: Add passenger selector dropdown
-                    }}
+                    onClick={() => setShowPassengerSelector(!showPassengerSelector)}
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl bg-white cursor-pointer hover:border-gray-300 transition-all"
                   />
+
+                  {/* Passenger Selector Dropdown */}
+                  {showPassengerSelector && (
+                    <div className="absolute z-50 w-full md:w-96 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 md:p-5">
+                      <h3 className="text-sm font-bold text-gray-900 mb-4">Select Passengers</h3>
+
+                      {/* Adults */}
+                      <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div className="flex-1">
+                          <div className="text-sm md:text-base font-semibold text-gray-900">Adults</div>
+                          <div className="text-xs text-gray-500">Age 12+</div>
+                        </div>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, adults: Math.max(1, p.adults - 1) }))}
+                            disabled={passengers.adults <= 1}
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                          >
+                            <Minus className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <span className="w-10 text-center font-bold text-gray-900 text-base md:text-lg">{passengers.adults}</span>
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, adults: Math.min(9, p.adults + 1) }))}
+                            disabled={passengers.adults >= 9}
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                          >
+                            <Plus className="w-4 h-4 text-gray-600" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Children */}
+                      <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                        <div className="flex-1">
+                          <div className="text-sm md:text-base font-semibold text-gray-900">Children</div>
+                          <div className="text-xs text-gray-500">Age 2-11</div>
+                        </div>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, children: Math.max(0, p.children - 1) }))}
+                            disabled={passengers.children <= 0}
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                          >
+                            <Minus className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <span className="w-10 text-center font-bold text-gray-900 text-base md:text-lg">{passengers.children}</span>
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, children: Math.min(9, p.children + 1) }))}
+                            disabled={passengers.children >= 9}
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                          >
+                            <Plus className="w-4 h-4 text-gray-600" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Infants */}
+                      <div className="flex items-center justify-between py-3 pb-4">
+                        <div className="flex-1">
+                          <div className="text-sm md:text-base font-semibold text-gray-900">Infants</div>
+                          <div className="text-xs text-gray-500">Under 2</div>
+                        </div>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, infants: Math.max(0, p.infants - 1) }))}
+                            disabled={passengers.infants <= 0}
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                          >
+                            <Minus className="w-4 h-4 text-gray-600" />
+                          </button>
+                          <span className="w-10 text-center font-bold text-gray-900 text-base md:text-lg">{passengers.infants}</span>
+                          <button
+                            type="button"
+                            onClick={() => setPassengers(p => ({ ...p, infants: Math.min(passengers.adults, p.infants + 1) }))}
+                            disabled={passengers.infants >= passengers.adults}
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                          >
+                            <Plus className="w-4 h-4 text-gray-600" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {passengers.infants > 0 && passengers.infants >= passengers.adults && (
+                        <div className="mb-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-xs text-amber-800 font-medium">⚠️ Each infant must be accompanied by an adult</p>
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setShowPassengerSelector(false)}
+                        className="w-full py-2.5 md:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg text-sm md:text-base font-semibold hover:shadow-lg transition-all hover:scale-[1.02]"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -458,21 +678,16 @@ export default function FlightSearchPage() {
 
                 {/* From/To */}
                 <div className="space-y-3 mb-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1.5">From</label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        value={from}
-                        onChange={(e) => setFrom(e.target.value.toUpperCase())}
-                        placeholder="JFK"
-                        maxLength={3}
-                        required
-                        className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none uppercase"
-                      />
-                    </div>
-                  </div>
+                  <AirportAutocomplete
+                    value={from}
+                    onChange={(code, display) => {
+                      setFrom(code);
+                      setFromDisplay(display);
+                    }}
+                    placeholder="City or Airport"
+                    label="From"
+                    required
+                  />
 
                   <button
                     type="button"
@@ -482,21 +697,16 @@ export default function FlightSearchPage() {
                     <ArrowLeftRight className="w-4 h-4 text-gray-600 mx-auto" />
                   </button>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1.5">To</label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        value={to}
-                        onChange={(e) => setTo(e.target.value.toUpperCase())}
-                        placeholder="LAX"
-                        maxLength={3}
-                        required
-                        className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none uppercase"
-                      />
-                    </div>
-                  </div>
+                  <AirportAutocomplete
+                    value={to}
+                    onChange={(code, display) => {
+                      setTo(code);
+                      setToDisplay(display);
+                    }}
+                    placeholder="City or Airport"
+                    label="To"
+                    required
+                  />
                 </div>
 
                 {/* Dates */}
@@ -538,12 +748,13 @@ export default function FlightSearchPage() {
                 <div className="mb-4">
                   <label className="block text-xs font-semibold text-gray-700 mb-1.5">Passengers</label>
                   <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                     <input
-                      type="number"
-                      value={getTotalPassengers()}
+                      type="text"
+                      value={`${getTotalPassengers()} ${getTotalPassengers() === 1 ? 'Passenger' : 'Passengers'}`}
                       readOnly
-                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg bg-gray-50 cursor-pointer"
+                      onClick={() => setShowPassengerSelector(!showPassengerSelector)}
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg bg-white cursor-pointer hover:border-gray-300 transition-all"
                     />
                   </div>
                 </div>
@@ -690,16 +901,18 @@ export default function FlightSearchPage() {
 
                       {/* Flight Details */}
                       <div className="flex-1 w-full">
-                        {/* Airline Name Badge */}
-                        <div className="mb-2 md:mb-3">
-                          <div className="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 bg-blue-50 border border-blue-200 rounded-full">
-                            <Plane className="w-3 h-3 md:w-3.5 md:h-3.5 text-blue-600" />
-                            <span className="text-xs md:text-sm font-semibold text-blue-700 truncate max-w-[150px] md:max-w-none">
-                              {airlines.map(code => AIRLINE_NAMES[code] || code).join(', ')}
-                            </span>
+                        {/* Airline Name - Prominent Header */}
+                        <div className="mb-3 md:mb-4">
+                          <div className="flex items-center gap-2 md:gap-3">
+                            <div className="flex items-center gap-2 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg md:rounded-xl shadow-md">
+                              <Plane className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                              <span className="text-sm md:text-lg font-bold text-white tracking-wide">
+                                {airlines.map(code => AIRLINE_NAMES[code] || code).join(', ')}
+                              </span>
+                            </div>
                             {airlines.length > 1 && (
-                              <span className="text-[10px] md:text-xs text-blue-600 bg-blue-100 px-1.5 md:px-2 py-0.5 rounded-full">
-                                Multiple
+                              <span className="text-xs md:text-sm font-semibold text-indigo-600 bg-indigo-100 px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg border border-indigo-200">
+                                Multiple Airlines
                               </span>
                             )}
                           </div>
@@ -711,8 +924,11 @@ export default function FlightSearchPage() {
                             <div className="text-lg md:text-2xl font-bold text-gray-900 mb-0.5 md:mb-1">
                               {departureTime}
                             </div>
-                            <div className="text-xs md:text-sm font-semibold text-gray-600">
+                            <div className="text-xs md:text-sm font-semibold text-gray-900">
                               {firstSegment.departure.iataCode}
+                            </div>
+                            <div className="text-[10px] md:text-xs text-gray-500 mt-0.5">
+                              {AIRPORT_CITY_NAMES[firstSegment.departure.iataCode] || firstSegment.departure.cityName || firstSegment.departure.iataCode}
                             </div>
                           </div>
 
@@ -735,21 +951,24 @@ export default function FlightSearchPage() {
                             <div className="text-lg md:text-2xl font-bold text-gray-900 mb-0.5 md:mb-1">
                               {arrivalTime}
                             </div>
-                            <div className="text-xs md:text-sm font-semibold text-gray-600">
+                            <div className="text-xs md:text-sm font-semibold text-gray-900">
                               {lastSegment.arrival.iataCode}
+                            </div>
+                            <div className="text-[10px] md:text-xs text-gray-500 mt-0.5">
+                              {AIRPORT_CITY_NAMES[lastSegment.arrival.iataCode] || lastSegment.arrival.cityName || lastSegment.arrival.iataCode}
                             </div>
                           </div>
                         </div>
 
                         {/* Layover Information - Enhanced */}
                         {stops > 0 && (
-                          <div className="mt-2 md:mt-3 p-2 md:p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg md:rounded-xl">
+                          <div className="mt-2 md:mt-3 p-2 md:p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg md:rounded-xl">
                             <div className="flex items-start gap-2 md:gap-3">
-                              <div className="p-1 md:p-1.5 bg-amber-500 rounded-md md:rounded-lg flex-shrink-0">
+                              <div className="p-1 md:p-1.5 bg-blue-500 rounded-md md:rounded-lg flex-shrink-0">
                                 <Clock className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-[10px] md:text-xs font-bold text-amber-900 uppercase tracking-wide mb-0.5 md:mb-1">
+                                <div className="text-[10px] md:text-xs font-bold text-blue-900 uppercase tracking-wide mb-0.5 md:mb-1">
                                   Layover{stops > 1 ? 's' : ''}: {stops} Stop{stops > 1 ? 's' : ''}
                                 </div>
                                 <div className="flex flex-wrap gap-1.5 md:gap-2">
@@ -762,14 +981,19 @@ export default function FlightSearchPage() {
                                     const layoverMins = layoverMinutes % 60;
 
                                     return (
-                                      <div key={segIndex} className="inline-flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2.5 py-0.5 md:py-1 bg-white border border-amber-300 rounded-md md:rounded-lg">
-                                        <MapPin className="w-2.5 h-2.5 md:w-3 md:h-3 text-amber-600" />
-                                        <span className="text-[10px] md:text-xs font-semibold text-gray-900">
-                                          {segment.arrival.iataCode}
-                                        </span>
-                                        <span className="text-[10px] md:text-xs text-amber-700 font-medium">
-                                          {layoverHours > 0 && `${layoverHours}h `}{layoverMins}m
-                                        </span>
+                                      <div key={segIndex} className="flex flex-col gap-0.5 px-2 md:px-2.5 py-1 md:py-1.5 bg-white border border-blue-300 rounded-md md:rounded-lg">
+                                        <div className="flex items-center gap-1 md:gap-1.5">
+                                          <MapPin className="w-2.5 h-2.5 md:w-3 md:h-3 text-blue-600" />
+                                          <span className="text-[10px] md:text-xs font-bold text-gray-900">
+                                            {segment.arrival.iataCode}
+                                          </span>
+                                          <span className="text-[10px] md:text-xs text-blue-700 font-medium">
+                                            {layoverHours > 0 && `${layoverHours}h `}{layoverMins}m
+                                          </span>
+                                        </div>
+                                        <div className="text-[9px] md:text-[10px] text-gray-600 pl-4 md:pl-5">
+                                          {AIRPORT_CITY_NAMES[segment.arrival.iataCode] || segment.arrival.cityName || segment.arrival.iataCode}
+                                        </div>
                                       </div>
                                     );
                                   })}
