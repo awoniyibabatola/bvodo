@@ -77,9 +77,20 @@ export default function UnifiedNavBar({
     <nav className="relative bg-white/80 backdrop-blur-xl border-b border-gray-200/50 sticky top-0 z-50">
       <div className="w-full px-4 md:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-4 md:gap-8">
+          <div className="flex items-center gap-3 md:gap-8">
+            {/* Mobile Menu Button */}
+            {!showBackButton && (
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            )}
+
             {/* Logo */}
-            <Link href="/dashboard" className="flex items-center gap-3 group">
+            <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-50 group-hover:opacity-75 transition"></div>
                 <div className="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
@@ -124,21 +135,8 @@ export default function UnifiedNavBar({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Mobile Menu Button */}
-            {!showBackButton && (
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition"
-                aria-label="Toggle menu"
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            )}
-
-            {/* User Menu */}
-            <UserMenu user={user} />
-          </div>
+          {/* User Menu */}
+          <UserMenu user={user} />
         </div>
 
         {/* Mobile Navigation Menu */}
