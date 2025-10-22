@@ -15,6 +15,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <title>bvodo - Corporate Travel Made Simple</title>
+        <meta name="description" content="Streamline your organization's travel booking with bvodo. Manage flights, hotels, budgets, and approvals effortlessly." />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      </head>
       <body className={inter.className}>
         <PageTransition />
         <CurrencyProvider>{children}</CurrencyProvider>

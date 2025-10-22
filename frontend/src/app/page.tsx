@@ -122,8 +122,8 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Navigation */}
       <nav className="w-full bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="w-full px-4 md:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
+        <div className="w-full">
+          <div className="flex justify-between items-center h-14 sm:h-16 px-4 md:px-6 lg:px-8">
             <div className="flex items-center gap-1.5 sm:gap-2">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Plane className="text-white w-4 h-4 sm:w-5 sm:h-5" />
@@ -150,19 +150,23 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section with Gradient Background */}
-      <section className="w-full relative overflow-hidden bg-white">
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-white"></div>
+      {/* Hero Section with Balanced Gradient Background */}
+      <section className="w-full relative overflow-hidden bg-gradient-to-br from-blue-50/60 via-white to-purple-50/50">
+        {/* Balanced gradient overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/25 via-transparent to-purple-100/25"></div>
 
-        {/* Parallax background elements */}
+        {/* Balanced parallax background elements */}
         <div
-          className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"
+          className="absolute top-20 left-10 w-72 h-72 bg-blue-200/25 rounded-full blur-3xl"
           style={{ transform: `translateY(${scrollY * 0.3}px)` }}
         ></div>
         <div
-          className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"
+          className="absolute bottom-20 right-10 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl"
           style={{ transform: `translateY(${scrollY * -0.2}px)` }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-100/15 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"
+          style={{ transform: `translate(-50%, -50%) translateY(${scrollY * 0.15}px)` }}
         ></div>
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 relative">
@@ -1636,3 +1640,4 @@ export default function Home() {
     </div>
   );
 }
+

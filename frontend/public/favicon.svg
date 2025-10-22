@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="planeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9333EA;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle with gradient -->
+  <rect width="32" height="32" rx="8" fill="url(#planeGradient)"/>
+
+  <!-- Plane icon -->
+  <path d="M20 12L10 8L8 10L14 14L10 18L8 17L6 19L10 20L11 24L13 22L12 18L18 14L24 20L26 18L20 12Z" fill="white"/>
+</svg>
