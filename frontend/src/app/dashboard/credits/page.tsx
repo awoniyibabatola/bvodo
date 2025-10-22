@@ -178,69 +178,69 @@ export default function ManageCreditsPage() {
 
       <div className="w-full px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg">
-              <DollarSign className="w-6 h-6 text-white" />
+            <div className="p-2.5 md:p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg flex-shrink-0">
+              <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Manage Credits</h1>
-              <p className="text-gray-600">Organization credit management</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Credits</h1>
+              <p className="text-sm md:text-base text-gray-600">Organization credit management</p>
             </div>
           </div>
         </div>
 
         {/* Stats Grid */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
             {/* Total Credits */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-blue-50 rounded-xl">
-                  <DollarSign className="w-5 h-5 text-blue-600" />
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                <div className="p-1.5 md:p-2 bg-blue-50 rounded-xl">
+                  <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                 </div>
-                <span className="text-sm text-gray-600 font-medium">Total Credits</span>
+                <span className="text-xs md:text-sm text-gray-600 font-medium">Total Credits</span>
               </div>
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-2xl md:text-3xl font-bold text-gray-900">
                 ${parseFloat(stats.organization.totalCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
             {/* Available Credits */}
-            <div className="bg-white rounded-2xl shadow-lg border border-green-200 p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-green-50 rounded-xl">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+            <div className="bg-white rounded-2xl shadow-lg border border-green-200 p-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                <div className="p-1.5 md:p-2 bg-green-50 rounded-xl">
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                 </div>
-                <span className="text-sm text-gray-600 font-medium">Available</span>
+                <span className="text-xs md:text-sm text-gray-600 font-medium">Available</span>
               </div>
-              <div className="text-3xl font-bold text-green-600">
+              <div className="text-2xl md:text-3xl font-bold text-green-600">
                 ${parseFloat(stats.organization.availableCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
             {/* Used Credits */}
-            <div className="bg-white rounded-2xl shadow-lg border border-orange-200 p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-orange-50 rounded-xl">
-                  <TrendingDown className="w-5 h-5 text-orange-600" />
+            <div className="bg-white rounded-2xl shadow-lg border border-orange-200 p-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                <div className="p-1.5 md:p-2 bg-orange-50 rounded-xl">
+                  <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
                 </div>
-                <span className="text-sm text-gray-600 font-medium">Allocated</span>
+                <span className="text-xs md:text-sm text-gray-600 font-medium">Allocated</span>
               </div>
-              <div className="text-3xl font-bold text-orange-600">
+              <div className="text-2xl md:text-3xl font-bold text-orange-600">
                 ${parseFloat(stats.organization.usedCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
             {/* Active Users */}
-            <div className="bg-white rounded-2xl shadow-lg border border-purple-200 p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-purple-50 rounded-xl">
-                  <Users className="w-5 h-5 text-purple-600" />
+            <div className="bg-white rounded-2xl shadow-lg border border-purple-200 p-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                <div className="p-1.5 md:p-2 bg-purple-50 rounded-xl">
+                  <Users className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
                 </div>
-                <span className="text-sm text-gray-600 font-medium">Active Users</span>
+                <span className="text-xs md:text-sm text-gray-600 font-medium">Active Users</span>
               </div>
-              <div className="text-3xl font-bold text-purple-600">
+              <div className="text-2xl md:text-3xl font-bold text-purple-600">
                 {stats.users.active}
               </div>
             </div>
@@ -290,24 +290,24 @@ export default function ManageCreditsPage() {
         )}
 
         {/* Apply for Credit Button */}
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl">
-                <CreditCard className="w-6 h-6 text-white" />
+        <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-4 md:p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="p-2.5 md:p-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex-shrink-0">
+                <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900">Need More Credits?</h3>
-                <p className="text-sm text-gray-600">Apply for additional credit to support your travel needs</p>
+                <h3 className="text-base md:text-lg font-bold text-gray-900">Need More Credits?</h3>
+                <p className="text-xs md:text-sm text-gray-600">Apply for additional credit to support your travel needs</p>
               </div>
             </div>
             <button
               onClick={() => router.push('/dashboard/credits/apply')}
               disabled={creditApplications.some(app => app.status === 'pending' || app.status === 'under_review')}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-sm md:text-base font-semibold hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <PlusCircle className="w-5 h-5" />
-              Apply for Credit
+              <PlusCircle className="w-4 h-4 md:w-5 md:h-5" />
+              <span>Apply for Credit</span>
             </button>
           </div>
           {creditApplications.some(app => app.status === 'pending' || app.status === 'under_review') && (
