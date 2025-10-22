@@ -7,6 +7,7 @@ import {
   generateRefreshToken,
 } from '../utils/auth.utils';
 import { logger } from '../utils/logger';
+import { sendAccountCreatedEmail } from '../utils/email.service';
 
 /**
  * Register a new user and organization
@@ -126,6 +127,14 @@ export const register = async (req: Request, res: Response) => {
 
       logger.info(`New user registered: ${email}`);
 
+      // Send welcome email
+      await sendAccountCreatedEmail(
+        email,
+        result.user.firstName,
+        result.organization.name,
+        result.organization.subdomain
+      );
+
       return res.status(201).json({
         success: true,
         message: 'Registration successful',
@@ -200,6 +209,14 @@ export const register = async (req: Request, res: Response) => {
     });
 
     logger.info(`New user registered: ${email}`);
+
+    // Send welcome email
+    await sendAccountCreatedEmail(
+      email,
+      result.user.firstName,
+      result.organization.name,
+      result.organization.subdomain
+    );
 
     return res.status(201).json({
       success: true,

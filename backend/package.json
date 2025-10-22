@@ -41,6 +41,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.67.0",
     "@prisma/client": "^5.7.0",
+    "@sendgrid/mail": "^8.1.6",
     "amadeus": "^11.0.0",
     "axios": "^1.12.2",
     "bcryptjs": "^2.4.3",

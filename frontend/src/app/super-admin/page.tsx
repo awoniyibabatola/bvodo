@@ -192,6 +192,13 @@ export default function SuperAdminDashboard() {
                 Bookings
               </button>
               <button
+                onClick={() => router.push('/super-admin/credit-applications')}
+                className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+              >
+                <CreditCard className="w-4 h-4" />
+                Credit Apps
+              </button>
+              <button
                 onClick={() => router.push('/super-admin/organizations')}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >

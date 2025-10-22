@@ -18,7 +18,8 @@ import {
   Search,
   ArrowUpRight,
   Sparkles,
-  X
+  X,
+  CreditCard as CreditCardIcon
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import CreditCard from '@/components/CreditCard';
@@ -546,6 +547,19 @@ export default function DashboardPage() {
                         <span className="font-semibold text-sm md:text-base text-gray-900">Manage Credits</span>
                       </div>
                       <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </Link>
+                  <Link
+                    href="/dashboard/credits/apply"
+                    className="group relative block"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl md:rounded-2xl blur-lg opacity-25 group-hover:opacity-40 transition"></div>
+                    <div className="relative flex items-center justify-between p-4 md:p-5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl md:rounded-2xl transition-all group-hover:scale-105 shadow-lg shadow-green-500/25">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <CreditCardIcon className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                        <span className="font-semibold text-sm md:text-base text-white">Apply for Credit</span>
+                      </div>
+                      <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </div>
                   </Link>
                   <Link

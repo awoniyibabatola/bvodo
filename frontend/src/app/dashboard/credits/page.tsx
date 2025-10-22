@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   DollarSign,
   ArrowLeft,
@@ -12,7 +13,12 @@ import {
   PlusCircle,
   MinusCircle,
   Search,
-  Calendar
+  Calendar,
+  CreditCard,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
 
@@ -47,6 +53,7 @@ interface User {
 }
 
 export default function ManageCreditsPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<OrganizationStats | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,6 +63,7 @@ export default function ManageCreditsPage() {
   const [allocateAmount, setAllocateAmount] = useState('');
   const [allocateOperation, setAllocateOperation] = useState<'set' | 'add'>('set');
   const [processing, setProcessing] = useState(false);
+  const [creditApplications, setCreditApplications] = useState<any[]>([]);
 
   useEffect(() => {
     fetchData();
@@ -81,6 +89,15 @@ export default function ManageCreditsPage() {
       const usersData = await usersResponse.json();
       if (usersData.success) {
         setUsers(usersData.data.users);
+      }
+
+      // Fetch credit applications
+      const appsResponse = await fetch(getApiEndpoint('credit-applications'), {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const appsData = await appsResponse.json();
+      if (appsData.success) {
+        setCreditApplications(appsData.data);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -216,6 +233,78 @@ export default function ManageCreditsPage() {
             </div>
           </div>
         )}
+
+        {/* Credit Applications Section */}
+        {creditApplications.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Your Credit Applications</h2>
+            <div className="space-y-3">
+              {creditApplications.map((app) => (
+                <div key={app.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      app.status === 'approved' ? 'bg-green-100' :
+                      app.status === 'rejected' ? 'bg-red-100' :
+                      app.status === 'pending' ? 'bg-yellow-100' :
+                      'bg-blue-100'
+                    }`}>
+                      {app.status === 'approved' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                      {app.status === 'rejected' && <XCircle className="w-5 h-5 text-red-600" />}
+                      {app.status === 'pending' && <Clock className="w-5 h-5 text-yellow-600" />}
+                      {app.status === 'under_review' && <AlertCircle className="w-5 h-5 text-blue-600" />}
+                      {app.status === 'additional_info_required' && <AlertCircle className="w-5 h-5 text-orange-600" />}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        ${parseFloat(app.requestedAmount).toLocaleString()} {app.currency}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {app.status === 'approved' && `Approved: $${parseFloat(app.approvedAmount).toLocaleString()}`}
+                        {app.status === 'rejected' && 'Rejected'}
+                        {app.status === 'pending' && 'Pending Review'}
+                        {app.status === 'under_review' && 'Under Review'}
+                        {app.status === 'additional_info_required' && 'Additional Info Required'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {new Date(app.submittedAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Apply for Credit Button */}
+        <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl">
+                <CreditCard className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900">Need More Credits?</h3>
+                <p className="text-sm text-gray-600">Apply for additional credit to support your travel needs</p>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push('/dashboard/credits/apply')}
+              disabled={creditApplications.some(app => app.status === 'pending' || app.status === 'under_review')}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <PlusCircle className="w-5 h-5" />
+              Apply for Credit
+            </button>
+          </div>
+          {creditApplications.some(app => app.status === 'pending' || app.status === 'under_review') && (
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                You have a pending application. Please wait for review before submitting a new application.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Search */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">

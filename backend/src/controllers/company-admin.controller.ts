@@ -4,6 +4,7 @@ import { hashPassword } from '../utils/auth.utils';
 import { logger } from '../utils/logger';
 import { Decimal } from '@prisma/client/runtime/library';
 import crypto from 'crypto';
+import { sendTeamInvitationEmail } from '../utils/email.service';
 
 interface AuthRequest extends Request {
   user?: {
@@ -135,8 +136,26 @@ export const inviteUser = async (req: Request, res: Response) => {
 
     logger.info(`User invited: ${email} by ${user.email}`);
 
-    // TODO: Send invitation email with token
-    // For now, return the invitation token in response
+    // Get inviter details for email
+    const inviterUser = await prisma.user.findUnique({
+      where: { id: user.userId },
+      select: { firstName: true, lastName: true },
+    });
+
+    const inviterName = inviterUser ? `${inviterUser.firstName} ${inviterUser.lastName}` : 'Your Administrator';
+
+    // Send invitation email
+    await sendTeamInvitationEmail(
+      email,
+      firstName,
+      lastName,
+      organization.name,
+      inviterName,
+      role || 'traveler',
+      parseFloat(creditAmount.toString()),
+      invitationToken
+    );
+
     const invitationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/accept-invitation?token=${invitationToken}`;
 
     return res.status(201).json({

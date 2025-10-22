@@ -4,6 +4,13 @@ import { prisma } from '../config/database';
 import { logger } from '../utils/logger';
 import { Prisma } from '@prisma/client';
 import { convertCurrency } from '../services/exchange-rate.service';
+import {
+  sendBookingRequestEmail,
+  sendBookingApprovalEmail,
+  sendBookingConfirmationEmail,
+  sendBookingRejectionEmail,
+  sendBookingCancellationEmail,
+} from '../utils/email.service';
 
 /**
  * Get all bookings for an organization
@@ -461,6 +468,22 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       },
     });
 
+    // Send booking request email to traveler
+    await sendBookingRequestEmail(
+      completeBooking.user.email,
+      `${completeBooking.user.firstName} ${completeBooking.user.lastName}`,
+      completeBooking.bookingReference,
+      completeBooking.bookingType,
+      completeBooking.origin || '',
+      completeBooking.destination,
+      completeBooking.departureDate,
+      completeBooking.returnDate,
+      parseFloat(completeBooking.totalPrice.toString()),
+      completeBooking.currency,
+      requiresApproval,
+      currentUser?.approverId ? 'your approver' : undefined
+    );
+
     res.status(201).json({
       success: true,
       message: requiresApproval
@@ -573,6 +596,44 @@ export const cancelBooking = async (req: AuthRequest, res: Response): Promise<vo
       return updated;
     });
 
+    // Fetch complete booking with user details for email
+    const completeBooking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+
+    if (completeBooking) {
+      // Calculate refund amount from transactions
+      const heldTransaction = booking.creditTransactions.find(
+        t => t.transactionType === 'credit_held'
+      );
+      const refundAmount = heldTransaction ? parseFloat(heldTransaction.amount.toString()) : 0;
+
+      // Get canceller name
+      const cancellerUser = await prisma.user.findUnique({
+        where: { id: user.userId },
+        select: { firstName: true, lastName: true },
+      });
+      const cancellerName = cancellerUser
+        ? `${cancellerUser.firstName} ${cancellerUser.lastName}`
+        : 'System';
+
+      // Send cancellation email to traveler
+      await sendBookingCancellationEmail(
+        completeBooking.user.email,
+        `${completeBooking.user.firstName} ${completeBooking.user.lastName}`,
+        completeBooking.bookingReference,
+        completeBooking.bookingType,
+        completeBooking.destination,
+        cancellationReason || 'No reason provided',
+        cancellerName,
+        refundAmount,
+        completeBooking.currency
+      );
+    }
+
     res.status(200).json({
       success: true,
       message: 'Booking cancelled successfully',
@@ -647,6 +708,17 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
         },
       },
     });
+
+    // Send approval email to traveler
+    await sendBookingApprovalEmail(
+      updatedBooking.user.email,
+      `${updatedBooking.user.firstName} ${updatedBooking.user.lastName}`,
+      updatedBooking.bookingReference,
+      updatedBooking.bookingType,
+      updatedBooking.destination,
+      `${updatedBooking.approver.firstName} ${updatedBooking.approver.lastName}`,
+      updatedBooking.approvedAt!
+    );
 
     res.status(200).json({
       success: true,
@@ -759,6 +831,28 @@ export const rejectBooking = async (req: AuthRequest, res: Response): Promise<vo
       return updated;
     });
 
+    // Fetch complete booking with user details for email
+    const completeBooking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        user: true,
+        approver: true,
+      },
+    });
+
+    if (completeBooking) {
+      // Send rejection email to traveler
+      await sendBookingRejectionEmail(
+        completeBooking.user.email,
+        `${completeBooking.user.firstName} ${completeBooking.user.lastName}`,
+        completeBooking.bookingReference,
+        completeBooking.bookingType,
+        completeBooking.destination,
+        rejectionReason,
+        `${completeBooking.approver?.firstName || 'Administrator'} ${completeBooking.approver?.lastName || ''}`
+      );
+    }
+
     res.status(200).json({
       success: true,
       message: 'Booking rejected successfully',
@@ -841,6 +935,20 @@ export const confirmBooking = async (req: AuthRequest, res: Response): Promise<v
         },
       },
     });
+
+    // Send confirmation email to traveler
+    await sendBookingConfirmationEmail(
+      updatedBooking.user.email,
+      `${updatedBooking.user.firstName} ${updatedBooking.user.lastName}`,
+      updatedBooking.bookingReference,
+      updatedBooking.bookingType,
+      updatedBooking.origin || '',
+      updatedBooking.destination,
+      updatedBooking.departureDate,
+      updatedBooking.returnDate,
+      parseFloat(updatedBooking.totalPrice.toString()),
+      updatedBooking.currency
+    );
 
     res.status(200).json({
       success: true,
