@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -103,6 +103,38 @@ export default function ApplyCreditPage() {
     setShowSuccessModal(false);
     router.push('/dashboard/credits');
   };
+
+  // Fetch user data and auto-fill company name
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          router.push('/login');
+          return;
+        }
+
+        const response = await fetch(getApiEndpoint('auth/me'), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.data?.organization?.name) {
+          setFormData(prev => ({
+            ...prev,
+            companyName: data.data.organization.name,
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
@@ -213,11 +245,12 @@ export default function ApplyCreditPage() {
                   type="text"
                   name="companyName"
                   value={formData.companyName}
-                  onChange={handleChange}
+                  readOnly
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
-                  placeholder="Acme Corporation"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-50 cursor-not-allowed"
+                  placeholder="Loading..."
                 />
+                <p className="text-xs text-gray-500 mt-1">Auto-filled from your account</p>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
