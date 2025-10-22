@@ -1744,60 +1744,61 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
       {!isOpen && !forceOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 group"
+          className="fixed bottom-6 right-6 z-40 group"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition animate-pulse"></div>
-          <div className="relative flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
-            <Sparkles className="w-5 h-5 text-white animate-pulse" />
-            <span className="text-white font-semibold">Chat with AI</span>
-            <MessageCircle className="w-5 h-5 text-white" />
+          <div className="relative flex items-center gap-2 md:gap-3 px-4 md:px-6 py-3 md:py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
+            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-white animate-pulse" />
+            <span className="text-white font-semibold text-sm md:text-base">Chat with AI</span>
+            <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-white" />
           </div>
         </button>
       )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div className={forceOpen ? "w-full h-full flex flex-col bg-white overflow-hidden" : "fixed bottom-6 right-6 z-50 w-[480px] h-[700px] flex flex-col bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden"}>
+        <div className={forceOpen
+          ? "w-full h-full flex flex-col bg-white overflow-hidden"
+          : "fixed inset-0 md:inset-auto md:bottom-6 md:right-6 z-50 md:w-[480px] md:h-[700px] flex flex-col bg-white md:rounded-3xl shadow-2xl border-0 md:border md:border-gray-200 overflow-hidden"
+        }>
           {/* Header */}
-          <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-6">
+          <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-4 md:p-6">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-90"></div>
             <div className="relative flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 backdrop-blur-xl rounded-xl">
-                  <Sparkles className="w-5 h-5 text-white animate-pulse" />
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="p-1.5 md:p-2 bg-white/20 backdrop-blur-xl rounded-lg md:rounded-xl">
+                  <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-white animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Your Travel Buddy</h3>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <p className="text-xs text-blue-100">Online & ready to help!</p>
+                  <h3 className="text-base md:text-lg font-bold text-white">Your Travel Buddy</h3>
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <p className="text-[10px] md:text-xs text-blue-100">Online & ready to help!</p>
                   </div>
                 </div>
               </div>
-              {!forceOpen && (
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-white/20 rounded-xl transition"
-                >
-                  <X className="w-5 h-5 text-white" />
-                </button>
-              )}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-white/20 rounded-lg md:rounded-xl transition flex-shrink-0"
+              >
+                <X className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              </button>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-br from-gray-50 to-blue-50/20">
+          <div className="flex-1 overflow-y-auto p-3 md:p-6 space-y-3 md:space-y-4 bg-gradient-to-br from-gray-50 to-blue-50/20">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[90%] ${
+                  className={`max-w-[90%] md:max-w-[85%] ${
                     message.role === 'user'
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
                       : 'bg-white border border-gray-200'
-                  } rounded-2xl p-4 shadow-md`}
+                  } rounded-xl md:rounded-2xl p-3 md:p-4 shadow-md`}
                 >
                   {message.role === 'assistant' && (
                     <div className="flex items-center gap-2 mb-2">
@@ -2061,7 +2062,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
           </div>
 
           {/* Input */}
-          <div className="p-4 bg-white border-t border-gray-200">
+          <div className="p-3 md:p-4 bg-white border-t border-gray-200">
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
@@ -2069,16 +2070,16 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Type naturally, like you're chatting with a friend..."
+                placeholder="Type naturally..."
                 disabled={isLoading}
-                className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm disabled:opacity-50 placeholder:text-gray-400"
+                className="flex-1 px-3 md:px-4 py-2.5 md:py-3 bg-gray-50 border border-gray-200 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm disabled:opacity-50 placeholder:text-gray-400"
               />
               <button
                 onClick={() => handleSendMessage()}
                 disabled={!inputValue.trim() || isLoading}
-                className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+                className="p-2.5 md:p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg md:rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 flex-shrink-0"
               >
-                <Send className="w-5 h-5 text-white" />
+                <Send className="w-4 h-4 md:w-5 md:h-5 text-white" />
               </button>
             </div>
           </div>

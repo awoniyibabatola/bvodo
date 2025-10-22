@@ -61,6 +61,7 @@ export default function HotelSearchPage() {
   const [currentLimit, setCurrentLimit] = useState(20);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [showSearchForm, setShowSearchForm] = useState(false);
 
   // Read URL params and trigger search on mount
   useEffect(() => {
@@ -238,6 +239,7 @@ export default function HotelSearchPage() {
     setLoading(true);
     setError('');
     setCurrentLimit(20); // Reset limit on new search
+    setShowSearchForm(false); // Close modal on mobile after search
 
     try {
       if (!address.trim()) {
@@ -467,27 +469,38 @@ export default function HotelSearchPage() {
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 h-16">
+          <div className="flex items-center gap-2 md:gap-4 h-12 md:h-16">
             <Link
               href="/dashboard"
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
+              className="flex items-center gap-1.5 md:gap-2 text-gray-600 hover:text-gray-900 transition"
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Dashboard</span>
+              <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="text-sm md:text-base font-medium">Back</span>
             </Link>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-2">
+        <div className="mb-4 md:mb-6 lg:mb-8">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-1 md:mb-2">
             Search Hotels
           </h1>
-          <p className="text-gray-600">Find the perfect accommodation for your business trip</p>
+          <p className="text-sm md:text-base text-gray-600">Find the perfect accommodation for your business trip</p>
         </div>
+
+        {/* Mobile Search Button - Shows on mobile when no results yet */}
+        {!hotels.length && (
+          <button
+            onClick={() => setShowSearchForm(true)}
+            className="md:hidden w-full mb-6 py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+          >
+            <Search className="w-6 h-6" />
+            <span className="text-lg">Start Your Hotel Search</span>
+          </button>
+        )}
 
         {/* Recent Bookings */}
         {!hotels.length && (
@@ -576,63 +589,63 @@ export default function HotelSearchPage() {
           </div>
         )}
 
-        {/* Search Form */}
-        <div className="relative mb-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-3xl blur-xl"></div>
-          <form onSubmit={handleSearch} className="relative bg-white rounded-3xl p-8 shadow-2xl border border-gray-200">
+        {/* Search Form - Desktop only, always hidden on mobile */}
+        <div className="hidden md:block relative mb-6 md:mb-8">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl md:rounded-3xl blur-xl"></div>
+          <form onSubmit={handleSearch} className="relative bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl border border-gray-200">
             {/* Location and Dates */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 mb-4 md:mb-6">
               {/* Address/City */}
               <div className="lg:col-span-3">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Location</label>
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Location</label>
                 <CityAutocomplete
                   value={address}
                   onChange={setAddress}
-                  placeholder="City or full address (e.g., Times Square, New York)"
+                  placeholder="City or address"
                   required
-                  className="py-3 border-2 hover:border-gray-300"
+                  className="py-2.5 md:py-3 text-sm border-2 hover:border-gray-300"
                 />
-                <p className="text-xs text-gray-500 mt-1">Enter city name or detailed address for precise results</p>
+                <p className="text-[10px] md:text-xs text-gray-500 mt-1">City name or detailed address</p>
               </div>
 
               {/* Check-in Date */}
               <div className="lg:col-span-3">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Check-in</label>
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Check-in</label>
                 <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Calendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                   <input
                     type="date"
                     value={checkInDate}
                     onChange={(e) => setCheckInDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
                   />
                 </div>
               </div>
 
               {/* Check-out Date */}
               <div className="lg:col-span-3">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Check-out</label>
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Check-out</label>
                 <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Calendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                   <input
                     type="date"
                     value={checkOutDate}
                     onChange={(e) => setCheckOutDate(e.target.value)}
                     min={checkInDate || new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
                   />
                 </div>
               </div>
 
               {/* Nights Display */}
               <div className="lg:col-span-3">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Duration</label>
-                <div className="flex items-center h-[50px] px-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-2 border-blue-200">
-                  <span className="text-2xl font-bold text-blue-600">{calculateNights()}</span>
-                  <span className="ml-2 text-sm text-gray-600">
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Duration</label>
+                <div className="flex items-center h-[42px] md:h-[50px] px-3 md:px-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg md:rounded-xl border-2 border-blue-200">
+                  <span className="text-xl md:text-2xl font-bold text-blue-600">{calculateNights()}</span>
+                  <span className="ml-2 text-xs md:text-sm text-gray-600">
                     {calculateNights() === 1 ? 'night' : 'nights'}
                   </span>
                 </div>
@@ -640,12 +653,12 @@ export default function HotelSearchPage() {
             </div>
 
             {/* Guests and Rooms */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
               {/* Adults */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Adults</label>
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Adults</label>
                 <div className="relative">
-                  <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Users className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                   <input
                     type="number"
                     value={adults}
@@ -653,16 +666,16 @@ export default function HotelSearchPage() {
                     min={1}
                     max={9}
                     required
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
                   />
                 </div>
               </div>
 
               {/* Rooms */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Rooms</label>
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Rooms</label>
                 <div className="relative">
-                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Building2 className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                   <input
                     type="number"
                     value={roomQuantity}
@@ -670,25 +683,25 @@ export default function HotelSearchPage() {
                     min={1}
                     max={9}
                     required
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
                   />
                 </div>
               </div>
 
               {/* Search Radius */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Search Radius (km)
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                  Radius (km)
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                   <input
                     type="number"
                     value={radius}
                     onChange={(e) => setRadius(Math.max(1, parseInt(e.target.value) || 5))}
                     min={1}
                     max={300}
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
                   />
                 </div>
               </div>
@@ -698,16 +711,16 @@ export default function HotelSearchPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:scale-[1.02]"
+              className="w-full py-3 md:py-4 text-sm md:text-base bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg md:rounded-xl font-semibold hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:scale-[1.02]"
             >
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   Searching...
                 </>
               ) : (
                 <>
-                  <Search className="w-5 h-5" />
+                  <Search className="w-4 h-4 md:w-5 md:h-5" />
                   Search Hotels
                 </>
               )}
@@ -921,15 +934,15 @@ export default function HotelSearchPage() {
 
             {/* List View */}
             {viewMode === 'list' && (
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {filteredHotels.map((hotel, index) => (
               <div
                 key={index}
-                className="group bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-2xl hover:border-blue-200 transition-all duration-300"
+                className="group bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-md md:shadow-lg border border-gray-200 hover:shadow-2xl hover:border-blue-200 transition-all duration-300"
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Hotel Image */}
-                  <div className="lg:w-80 h-64 lg:h-auto relative overflow-hidden">
+                  <div className="lg:w-80 h-48 md:h-64 lg:h-auto relative overflow-hidden">
                     <img
                       src={hotel.hotel?.media && hotel.hotel.media.length > 0
                         ? (hotel.hotel.media[0].uri || hotel.hotel.media[0].url)
@@ -939,11 +952,11 @@ export default function HotelSearchPage() {
                     />
 
                     {/* Overlay badges */}
-                    <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
+                    <div className="absolute top-2 md:top-4 left-2 md:left-4 right-2 md:right-4 flex items-start justify-between z-10">
                       {hotel.hotel?.rating && (
-                        <div className="flex items-center gap-1.5 px-3 py-2 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg">
-                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                          <span className="text-sm font-bold text-gray-900">
+                        <div className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 bg-white/95 backdrop-blur-sm rounded-lg md:rounded-xl shadow-md md:shadow-lg">
+                          <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-yellow-500" />
+                          <span className="text-xs md:text-sm font-bold text-gray-900">
                             {hotel.hotel.rating}
                           </span>
                         </div>
@@ -951,10 +964,10 @@ export default function HotelSearchPage() {
                     </div>
 
                     {/* City name at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-6 z-10">
-                      <div className="flex items-center gap-2 text-white">
-                        <MapPin className="w-4 h-4" />
-                        <span className="text-sm font-semibold">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-3 md:p-6 z-10">
+                      <div className="flex items-center gap-1.5 md:gap-2 text-white">
+                        <MapPin className="w-3 h-3 md:w-4 md:h-4" />
+                        <span className="text-xs md:text-sm font-semibold">
                           {hotel.hotel?.address?.cityName || address}
                         </span>
                       </div>
@@ -962,17 +975,17 @@ export default function HotelSearchPage() {
                   </div>
 
                   {/* Hotel Info */}
-                  <div className="flex-1 p-6 lg:p-8">
-                    <div className="mb-5">
-                      <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors leading-tight">
+                  <div className="flex-1 p-3 md:p-6 lg:p-8">
+                    <div className="mb-3 md:mb-5">
+                      <h3 className="text-base md:text-xl font-bold text-gray-900 mb-2 md:mb-3 group-hover:text-blue-600 transition-colors leading-tight">
                         {hotel.hotel?.name || 'Hotel'}
                       </h3>
-                      <div className="flex items-start gap-2.5 text-gray-700 mb-3">
-                        <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0 text-blue-500" />
+                      <div className="flex items-start gap-1.5 md:gap-2.5 text-gray-700 mb-2 md:mb-3">
+                        <MapPin className="w-4 h-4 md:w-5 md:h-5 mt-0.5 flex-shrink-0 text-blue-500" />
                         <div className="flex-1">
-                          <span className="line-clamp-2 text-sm font-medium">{formatHotelAddress(hotel)}</span>
+                          <span className="line-clamp-2 text-xs md:text-sm font-medium">{formatHotelAddress(hotel)}</span>
                           {getDistanceDisplay(hotel) && (
-                            <span className="text-xs text-blue-600 font-semibold mt-1 block bg-blue-50 px-2 py-1 rounded inline-block">
+                            <span className="text-[10px] md:text-xs text-blue-600 font-semibold mt-1 block bg-blue-50 px-1.5 md:px-2 py-0.5 md:py-1 rounded inline-block">
                               {getDistanceDisplay(hotel)}
                             </span>
                           )}
@@ -981,21 +994,21 @@ export default function HotelSearchPage() {
 
                       {/* Hotel Description */}
                       {hotel.hotel?.description && (
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-4 leading-relaxed">
+                        <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mb-3 md:mb-4 leading-relaxed">
                           {hotel.hotel.description}
                         </p>
                       )}
                     </div>
 
                     {/* Key Features & Info Grid */}
-                    <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="grid grid-cols-2 gap-2 md:gap-3 mb-3 md:mb-4">
                       {/* Distance to City Center */}
                       {hotel.hotel?.distance?.value && (
-                        <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                          <MapPin className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-1.5 md:gap-2 p-2 md:p-3 bg-blue-50 rounded-lg border border-blue-100">
+                          <MapPin className="w-3 h-3 md:w-4 md:h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="text-xs font-semibold text-gray-700">City Center</div>
-                            <div className="text-xs text-blue-600 font-bold">
+                            <div className="text-[10px] md:text-xs font-semibold text-gray-700">City Center</div>
+                            <div className="text-[10px] md:text-xs text-blue-600 font-bold">
                               {hotel.hotel.distance.value} {hotel.hotel.distance.unit.toLowerCase()}
                             </div>
                           </div>
@@ -1004,11 +1017,11 @@ export default function HotelSearchPage() {
 
                       {/* Facilities Count */}
                       {hotel.hotel?.amenities && hotel.hotel.amenities.length > 0 && (
-                        <div className="flex items-start gap-2 p-3 bg-purple-50 rounded-lg border border-purple-100">
-                          <Sparkles className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-1.5 md:gap-2 p-2 md:p-3 bg-purple-50 rounded-lg border border-purple-100">
+                          <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-purple-600 mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="text-xs font-semibold text-gray-700">Facilities</div>
-                            <div className="text-xs text-purple-600 font-bold">
+                            <div className="text-[10px] md:text-xs font-semibold text-gray-700">Facilities</div>
+                            <div className="text-[10px] md:text-xs text-purple-600 font-bold">
                               {hotel.hotel.amenities.length}+ amenities
                             </div>
                           </div>
@@ -1018,23 +1031,23 @@ export default function HotelSearchPage() {
 
                     {/* Top Amenities */}
                     {hotel.hotel?.amenities && hotel.hotel.amenities.length > 0 && (
-                      <div className="mb-4">
-                        <div className="text-xs font-semibold text-gray-700 mb-2">Popular Facilities</div>
-                        <div className="flex flex-wrap gap-2">
+                      <div className="mb-3 md:mb-4">
+                        <div className="text-[10px] md:text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Popular Facilities</div>
+                        <div className="flex flex-wrap gap-1.5 md:gap-2">
                           {hotel.hotel.amenities.slice(0, 6).map((amenity: string, idx: number) => {
                             const Icon = getAmenityIcon(amenity);
                             return (
                               <div
                                 key={idx}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg text-xs font-medium text-gray-700 hover:shadow-md transition-shadow"
+                                className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-md md:rounded-lg text-[10px] md:text-xs font-medium text-gray-700 hover:shadow-md transition-shadow"
                               >
-                                <Icon className="w-4 h-4 text-blue-600" />
+                                <Icon className="w-3 h-3 md:w-4 md:h-4 text-blue-600" />
                                 <span className="capitalize">{amenity.replace(/_/g, ' ').toLowerCase()}</span>
                               </div>
                             );
                           })}
                           {hotel.hotel.amenities.length > 6 && (
-                            <div className="flex items-center px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-semibold text-gray-600">
+                            <div className="flex items-center px-2 md:px-3 py-1 md:py-1.5 bg-gray-100 rounded-md md:rounded-lg text-[10px] md:text-xs font-semibold text-gray-600">
                               +{hotel.hotel.amenities.length - 6} more
                             </div>
                           )}
@@ -1043,52 +1056,52 @@ export default function HotelSearchPage() {
                     )}
 
                     {/* Additional Info Pills */}
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 md:gap-2">
                       {hotel.offers && hotel.offers.length > 0 && (
-                        <div className="flex items-center gap-1 px-2.5 py-1 bg-green-50 border border-green-200 rounded-full text-xs font-semibold text-green-700">
+                        <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-green-50 border border-green-200 rounded-full text-[10px] md:text-xs font-semibold text-green-700">
                           <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
                           Available Now
                         </div>
                       )}
                       {hotel.hotel?.rating && hotel.hotel.rating >= 4 && (
-                        <div className="flex items-center gap-1 px-2.5 py-1 bg-yellow-50 border border-yellow-200 rounded-full text-xs font-semibold text-yellow-700">
-                          <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                        <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-yellow-50 border border-yellow-200 rounded-full text-[10px] md:text-xs font-semibold text-yellow-700">
+                          <Star className="w-2.5 h-2.5 md:w-3 md:h-3 fill-yellow-500 text-yellow-500" />
                           Highly Rated
                         </div>
                       )}
-                      <div className="flex items-center gap-1 px-2.5 py-1 bg-blue-50 border border-blue-200 rounded-full text-xs font-semibold text-blue-700">
-                        <Building2 className="w-3 h-3" />
+                      <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-blue-50 border border-blue-200 rounded-full text-[10px] md:text-xs font-semibold text-blue-700">
+                        <Building2 className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         Business Travel
                       </div>
                     </div>
                   </div>
 
                   {/* Pricing & CTA */}
-                  <div className="lg:w-64 flex flex-col justify-between p-6 lg:p-8 bg-gradient-to-br from-gray-50 to-blue-50/30 border-t lg:border-t-0 lg:border-l border-gray-200">
-                    <div className="mb-6">
+                  <div className="lg:w-64 flex flex-col justify-between p-3 md:p-6 lg:p-8 bg-gradient-to-br from-gray-50 to-blue-50/30 border-t lg:border-t-0 lg:border-l border-gray-200">
+                    <div className="mb-3 md:mb-6">
                       {hotel.offers && hotel.offers.length > 0 ? (
                         <>
-                          <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                          <div className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1 md:mb-2">
                             Total Price
                           </div>
-                          <div className="flex items-baseline gap-1 mb-1">
-                            <span className="text-3xl font-bold text-gray-900">
+                          <div className="flex items-baseline gap-1 mb-0.5 md:mb-1">
+                            <span className="text-xl md:text-3xl font-bold text-gray-900">
                               ${hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00'}
                             </span>
-                            <span className="text-sm font-medium text-gray-600">
+                            <span className="text-xs md:text-sm font-medium text-gray-600">
                               {hotel.offers[0].price?.currency || 'USD'}
                             </span>
                           </div>
-                          <div className="text-xs text-gray-500 font-medium">
+                          <div className="text-[10px] md:text-xs text-gray-500 font-medium">
                             for {calculateNights()} {calculateNights() === 1 ? 'night' : 'nights'}
                           </div>
                         </>
                       ) : (
                         <>
-                          <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                          <div className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1 md:mb-2">
                             Pricing
                           </div>
-                          <div className="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-2 rounded-lg">
+                          <div className="text-xs md:text-sm font-semibold text-blue-600 bg-blue-50 px-2 md:px-3 py-1.5 md:py-2 rounded-lg">
                             Check availability
                           </div>
                         </>
@@ -1097,10 +1110,10 @@ export default function HotelSearchPage() {
 
                     <Link
                       href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
-                      className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 text-white rounded-xl font-semibold hover:shadow-2xl hover:shadow-blue-500/50 hover:scale-[1.02] transition-all duration-300 text-center flex items-center justify-center gap-2 group"
+                      className="w-full px-4 md:px-6 py-2.5 md:py-3.5 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 text-white rounded-lg md:rounded-xl text-sm md:text-base font-semibold hover:shadow-2xl hover:shadow-blue-500/50 hover:scale-[1.02] transition-all duration-300 text-center flex items-center justify-center gap-2 group"
                     >
                       <span>View Details</span>
-                      <Building2 className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      <Building2 className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </div>
@@ -1390,6 +1403,169 @@ export default function HotelSearchPage() {
           </div>
         )}
       </div>
+
+      {/* Floating Action Button - Mobile Only (shows when results exist) */}
+      {hotels.length > 0 && (
+        <button
+          onClick={() => setShowSearchForm(true)}
+          className="md:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105 active:scale-95"
+        >
+          <Search className="w-5 h-5" />
+          <span>Modify Search</span>
+        </button>
+      )}
+
+      {/* Mobile Search Form Modal */}
+      {showSearchForm && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowSearchForm(false)}
+          ></div>
+
+          {/* Modal Content - Bottom Sheet */}
+          <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto animate-slide-up">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between rounded-t-3xl z-10">
+              <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
+              <button
+                onClick={() => setShowSearchForm(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSearch} className="p-4 space-y-4">
+              {/* Location */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Location</label>
+                <CityAutocomplete
+                  value={address}
+                  onChange={setAddress}
+                  placeholder="City or address"
+                  required
+                  className="py-2.5 text-sm border-2 hover:border-gray-300"
+                />
+              </div>
+
+              {/* Check-in and Check-out */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Check-in</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="date"
+                      value={checkInDate}
+                      onChange={(e) => setCheckInDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      required
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Check-out</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="date"
+                      value={checkOutDate}
+                      onChange={(e) => setCheckOutDate(e.target.value)}
+                      min={checkInDate || new Date().toISOString().split('T')[0]}
+                      required
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Duration Display */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Duration</label>
+                <div className="flex items-center h-[42px] px-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
+                  <span className="text-xl font-bold text-blue-600">{calculateNights()}</span>
+                  <span className="ml-2 text-xs text-gray-600">
+                    {calculateNights() === 1 ? 'night' : 'nights'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Adults and Rooms */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Adults</label>
+                  <div className="relative">
+                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="number"
+                      value={adults}
+                      onChange={(e) => setAdults(Math.max(1, parseInt(e.target.value) || 1))}
+                      min={1}
+                      max={9}
+                      required
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Rooms</label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="number"
+                      value={roomQuantity}
+                      onChange={(e) => setRoomQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      min={1}
+                      max={9}
+                      required
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Search Radius */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Search Radius (km)</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="number"
+                    value={radius}
+                    onChange={(e) => setRadius(Math.max(1, parseInt(e.target.value) || 5))}
+                    min={1}
+                    max={300}
+                    className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Search Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 text-sm bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4" />
+                    Search Hotels
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* AI Chatbox */}
       <AIChatbox />
