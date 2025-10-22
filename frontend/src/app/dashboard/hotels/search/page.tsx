@@ -217,7 +217,8 @@ export default function HotelSearchPage() {
   ];
 
   // Quick search handler for destination cards
-  const handleQuickSearch = (cityName: string) => {
+  const handleQuickSearch = async (cityName: string) => {
+    // Set form values
     setAddress(cityName);
     // Set default dates (tomorrow to day after)
     const tomorrow = new Date();
@@ -225,13 +226,56 @@ export default function HotelSearchPage() {
     const dayAfter = new Date();
     dayAfter.setDate(dayAfter.getDate() + 2);
 
-    setCheckInDate(tomorrow.toISOString().split('T')[0]);
-    setCheckOutDate(dayAfter.toISOString().split('T')[0]);
+    const checkIn = tomorrow.toISOString().split('T')[0];
+    const checkOut = dayAfter.toISOString().split('T')[0];
+
+    setCheckInDate(checkIn);
+    setCheckOutDate(checkOut);
     setAdults(1);
     setRoomQuantity(1);
 
-    // Scroll to search form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Automatically trigger search
+    setLoading(true);
+    setError('');
+    setCurrentLimit(20);
+    setShowSearchForm(false);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/hotels/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          address: cityName,
+          checkInDate: checkIn,
+          checkOutDate: checkOut,
+          adults: 1,
+          roomQuantity: 1,
+          radius: 5,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to search hotels');
+      }
+
+      const data = await response.json();
+      setHotels(data.data || []);
+      setHasMore((data.data?.length || 0) >= 20);
+
+      // Scroll to results
+      setTimeout(() => {
+        window.scrollTo({ top: 400, behavior: 'smooth' });
+      }, 100);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while searching');
+      console.error('Search error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = async (e: React.FormEvent) => {

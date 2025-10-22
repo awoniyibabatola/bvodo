@@ -418,8 +418,17 @@ export default function DashboardPage() {
             <div className="space-y-3 md:space-y-4">
               {(dashboardStats?.recentBookings && dashboardStats.recentBookings.length > 0 ? dashboardStats.recentBookings : [
                 { type: 'Flight', route: 'No bookings yet', traveler: 'Start booking', date: 'Today', status: 'Pending', amount: '$0' },
-              ]).map((booking, index) => (
-                <div key={index} className="group relative">
+              ]).map((booking, index) => {
+                // Determine the link based on booking type
+                const isValidBooking = booking.route !== 'No bookings yet';
+                const bookingLink = isValidBooking
+                  ? booking.type === 'Flight'
+                    ? '/dashboard/flights/search'
+                    : '/dashboard/hotels/search'
+                  : '#';
+
+                return (
+                <Link key={index} href={bookingLink} className="group relative block">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-xl md:rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-300"></div>
                   <div className="relative flex items-center justify-between p-3 md:p-4 lg:p-5 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 hover:border-blue-300 transition-all cursor-pointer hover:shadow-md">
                     <div className="flex items-center gap-2 md:gap-3 lg:gap-4 flex-1 min-w-0">
@@ -464,8 +473,9 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                </Link>
+                );
+              })}
             </div>
           </div>
 
