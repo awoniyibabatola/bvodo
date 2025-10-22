@@ -40,7 +40,11 @@
       "Bash(powershell -Command \"if (Test-Path .next) { Remove-Item -Recurse -Force .next }; if (Test-Path node_modules\\.cache) { Remove-Item -Recurse -Force node_modules\\.cache }\")",
       "Bash(npx tsc --noEmit \"src/app/dashboard/approvals/page.tsx\")",
       "Bash(node -e \"const fs = require(''fs''); const content = fs.readFileSync(''src/app/dashboard/approvals/page.tsx'', ''utf8''); const lines = content.split(''\\n''); lines.forEach((line, i) => { if (line.includes(''filteredBookings.map'')) console.log((i+1) + '': '' + line); });\")",
-      "Bash(powershell -Command \"if (Test-Path .next) { Remove-Item -Recurse -Force .next }\")"
+      "Bash(powershell -Command \"if (Test-Path .next) { Remove-Item -Recurse -Force .next }\")",
+      "Bash(findstr \"DATABASE_URL\" backend/.env.production)",
+      "Bash(tasklist /FI \"IMAGENAME eq node.exe\" /FO TABLE)",
+      "Bash(findstr \"DATABASE_URL\")",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

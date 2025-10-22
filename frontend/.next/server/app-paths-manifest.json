@@ -1,8 +1,7 @@
 {
-  "/not-found": "app/not-found.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/bookings/page": "app/dashboard/bookings/page.js",
   "/page": "app/page.js",
-  "/super-admin/page": "app/super-admin/page.js",
-  "/dashboard/hotels/search/page": "app/dashboard/hotels/search/page.js"
+  "/login/page": "app/login/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/hotels/search/page": "app/dashboard/hotels/search/page.js",
+  "/dashboard/flights/search/page": "app/dashboard/flights/search/page.js"
 }
