@@ -122,26 +122,26 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Plane className="text-white w-5 h-5" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <Plane className="text-white w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 bvodo
               </span>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-2 sm:gap-4">
               <Link
                 href="/login"
-                className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-gray-700 hover:text-gray-900 font-medium transition"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-medium"
+                className="px-4 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition font-medium"
               >
                 Get Started
               </Link>
@@ -165,67 +165,67 @@ export default function Home() {
           style={{ transform: `translateY(${scrollY * -0.2}px)` }}
         ></div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 relative">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="animate-slide-in-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-6">
-              <Rocket className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-100 text-blue-700 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+              <Rocket className="w-3 h-3 sm:w-4 sm:h-4" />
               Built for African Businesses
             </div>
-            <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight text-gray-900">
+            <h1 className="text-5xl sm:text-5xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight text-gray-900">
               Corporate Travel Made{' '}
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Simple
               </span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+            <p className="text-lg sm:text-xl lg:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed">
               Streamline your organization&apos;s travel booking with our all-in-one platform.
               Manage flights, hotels, budgets, and approvals effortlessly.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link
                 href="/register"
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-xl transition font-semibold text-center hover:scale-105"
+                className="px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-xl transition font-semibold text-center hover:scale-105"
               >
                 Start Free Trial
               </Link>
               <Link
                 href="#features"
-                className="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold text-center"
+                className="px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base bg-white border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold text-center"
               >
                 Learn More
               </Link>
             </div>
-            <div className="flex items-center gap-8 mt-8">
+            <div className="flex items-center gap-4 sm:gap-8 mt-6 sm:mt-8">
               <div>
-                <div className="text-3xl font-bold text-gray-900">500+</div>
-                <div className="text-sm text-gray-600">Organizations</div>
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">500+</div>
+                <div className="text-xs sm:text-sm text-gray-600">Organizations</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-gray-900">10K+</div>
-                <div className="text-sm text-gray-600">Bookings</div>
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">10K+</div>
+                <div className="text-xs sm:text-sm text-gray-600">Bookings</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-gray-900">$2M+</div>
-                <div className="text-sm text-gray-600">Managed</div>
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">$2M+</div>
+                <div className="text-xs sm:text-sm text-gray-600">Managed</div>
               </div>
             </div>
           </div>
           {/* Phone Mockup with Animation */}
-          <div className="relative animate-slide-in-right">
+          <div className="relative animate-slide-in-right hidden lg:block">
             {/* Decorative blob shapes in background */}
-            <div className="absolute -top-12 -right-12 w-64 h-64 bg-gradient-to-br from-yellow-300/40 to-orange-400/40 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-12 -left-12 w-72 h-72 bg-gradient-to-br from-cyan-300/40 to-blue-400/40 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute -top-12 -right-12 w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-br from-yellow-300/40 to-orange-400/40 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute -bottom-12 -left-12 w-56 h-56 lg:w-72 lg:h-72 bg-gradient-to-br from-cyan-300/40 to-blue-400/40 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
 
             {/* Main container with tilted backdrop */}
             <div className="relative">
               {/* Tilted decorative background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 rounded-[4rem] transform rotate-3 scale-105"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 rounded-[3rem] lg:rounded-[4rem] transform rotate-3 scale-105"></div>
 
               {/* Phone container */}
-              <div className="relative bg-gradient-to-br from-gray-100 to-gray-50 rounded-[4rem] p-8 shadow-xl animate-float">
+              <div className="relative bg-gradient-to-br from-gray-100 to-gray-50 rounded-[3rem] lg:rounded-[4rem] p-4 sm:p-6 lg:p-8 shadow-xl animate-float">
               {/* Phone Frame with creative corners */}
-              <div className="relative mx-auto w-[300px] h-[600px] bg-gray-900 shadow-2xl border-[14px] border-gray-800 overflow-hidden rounded-[3rem]">
+              <div className="relative mx-auto w-[240px] sm:w-[280px] lg:w-[300px] h-[480px] sm:h-[560px] lg:h-[600px] bg-gray-900 shadow-2xl border-[10px] sm:border-[12px] lg:border-[14px] border-gray-800 overflow-hidden rounded-[2.5rem] lg:rounded-[3rem]">
                 {/* Notch */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-gray-900 rounded-b-3xl z-10"></div>
 
@@ -382,26 +382,26 @@ export default function Home() {
       </section>
 
       {/* Benefits Section 1 - Travel Freedom */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full blur-3xl opacity-30 -z-10"></div>
 
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           {/* Image - Creative Rounded Shape */}
-          <div className="relative group order-2 lg:order-1 max-w-md mx-auto">
+          <div className="relative group order-2 lg:order-1 max-w-[280px] sm:max-w-sm lg:max-w-md mx-auto w-full">
             {/* Animated glow effect */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-all duration-500 animate-pulse"></div>
+            <div className="absolute -inset-2 sm:-inset-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur-2xl sm:blur-3xl opacity-20 group-hover:opacity-40 transition-all duration-500 animate-pulse"></div>
 
             {/* Decorative elements */}
-            <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full opacity-60 blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
-            <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full opacity-50 blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+            <div className="absolute -top-4 -right-4 sm:-top-8 sm:-right-8 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full opacity-60 blur-xl sm:blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+            <div className="absolute -bottom-4 -left-4 sm:-bottom-8 sm:-left-8 w-24 h-24 sm:w-40 sm:h-40 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full opacity-50 blur-xl sm:blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
 
             {/* Main image container with combined rounded shapes */}
             <div className="relative">
               {/* Background shape layer */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-[3rem] transform rotate-6 group-hover:rotate-12 transition-transform duration-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-500 rounded-[2rem] sm:rounded-[3rem] transform rotate-6 group-hover:rotate-12 transition-transform duration-500"></div>
 
               {/* Image with creative clipping */}
-              <div className="relative rounded-[3rem] overflow-hidden shadow-2xl transform group-hover:scale-105 transition-transform duration-500" style={{
+              <div className="relative rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-xl sm:shadow-2xl transform group-hover:scale-105 transition-transform duration-500" style={{
                 clipPath: 'polygon(0% 5%, 5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%)'
               }}>
                 <Image
@@ -416,27 +416,27 @@ export default function Home() {
               </div>
 
               {/* Policy Compliance Alert - Top Right */}
-              <div className="absolute -top-6 -right-8 bg-white rounded-xl shadow-2xl p-3 border border-green-200 animate-float w-48">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Lock className="w-4 h-4 text-white" />
+              <div className="absolute -top-3 -right-4 sm:-top-6 sm:-right-8 bg-white rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl p-2 sm:p-3 border border-green-200 animate-float w-36 sm:w-48">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Lock className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="font-bold text-xs text-gray-900">Policy Approved</div>
-                    <div className="text-[10px] text-gray-600">Within budget</div>
+                    <div className="font-bold text-[10px] sm:text-xs text-gray-900">Policy Approved</div>
+                    <div className="text-[8px] sm:text-[10px] text-gray-600">Within budget</div>
                   </div>
                 </div>
               </div>
 
               {/* Fast Booking Alert - Bottom Left */}
-              <div className="absolute -bottom-6 -left-8 bg-white rounded-xl shadow-2xl p-3 border border-blue-200 animate-float w-44" style={{ animationDelay: '1.5s' }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Zap className="w-4 h-4 text-white" />
+              <div className="absolute -bottom-3 -left-4 sm:-bottom-6 sm:-left-8 bg-white rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl p-2 sm:p-3 border border-blue-200 animate-float w-32 sm:w-44" style={{ animationDelay: '1.5s' }}>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="font-bold text-xs text-gray-900">Booked in 3 min</div>
-                    <div className="text-[10px] text-gray-600">Flight confirmed</div>
+                    <div className="font-bold text-[10px] sm:text-xs text-gray-900">Booked in 3 min</div>
+                    <div className="text-[8px] sm:text-[10px] text-gray-600">Flight confirmed</div>
                   </div>
                 </div>
               </div>
@@ -498,7 +498,7 @@ export default function Home() {
       </section>
 
       {/* Benefits Section 2 - Professional Service */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-12 sm:py-16 lg:py-20 overflow-hidden">
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-100 to-pink-100 rounded-full blur-3xl opacity-30 -z-10"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -556,13 +556,13 @@ export default function Home() {
             </div>
 
             {/* Image - Circular Top with Straight Bottom */}
-            <div className="relative group max-w-md mx-auto">
+            <div className="relative group max-w-[280px] sm:max-w-sm lg:max-w-md mx-auto w-full">
               {/* Animated glow effect */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-all duration-500 animate-pulse"></div>
+              <div className="absolute -inset-2 sm:-inset-4 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full blur-2xl sm:blur-3xl opacity-20 group-hover:opacity-40 transition-all duration-500 animate-pulse"></div>
 
               {/* Decorative elements */}
-              <div className="absolute -top-8 -left-8 w-40 h-40 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full opacity-50 blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-full opacity-60 blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+              <div className="absolute -top-4 -left-4 sm:-top-8 sm:-left-8 w-24 h-24 sm:w-40 sm:h-40 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full opacity-50 blur-xl sm:blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
+              <div className="absolute -bottom-3 -right-3 sm:-bottom-6 sm:-right-6 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-full opacity-60 blur-xl sm:blur-2xl group-hover:scale-110 transition-transform duration-500"></div>
 
               {/* Main image container with arch shape */}
               <div className="relative">
@@ -570,7 +570,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-500 rounded-t-full transform -rotate-3 group-hover:-rotate-6 transition-transform duration-500"></div>
 
                 {/* Image with arch/dome top and straight bottom */}
-                <div className="relative overflow-hidden shadow-2xl transform group-hover:scale-105 transition-transform duration-500 rounded-t-[10rem] rounded-b-3xl">
+                <div className="relative overflow-hidden shadow-xl sm:shadow-2xl transform group-hover:scale-105 transition-transform duration-500 rounded-t-[6rem] sm:rounded-t-[10rem] rounded-b-2xl sm:rounded-b-3xl">
                   <Image
                     src="/images/portrait-business-black-man-with-confidence-balcony-corporate-career-financial-advisor-ambition-smile-male-person-arms-crossed-with-experience-investment-growth-opportunity.jpg"
                     alt="Confident business professional"
@@ -587,27 +587,27 @@ export default function Home() {
                 </div>
 
                 {/* Expense Tracked Alert - Top Right */}
-                <div className="absolute -top-4 -right-10 bg-white rounded-xl shadow-2xl p-3 border border-orange-200 animate-float w-52">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <BarChart3 className="w-4 h-4 text-white" />
+                <div className="absolute -top-2 -right-5 sm:-top-4 sm:-right-10 bg-white rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl p-2 sm:p-3 border border-orange-200 animate-float w-40 sm:w-52">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-500 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0">
+                      <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-bold text-xs text-gray-900">Expense Auto-Logged</div>
-                      <div className="text-[10px] text-gray-600">$850 categorized</div>
+                      <div className="font-bold text-[10px] sm:text-xs text-gray-900">Expense Auto-Logged</div>
+                      <div className="text-[8px] sm:text-[10px] text-gray-600">$850 categorized</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Budget Alert - Bottom Left */}
-                <div className="absolute -bottom-4 -left-10 bg-white rounded-xl shadow-2xl p-3 border border-purple-200 animate-float w-48" style={{ animationDelay: '1s' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="w-4 h-4 text-white" />
+                <div className="absolute -bottom-2 -left-5 sm:-bottom-4 sm:-left-10 bg-white rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl p-2 sm:p-3 border border-purple-200 animate-float w-36 sm:w-48" style={{ animationDelay: '1s' }}>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-purple-500 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-bold text-xs text-gray-900">Under Budget</div>
-                      <div className="text-[10px] text-gray-600">30% saved this Q</div>
+                      <div className="font-bold text-[10px] sm:text-xs text-gray-900">Under Budget</div>
+                      <div className="text-[8px] sm:text-[10px] text-gray-600">30% saved this Q</div>
                     </div>
                   </div>
                 </div>
@@ -908,90 +908,90 @@ export default function Home() {
       </section>
 
       {/* Modern Features Section */}
-      <section id="features" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
+      <section id="features" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 overflow-hidden">
         {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full blur-3xl opacity-30 -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-pink-100 to-blue-100 rounded-full blur-3xl opacity-30 -z-10"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full blur-3xl opacity-30 -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-tr from-pink-100 to-blue-100 rounded-full blur-3xl opacity-30 -z-10"></div>
 
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full text-sm font-semibold text-blue-700 mb-6 animate-bounce">
-            <Zap className="w-4 h-4" />
+        <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full text-xs sm:text-sm font-semibold text-blue-700 mb-4 sm:mb-6 animate-bounce">
+            <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
             Everything in One Platform
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
             Built for Modern Teams
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto px-4">
             From booking to invoicing, manage your entire travel workflow in seconds
           </p>
         </div>
 
         {/* Bento Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {/* Large Feature 1 */}
-          <div className="md:col-span-3 group relative bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl p-8 text-white overflow-hidden hover:scale-[1.02] hover:shadow-2xl transition-all duration-500 animate-fade-in">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-2xl animate-pulse"></div>
+          <div className="md:col-span-3 group relative bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 text-white overflow-hidden hover:scale-[1.02] hover:shadow-2xl transition-all duration-500 animate-fade-in">
+            <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div className="absolute -bottom-10 -left-10 w-32 h-32 sm:w-40 sm:h-40 bg-white/5 rounded-full blur-2xl animate-pulse"></div>
             <div className="relative z-10">
-              <div className="mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
-                <Plane className="w-16 h-16" />
+              <div className="mb-3 sm:mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+                <Plane className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16" />
               </div>
-              <h3 className="text-2xl font-bold mb-3">Instant Flight & Hotel Booking</h3>
-              <p className="text-blue-100 mb-4">Real-time pricing from Amadeus & Booking.com. Search thousands of flights and hotels across Africa.</p>
-              <div className="flex gap-2">
-                <span className="px-3 py-1 bg-white/20 rounded-full text-xs backdrop-blur-sm">Amadeus API</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-xs backdrop-blur-sm">Live Pricing</span>
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3">Instant Flight & Hotel Booking</h3>
+              <p className="text-sm sm:text-base text-blue-100 mb-3 sm:mb-4">Real-time pricing from Amadeus & Booking.com. Search thousands of flights and hotels across Africa.</p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2.5 py-1 sm:px-3 bg-white/20 rounded-full text-xs backdrop-blur-sm">Amadeus API</span>
+                <span className="px-2.5 py-1 sm:px-3 bg-white/20 rounded-full text-xs backdrop-blur-sm">Live Pricing</span>
               </div>
             </div>
           </div>
 
           {/* Medium Feature */}
-          <div className="md:col-span-3 group relative bg-white rounded-3xl p-8 border-2 border-gray-100 hover:border-blue-200 overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700 animate-pulse"></div>
+          <div className="md:col-span-3 group relative bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 border-2 border-gray-100 hover:border-blue-200 overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div className="absolute -top-10 -right-10 w-32 h-32 sm:w-40 sm:h-40 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700 animate-pulse"></div>
             <div className="relative z-10">
-              <div className="mb-4 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-300">
-                <Car className="w-16 h-16 text-purple-600" />
+              <div className="mb-3 sm:mb-4 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-300">
+                <Car className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-purple-600" />
               </div>
-              <h3 className="text-2xl font-bold mb-3 text-gray-900">Ground Transportation</h3>
-              <p className="text-gray-600 mb-4">Uber, taxis, car rentals - all tracked automatically. One platform for all travel needs.</p>
-              <div className="flex gap-2">
-                <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Uber Integration</span>
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Auto-Track</span>
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-gray-900">Ground Transportation</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Uber, taxis, car rentals - all tracked automatically. One platform for all travel needs.</p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2.5 py-1 sm:px-3 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">Uber Integration</span>
+                <span className="px-2.5 py-1 sm:px-3 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Auto-Track</span>
               </div>
             </div>
           </div>
 
           {/* Small Features */}
-          <div className="md:col-span-2 group relative bg-gradient-to-br from-green-400 to-emerald-600 rounded-3xl p-6 text-white overflow-hidden hover:scale-[1.02] transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+          <div className="md:col-span-2 group relative bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 text-white overflow-hidden hover:scale-[1.02] transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="absolute bottom-0 left-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
             <div className="relative z-10">
-              <div className="mb-3 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                <BarChart3 className="w-12 h-12" />
+              <div className="mb-2 sm:mb-3 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <BarChart3 className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Real-Time Expense Tracking</h3>
-              <p className="text-green-100 text-sm">Every expense, categorized automatically</p>
+              <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-1.5 sm:mb-2">Real-Time Expense Tracking</h3>
+              <p className="text-green-100 text-xs sm:text-sm">Every expense, categorized automatically</p>
             </div>
           </div>
 
-          <div className="md:col-span-2 group relative bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl p-6 text-white overflow-hidden hover:scale-[1.02] transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.25s' }}>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+          <div className="md:col-span-2 group relative bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 text-white overflow-hidden hover:scale-[1.02] transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.25s' }}>
+            <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
             <div className="relative z-10">
-              <div className="mb-3 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
-                <CheckCircle className="w-12 h-12" />
+              <div className="mb-2 sm:mb-3 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
+                <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Smart Approvals</h3>
-              <p className="text-orange-100 text-sm">Multi-level workflow automation</p>
+              <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-1.5 sm:mb-2">Smart Approvals</h3>
+              <p className="text-orange-100 text-xs sm:text-sm">Multi-level workflow automation</p>
             </div>
           </div>
 
-          <div className="md:col-span-2 group relative bg-white rounded-3xl p-6 border-2 border-gray-100 hover:border-purple-200 overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-gradient-to-br from-purple-200 to-blue-200 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700 animate-pulse"></div>
+          <div className="md:col-span-2 group relative bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 border-2 border-gray-100 hover:border-purple-200 overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all duration-500 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="absolute -bottom-10 -right-10 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-purple-200 to-blue-200 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700 animate-pulse"></div>
             <div className="relative z-10">
-              <div className="mb-3 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
-                <TrendingUp className="w-12 h-12 text-purple-600" />
+              <div className="mb-2 sm:mb-3 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+                <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-purple-600" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-900">Analytics Dashboard</h3>
-              <p className="text-gray-600 text-sm">Insights & cost optimization</p>
+              <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-1.5 sm:mb-2 text-gray-900">Analytics Dashboard</h3>
+              <p className="text-gray-600 text-xs sm:text-sm">Insights & cost optimization</p>
             </div>
           </div>
 
@@ -1450,27 +1450,27 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 overflow-hidden">
         {/* Floating decorations */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-blue-200/30 rounded-full blur-xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-32 h-32 bg-purple-200/30 rounded-full blur-xl animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-20 left-10 w-16 h-16 sm:w-20 sm:h-20 bg-blue-200/30 rounded-full blur-xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-24 h-24 sm:w-32 sm:h-32 bg-purple-200/30 rounded-full blur-xl animate-float" style={{ animationDelay: '1s' }}></div>
 
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl font-bold mb-4">Loved by African Businesses</h2>
-          <p className="text-xl text-gray-600">See what our customers say</p>
+        <div className="text-center mb-10 sm:mb-12 lg:mb-16 animate-fade-in">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">Loved by African Businesses</h2>
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600">See what our customers say</p>
         </div>
         <div className="relative max-w-4xl mx-auto">
-          <div className="bg-white rounded-3xl shadow-xl p-12 border border-gray-100 animate-scale-in">
-            <div className="text-center mb-8">
-              <div className="text-2xl font-bold text-gray-900 mb-2">{testimonials[currentTestimonial].name}</div>
-              <div className="text-gray-600">{testimonials[currentTestimonial].role}</div>
-              <div className="text-sm text-gray-500">{testimonials[currentTestimonial].company}</div>
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-6 sm:p-8 lg:p-12 border border-gray-100 animate-scale-in">
+            <div className="text-center mb-6 sm:mb-8">
+              <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">{testimonials[currentTestimonial].name}</div>
+              <div className="text-sm sm:text-base text-gray-600">{testimonials[currentTestimonial].role}</div>
+              <div className="text-xs sm:text-sm text-gray-500">{testimonials[currentTestimonial].company}</div>
             </div>
             <div className="text-center">
-              <svg className="w-12 h-12 text-blue-600 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-blue-600 mx-auto mb-3 sm:mb-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
-              <p className="text-xl text-gray-700 leading-relaxed italic">
+              <p className="text-base sm:text-lg lg:text-xl text-gray-700 leading-relaxed italic">
                 "{testimonials[currentTestimonial].quote}"
               </p>
             </div>
@@ -1491,21 +1491,21 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-purple-600 py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-r from-blue-600 to-purple-600 py-12 sm:py-16 lg:py-20 overflow-hidden">
         {/* Animated background elements */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-900/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-purple-900/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
 
-        <div className="relative max-w-4xl mx-auto text-center px-4">
-          <h2 className="text-4xl font-bold text-white mb-6 animate-fade-in">
+        <div className="relative max-w-4xl mx-auto text-center px-4 sm:px-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6 animate-fade-in">
             Ready to Transform Your Corporate Travel?
           </h2>
-          <p className="text-xl text-blue-100 mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
             Join hundreds of African organizations saving time and money
           </p>
           <Link
             href="/register"
-            className="inline-block px-8 py-4 bg-white text-blue-600 rounded-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 font-semibold animate-scale-in"
+            className="inline-block px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base bg-white text-blue-600 rounded-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 font-semibold animate-scale-in"
             style={{ animationDelay: '0.2s' }}
           >
             Start Your Free Trial
@@ -1514,46 +1514,46 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
+      <footer className="bg-gray-900 text-gray-400 py-8 sm:py-10 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Plane className="text-white w-4 h-4" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Plane className="text-white w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
-                <span className="text-white font-bold">bvodo</span>
+                <span className="text-white font-bold text-base sm:text-lg">bvodo</span>
               </div>
-              <p className="text-sm">
+              <p className="text-xs sm:text-sm">
                 Corporate travel made simple for African businesses
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm">
+              <h4 className="text-white font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Product</h4>
+              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                 <li><Link href="#" className="hover:text-white transition">Features</Link></li>
                 <li><Link href="#" className="hover:text-white transition">Pricing</Link></li>
                 <li><Link href="#" className="hover:text-white transition">API</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm">
+              <h4 className="text-white font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Company</h4>
+              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                 <li><Link href="#" className="hover:text-white transition">About</Link></li>
                 <li><Link href="#" className="hover:text-white transition">Blog</Link></li>
                 <li><Link href="#" className="hover:text-white transition">Careers</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm">
+              <h4 className="text-white font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Support</h4>
+              <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                 <li><Link href="#" className="hover:text-white transition">Help Center</Link></li>
                 <li><Link href="#" className="hover:text-white transition">Contact</Link></li>
                 <li><Link href="#" className="hover:text-white transition">Privacy</Link></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
+          <div className="border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-xs sm:text-sm">
             <p>&copy; 2024 bvodo. Built for African businesses.</p>
           </div>
         </div>

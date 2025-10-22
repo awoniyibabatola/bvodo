@@ -62,6 +62,7 @@ export default function HotelSearchPage() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [showSearchForm, setShowSearchForm] = useState(false);
+  const [loadingCardIndex, setLoadingCardIndex] = useState<number | null>(null);
 
   // Read URL params and trigger search on mount
   useEffect(() => {
@@ -217,7 +218,7 @@ export default function HotelSearchPage() {
   ];
 
   // Quick search handler for destination cards
-  const handleQuickSearch = async (cityName: string) => {
+  const handleQuickSearch = async (cityName: string, cardIndex: number) => {
     // Set form values
     setAddress(cityName);
     // Set default dates (tomorrow to day after)
@@ -236,45 +237,54 @@ export default function HotelSearchPage() {
 
     // Automatically trigger search
     setLoading(true);
+    setLoadingCardIndex(cardIndex);
     setError('');
     setCurrentLimit(20);
     setShowSearchForm(false);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/hotels/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          address: cityName,
-          checkInDate: checkIn,
-          checkOutDate: checkOut,
-          adults: 1,
-          roomQuantity: 1,
-          radius: 5,
-        }),
+      // Try to get city code first for known cities
+      const cityCode = getCityCode(cityName);
+
+      const params = new URLSearchParams({
+        checkInDate: checkIn,
+        checkOutDate: checkOut,
+        adults: '1',
+        roomQuantity: '1',
+        radius: '5',
+        radiusUnit: 'KM',
+        currency: 'USD',
+        limit: '20',
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to search hotels');
+      // If we have a valid city code from our map, use it; otherwise use full address for geocoding
+      if (cityCode) {
+        params.append('cityCode', cityCode);
+      } else {
+        // Use full address - backend will geocode it (neighborhoods, landmarks, etc.)
+        params.append('address', cityName);
       }
 
+      const response = await fetch(`${getApiEndpoint('hotels/search')}?${params}`);
       const data = await response.json();
-      setHotels(data.data || []);
-      setHasMore((data.data?.length || 0) >= 20);
 
-      // Scroll to results
-      setTimeout(() => {
-        window.scrollTo({ top: 400, behavior: 'smooth' });
-      }, 100);
+      if (data.success) {
+        setHotels(data.data);
+        setHasMore(data.data.length >= 20);
+
+        // Scroll to results
+        setTimeout(() => {
+          window.scrollTo({ top: 400, behavior: 'smooth' });
+        }, 100);
+      } else {
+        setError(data.message || 'Failed to search hotels');
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred while searching');
       console.error('Search error:', err);
     } finally {
       setLoading(false);
+      setLoadingCardIndex(null);
     }
   };
 
@@ -557,9 +567,18 @@ export default function HotelSearchPage() {
               {pastBookings.map((booking, index) => (
                 <button
                   key={index}
-                  onClick={() => handleQuickSearch(booking.city)}
-                  className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-200 hover:border-blue-300"
+                  onClick={() => handleQuickSearch(booking.city, index)}
+                  disabled={loadingCardIndex === index}
+                  className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-200 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
+                  {loadingCardIndex === index && (
+                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm font-medium text-gray-700">Searching...</span>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex gap-4">
                     <div className="w-32 h-24 flex-shrink-0 overflow-hidden">
                       <img
@@ -600,12 +619,23 @@ export default function HotelSearchPage() {
               <h2 className="text-lg font-semibold text-gray-900">Popular Destinations</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {popularDestinations.map((destination, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleQuickSearch(destination.city)}
-                  className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-200 hover:border-purple-300"
-                >
+              {popularDestinations.map((destination, index) => {
+                const cardIndex = 100 + index; // Offset to avoid conflict with pastBookings indices
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickSearch(destination.city, cardIndex)}
+                    disabled={loadingCardIndex === cardIndex}
+                    className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-200 hover:border-purple-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loadingCardIndex === cardIndex && (
+                      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-sm font-medium text-gray-700">Searching...</span>
+                        </div>
+                      </div>
+                    )}
                   <div className="relative h-40 overflow-hidden">
                     <img
                       src={destination.image}
@@ -628,7 +658,8 @@ export default function HotelSearchPage() {
                     </div>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

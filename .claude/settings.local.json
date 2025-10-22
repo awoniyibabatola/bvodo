@@ -44,7 +44,10 @@
       "Bash(findstr \"DATABASE_URL\" backend/.env.production)",
       "Bash(tasklist /FI \"IMAGENAME eq node.exe\" /FO TABLE)",
       "Bash(findstr \"DATABASE_URL\")",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(findstr:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []
