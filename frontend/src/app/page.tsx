@@ -121,8 +121,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <nav className="w-full bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+        <div className="w-full px-4 md:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center gap-1.5 sm:gap-2">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
@@ -151,7 +151,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section with Gradient Background */}
-      <section className="relative overflow-hidden bg-white">
+      <section className="w-full relative overflow-hidden bg-white">
         {/* Animated gradient overlay */}
         <div className="absolute inset-0 bg-white"></div>
 
@@ -165,9 +165,9 @@ export default function Home() {
           style={{ transform: `translateY(${scrollY * -0.2}px)` }}
         ></div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 relative">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 relative">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <div className="animate-slide-in-left">
+          <div className="animate-slide-in-left max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-100 text-blue-700 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
               <Rocket className="w-3 h-3 sm:w-4 sm:h-4" />
               Built for African Businesses
@@ -178,7 +178,7 @@ export default function Home() {
                 Simple
               </span>
             </h1>
-            <p className="text-lg sm:text-xl lg:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed">
+            <p className="text-lg sm:text-xl lg:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed max-w-xl">
               Streamline your organization&apos;s travel booking with our all-in-one platform.
               Manage flights, hotels, budgets, and approvals effortlessly.
             </p>
@@ -382,9 +382,10 @@ export default function Home() {
       </section>
 
       {/* Benefits Section 1 - Travel Freedom */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 overflow-hidden">
+      <section className="w-full relative py-12 sm:py-16 lg:py-20 overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full blur-3xl opacity-30 -z-10"></div>
 
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           {/* Image - Creative Rounded Shape */}
           <div className="relative group order-2 lg:order-1 max-w-[280px] sm:max-w-sm lg:max-w-md mx-auto w-full">
@@ -444,7 +445,7 @@ export default function Home() {
           </div>
 
           {/* Content */}
-          <div className="order-1 lg:order-2">
+          <div className="order-1 lg:order-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6">
               <Plane className="w-4 h-4" />
               Stress-Free Travel
@@ -452,7 +453,7 @@ export default function Home() {
             <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
               Your Team Deserves <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Seamless</span> Travel
             </h2>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-xl">
               No more juggling between multiple platforms, endless emails, or confusing spreadsheets. Give your team the freedom to focus on what matters while we handle the complexity of corporate travel.
             </p>
 
@@ -495,16 +496,17 @@ export default function Home() {
             </div>
           </div>
         </div>
+        </div>
       </section>
 
       {/* Benefits Section 2 - Professional Service */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-12 sm:py-16 lg:py-20 overflow-hidden">
+      <section className="w-full relative bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-12 sm:py-16 lg:py-20 overflow-hidden">
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-100 to-pink-100 rounded-full blur-3xl opacity-30 -z-10"></div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Content */}
-            <div>
+            <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold mb-6">
                 <Hotel className="w-4 h-4" />
                 Professional Experience
@@ -512,7 +514,7 @@ export default function Home() {
               <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                 World-Class Service, <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">African</span> Expertise
               </h2>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-xl">
                 We understand the unique challenges of corporate travel in Africa. From Lagos to Nairobi, Accra to Johannesburg—we've got you covered with local knowledge and global standards.
               </p>
 
@@ -618,11 +620,12 @@ export default function Home() {
       </section>
 
       {/* AI Chat Booking Demo Section */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
+      <section className="w-full relative py-20 overflow-hidden">
         {/* Background decoration */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-full blur-3xl opacity-30 -z-10"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tr from-purple-100 to-pink-100 rounded-full blur-3xl opacity-30 -z-10"></div>
 
+        <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-100 to-blue-100 rounded-full text-sm font-semibold text-cyan-700 mb-6 animate-bounce">
             <Sparkles className="w-4 h-4" />
@@ -637,7 +640,7 @@ export default function Home() {
         </div>
 
         {/* Chat Interface Mockup */}
-        <div className="max-w-6xl mx-auto">
+        <div>
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Side - Phone Mockup */}
             <div className="relative animate-scale-in">
@@ -837,7 +840,7 @@ export default function Home() {
             </div>
 
             {/* Right Side - Book with Bvodo Content */}
-            <div className="animate-slide-in-right">
+            <div className="animate-slide-in-right max-w-2xl">
               <div className="mb-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-100 to-blue-100 rounded-full text-sm font-semibold text-cyan-700 mb-6">
                   <MessageSquare className="w-4 h-4" />
@@ -846,7 +849,7 @@ export default function Home() {
                 <h3 className="text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-blue-800 bg-clip-text text-transparent">
                   Book with Bvodo AI
                 </h3>
-                <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-xl">
                   Experience the future of corporate travel. Our AI assistant understands natural language and handles everything from search to booking to invoicing—all in one conversation.
                 </p>
               </div>
@@ -905,14 +908,16 @@ export default function Home() {
             </div>
           </div>
         </div>
+        </div>
       </section>
 
       {/* Modern Features Section */}
-      <section id="features" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 overflow-hidden">
+      <section id="features" className="w-full relative py-12 sm:py-16 lg:py-20 overflow-hidden">
         {/* Background decoration */}
         <div className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full blur-3xl opacity-30 -z-10"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-gradient-to-tr from-pink-100 to-blue-100 rounded-full blur-3xl opacity-30 -z-10"></div>
 
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="text-center mb-12 sm:mb-16 lg:mb-20">
           <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full text-xs sm:text-sm font-semibold text-blue-700 mb-4 sm:mb-6 animate-bounce">
             <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1063,19 +1068,21 @@ export default function Home() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* Invoicing Feature Highlight */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <section className="w-full py-20">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl p-12 text-white">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-sm font-medium mb-6">
                 <FileText className="w-4 h-4" />
                 Invoicing Made Simple
               </div>
               <h2 className="text-4xl font-bold mb-6">From Expense to Invoice in Seconds</h2>
-              <p className="text-xl text-blue-100 mb-8">
+              <p className="text-xl text-blue-100 mb-8 max-w-xl">
                 Automatically generate invoices from travel expenses. Individual, group, or consolidated - your choice.
               </p>
               <div className="space-y-4">
@@ -1226,10 +1233,12 @@ export default function Home() {
             </div>
           </div>
         </div>
+        </div>
       </section>
 
       {/* Moving Invoices Showcase */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
+      <section className="w-full relative py-20 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full text-sm font-semibold text-green-700 mb-6">
             <CreditCard className="w-4 h-4" />
@@ -1447,19 +1456,21 @@ export default function Home() {
             <p className="text-gray-600 text-sm">PDF, Excel, QuickBooks, Xero - export to your favorite tools</p>
           </div>
         </div>
+        </div>
       </section>
 
       {/* Testimonials */}
-      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 overflow-hidden">
+      <section className="w-full relative py-12 sm:py-16 lg:py-20 overflow-hidden">
         {/* Floating decorations */}
         <div className="absolute top-20 left-10 w-16 h-16 sm:w-20 sm:h-20 bg-blue-200/30 rounded-full blur-xl animate-float"></div>
         <div className="absolute bottom-20 right-10 w-24 h-24 sm:w-32 sm:h-32 bg-purple-200/30 rounded-full blur-xl animate-float" style={{ animationDelay: '1s' }}></div>
 
+        <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="text-center mb-10 sm:mb-12 lg:mb-16 animate-fade-in">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">Loved by African Businesses</h2>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600">See what our customers say</p>
         </div>
-        <div className="relative max-w-4xl mx-auto">
+        <div className="relative">
           <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-6 sm:p-8 lg:p-12 border border-gray-100 animate-scale-in">
             <div className="text-center mb-6 sm:mb-8">
               <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">{testimonials[currentTestimonial].name}</div>
@@ -1488,15 +1499,16 @@ export default function Home() {
             ))}
           </div>
         </div>
+        </div>
       </section>
 
       {/* CTA Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-purple-600 py-12 sm:py-16 lg:py-20 overflow-hidden">
+      <section className="w-full relative bg-gradient-to-r from-blue-600 to-purple-600 py-12 sm:py-16 lg:py-20 overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute top-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-purple-900/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
 
-        <div className="relative max-w-4xl mx-auto text-center px-4 sm:px-6">
+        <div className="relative max-w-4xl mx-auto text-center px-4 md:px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6 animate-fade-in">
             Ready to Transform Your Corporate Travel?
           </h2>
@@ -1514,8 +1526,8 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 sm:py-10 lg:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="w-full bg-gray-900 text-gray-400 py-8 sm:py-10 lg:py-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3 sm:mb-4">
