@@ -128,7 +128,7 @@ export default function ApplyCreditPage() {
         </div>
 
         {/* Info Banner */}
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8">
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 md:p-4 mb-8">
           <div className="flex items-start gap-4">
             <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
               <AlertCircle className="w-5 h-5 text-blue-600" />
@@ -156,7 +156,7 @@ export default function ApplyCreditPage() {
         {/* Application Form */}
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
           {/* Credit Amount Section */}
-          <div className="p-8 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <DollarSign className="w-5 h-5" />
               Credit Request
@@ -199,7 +199,7 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Business Information */}
-          <div className="p-8 border-b border-gray-200">
+          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <Building2 className="w-5 h-5" />
               Business Information
@@ -337,7 +337,7 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Contact Information */}
-          <div className="p-8 border-b border-gray-200">
+          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <User className="w-5 h-5" />
               Contact Person
@@ -402,7 +402,7 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Business Address */}
-          <div className="p-8 border-b border-gray-200">
+          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <MapPin className="w-5 h-5" />
               Business Address
@@ -481,7 +481,7 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Credit Terms */}
-          <div className="p-8 border-b border-gray-200">
+          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200">
             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
               <TrendingUp className="w-5 h-5" />
               Credit Terms
@@ -531,7 +531,7 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Submit Button */}
-          <div className="p-8 bg-gray-50">
+          <div className="p-3 md:p-4 lg:p-5 bg-gray-50">
             <div className="flex items-start gap-4 mb-6">
               <input
                 type="checkbox"

@@ -213,7 +213,7 @@ export default function FlightSearchPage() {
         {/* Search Form - Desktop only, always hidden on mobile */}
         <div className="hidden md:block relative mb-6 md:mb-8">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl md:rounded-3xl blur-xl"></div>
-          <form onSubmit={handleSearch} className="relative bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl border border-gray-200">
+          <form onSubmit={handleSearch} className="relative bg-white rounded-2xl md:rounded-3xl p-3 md:p-4 lg:p-5 shadow-2xl border border-gray-200">
             {/* Trip Type */}
             <div className="flex gap-2 md:gap-4 mb-4 md:mb-6">
               <button
@@ -421,7 +421,7 @@ export default function FlightSearchPage() {
               </div>
 
               {/* Form Content */}
-              <form onSubmit={handleSearch} className="p-4">
+              <form onSubmit={handleSearch} className="p-3">
                 {/* Trip Type */}
                 <div className="flex gap-2 mb-4">
                   <button
@@ -659,7 +659,7 @@ export default function FlightSearchPage() {
                   key={index}
                   className="group bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-md md:shadow-lg border border-gray-200 hover:shadow-2xl hover:border-blue-200 transition-all duration-300"
                 >
-                  <div className="p-3 md:p-6 lg:p-8">
+                  <div className="p-3 md:p-4 lg:p-5">
                     <div className="flex flex-col lg:flex-row gap-3 md:gap-6 items-center">
                       {/* Airline Info with Logo */}
                       <div className="flex-shrink-0 text-center">
@@ -780,7 +780,7 @@ export default function FlightSearchPage() {
 
                       {/* Price & CTA */}
                       <div className="flex-shrink-0 lg:w-56 w-full">
-                        <div className="p-3 md:p-6 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 text-center">
+                        <div className="p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 text-center">
                           <div className="text-[10px] md:text-xs text-gray-500 mb-1 md:mb-2">
                             Total Price
                           </div>

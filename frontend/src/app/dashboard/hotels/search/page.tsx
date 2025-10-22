@@ -667,7 +667,7 @@ export default function HotelSearchPage() {
         {/* Search Form - Desktop only, always hidden on mobile */}
         <div className="hidden md:block relative mb-6 md:mb-8">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl md:rounded-3xl blur-xl"></div>
-          <form onSubmit={handleSearch} className="relative bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 shadow-2xl border border-gray-200">
+          <form onSubmit={handleSearch} className="relative bg-white rounded-2xl md:rounded-3xl p-3 md:p-4 lg:p-5 shadow-2xl border border-gray-200">
             {/* Location and Dates */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 mb-4 md:mb-6">
               {/* Address/City */}
@@ -903,7 +903,7 @@ export default function HotelSearchPage() {
 
             {/* Extended Filters Panel */}
             {showFilters && (
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 mb-6 space-y-4">
+              <div className="bg-white rounded-2xl p-3 md:p-4 lg:p-5 shadow-lg border border-gray-200 mb-6 space-y-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-gray-900">Advanced Filters</h3>
                   <button
@@ -1050,7 +1050,7 @@ export default function HotelSearchPage() {
                   </div>
 
                   {/* Hotel Info */}
-                  <div className="flex-1 p-3 md:p-6 lg:p-8">
+                  <div className="flex-1 p-3 md:p-4 lg:p-5">
                     <div className="mb-3 md:mb-5">
                       <h3 className="text-base md:text-xl font-bold text-gray-900 mb-2 md:mb-3 group-hover:text-blue-600 transition-colors leading-tight">
                         {hotel.hotel?.name || 'Hotel'}
@@ -1152,7 +1152,7 @@ export default function HotelSearchPage() {
                   </div>
 
                   {/* Pricing & CTA */}
-                  <div className="lg:w-64 flex flex-col justify-between p-3 md:p-6 lg:p-8 bg-gradient-to-br from-gray-50 to-blue-50/30 border-t lg:border-t-0 lg:border-l border-gray-200">
+                  <div className="lg:w-64 flex flex-col justify-between p-3 md:p-4 lg:p-5 bg-gradient-to-br from-gray-50 to-blue-50/30 border-t lg:border-t-0 lg:border-l border-gray-200">
                     <div className="mb-3 md:mb-6">
                       {hotel.offers && hotel.offers.length > 0 ? (
                         <>
@@ -1226,7 +1226,7 @@ export default function HotelSearchPage() {
                   {/* Map overlay with hotel count and fullscreen toggle */}
                   <div className="absolute top-4 left-4 right-4 z-[1000] pointer-events-auto">
                     <div className="flex items-center justify-between gap-4">
-                      <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 border border-gray-200 flex-1">
+                      <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-2 md:p-3 border border-gray-200 flex-1">
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="text-sm font-semibold text-gray-900">{filteredHotels.length} hotels found</div>
@@ -1239,7 +1239,7 @@ export default function HotelSearchPage() {
                       {/* Fullscreen Toggle Button */}
                       <button
                         onClick={() => setIsFullMapView(!isFullMapView)}
-                        className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-all"
+                        className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-2 md:p-3 border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-all"
                         title={isFullMapView ? 'Exit fullscreen' : 'Fullscreen map'}
                       >
                         {isFullMapView ? (
@@ -1265,9 +1265,9 @@ export default function HotelSearchPage() {
                           : 'border-gray-200 hover:border-blue-300 hover:shadow-lg'
                       }`}
                     >
-                      <div className="flex gap-4 p-4">
+                      <div className="flex gap-3 p-2 md:p-3">
                         {/* Hotel Image */}
-                        <div className="w-32 h-24 flex-shrink-0 relative overflow-hidden rounded-xl">
+                        <div className="w-28 md:w-32 h-20 md:h-24 flex-shrink-0 relative overflow-hidden rounded-xl">
                           <img
                             src={hotel.hotel?.media && hotel.hotel.media.length > 0
                               ? (hotel.hotel.media[0].uri || hotel.hotel.media[0].url)
@@ -1360,7 +1360,7 @@ export default function HotelSearchPage() {
                     </div>
 
                     {/* Hotel Info */}
-                    <div className="p-5">
+                    <div className="p-3 md:p-4">
                       <h3 className="text-base font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
                         {hotel.hotel?.name || 'Hotel'}
                       </h3>
@@ -1513,7 +1513,7 @@ export default function HotelSearchPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSearch} className="p-4 space-y-4">
+            <form onSubmit={handleSearch} className="p-3 space-y-3">
               {/* Location */}
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1.5">Location</label>
