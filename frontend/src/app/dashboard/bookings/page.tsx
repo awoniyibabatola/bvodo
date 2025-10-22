@@ -19,6 +19,9 @@ import {
   DollarSign,
   ChevronLeft,
   ChevronRight,
+  Table2,
+  Calendar as CalendarIcon,
+  List,
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
 
@@ -52,9 +55,13 @@ interface Booking {
   hotelBookings?: any[];
 }
 
+type ViewMode = 'list' | 'calendar' | 'table';
+
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [filters, setFilters] = useState({
     status: '',
     bookingType: '',
@@ -164,6 +171,34 @@ export default function BookingsPage() {
     }
   };
 
+  // Calendar helper functions
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    return { daysInMonth, startingDayOfWeek, year, month };
+  };
+
+  const getBookingsForDate = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return bookings.filter((booking) => {
+      const departureDate = booking.departureDate.split('T')[0];
+      const returnDate = booking.returnDate?.split('T')[0];
+      return departureDate === dateStr || returnDate === dateStr;
+    });
+  };
+
+  const previousMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
+  };
+
   const filteredBookings = bookings.filter((booking) => {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
@@ -236,6 +271,45 @@ export default function BookingsPage() {
           <p className="text-gray-600">View and manage all your travel bookings</p>
         </div>
 
+        {/* View Toggle */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2 bg-white rounded-xl p-1 border border-gray-200 shadow-sm">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition ${
+                viewMode === 'list'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <List className="w-4 h-4" />
+              <span className="hidden md:inline">List</span>
+            </button>
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition ${
+                viewMode === 'calendar'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <CalendarIcon className="w-4 h-4" />
+              <span className="hidden md:inline">Calendar</span>
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition ${
+                viewMode === 'table'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <Table2 className="w-4 h-4" />
+              <span className="hidden md:inline">Table</span>
+            </button>
+          </div>
+        </div>
+
         {/* Filters and Search */}
         <div className="bg-white rounded-2xl p-6 mb-6 shadow-lg border border-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -287,7 +361,7 @@ export default function BookingsPage() {
           </div>
         </div>
 
-        {/* Bookings List */}
+        {/* Bookings Content */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -314,7 +388,7 @@ export default function BookingsPage() {
               </Link>
             </div>
           </div>
-        ) : (
+        ) : viewMode === 'list' ? (
           <>
             <div className="space-y-6">
               {filteredBookings.map((booking) => (
@@ -520,6 +594,188 @@ export default function BookingsPage() {
               </div>
             )}
           </>
+        ) : viewMode === 'calendar' ? (
+          /* Calendar View */
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={previousMonth}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={nextMonth}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg">
+              <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                  <div key={day} className="p-2 md:p-3 text-center text-xs md:text-sm font-semibold text-gray-700">
+                    {day}
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7">
+                {(() => {
+                  const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentDate);
+                  const days = [];
+
+                  for (let i = 0; i < startingDayOfWeek; i++) {
+                    days.push(<div key={`empty-${i}`} className="h-20 md:h-28 bg-gray-50 border border-gray-200"></div>);
+                  }
+
+                  for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    const dayBookings = getBookingsForDate(date);
+                    const isToday = new Date().toDateString() === date.toDateString();
+
+                    days.push(
+                      <div
+                        key={day}
+                        className={`h-20 md:h-28 border border-gray-200 p-1 md:p-2 overflow-y-auto ${
+                          isToday ? 'bg-blue-50 border-blue-300' : 'bg-white hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className={`text-xs md:text-sm font-semibold mb-1 ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
+                          {day}
+                        </div>
+                        <div className="space-y-1">
+                          {dayBookings.slice(0, 2).map((booking) => (
+                            <Link
+                              key={booking.id}
+                              href={`/dashboard/bookings/${booking.id}`}
+                              className="block"
+                            >
+                              <div className={`text-[9px] md:text-[10px] p-1 rounded border ${getStatusColor(booking.status)} hover:shadow-md transition-shadow`}>
+                                <div className="flex items-center gap-1">
+                                  {booking.bookingType === 'flight' ? (
+                                    <Plane className="w-2 h-2 md:w-3 md:h-3" />
+                                  ) : (
+                                    <Hotel className="w-2 h-2 md:w-3 md:h-3" />
+                                  )}
+                                  <span className="font-medium truncate">{booking.destination}</span>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                          {dayBookings.length > 2 && (
+                            <div className="text-[9px] md:text-[10px] text-gray-600 font-medium pl-1">
+                              +{dayBookings.length - 2}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return days;
+                })()}
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Table View */
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-gray-700">
+                      Reference
+                    </th>
+                    <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-gray-700">
+                      Type
+                    </th>
+                    <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-gray-700">
+                      Route
+                    </th>
+                    <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-gray-700">
+                      Dates
+                    </th>
+                    <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-gray-700">
+                      Passengers
+                    </th>
+                    <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-gray-700">
+                      Amount
+                    </th>
+                    <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-gray-700">
+                      Status
+                    </th>
+                    <th className="px-3 md:px-4 py-3 text-left text-xs md:text-sm font-semibold text-gray-700">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredBookings.map((booking) => (
+                    <tr key={booking.id} className="hover:bg-gray-50 transition">
+                      <td className="px-3 md:px-4 py-3 text-xs md:text-sm font-medium text-gray-900">
+                        {booking.bookingReference}
+                      </td>
+                      <td className="px-3 md:px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          {booking.bookingType === 'flight' ? (
+                            <>
+                              <Plane className="w-4 h-4 text-blue-600" />
+                              <span className="text-xs md:text-sm text-gray-700">Flight</span>
+                            </>
+                          ) : (
+                            <>
+                              <Hotel className="w-4 h-4 text-purple-600" />
+                              <span className="text-xs md:text-sm text-gray-700">Hotel</span>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-4 py-3">
+                        <div className="flex items-center gap-1 text-xs md:text-sm text-gray-700">
+                          {booking.origin && <span className="font-medium">{booking.origin}</span>}
+                          {booking.origin && <span>→</span>}
+                          <span className="font-medium">{booking.destination}</span>
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-gray-700">
+                        <div>{formatDate(booking.departureDate)}</div>
+                        {booking.returnDate && (
+                          <div className="text-xs text-gray-500">to {formatDate(booking.returnDate)}</div>
+                        )}
+                      </td>
+                      <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-gray-700">
+                        {booking.passengers}
+                      </td>
+                      <td className="px-3 md:px-4 py-3 text-xs md:text-sm font-medium text-gray-900">
+                        ${booking.totalPrice.toLocaleString()}
+                      </td>
+                      <td className="px-3 md:px-4 py-3">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
+                          {formatStatus(booking.status)}
+                        </span>
+                      </td>
+                      <td className="px-3 md:px-4 py-3">
+                        <Link
+                          href={`/dashboard/bookings/${booking.id}`}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-xs md:text-sm"
+                        >
+                          <Eye className="w-3 h-3 md:w-4 md:h-4" />
+                          <span className="hidden md:inline">View</span>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
       </main>
     </div>
