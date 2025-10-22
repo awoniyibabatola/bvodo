@@ -114,7 +114,7 @@ export default function ApplyCreditPage() {
           return;
         }
 
-        const response = await fetch(getApiEndpoint('auth/me'), {
+        const response = await fetch(getApiEndpoint('auth/profile'), {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
