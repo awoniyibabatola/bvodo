@@ -469,20 +469,22 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
     });
 
     // Send booking request email to traveler
-    await sendBookingRequestEmail(
-      completeBooking.user.email,
-      `${completeBooking.user.firstName} ${completeBooking.user.lastName}`,
-      completeBooking.bookingReference,
-      completeBooking.bookingType,
-      completeBooking.origin || '',
-      completeBooking.destination,
-      completeBooking.departureDate,
-      completeBooking.returnDate,
-      parseFloat(completeBooking.totalPrice.toString()),
-      completeBooking.currency,
-      requiresApproval,
-      currentUser?.approverId ? 'your approver' : undefined
-    );
+    if (completeBooking) {
+      await sendBookingRequestEmail(
+        completeBooking.user.email,
+        `${completeBooking.user.firstName} ${completeBooking.user.lastName}`,
+        completeBooking.bookingReference,
+        completeBooking.bookingType,
+        completeBooking.origin || '',
+        completeBooking.destination,
+        completeBooking.departureDate,
+        completeBooking.returnDate,
+        parseFloat(completeBooking.totalPrice.toString()),
+        completeBooking.currency,
+        requiresApproval,
+        currentUser?.approverId ? 'your approver' : undefined
+      );
+    }
 
     res.status(201).json({
       success: true,
@@ -710,15 +712,17 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
     });
 
     // Send approval email to traveler
-    await sendBookingApprovalEmail(
-      updatedBooking.user.email,
-      `${updatedBooking.user.firstName} ${updatedBooking.user.lastName}`,
-      updatedBooking.bookingReference,
-      updatedBooking.bookingType,
-      updatedBooking.destination,
-      `${updatedBooking.approver.firstName} ${updatedBooking.approver.lastName}`,
-      updatedBooking.approvedAt!
-    );
+    if (updatedBooking.approver) {
+      await sendBookingApprovalEmail(
+        updatedBooking.user.email,
+        `${updatedBooking.user.firstName} ${updatedBooking.user.lastName}`,
+        updatedBooking.bookingReference,
+        updatedBooking.bookingType,
+        updatedBooking.destination,
+        `${updatedBooking.approver.firstName} ${updatedBooking.approver.lastName}`,
+        updatedBooking.approvedAt!
+      );
+    }
 
     res.status(200).json({
       success: true,
