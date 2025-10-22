@@ -144,23 +144,23 @@ export default function ManageUsersPage() {
 
       <div className="w-full px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg">
-                <Users className="w-6 h-6 text-white" />
+              <div className="p-2.5 md:p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg flex-shrink-0">
+                <Users className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Manage Users</h1>
-                <p className="text-gray-600">{filteredUsers.length} users in your organization</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Users</h1>
+                <p className="text-sm md:text-base text-gray-600">{filteredUsers.length} users in your organization</p>
               </div>
             </div>
             <Link
               href="/dashboard/users/invite"
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition shadow-lg"
+              className="flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-sm md:text-base font-semibold hover:from-blue-700 hover:to-purple-700 transition shadow-lg whitespace-nowrap"
             >
-              <UserPlus className="w-5 h-5" />
-              Invite User
+              <UserPlus className="w-4 h-4 md:w-5 md:h-5" />
+              <span>Invite User</span>
             </Link>
           </div>
         </div>
