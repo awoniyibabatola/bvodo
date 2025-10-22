@@ -19,6 +19,7 @@ import {
   ArrowUpRight,
   Sparkles,
   X,
+  Globe,
   CreditCard as CreditCardIcon
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
@@ -160,12 +161,12 @@ export default function DashboardPage() {
             <span className="px-2 py-0.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[10px] md:text-xs font-bold rounded-full">NEW</span>
           </div>
           {/* Horizontal scrollable container */}
-          <div className="overflow-x-auto pb-3 md:pb-4 pt-2 -mx-4 px-4 scrollbar-hide">
-            <div className="flex gap-3 md:gap-4 min-w-max md:min-w-0 md:grid md:grid-cols-3">
+          <div className="overflow-x-auto pb-3 md:pb-4 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-3 md:gap-4 min-w-max">
             {/* Suggestion 1 - Quick Flight */}
             <button
               onClick={() => handleAISuggestionClick("I need a flight from Lagos to Nairobi next Tuesday for 2 people")}
-              className="group relative text-left flex-shrink-0 w-[260px] sm:w-[280px] md:w-auto"
+              className="group relative text-left flex-shrink-0 w-[260px] sm:w-[280px]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl md:rounded-2xl blur-lg opacity-15 group-hover:opacity-25 transition"></div>
               <div className="relative bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-xl md:rounded-2xl p-4 md:p-5 hover:border-cyan-400 transition-all hover:scale-105 hover:shadow-md h-full">
@@ -189,7 +190,7 @@ export default function DashboardPage() {
             {/* Suggestion 2 - Hotel with Preferences */}
             <button
               onClick={() => handleAISuggestionClick("Find me a luxury hotel in Dubai with pool and gym, checking in December 25th for 3 nights")}
-              className="group relative text-left flex-shrink-0 w-[260px] sm:w-[280px] md:w-auto"
+              className="group relative text-left flex-shrink-0 w-[260px] sm:w-[280px]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl md:rounded-2xl blur-lg opacity-15 group-hover:opacity-25 transition"></div>
               <div className="relative bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl md:rounded-2xl p-4 md:p-5 hover:border-purple-400 transition-all hover:scale-105 hover:shadow-md h-full">
@@ -213,7 +214,7 @@ export default function DashboardPage() {
             {/* Suggestion 3 - Complex Trip */}
             <button
               onClick={() => handleAISuggestionClick("I need flight and hotel for a business trip to London from Lagos, departing next month for 5 days")}
-              className="group relative text-left flex-shrink-0 w-[260px] sm:w-[280px] md:w-auto"
+              className="group relative text-left flex-shrink-0 w-[260px] sm:w-[280px]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl md:rounded-2xl blur-lg opacity-15 group-hover:opacity-25 transition"></div>
               <div className="relative bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-xl md:rounded-2xl p-4 md:p-5 hover:border-emerald-400 transition-all hover:scale-105 hover:shadow-md h-full">
@@ -233,18 +234,43 @@ export default function DashboardPage() {
                 </div>
               </div>
             </button>
-            </div>
+
+            {/* Suggestion 4 - Multi-City Trip */}
+            <button
+              onClick={() => handleAISuggestionClick("Book a multi-city trip: Lagos to Paris, Paris to Amsterdam, Amsterdam back to Lagos for a team of 3")}
+              className="group relative text-left flex-shrink-0 w-[260px] sm:w-[280px]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-xl md:rounded-2xl blur-lg opacity-15 group-hover:opacity-25 transition"></div>
+              <div className="relative bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-200 rounded-xl md:rounded-2xl p-4 md:p-5 hover:border-orange-400 transition-all hover:scale-105 hover:shadow-md h-full">
+                <div className="flex items-start gap-2 md:gap-3 mb-2 md:mb-3">
+                  <div className="p-1.5 md:p-2 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg md:rounded-xl shadow-lg flex-shrink-0">
+                    <Globe className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-sm md:text-base text-gray-900 mb-0.5 md:mb-1">Multi-City Journey</h3>
+                    <p className="text-xs md:text-sm text-gray-600 line-clamp-1">"Lagos → Paris → Amsterdam..."</p>
+                  </div>
+                  <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-orange-500 animate-pulse flex-shrink-0" />
+                </div>
+                <div className="flex items-center gap-1.5 md:gap-2 text-[11px] md:text-xs text-orange-700 font-medium">
+                  <span>Try AI Chat</span>
+                  <ArrowUpRight className="w-2.5 h-2.5 md:w-3 md:h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+              </div>
+            </button>
           </div>
         </div>
+        </div>
 
-        {/* Stats Grid - Credit Card + 4 Small Cards */}
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 mb-8 md:mb-10">
+        {/* Stats Grid - Credit Card + 4 Small Cards + Travel Tips */}
+        <div className="flex flex-col lg:flex-row gap-3 mb-8 md:mb-10">
           {/* Credit Card - Flippable */}
           <div
-            className="group relative cursor-pointer perspective-1000 flex-shrink-0 w-full max-w-[350px] h-[220px] mx-auto lg:mx-0"
+            className="group cursor-pointer flex-shrink-0 w-full max-w-[400px] h-[220px] mx-auto lg:mx-0"
             onClick={() => setIsCardFlipped(!isCardFlipped)}
           >
-            <div className={`absolute inset-0 transition-transform duration-700 transform-style-3d ${isCardFlipped ? 'rotate-y-180' : ''}`}>
+            <div className="relative w-full h-full perspective-1000">
+              <div className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${isCardFlipped ? 'rotate-y-180' : ''}`}>
               {/* Front of Card */}
               <div className="absolute w-full h-full backface-hidden">
                 <CreditCard
@@ -257,120 +283,161 @@ export default function DashboardPage() {
               {/* Back of Card */}
               <div className="absolute w-full h-full backface-hidden rotate-y-180">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur-xl opacity-30"></div>
-                <div className="relative h-full bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl shadow-2xl overflow-hidden p-5">
+                <div className="relative h-full bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl shadow-2xl overflow-hidden flex flex-col">
                   {/* Magnetic stripe */}
-                  <div className="w-full h-10 bg-gradient-to-r from-gray-700 to-gray-800 -mx-5 mb-4"></div>
+                  <div className="w-full h-8 bg-gradient-to-r from-gray-700 to-gray-800 mt-5"></div>
 
                   {/* Credit Usage */}
-                  <div className="space-y-3">
-                    <div>
-                      <div className="text-white/70 text-xs font-medium uppercase tracking-wider mb-2">Credit Usage</div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-white/80">Credit Used</span>
-                          <span className="text-white font-bold">
-                            ${dashboardStats?.credits.used.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || '0'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-white/80">Total Credit</span>
-                          <span className="text-white font-bold">
-                            ${dashboardStats?.credits.total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || '0'}
-                          </span>
-                        </div>
-                        <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden mt-2">
-                          <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" style={{width: `${dashboardStats?.credits.usagePercentage || 0}%`}}></div>
-                        </div>
-                        <div className="text-white/60 text-xs text-center">{dashboardStats?.credits.usagePercentage || 0}% utilized</div>
+                  <div className="flex-1 px-5 pt-5 pb-3 flex flex-col justify-center">
+                    <div className="text-white/60 text-[10px] font-medium uppercase tracking-widest mb-3">Credit Usage</div>
+                    <div className="space-y-2.5">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-white/70">Used</span>
+                        <span className="text-white font-semibold">
+                          ${dashboardStats?.credits.used.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || '0'}
+                        </span>
                       </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-white/70">Total</span>
+                        <span className="text-white font-semibold">
+                          ${dashboardStats?.credits.total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) || '0'}
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" style={{width: `${dashboardStats?.credits.usagePercentage || 0}%`}}></div>
+                      </div>
+                      <div className="text-white/50 text-[10px] text-center pt-1">{dashboardStats?.credits.usagePercentage || 0}% utilized</div>
                     </div>
                   </div>
 
                   {/* Signature strip */}
-                  <div className="absolute bottom-5 left-5 right-5 h-9 bg-white/90 rounded flex items-center px-3">
-                    <div className="text-gray-800 text-xs italic font-handwriting">Authorized Signature</div>
+                  <div className="h-8 bg-white/90 mx-5 mb-5 rounded flex items-center px-3">
+                    <div className="text-gray-800 text-[10px] italic">Authorized Signature</div>
                   </div>
 
                   {/* Decorative circles */}
                   <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl"></div>
                 </div>
               </div>
+              </div>
             </div>
           </div>
 
           {/* 4 Travel Metrics Cards - 2x2 Grid */}
-          <div className="grid grid-cols-2 gap-3 md:gap-4 flex-1">
+          <div className="grid grid-cols-2 gap-3 md:gap-4 flex-shrink-0 w-full max-w-[400px] mx-auto lg:mx-0 h-auto lg:h-[220px]">
             {/* Hotels Booked */}
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl md:rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition duration-300"></div>
-              <div className="relative bg-white backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 hover:border-purple-300 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                  <div className="p-1.5 md:p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg md:rounded-xl shadow-md shadow-purple-500/30">
-                    <Hotel className="w-3 h-3 md:w-4 md:h-4 text-white" />
+            <div className="group relative h-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+              <div className="relative h-full bg-white backdrop-blur-xl rounded-lg p-3 md:p-4 border border-gray-200 hover:border-purple-300 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-1.5 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md shadow-sm">
+                    <Hotel className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <span className="text-[10px] md:text-xs text-purple-600 font-bold">Total</span>
+                  <span className="text-[10px] md:text-xs text-purple-600 font-bold uppercase tracking-wide">Total</span>
                 </div>
-                <div className="space-y-0.5">
+                <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.hotelsBooked || 0}</div>
-                  <div className="text-[10px] md:text-xs text-gray-600">Hotels Booked</div>
+                  <div className="text-xs md:text-sm text-gray-600">Hotels Booked</div>
                 </div>
               </div>
             </div>
 
             {/* Hotel Nights */}
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-xl md:rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition duration-300"></div>
-              <div className="relative bg-white backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 hover:border-indigo-300 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                  <div className="p-1.5 md:p-2 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-lg md:rounded-xl shadow-md shadow-indigo-500/30">
-                    <Calendar className="w-3 h-3 md:w-4 md:h-4 text-white" />
+            <div className="group relative h-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+              <div className="relative h-full bg-white backdrop-blur-xl rounded-lg p-3 md:p-4 border border-gray-200 hover:border-indigo-300 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-1.5 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-md shadow-sm">
+                    <Calendar className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <span className="text-[10px] md:text-xs text-indigo-600 font-medium">Nights</span>
+                  <span className="text-[10px] md:text-xs text-indigo-600 font-bold uppercase tracking-wide">Nights</span>
                 </div>
-                <div className="space-y-0.5">
+                <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.hotelNights || 0}</div>
-                  <div className="text-[10px] md:text-xs text-gray-600">Hotel Nights</div>
+                  <div className="text-xs md:text-sm text-gray-600">Hotel Nights</div>
                 </div>
               </div>
             </div>
 
             {/* Flights Taken */}
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl md:rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition duration-300"></div>
-              <div className="relative bg-white backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 hover:border-blue-300 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                  <div className="p-1.5 md:p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg md:rounded-xl shadow-md shadow-blue-500/30">
-                    <Plane className="w-3 h-3 md:w-4 md:h-4 text-white" />
+            <div className="group relative h-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+              <div className="relative h-full bg-white backdrop-blur-xl rounded-lg p-3 md:p-4 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-1.5 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-md shadow-sm">
+                    <Plane className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <span className="text-[10px] md:text-xs text-blue-600 font-bold">Total</span>
+                  <span className="text-[10px] md:text-xs text-blue-600 font-bold uppercase tracking-wide">Total</span>
                 </div>
-                <div className="space-y-0.5">
+                <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.flightsTaken || 0}</div>
-                  <div className="text-[10px] md:text-xs text-gray-600">Flights Taken</div>
+                  <div className="text-xs md:text-sm text-gray-600">Flights Taken</div>
                 </div>
               </div>
             </div>
 
             {/* Destinations */}
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl md:rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition duration-300"></div>
-              <div className="relative bg-white backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 hover:border-emerald-300 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                  <div className="p-1.5 md:p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg md:rounded-xl shadow-md shadow-emerald-500/30">
-                    <MapPin className="w-3 h-3 md:w-4 md:h-4 text-white" />
+            <div className="group relative h-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+              <div className="relative h-full bg-white backdrop-blur-xl rounded-lg p-3 md:p-4 border border-gray-200 hover:border-emerald-300 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-1.5 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-md shadow-sm">
+                    <MapPin className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <span className="text-[10px] md:text-xs text-emerald-600 font-medium">Unique</span>
+                  <span className="text-[10px] md:text-xs text-emerald-600 font-bold uppercase tracking-wide">Unique</span>
                 </div>
-                <div className="space-y-0.5">
+                <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.destinations || 0}</div>
-                  <div className="text-[10px] md:text-xs text-gray-600">Destinations</div>
+                  <div className="text-xs md:text-sm text-gray-600">Destinations</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Corporate Travel Tips */}
+          <div className="flex-1 w-full max-w-[400px] mx-auto lg:max-w-none lg:mx-0">
+            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 backdrop-blur-xl rounded-xl p-4 md:p-5 border border-blue-200 shadow-sm h-auto lg:h-[220px] overflow-hidden">
+              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-base md:text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Travel Smart</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5 md:gap-3">
+                <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-blue-100">
+                  <div className="flex-shrink-0 w-1 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
+                  <div>
+                    <p className="text-xs md:text-sm font-semibold text-blue-900 mb-1 leading-tight">Book Early</p>
+                    <p className="text-[10px] md:text-xs text-gray-600 leading-relaxed">Save up to 30%</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-purple-100">
+                  <div className="flex-shrink-0 w-1 bg-gradient-to-b from-purple-500 to-purple-600 rounded-full"></div>
+                  <div>
+                    <p className="text-xs md:text-sm font-semibold text-purple-900 mb-1 leading-tight">Flexible Dates</p>
+                    <p className="text-[10px] md:text-xs text-gray-600 leading-relaxed">20% cheaper</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-pink-100">
+                  <div className="flex-shrink-0 w-1 bg-gradient-to-b from-pink-500 to-pink-600 rounded-full"></div>
+                  <div>
+                    <p className="text-xs md:text-sm font-semibold text-pink-900 mb-1 leading-tight">Use AI Chat</p>
+                    <p className="text-[10px] md:text-xs text-gray-600 leading-relaxed">Compare faster</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-white/60 backdrop-blur-sm border border-indigo-100">
+                  <div className="flex-shrink-0 w-1 bg-gradient-to-b from-indigo-500 to-indigo-600 rounded-full"></div>
+                  <div>
+                    <p className="text-xs md:text-sm font-semibold text-indigo-900 mb-1 leading-tight">Track Budget</p>
+                    <p className="text-[10px] md:text-xs text-gray-600 leading-relaxed">Real-time updates</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-6 mt-12 md:mt-16">
           {/* Recent Bookings */}
           <div className="lg:col-span-2 bg-white backdrop-blur-xl rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 border border-gray-200 shadow-lg">
             <div className="flex items-center justify-between mb-4 md:mb-6 lg:mb-8">
