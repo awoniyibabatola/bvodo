@@ -57,7 +57,7 @@ export default function CreditCard({
         {/* Middle Section - Balance */}
         <div className="relative z-10 py-3">
           <div className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5">Available Balance</div>
-          <div className="text-2xl md:text-3xl font-light text-white tracking-tight">
+          <div className="text-1xl md:text-2xl font-bold text-white tracking-tight">
             ${(availableBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </div>
         </div>
