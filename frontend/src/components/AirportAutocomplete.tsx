@@ -140,7 +140,7 @@ export default function AirportAutocomplete({
           }}
           placeholder={placeholder}
           required={required}
-          className="w-full pl-10 md:pl-12 pr-10 md:pr-12 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+          className="w-full pl-10 md:pl-12 pr-10 md:pr-12 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all hover:border-gray-300"
           autoComplete="off"
         />
 
@@ -156,34 +156,34 @@ export default function AirportAutocomplete({
 
         {loading && (
           <div className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2">
-            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-4 h-4 border-2 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
       </div>
 
       {/* Dropdown */}
       {isOpen && locations.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 md:mt-2 bg-white border-2 border-gray-200 rounded-lg md:rounded-xl shadow-2xl max-h-60 md:max-h-80 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 md:mt-2 bg-white border border-gray-200 rounded-lg md:rounded-xl shadow-sm max-h-60 md:max-h-80 overflow-y-auto">
           {locations.map((location, index) => (
             <button
               key={`${location.iataCode}-${index}`}
               type="button"
               onClick={() => handleSelect(location)}
-              className="w-full px-3 md:px-4 py-2.5 md:py-3 text-left hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 focus:bg-blue-50 focus:outline-none"
+              className="w-full px-3 md:px-4 py-2 md:py-2.5 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 focus:bg-gray-50 focus:outline-none"
             >
               <div className="flex items-start gap-2 md:gap-3">
                 <div className="flex-shrink-0 mt-0.5">
                   {location.type === 'AIRPORT' ? (
-                    <Plane className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                    <Plane className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
                   ) : (
-                    <MapPin className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                    <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-sm md:text-base text-gray-900 truncate">
+                  <div className="font-semibold text-xs md:text-sm text-gray-900 truncate">
                     {location.name}
                   </div>
-                  <div className="text-xs md:text-sm text-gray-600 truncate">
+                  <div className="text-[10px] md:text-xs text-gray-600 truncate">
                     {location.cityName && location.cityName !== location.name && (
                       <span>{location.cityName}, </span>
                     )}
@@ -191,7 +191,7 @@ export default function AirportAutocomplete({
                   </div>
                 </div>
                 <div className="flex-shrink-0">
-                  <span className="inline-block px-2 py-0.5 md:px-2.5 md:py-1 bg-gray-100 text-gray-700 text-xs md:text-sm font-mono font-semibold rounded">
+                  <span className="inline-block px-1.5 py-0.5 md:px-2 md:py-0.5 bg-gray-100 text-gray-700 text-[10px] md:text-xs font-mono font-semibold rounded">
                     {location.iataCode}
                   </span>
                 </div>
@@ -203,7 +203,7 @@ export default function AirportAutocomplete({
 
       {/* No results */}
       {isOpen && !loading && searchQuery.length >= 2 && locations.length === 0 && (
-        <div className="absolute z-50 w-full mt-1 md:mt-2 bg-white border-2 border-gray-200 rounded-lg md:rounded-xl shadow-2xl p-4 text-center">
+        <div className="absolute z-50 w-full mt-1 md:mt-2 bg-white border border-gray-200 rounded-lg md:rounded-xl shadow-sm p-4 text-center">
           <Search className="w-8 h-8 text-gray-300 mx-auto mb-2" />
           <p className="text-sm text-gray-500">No locations found</p>
           <p className="text-xs text-gray-400 mt-1">Try searching for a city or airport name</p>

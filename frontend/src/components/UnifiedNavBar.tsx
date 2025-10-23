@@ -92,12 +92,12 @@ export default function UnifiedNavBar({
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2 md:gap-3 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-50 group-hover:opacity-75 transition"></div>
-                <div className="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                <div className="absolute inset-0 bg-gray-900 rounded-2xl blur opacity-20 group-hover:opacity-30 transition"></div>
+                <div className="relative w-10 h-10 bg-gray-900 rounded-2xl flex items-center justify-center">
                   <Plane className="text-white w-5 h-5" />
                 </div>
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <span className="text-xl font-bold text-gray-900">
                 bvodo
               </span>
             </Link>

@@ -47,6 +47,43 @@ const AIRLINE_NAMES: { [key: string]: string } = {
   'NZ': 'Air New Zealand',
 };
 
+// Airport and City names mapping
+const AIRPORT_NAMES: { [key: string]: { airport: string; city: string } } = {
+  'JFK': { airport: 'John F. Kennedy International Airport', city: 'New York' },
+  'LAX': { airport: 'Los Angeles International Airport', city: 'Los Angeles' },
+  'LHR': { airport: 'London Heathrow Airport', city: 'London' },
+  'CDG': { airport: 'Charles de Gaulle Airport', city: 'Paris' },
+  'DXB': { airport: 'Dubai International Airport', city: 'Dubai' },
+  'SIN': { airport: 'Singapore Changi Airport', city: 'Singapore' },
+  'HND': { airport: 'Tokyo Haneda Airport', city: 'Tokyo' },
+  'NRT': { airport: 'Narita International Airport', city: 'Tokyo' },
+  'ORD': { airport: 'O\'Hare International Airport', city: 'Chicago' },
+  'ATL': { airport: 'Hartsfield-Jackson Atlanta International Airport', city: 'Atlanta' },
+  'DFW': { airport: 'Dallas/Fort Worth International Airport', city: 'Dallas' },
+  'DEN': { airport: 'Denver International Airport', city: 'Denver' },
+  'SFO': { airport: 'San Francisco International Airport', city: 'San Francisco' },
+  'SEA': { airport: 'Seattle-Tacoma International Airport', city: 'Seattle' },
+  'LAS': { airport: 'Harry Reid International Airport', city: 'Las Vegas' },
+  'MCO': { airport: 'Orlando International Airport', city: 'Orlando' },
+  'MIA': { airport: 'Miami International Airport', city: 'Miami' },
+  'BOS': { airport: 'Logan International Airport', city: 'Boston' },
+  'EWR': { airport: 'Newark Liberty International Airport', city: 'Newark' },
+  'FRA': { airport: 'Frankfurt Airport', city: 'Frankfurt' },
+  'AMS': { airport: 'Amsterdam Airport Schiphol', city: 'Amsterdam' },
+  'MAD': { airport: 'Adolfo Suárez Madrid-Barajas Airport', city: 'Madrid' },
+  'BCN': { airport: 'Barcelona-El Prat Airport', city: 'Barcelona' },
+  'FCO': { airport: 'Leonardo da Vinci-Fiumicino Airport', city: 'Rome' },
+  'IST': { airport: 'Istanbul Airport', city: 'Istanbul' },
+  'SYD': { airport: 'Sydney Kingsford Smith Airport', city: 'Sydney' },
+  'MEL': { airport: 'Melbourne Airport', city: 'Melbourne' },
+  'HKG': { airport: 'Hong Kong International Airport', city: 'Hong Kong' },
+  'ICN': { airport: 'Incheon International Airport', city: 'Seoul' },
+  'PEK': { airport: 'Beijing Capital International Airport', city: 'Beijing' },
+  'PVG': { airport: 'Shanghai Pudong International Airport', city: 'Shanghai' },
+  'YYZ': { airport: 'Toronto Pearson International Airport', city: 'Toronto' },
+  'YVR': { airport: 'Vancouver International Airport', city: 'Vancouver' },
+};
+
 // Function to get airline logo URL
 const getAirlineLogo = (code: string) => {
   return `https://images.kiwi.com/airlines/64/${code}.png`;
@@ -186,9 +223,9 @@ export default function FlightDetailsPage() {
 
   if (!flight) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Plane className="w-12 h-12 text-blue-600 animate-bounce mx-auto mb-4" />
+          <Plane className="w-12 h-12 text-gray-700 animate-pulse mx-auto mb-4" />
           <p className="text-gray-600">Loading flight details...</p>
         </div>
       </div>
@@ -196,10 +233,10 @@ export default function FlightDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50">
-        <div className="w-full px-4 md:px-6 lg:px-8">
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="flex items-center gap-4 h-16">
             <Link
               href="/dashboard/flights/search"
@@ -213,13 +250,13 @@ export default function FlightDetailsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="w-full px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Flight Details - Left Side */}
           <div className="lg:col-span-2 space-y-6">
             {/* Flight Overview */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-200">
-              <h1 className="text-3xl font-bold text-gray-900 mb-6">Flight Details</h1>
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <h1 className="text-base font-bold text-gray-900 mb-4">Flight Details</h1>
 
               {/* Itineraries */}
               {flight.itineraries.map((itinerary: any, itinIndex: number) => {
@@ -229,55 +266,55 @@ export default function FlightDetailsPage() {
                 const arrivalInfo = formatDateTime(lastSegment.arrival.at);
 
                 return (
-                  <div key={itinIndex} className="mb-8 last:mb-0">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Plane className="w-5 h-5 text-blue-600" />
-                      <h3 className="text-lg font-bold text-gray-900">
+                  <div key={itinIndex} className="mb-6 last:mb-0">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Plane className="w-4 h-4 text-gray-700" />
+                      <h3 className="text-sm font-bold text-gray-900">
                         {itinIndex === 0 ? 'Outbound Flight' : 'Return Flight'}
                       </h3>
                     </div>
 
                     {/* Flight Route Summary */}
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-4">
-                      <div className="flex items-center justify-between">
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-gray-900 mb-1">
+                    <div className="bg-gray-50 rounded-lg p-4 mb-3 border border-gray-200">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="text-left flex-1">
+                          <div className="text-lg font-bold text-gray-900 mb-0.5">
                             {departureInfo.time}
                           </div>
-                          <div className="text-sm font-semibold text-gray-700 mb-1">
-                            {firstSegment.departure.iataCode}
+                          <div className="text-xs font-semibold text-gray-900">
+                            {AIRPORT_NAMES[firstSegment.departure.iataCode]?.city || firstSegment.departure.iataCode}
                           </div>
-                          <div className="text-xs text-gray-600">{departureInfo.date}</div>
+                          <div className="text-[10px] text-gray-600 mt-0.5">
+                            {AIRPORT_NAMES[firstSegment.departure.iataCode]?.airport || firstSegment.departure.iataCode}
+                          </div>
+                          <div className="text-[10px] text-gray-500 mt-0.5">{departureInfo.date}</div>
                         </div>
 
-                        <div className="flex-1 px-6">
-                          <div className="relative">
-                            <div className="border-t-2 border-dashed border-blue-300"></div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 py-1 rounded-lg border border-blue-200">
-                              <div className="text-xs font-semibold text-gray-700">
-                                {formatDuration(itinerary.duration)}
-                              </div>
-                            </div>
+                        <div className="flex-shrink-0 px-4 flex flex-col items-center pt-1">
+                          <div className="text-[10px] font-semibold text-gray-700 mb-2">
+                            {formatDuration(itinerary.duration)}
                           </div>
-                          <div className="text-center mt-2">
-                            <div className="text-xs text-gray-600">
-                              {itinerary.segments.length === 1
-                                ? 'Direct'
-                                : `${itinerary.segments.length - 1} ${
-                                    itinerary.segments.length - 1 === 1 ? 'stop' : 'stops'
-                                  }`}
-                            </div>
+                          <div className="border-t border-dashed border-gray-300 w-24 mb-2"></div>
+                          <div className="text-[10px] text-gray-600">
+                            {itinerary.segments.length === 1
+                              ? 'Direct'
+                              : `${itinerary.segments.length - 1} ${
+                                  itinerary.segments.length - 1 === 1 ? 'stop' : 'stops'
+                                }`}
                           </div>
                         </div>
 
-                        <div className="text-center">
-                          <div className="text-3xl font-bold text-gray-900 mb-1">
+                        <div className="text-right flex-1">
+                          <div className="text-lg font-bold text-gray-900 mb-0.5">
                             {arrivalInfo.time}
                           </div>
-                          <div className="text-sm font-semibold text-gray-700 mb-1">
-                            {lastSegment.arrival.iataCode}
+                          <div className="text-xs font-semibold text-gray-900">
+                            {AIRPORT_NAMES[lastSegment.arrival.iataCode]?.city || lastSegment.arrival.iataCode}
                           </div>
-                          <div className="text-xs text-gray-600">{arrivalInfo.date}</div>
+                          <div className="text-[10px] text-gray-600 mt-0.5">
+                            {AIRPORT_NAMES[lastSegment.arrival.iataCode]?.airport || lastSegment.arrival.iataCode}
+                          </div>
+                          <div className="text-[10px] text-gray-500 mt-0.5">{arrivalInfo.date}</div>
                         </div>
                       </div>
                     </div>
@@ -289,86 +326,102 @@ export default function FlightDetailsPage() {
                       const isExpanded = expandedSegments[itinIndex * 100 + segIndex];
 
                       return (
-                        <div key={segIndex} className="mb-4 last:mb-0">
+                        <div key={segIndex} className="mb-3 last:mb-0">
                           <div
-                            className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-blue-300 transition-all cursor-pointer"
+                            className="bg-white border border-gray-200 rounded-lg p-3 hover:border-gray-400 transition-all cursor-pointer"
                             onClick={() => toggleSegment(itinIndex * 100 + segIndex)}
                           >
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4 flex-1">
+                              <div className="flex items-center gap-3 flex-1">
                                 {/* Airline Logo */}
-                                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center border-2 border-gray-200 overflow-hidden flex-shrink-0">
+                                <div className="w-10 h-10 bg-white rounded flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
                                   <img
                                     src={getAirlineLogo(segment.carrierCode)}
                                     alt={AIRLINE_NAMES[segment.carrierCode] || segment.carrierCode}
-                                    className="w-full h-full object-contain p-2"
+                                    className="w-full h-full object-contain p-1"
                                     onError={(e) => {
                                       e.currentTarget.style.display = 'none';
                                       e.currentTarget.nextElementSibling?.classList.remove('hidden');
                                     }}
                                   />
-                                  <Plane className="w-7 h-7 text-blue-600 hidden" />
+                                  <Plane className="w-5 h-5 text-gray-600 hidden" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="font-bold text-gray-900 text-base">
+                                  <div className="font-bold text-gray-900 text-sm">
                                     {AIRLINE_NAMES[segment.carrierCode] || segment.carrierCode}
                                   </div>
-                                  <div className="text-sm text-gray-600">
-                                    {segment.carrierCode} {segment.number} • {segment.departure.iataCode} → {segment.arrival.iataCode}
+                                  <div className="text-[10px] text-gray-600">
+                                    {segment.carrierCode} {segment.number} • {AIRPORT_NAMES[segment.departure.iataCode]?.city || segment.departure.iataCode} → {AIRPORT_NAMES[segment.arrival.iataCode]?.city || segment.arrival.iataCode}
                                   </div>
                                 </div>
                                 {/* Flight Times - Visible when collapsed */}
                                 {!isExpanded && (
-                                  <div className="flex items-center gap-6 mr-4">
+                                  <div className="flex items-start gap-4 mr-2">
                                     <div className="text-center">
-                                      <div className="text-2xl font-bold text-gray-900 mb-0.5">{segment.departure.iataCode}</div>
-                                      <div className="text-sm font-semibold text-gray-700">{segDeparture.time}</div>
-                                      <div className="text-xs text-gray-500">{segDeparture.date}</div>
+                                      <div className="text-base font-bold text-gray-900">{segment.departure.iataCode}</div>
+                                      <div className="text-xs font-semibold text-gray-700">{segDeparture.time}</div>
+                                      <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
+                                      <div className="text-[10px] text-gray-600 font-medium mt-0.5">
+                                        {AIRPORT_NAMES[segment.departure.iataCode]?.city || segment.departure.iataCode}
+                                      </div>
+                                      <div className="text-[9px] text-gray-500">
+                                        {AIRPORT_NAMES[segment.departure.iataCode]?.airport || ''}
+                                      </div>
                                     </div>
-                                    <div className="flex flex-col items-center">
-                                      <ArrowRight className="w-5 h-5 text-gray-400 mb-1" />
-                                      <div className="text-xs text-gray-600 font-medium">{formatDuration(segment.duration)}</div>
+                                    <div className="flex flex-col items-center pt-6">
+                                      <ArrowRight className="w-4 h-4 text-gray-400" />
+                                      <div className="text-[10px] text-gray-600 font-medium mt-1">{formatDuration(segment.duration)}</div>
                                     </div>
                                     <div className="text-center">
-                                      <div className="text-2xl font-bold text-gray-900 mb-0.5">{segment.arrival.iataCode}</div>
-                                      <div className="text-sm font-semibold text-gray-700">{segArrival.time}</div>
-                                      <div className="text-xs text-gray-500">{segArrival.date}</div>
+                                      <div className="text-base font-bold text-gray-900">{segment.arrival.iataCode}</div>
+                                      <div className="text-xs font-semibold text-gray-700">{segArrival.time}</div>
+                                      <div className="text-[10px] text-gray-500">{segArrival.date}</div>
+                                      <div className="text-[10px] text-gray-600 font-medium mt-0.5">
+                                        {AIRPORT_NAMES[segment.arrival.iataCode]?.city || segment.arrival.iataCode}
+                                      </div>
+                                      <div className="text-[9px] text-gray-500">
+                                        {AIRPORT_NAMES[segment.arrival.iataCode]?.airport || ''}
+                                      </div>
                                     </div>
                                   </div>
                                 )}
                               </div>
                               {isExpanded ? (
-                                <ChevronUp className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                                <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
                               ) : (
-                                <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                               )}
                             </div>
 
                             {isExpanded && (
-                              <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
-                                <div className="grid grid-cols-2 gap-4">
+                              <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+                                <div className="grid grid-cols-2 gap-3">
                                   <div>
-                                    <div className="text-xs text-gray-500 mb-1">Departure</div>
-                                    <div className="font-semibold text-gray-900">
+                                    <div className="text-[10px] text-gray-500 mb-0.5">Departure</div>
+                                    <div className="font-semibold text-gray-900 text-sm">
                                       {segDeparture.time}
                                     </div>
-                                    <div className="text-sm text-gray-600">{segDeparture.date}</div>
+                                    <div className="text-xs font-semibold text-gray-700">{AIRPORT_NAMES[segment.departure.iataCode]?.city || segment.departure.iataCode}</div>
+                                    <div className="text-[10px] text-gray-600">{AIRPORT_NAMES[segment.departure.iataCode]?.airport || segment.departure.iataCode}</div>
+                                    <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
                                   </div>
                                   <div>
-                                    <div className="text-xs text-gray-500 mb-1">Arrival</div>
-                                    <div className="font-semibold text-gray-900">
+                                    <div className="text-[10px] text-gray-500 mb-0.5">Arrival</div>
+                                    <div className="font-semibold text-gray-900 text-sm">
                                       {segArrival.time}
                                     </div>
-                                    <div className="text-sm text-gray-600">{segArrival.date}</div>
+                                    <div className="text-xs font-semibold text-gray-700">{AIRPORT_NAMES[segment.arrival.iataCode]?.city || segment.arrival.iataCode}</div>
+                                    <div className="text-[10px] text-gray-600">{AIRPORT_NAMES[segment.arrival.iataCode]?.airport || segment.arrival.iataCode}</div>
+                                    <div className="text-[10px] text-gray-500">{segArrival.date}</div>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-4 text-sm text-gray-600">
+                                <div className="flex items-center gap-3 text-[10px] text-gray-600">
                                   <div className="flex items-center gap-1">
-                                    <Clock className="w-4 h-4" />
+                                    <Clock className="w-3 h-3" />
                                     <span>{formatDuration(segment.duration)}</span>
                                   </div>
                                   <div className="flex items-center gap-1">
-                                    <Briefcase className="w-4 h-4" />
+                                    <Briefcase className="w-3 h-3" />
                                     <span>
                                       {flight.travelerPricings?.[0]?.fareDetailsBySegment?.[segIndex]
                                         ?.cabin || 'Economy'}
@@ -389,10 +442,10 @@ export default function FlightDetailsPage() {
                             const layoverMins = layoverMinutes % 60;
 
                             return (
-                              <div className="flex items-center justify-center py-3">
-                                <div className="px-4 py-2 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-700">
-                                  <Clock className="w-4 h-4 inline mr-2" />
-                                  Layover at {segment.arrival.iataCode} • {layoverHours}h {layoverMins}m
+                              <div className="flex items-center justify-center py-2">
+                                <div className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-[10px] text-gray-700">
+                                  <Clock className="w-3 h-3 inline mr-1" />
+                                  Layover at {AIRPORT_NAMES[segment.arrival.iataCode]?.city || segment.arrival.iataCode} • {layoverHours}h {layoverMins}m
                                 </div>
                               </div>
                             );
@@ -406,24 +459,24 @@ export default function FlightDetailsPage() {
             </div>
 
             {/* Baggage & Policies */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Baggage & Policies</h2>
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <h2 className="text-sm font-bold text-gray-900 mb-3">Baggage & Policies</h2>
 
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {flight.travelerPricings?.[0]?.fareDetailsBySegment?.map(
                   (fareDetail: any, index: number) => (
                     <div
                       key={index}
-                      className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100"
+                      className="p-2 bg-gray-50 rounded border border-gray-200"
                     >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Luggage className="w-4 h-4 text-blue-600" />
-                        <span className="font-semibold text-gray-900">Segment {index + 1}</span>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Luggage className="w-3 h-3 text-gray-700" />
+                        <span className="font-semibold text-gray-900 text-xs">Segment {index + 1}</span>
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-[10px] text-gray-600">
                         {fareDetail.includedCheckedBags?.quantity ? (
                           <span className="flex items-center gap-1">
-                            <Check className="w-4 h-4 text-green-600" />
+                            <Check className="w-3 h-3 text-gray-700" />
                             {fareDetail.includedCheckedBags.quantity} checked bag(s) included
                           </span>
                         ) : (
@@ -439,12 +492,12 @@ export default function FlightDetailsPage() {
 
           {/* Booking Summary - Right Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8 bg-white rounded-3xl p-8 shadow-xl border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Booking Summary</h2>
+            <div className="sticky top-8 bg-white rounded-lg p-4 border border-gray-200">
+              <h2 className="text-sm font-bold text-gray-900 mb-3">Booking Summary</h2>
 
               {/* Price Breakdown */}
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between text-gray-600">
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between text-xs text-gray-600">
                   <span>Base Fare</span>
                   <span className="font-semibold">
                     {flight.price.currency} {parseFloat(flight.price.base).toLocaleString('en-US', {
@@ -460,7 +513,7 @@ export default function FlightDetailsPage() {
 
                   if (taxesAndFees > 0) {
                     return (
-                      <div className="flex justify-between text-gray-600">
+                      <div className="flex justify-between text-xs text-gray-600">
                         <span>Taxes & Fees</span>
                         <span className="font-semibold">
                           {flight.price.currency}{' '}
@@ -476,18 +529,18 @@ export default function FlightDetailsPage() {
                 })()}
               </div>
 
-              <div className="border-t border-gray-200 pt-4 mb-6">
+              <div className="border-t border-gray-200 pt-3 mb-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold text-gray-900">Total Price</span>
+                  <span className="text-xs font-semibold text-gray-900">Total Price</span>
                   <div className="text-right">
-                    <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    <div className="text-lg font-bold text-gray-900">
                       {flight.price.currency}{' '}
                       {parseFloat(flight.price.total).toLocaleString('en-US', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-[10px] text-gray-500">
                       For {flight.travelerPricings?.length || 1}{' '}
                       {flight.travelerPricings?.length === 1 ? 'passenger' : 'passengers'}
                     </div>
@@ -496,27 +549,27 @@ export default function FlightDetailsPage() {
               </div>
 
               {/* Features */}
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Check className="w-4 h-4 text-green-600" />
+              <div className="space-y-1.5 mb-4">
+                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                  <Check className="w-3 h-3 text-gray-700" />
                   <span>Instant confirmation</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Check className="w-4 h-4 text-green-600" />
+                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                  <Check className="w-3 h-3 text-gray-700" />
                   <span>Mobile ticket</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Check className="w-4 h-4 text-green-600" />
+                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                  <Check className="w-3 h-3 text-gray-700" />
                   <span>Flexible booking</span>
                 </div>
               </div>
 
               <button
                 onClick={handleContinueToBook}
-                className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full px-4 py-3 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
               >
                 Continue to Book
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>

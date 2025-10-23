@@ -51,7 +51,8 @@
       "Bash(git push)",
       "Bash(npx tsc:*)",
       "Bash(node -e:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(timeout /t 10)"
     ],
     "deny": [],
     "ask": []

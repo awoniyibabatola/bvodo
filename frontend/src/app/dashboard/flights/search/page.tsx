@@ -17,6 +17,7 @@ import {
   Luggage,
   Plus,
   Minus,
+  Building2,
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import { getApiEndpoint } from '@/lib/api-config';
@@ -319,55 +320,73 @@ export default function FlightSearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
+    <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
       <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
 
       {/* Main Content */}
-      <div className="w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+        {/* Search Type Toggle */}
+        <div className="flex gap-2 mb-4">
+          <div className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 text-white">
+            <div className="flex items-center gap-1.5">
+              <Plane className="w-3.5 h-3.5" />
+              <span>Flights</span>
+            </div>
+          </div>
+          <Link
+            href="/dashboard/hotels/search"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+          >
+            <div className="flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Hotels</span>
+            </div>
+          </Link>
+        </div>
+
         {/* Page Header */}
         <div className="mb-4 md:mb-6 lg:mb-8">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-1 md:mb-2">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
             Search Flights
           </h1>
-          <p className="text-sm md:text-base text-gray-600">Find the best flight deals for your next trip</p>
+          <p className="text-xs md:text-sm text-gray-600">Find the best flight deals for your next trip</p>
         </div>
 
         {/* Mobile Search Button - Shows on mobile when no results yet */}
         {!flights.length && (
           <button
             onClick={() => setShowSearchForm(true)}
-            className="md:hidden w-full mb-6 py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+            className="md:hidden w-full mb-6 py-3 px-4 bg-white text-gray-700 rounded-lg font-medium border border-gray-200 flex items-center justify-center gap-2"
           >
-            <Search className="w-6 h-6" />
-            <span className="text-lg">Start Your Flight Search</span>
+            <Search className="w-4 h-4" />
+            <span className="text-sm">Start Your Flight Search</span>
           </button>
         )}
 
         {/* Search Form - Desktop only, always hidden on mobile */}
         <div className="hidden md:block relative mb-6 md:mb-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl md:rounded-3xl blur-xl"></div>
-          <form onSubmit={handleSearch} className="relative bg-white rounded-2xl md:rounded-3xl p-3 md:p-4 lg:p-5 shadow-2xl border border-gray-200">
+          <form onSubmit={handleSearch} className="bg-white rounded-lg p-3 md:p-4 lg:p-5 border border-gray-300">
             {/* Trip Type */}
-            <div className="flex gap-2 md:gap-4 mb-4 md:mb-6">
+            <div className="flex gap-2 mb-3 md:mb-4">
               <button
                 type="button"
                 onClick={() => setTripType('roundtrip')}
-                className={`flex-1 px-4 md:px-6 py-2.5 md:py-3 rounded-lg md:rounded-xl text-sm md:text-base font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
                   tripType === 'roundtrip'
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-white text-gray-700 border border-gray-200'
                 }`}
               >
-                Roundtrip
+                Round trip
               </button>
               <button
                 type="button"
                 onClick={() => setTripType('oneway')}
-                className={`flex-1 px-4 md:px-6 py-2.5 md:py-3 rounded-lg md:rounded-xl text-sm md:text-base font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
                   tripType === 'oneway'
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-white text-gray-700 border border-gray-200'
                 }`}
               >
                 One-way
@@ -395,9 +414,9 @@ export default function FlightSearchPage() {
                 <button
                   type="button"
                   onClick={swapLocations}
-                  className="w-full lg:w-auto p-2.5 md:p-3 bg-gray-100 hover:bg-gray-200 rounded-lg md:rounded-xl transition-all group"
+                  className="w-full lg:w-auto p-2.5 md:p-3 bg-gray-100 border border-gray-300 rounded-lg"
                 >
-                  <ArrowLeftRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600 group-hover:rotate-180 transition-transform duration-300" />
+                  <ArrowLeftRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
                 </button>
               </div>
 
@@ -426,7 +445,7 @@ export default function FlightSearchPage() {
                     onChange={(e) => setDepartureDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   />
                 </div>
               </div>
@@ -443,7 +462,7 @@ export default function FlightSearchPage() {
                       onChange={(e) => setReturnDate(e.target.value)}
                       min={departureDate || new Date().toISOString().split('T')[0]}
                       required={tripType === 'roundtrip'}
-                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                     />
                   </div>
                 </div>
@@ -459,16 +478,16 @@ export default function FlightSearchPage() {
                     value={`${getTotalPassengers()} ${getTotalPassengers() === 1 ? 'Passenger' : 'Passengers'}`}
                     readOnly
                     onClick={() => setShowPassengerSelector(!showPassengerSelector)}
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl bg-white cursor-pointer hover:border-gray-300 transition-all"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg bg-white cursor-pointer"
                   />
 
                   {/* Passenger Selector Dropdown */}
                   {showPassengerSelector && (
-                    <div className="absolute z-50 w-full md:w-96 right-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl p-4 md:p-5">
+                    <div className="absolute z-50 w-full md:w-96 right-0 mt-2 bg-white border border-gray-300 rounded-lg p-4 md:p-5">
                       <h3 className="text-sm font-bold text-gray-900 mb-4">Select Passengers</h3>
 
                       {/* Adults */}
-                      <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                      <div className="flex items-center justify-between py-3 border-b border-gray-200">
                         <div className="flex-1">
                           <div className="text-sm md:text-base font-semibold text-gray-900">Adults</div>
                           <div className="text-xs text-gray-500">Age 12+</div>
@@ -478,7 +497,7 @@ export default function FlightSearchPage() {
                             type="button"
                             onClick={() => setPassengers(p => ({ ...p, adults: Math.max(1, p.adults - 1) }))}
                             disabled={passengers.adults <= 1}
-                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <Minus className="w-4 h-4 text-gray-600" />
                           </button>
@@ -487,7 +506,7 @@ export default function FlightSearchPage() {
                             type="button"
                             onClick={() => setPassengers(p => ({ ...p, adults: Math.min(9, p.adults + 1) }))}
                             disabled={passengers.adults >= 9}
-                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <Plus className="w-4 h-4 text-gray-600" />
                           </button>
@@ -495,7 +514,7 @@ export default function FlightSearchPage() {
                       </div>
 
                       {/* Children */}
-                      <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                      <div className="flex items-center justify-between py-3 border-b border-gray-200">
                         <div className="flex-1">
                           <div className="text-sm md:text-base font-semibold text-gray-900">Children</div>
                           <div className="text-xs text-gray-500">Age 2-11</div>
@@ -505,7 +524,7 @@ export default function FlightSearchPage() {
                             type="button"
                             onClick={() => setPassengers(p => ({ ...p, children: Math.max(0, p.children - 1) }))}
                             disabled={passengers.children <= 0}
-                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <Minus className="w-4 h-4 text-gray-600" />
                           </button>
@@ -514,7 +533,7 @@ export default function FlightSearchPage() {
                             type="button"
                             onClick={() => setPassengers(p => ({ ...p, children: Math.min(9, p.children + 1) }))}
                             disabled={passengers.children >= 9}
-                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <Plus className="w-4 h-4 text-gray-600" />
                           </button>
@@ -532,7 +551,7 @@ export default function FlightSearchPage() {
                             type="button"
                             onClick={() => setPassengers(p => ({ ...p, infants: Math.max(0, p.infants - 1) }))}
                             disabled={passengers.infants <= 0}
-                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <Minus className="w-4 h-4 text-gray-600" />
                           </button>
@@ -541,7 +560,7 @@ export default function FlightSearchPage() {
                             type="button"
                             onClick={() => setPassengers(p => ({ ...p, infants: Math.min(passengers.adults, p.infants + 1) }))}
                             disabled={passengers.infants >= passengers.adults}
-                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-gray-300 flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-300 disabled:hover:bg-white"
+                            className="w-8 h-8 md:w-9 md:h-9 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                             <Plus className="w-4 h-4 text-gray-600" />
                           </button>
@@ -550,14 +569,14 @@ export default function FlightSearchPage() {
 
                       {passengers.infants > 0 && passengers.infants >= passengers.adults && (
                         <div className="mb-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
-                          <p className="text-xs text-amber-800 font-medium">⚠️ Each infant must be accompanied by an adult</p>
+                          <p className="text-xs text-amber-800 font-medium">Each infant must be accompanied by an adult</p>
                         </div>
                       )}
 
                       <button
                         type="button"
                         onClick={() => setShowPassengerSelector(false)}
-                        className="w-full py-2.5 md:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg text-sm md:text-base font-semibold hover:shadow-lg transition-all hover:scale-[1.02]"
+                        className="w-full py-2.5 md:py-3 bg-gray-900 text-white rounded-lg text-sm md:text-base font-semibold"
                       >
                         Done
                       </button>
@@ -581,10 +600,10 @@ export default function FlightSearchPage() {
                     key={cls.value}
                     type="button"
                     onClick={() => setTravelClass(cls.value)}
-                    className={`p-3 md:p-4 rounded-lg md:rounded-xl font-medium transition-all border-2 ${
+                    className={`p-3 md:p-4 rounded-lg font-medium border ${
                       travelClass === cls.value
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        ? 'border-gray-900 bg-gray-100 text-gray-900'
+                        : 'border-gray-300 bg-white text-gray-700'
                     }`}
                   >
                     <cls.icon className="w-4 h-4 md:w-5 md:h-5 mx-auto mb-1 md:mb-2" />
@@ -598,7 +617,7 @@ export default function FlightSearchPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 md:py-4 text-sm md:text-base bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg md:rounded-xl font-semibold hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:scale-[1.02]"
+              className="w-full py-3 md:py-4 text-sm md:text-base bg-gray-900 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -619,7 +638,7 @@ export default function FlightSearchPage() {
         {flights.length > 0 && (
           <button
             onClick={() => setShowSearchForm(true)}
-            className="md:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105 active:scale-95"
+            className="md:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-4 bg-gray-900 text-white rounded-lg font-semibold border border-gray-900"
           >
             <Search className="w-5 h-5" />
             <span>Modify Search</span>
@@ -631,18 +650,18 @@ export default function FlightSearchPage() {
           <div className="fixed inset-0 z-50 md:hidden">
             {/* Backdrop */}
             <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/50"
               onClick={() => setShowSearchForm(false)}
             ></div>
 
             {/* Modal */}
-            <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto animate-slide-up">
+            <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-lg border-t border-gray-300 max-h-[90vh] overflow-y-auto">
               {/* Header */}
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between rounded-t-3xl">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between rounded-t-lg">
                 <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
                 <button
                   onClick={() => setShowSearchForm(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition"
+                  className="p-2 rounded-full"
                 >
                   <Search className="w-5 h-5 text-gray-600 rotate-45" />
                 </button>
@@ -651,25 +670,25 @@ export default function FlightSearchPage() {
               {/* Form Content */}
               <form onSubmit={handleSearch} className="p-3">
                 {/* Trip Type */}
-                <div className="flex gap-2 mb-4">
+                <div className="flex gap-2 mb-3">
                   <button
                     type="button"
                     onClick={() => setTripType('roundtrip')}
-                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
                       tripType === 'roundtrip'
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-white text-gray-700 border border-gray-200'
                     }`}
                   >
-                    Roundtrip
+                    Round trip
                   </button>
                   <button
                     type="button"
                     onClick={() => setTripType('oneway')}
-                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
                       tripType === 'oneway'
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-white text-gray-700 border border-gray-200'
                     }`}
                   >
                     One-way
@@ -692,7 +711,7 @@ export default function FlightSearchPage() {
                   <button
                     type="button"
                     onClick={swapLocations}
-                    className="w-full p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all"
+                    className="w-full p-2.5 bg-gray-100 border border-gray-300 rounded-lg"
                   >
                     <ArrowLeftRight className="w-4 h-4 text-gray-600 mx-auto" />
                   </button>
@@ -721,7 +740,7 @@ export default function FlightSearchPage() {
                         onChange={(e) => setDepartureDate(e.target.value)}
                         min={new Date().toISOString().split('T')[0]}
                         required
-                        className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        className="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                       />
                     </div>
                   </div>
@@ -737,7 +756,7 @@ export default function FlightSearchPage() {
                           onChange={(e) => setReturnDate(e.target.value)}
                           min={departureDate || new Date().toISOString().split('T')[0]}
                           required={tripType === 'roundtrip'}
-                          className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                          className="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                         />
                       </div>
                     </div>
@@ -754,7 +773,7 @@ export default function FlightSearchPage() {
                       value={`${getTotalPassengers()} ${getTotalPassengers() === 1 ? 'Passenger' : 'Passengers'}`}
                       readOnly
                       onClick={() => setShowPassengerSelector(!showPassengerSelector)}
-                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg bg-white cursor-pointer hover:border-gray-300 transition-all"
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-white cursor-pointer"
                     />
                   </div>
                 </div>
@@ -773,10 +792,10 @@ export default function FlightSearchPage() {
                         key={cls.value}
                         type="button"
                         onClick={() => setTravelClass(cls.value)}
-                        className={`p-3 rounded-lg font-medium transition-all border-2 ${
+                        className={`p-3 rounded-lg font-medium border ${
                           travelClass === cls.value
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                            ? 'border-gray-900 bg-gray-100 text-gray-900'
+                            : 'border-gray-300 bg-white text-gray-700'
                         }`}
                       >
                         <cls.icon className="w-4 h-4 mx-auto mb-1" />
@@ -790,7 +809,7 @@ export default function FlightSearchPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 text-sm bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-3 text-sm bg-gray-900 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
@@ -811,7 +830,7 @@ export default function FlightSearchPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+          <div className="mb-8 p-4 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
             {error}
           </div>
         )}
@@ -821,7 +840,7 @@ export default function FlightSearchPage() {
           <div className="space-y-3 md:space-y-6">
             {/* Results Header with Filter */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
-              <h2 className="text-lg md:text-2xl font-bold text-gray-900">
+              <h2 className="text-sm md:text-lg font-bold text-gray-900">
                 Available Flights ({flights.filter(f => {
                   if (selectedAirline === 'all') return true;
                   const airlines = [...new Set(f.itineraries[0].segments.map((seg: any) => seg.carrierCode))];
@@ -831,11 +850,11 @@ export default function FlightSearchPage() {
 
               {/* Airline Filter */}
               <div className="flex items-center gap-2 md:gap-3">
-                <label className="text-xs md:text-sm font-semibold text-gray-700">Filter:</label>
+                <label className="text-xs font-semibold text-gray-700">Filter:</label>
                 <select
                   value={selectedAirline}
                   onChange={(e) => setSelectedAirline(e.target.value)}
-                  className="flex-1 md:flex-none px-3 md:px-4 py-1.5 md:py-2 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white font-medium text-gray-900"
+                  className="flex-1 md:flex-none px-3 md:px-4 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
                 >
                   <option value="all">All Airlines</option>
                   {[...new Set(flights.flatMap(f =>
@@ -870,19 +889,19 @@ export default function FlightSearchPage() {
               const stops = outbound.segments.length - 1;
 
               // Get unique airlines
-              const airlines = [...new Set(outbound.segments.map((seg: any) => seg.carrierCode))] as string[];
+              const airlines = [...new Set(outbound.segments.map((seg: any) => seg.carrierCode))].filter(Boolean) as string[];
               const airlineNames = airlines.join(', ');
 
               return (
                 <div
                   key={index}
-                  className="group bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-md md:shadow-lg border border-gray-200 hover:shadow-2xl hover:border-blue-200 transition-all duration-300"
+                  className="bg-white rounded-lg overflow-hidden border border-gray-300"
                 >
                   <div className="p-3 md:p-4 lg:p-5">
                     <div className="flex flex-col lg:flex-row gap-3 md:gap-6 items-center">
                       {/* Airline Info with Logo */}
                       <div className="flex-shrink-0 text-center">
-                        <div className="w-12 h-12 md:w-20 md:h-20 bg-white rounded-lg md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-md md:shadow-lg mb-1 md:mb-2 border border-gray-200 md:border-2 overflow-hidden">
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden mb-1 md:mb-2">
                           <img
                             src={getAirlineLogo(firstSegment.carrierCode)}
                             alt={AIRLINE_NAMES[firstSegment.carrierCode] || firstSegment.carrierCode}
@@ -893,10 +912,10 @@ export default function FlightSearchPage() {
                               e.currentTarget.nextElementSibling?.classList.remove('hidden');
                             }}
                           />
-                          <Plane className="w-6 h-6 md:w-10 md:h-10 text-blue-600 hidden" />
+                          <Plane className="w-6 h-6 md:w-8 md:h-8 text-gray-600 hidden" />
                         </div>
-                        <div className="text-xs md:text-sm font-bold text-gray-900">{firstSegment.carrierCode}</div>
-                        <div className="text-[10px] md:text-xs text-gray-500">{firstSegment.number}</div>
+                        <div className="text-xs font-bold text-gray-900">{firstSegment.carrierCode}</div>
+                        <div className="text-[10px] text-gray-500">{firstSegment.number}</div>
                       </div>
 
                       {/* Flight Details */}
@@ -904,14 +923,14 @@ export default function FlightSearchPage() {
                         {/* Airline Name - Prominent Header */}
                         <div className="mb-3 md:mb-4">
                           <div className="flex items-center gap-2 md:gap-3">
-                            <div className="flex items-center gap-2 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg md:rounded-xl shadow-md">
-                              <Plane className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                              <span className="text-sm md:text-lg font-bold text-white tracking-wide">
-                                {airlines.map(code => AIRLINE_NAMES[code] || code).join(', ')}
+                            <div className="flex items-center gap-2 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 bg-gray-100 border border-gray-300 rounded-lg">
+                              <Plane className="w-4 h-4 text-gray-700" />
+                              <span className="text-xs md:text-sm font-bold text-gray-900">
+                                {airlines.length > 0 ? airlines.map(code => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
                               </span>
                             </div>
                             {airlines.length > 1 && (
-                              <span className="text-xs md:text-sm font-semibold text-indigo-600 bg-indigo-100 px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg border border-indigo-200">
+                              <span className="text-[10px] md:text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg border border-gray-300">
                                 Multiple Airlines
                               </span>
                             )}
@@ -921,13 +940,13 @@ export default function FlightSearchPage() {
                         {/* Route */}
                         <div className="flex items-center justify-between mb-2 md:mb-4">
                           <div className="text-center flex-1">
-                            <div className="text-lg md:text-2xl font-bold text-gray-900 mb-0.5 md:mb-1">
+                            <div className="text-sm md:text-lg font-bold text-gray-900 mb-0.5 md:mb-1">
                               {departureTime}
                             </div>
-                            <div className="text-xs md:text-sm font-semibold text-gray-900">
+                            <div className="text-xs font-semibold text-gray-900">
                               {firstSegment.departure.iataCode}
                             </div>
-                            <div className="text-[10px] md:text-xs text-gray-500 mt-0.5">
+                            <div className="text-[10px] text-gray-500 mt-0.5">
                               {AIRPORT_CITY_NAMES[firstSegment.departure.iataCode] || firstSegment.departure.cityName || firstSegment.departure.iataCode}
                             </div>
                           </div>
@@ -936,39 +955,39 @@ export default function FlightSearchPage() {
                             <div className="relative">
                               <div className="border-t-2 border-dashed border-gray-300"></div>
                               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-1.5 md:px-3">
-                                <Plane className="w-4 h-4 md:w-5 md:h-5 text-blue-600 rotate-90" />
+                                <Plane className="w-4 h-4 text-gray-600 rotate-90" />
                               </div>
                             </div>
                             <div className="text-center mt-1 md:mt-2">
-                              <div className="text-[10px] md:text-xs font-medium text-gray-600">{duration}</div>
-                              <div className="text-[10px] md:text-xs text-gray-500">
+                              <div className="text-[10px] font-medium text-gray-600">{duration}</div>
+                              <div className="text-[10px] text-gray-500">
                                 {stops === 0 ? 'Direct' : `${stops} ${stops === 1 ? 'stop' : 'stops'}`}
                               </div>
                             </div>
                           </div>
 
                           <div className="text-center flex-1">
-                            <div className="text-lg md:text-2xl font-bold text-gray-900 mb-0.5 md:mb-1">
+                            <div className="text-sm md:text-lg font-bold text-gray-900 mb-0.5 md:mb-1">
                               {arrivalTime}
                             </div>
-                            <div className="text-xs md:text-sm font-semibold text-gray-900">
+                            <div className="text-xs font-semibold text-gray-900">
                               {lastSegment.arrival.iataCode}
                             </div>
-                            <div className="text-[10px] md:text-xs text-gray-500 mt-0.5">
+                            <div className="text-[10px] text-gray-500 mt-0.5">
                               {AIRPORT_CITY_NAMES[lastSegment.arrival.iataCode] || lastSegment.arrival.cityName || lastSegment.arrival.iataCode}
                             </div>
                           </div>
                         </div>
 
-                        {/* Layover Information - Enhanced */}
+                        {/* Layover Information */}
                         {stops > 0 && (
-                          <div className="mt-2 md:mt-3 p-2 md:p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg md:rounded-xl">
+                          <div className="mt-2 md:mt-3 p-2 md:p-3 bg-gray-50 border border-gray-200 rounded-lg">
                             <div className="flex items-start gap-2 md:gap-3">
-                              <div className="p-1 md:p-1.5 bg-blue-500 rounded-md md:rounded-lg flex-shrink-0">
-                                <Clock className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" />
+                              <div className="p-1 md:p-1.5 bg-gray-200 rounded-md flex-shrink-0">
+                                <Clock className="w-3 h-3 text-gray-700" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-[10px] md:text-xs font-bold text-blue-900 uppercase tracking-wide mb-0.5 md:mb-1">
+                                <div className="text-[10px] font-bold text-gray-900 mb-0.5 md:mb-1">
                                   Layover{stops > 1 ? 's' : ''}: {stops} Stop{stops > 1 ? 's' : ''}
                                 </div>
                                 <div className="flex flex-wrap gap-1.5 md:gap-2">
@@ -981,17 +1000,17 @@ export default function FlightSearchPage() {
                                     const layoverMins = layoverMinutes % 60;
 
                                     return (
-                                      <div key={segIndex} className="flex flex-col gap-0.5 px-2 md:px-2.5 py-1 md:py-1.5 bg-white border border-blue-300 rounded-md md:rounded-lg">
+                                      <div key={segIndex} className="flex flex-col gap-0.5 px-2 md:px-2.5 py-1 md:py-1.5 bg-white border border-gray-200 rounded-md">
                                         <div className="flex items-center gap-1 md:gap-1.5">
-                                          <MapPin className="w-2.5 h-2.5 md:w-3 md:h-3 text-blue-600" />
-                                          <span className="text-[10px] md:text-xs font-bold text-gray-900">
+                                          <MapPin className="w-2.5 h-2.5 text-gray-600" />
+                                          <span className="text-[10px] font-bold text-gray-900">
                                             {segment.arrival.iataCode}
                                           </span>
-                                          <span className="text-[10px] md:text-xs text-blue-700 font-medium">
+                                          <span className="text-[10px] text-gray-700 font-medium">
                                             {layoverHours > 0 && `${layoverHours}h `}{layoverMins}m
                                           </span>
                                         </div>
-                                        <div className="text-[9px] md:text-[10px] text-gray-600 pl-4 md:pl-5">
+                                        <div className="text-[9px] text-gray-600 pl-4 md:pl-5">
                                           {AIRPORT_CITY_NAMES[segment.arrival.iataCode] || segment.arrival.cityName || segment.arrival.iataCode}
                                         </div>
                                       </div>
@@ -1004,32 +1023,32 @@ export default function FlightSearchPage() {
                         )}
 
                         {/* Cabin Class */}
-                        <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600 mt-2 md:mt-3">
-                          <Briefcase className="w-3 h-3 md:w-4 md:h-4" />
+                        <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs text-gray-600 mt-2 md:mt-3">
+                          <Briefcase className="w-3 h-3" />
                           <span className="font-medium">{flight.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || 'Economy'}</span>
                         </div>
                       </div>
 
                       {/* Price & CTA */}
                       <div className="flex-shrink-0 lg:w-56 w-full">
-                        <div className="p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 text-center">
-                          <div className="text-[10px] md:text-xs text-gray-500 mb-1 md:mb-2">
+                        <div className="p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                          <div className="text-[10px] text-gray-500 mb-1 md:mb-2">
                             Total Price
                           </div>
-                          <div className="text-xl md:text-2xl font-bold text-gray-900 mb-0.5 md:mb-1">
+                          <div className="text-lg md:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">
                             {flight.price.currency}{' '}
                             {parseFloat(flight.price.total).toLocaleString('en-US', {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             })}
                           </div>
-                          <div className="text-[10px] md:text-xs text-gray-500 mb-3 md:mb-4">
+                          <div className="text-[10px] text-gray-500 mb-3 md:mb-4">
                             for {getTotalPassengers()} {getTotalPassengers() === 1 ? 'passenger' : 'passengers'}
                           </div>
 
                           <Link
                             href={`/dashboard/flights/${flight.id || index}?flightData=${encodeURIComponent(JSON.stringify(flight))}`}
-                            className="w-full px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg md:rounded-xl text-sm md:text-base font-medium hover:shadow-lg hover:scale-[1.01] transition-all duration-200 inline-flex items-center justify-center gap-2"
+                            className="w-full px-4 md:px-6 py-2.5 md:py-3 bg-gray-900 text-white rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2"
                           >
                             View Details
                             <Plane className="w-3.5 h-3.5 md:w-4 md:h-4" />

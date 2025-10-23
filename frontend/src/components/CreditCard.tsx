@@ -19,58 +19,35 @@ export default function CreditCard({
 
   return (
     <div className={`group relative ${className}`}>
-      <div className={`absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl blur-xl opacity-30`}></div>
-      <div className={`relative h-full bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl shadow-2xl overflow-hidden flex flex-col justify-between p-5`}>
-        {/* Card Pattern/Texture - Multiple Layers */}
+      <div className={`relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col justify-between p-5`}>
+        {/* Subtle Pattern Overlay */}
         <div className="absolute inset-0">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              {/* Dot pattern */}
-              <pattern id="dots" x="0" y="0" width="25" height="25" patternUnits="userSpaceOnUse">
-                <circle cx="12.5" cy="12.5" r="1.2" fill="white" opacity="0.25"/>
-              </pattern>
-
-              {/* Diagonal lines */}
-              <pattern id="lines" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <line x1="0" y1="0" x2="0" y2="50" stroke="white" strokeWidth="0.8" opacity="0.12"/>
-              </pattern>
-
-              {/* Wave pattern */}
-              <pattern id="waves" x="0" y="0" width="80" height="15" patternUnits="userSpaceOnUse">
-                <path d="M0 7.5 Q 20 3, 40 7.5 T 80 7.5" stroke="white" strokeWidth="0.8" fill="none" opacity="0.15"/>
-              </pattern>
-
-              {/* Circuit pattern */}
-              <pattern id="circuits" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                <circle cx="20" cy="20" r="2" fill="white" opacity="0.2"/>
-                <circle cx="80" cy="80" r="2" fill="white" opacity="0.2"/>
-                <line x1="20" y1="20" x2="80" y2="20" stroke="white" strokeWidth="0.5" opacity="0.15"/>
-                <line x1="80" y1="20" x2="80" y2="80" stroke="white" strokeWidth="0.5" opacity="0.15"/>
+              {/* Simple dot pattern for minimal texture */}
+              <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                <circle cx="15" cy="15" r="1" fill="white" opacity="0.1"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#dots)"/>
-            <rect width="100%" height="100%" fill="url(#lines)"/>
-            <rect width="100%" height="100%" fill="url(#waves)"/>
-            <rect width="100%" height="100%" fill="url(#circuits)"/>
           </svg>
         </div>
 
         {/* Top Section */}
-        <div className="relative z-10 mb-5">
-          {/* Logo and Chip Row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-md">
-                <Plane className="w-4 h-4 text-blue-600" />
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 bg-white/10 backdrop-blur rounded-xl flex items-center justify-center border border-white/20">
+                <Plane className="w-4 h-4 text-white" />
               </div>
-              <span className="text-xl font-bold text-white tracking-wide">bvodo</span>
+              <span className="text-lg font-semibold text-white/90 tracking-wide">bvodo</span>
             </div>
 
-            {/* EMV Chip */}
-            <div className="w-11 h-9 bg-gradient-to-br from-yellow-200 to-yellow-400 rounded relative shadow-md">
-              <div className="absolute inset-1 grid grid-cols-4 gap-[1px]">
-                {[...Array(12)].map((_, i) => (
-                  <div key={i} className="bg-yellow-600/30 rounded-[0.5px]"></div>
+            {/* Minimal Chip Design */}
+            <div className="w-9 h-7 bg-gradient-to-br from-amber-400/80 to-amber-500/80 rounded-md">
+              <div className="grid grid-cols-3 grid-rows-3 gap-[0.5px] p-1">
+                {[...Array(9)].map((_, i) => (
+                  <div key={i} className="bg-amber-600/40 rounded-[0.5px]"></div>
                 ))}
               </div>
             </div>
@@ -78,31 +55,43 @@ export default function CreditCard({
         </div>
 
         {/* Middle Section - Balance */}
-        <div className="relative z-10 flex-1 flex flex-col justify-center">
-          <div className="text-white/60 text-xs font-medium uppercase tracking-widest mb-1.5">Available Balance</div>
-          <div className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-5">
+        <div className="relative z-10 py-3">
+          <div className="text-white/50 text-[11px] font-medium uppercase tracking-wider mb-1.5">Available Balance</div>
+          <div className="text-2xl md:text-3xl font-light text-white tracking-tight">
             ${(availableBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </div>
         </div>
 
-        {/* Bottom Section - Info Row */}
-        <div className="relative z-10 flex justify-between items-end gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="text-white/50 text-[10px] font-medium uppercase tracking-widest mb-1">Card Holder</div>
-            <div className="text-white font-semibold text-xs uppercase truncate tracking-wide">{organizationName}</div>
+        {/* Bottom Section */}
+        <div className="relative z-10">
+          {/* Card Number (decorative) */}
+          <div className="flex gap-3.5 mb-4 text-white/70 text-sm tracking-widest font-light">
+            <span>••••</span>
+            <span>••••</span>
+            <span>••••</span>
+            <span>•••• </span>
           </div>
-          <div className="flex-shrink-0">
-            <div className="text-white/50 text-[10px] font-medium uppercase tracking-widest mb-1 text-right">Valid Thru</div>
-            <div className="text-white font-semibold text-xs tracking-wider">12/25</div>
-          </div>
-          <div className="flex-shrink-0 bg-white px-2.5 py-1 rounded shadow-md">
-            <span className="text-blue-600 font-bold text-lg italic">VISA</span>
+
+          <div className="flex justify-between items-end">
+            <div className="flex-1 min-w-0">
+              <div className="text-white/40 text-[10px] font-medium uppercase tracking-wider mb-1">Card Holder</div>
+              <div className="text-white/90 font-light text-sm uppercase tracking-wide truncate">{organizationName}</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div>
+                <div className="text-white/40 text-[10px] font-medium uppercase tracking-wider mb-1">Valid Thru</div>
+                <div className="text-white/90 font-light text-sm">12/25</div>
+              </div>
+              {/* Minimal VISA logo */}
+              <div className="bg-white/10 backdrop-blur px-2.5 py-1 rounded-lg border border-white/20">
+                <span className="text-white font-semibold text-sm tracking-wide">VISA</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Decorative circles */}
-        <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+        {/* Subtle gradient overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none"></div>
       </div>
     </div>
   );

@@ -138,16 +138,16 @@ export default function ManageUsersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
+    <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
       <UnifiedNavBar currentPage="users" user={user} />
 
-      <div className="w-full px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-8xl mx-auto w-full px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 md:p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg flex-shrink-0">
+              <div className="p-2.5 md:p-3 bg-blue-600 rounded-2xl flex-shrink-0">
                 <Users className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
@@ -157,7 +157,7 @@ export default function ManageUsersPage() {
             </div>
             <Link
               href="/dashboard/users/invite"
-              className="flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-sm md:text-base font-semibold hover:from-blue-700 hover:to-purple-700 transition shadow-lg whitespace-nowrap"
+              className="flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-blue-600 text-white rounded-xl text-sm md:text-base font-semibold hover:bg-blue-700 transition shadow-sm whitespace-nowrap"
             >
               <UserPlus className="w-4 h-4 md:w-5 md:h-5" />
               <span>Invite User</span>
@@ -166,7 +166,7 @@ export default function ManageUsersPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
             <div className="relative">
@@ -213,7 +213,7 @@ export default function ManageUsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
@@ -254,7 +254,7 @@ export default function ManageUsersPage() {
                     <tr key={user.id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
                             {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                           </div>
                           <div>

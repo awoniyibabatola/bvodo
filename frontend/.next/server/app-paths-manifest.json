@@ -1,8 +1,7 @@
 {
+  "/login/page": "app/login/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
   "/dashboard/bookings/page": "app/dashboard/bookings/page.js",
   "/dashboard/bookings/[id]/page": "app/dashboard/bookings/[id]/page.js",
-  "/dashboard/users/page": "app/dashboard/users/page.js",
-  "/dashboard/hotels/search/page": "app/dashboard/hotels/search/page.js",
-  "/dashboard/flights/search/page": "app/dashboard/flights/search/page.js",
-  "/dashboard/flights/[id]/page": "app/dashboard/flights/[id]/page.js"
+  "/page": "app/page.js"
 }

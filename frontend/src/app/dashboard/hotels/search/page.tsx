@@ -539,28 +539,47 @@ export default function HotelSearchPage() {
   const filteredHotels = getFilteredAndSortedHotels();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
+    <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
       <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
 
       {/* Main Content */}
-      <div className="w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+        {/* Search Type Toggle */}
+        <div className="flex gap-2 mb-4">
+          <Link
+            href="/dashboard/flights/search"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+          >
+            <div className="flex items-center gap-1.5">
+              <Plane className="w-3.5 h-3.5" />
+              <span>Flights</span>
+            </div>
+          </Link>
+          <div className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 text-white">
+            <div className="flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Hotels</span>
+            </div>
+          </div>
+        </div>
+
         {/* Page Header */}
         <div className="mb-4 md:mb-6 lg:mb-8">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-1 md:mb-2">
+          <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
             Search Hotels
           </h1>
-          <p className="text-sm md:text-base text-gray-600">Find the perfect accommodation for your business trip</p>
+          <p className="text-xs text-gray-600">Find the perfect accommodation for your business trip</p>
         </div>
 
         {/* Mobile Search Button - Shows on mobile when no results yet */}
         {!hotels.length && (
           <button
             onClick={() => setShowSearchForm(true)}
-            className="md:hidden w-full mb-6 py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+            className="md:hidden w-full mb-6 py-3 px-4 bg-white text-gray-700 rounded-lg font-medium border border-gray-200 flex items-center justify-center gap-2"
           >
-            <Search className="w-6 h-6" />
-            <span className="text-lg">Start Your Hotel Search</span>
+            <Search className="w-4 h-4" />
+            <span className="text-sm">Start Your Hotel Search</span>
           </button>
         )}
 
@@ -568,8 +587,8 @@ export default function HotelSearchPage() {
         {!hotels.length && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
-              <History className="w-5 h-5 text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Recent Bookings</h2>
+              <History className="w-4 h-4 text-gray-700" />
+              <h2 className="text-sm font-semibold text-gray-900">Recent Bookings</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {pastBookings.map((booking, index) => (
@@ -577,12 +596,12 @@ export default function HotelSearchPage() {
                   key={index}
                   onClick={() => handleQuickSearch(booking.city, index)}
                   disabled={loadingCardIndex === index}
-                  className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-200 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loadingCardIndex === index && (
                     <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
                       <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-8 h-8 border-4 border-gray-700 border-t-transparent rounded-full animate-spin"></div>
                         <span className="text-sm font-medium text-gray-700">Searching...</span>
                       </div>
                     </div>
@@ -599,7 +618,7 @@ export default function HotelSearchPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <MapPin className="w-4 h-4 text-gray-400" />
                         <span className="text-sm font-semibold text-gray-900">{booking.city}</span>
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">
+                        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-medium">
                           {booking.cityCode}
                         </span>
                       </div>
@@ -610,7 +629,7 @@ export default function HotelSearchPage() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Search className="w-4 h-4 text-blue-600" />
+                      <Search className="w-4 h-4 text-gray-700" />
                     </div>
                   </div>
                 </button>
@@ -623,8 +642,8 @@ export default function HotelSearchPage() {
         {!hotels.length && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-5 h-5 text-purple-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Popular Destinations</h2>
+              <TrendingUp className="w-4 h-4 text-gray-600" />
+              <h2 className="text-sm font-semibold text-gray-900">Popular Destinations</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {popularDestinations.map((destination, index) => {
@@ -634,7 +653,7 @@ export default function HotelSearchPage() {
                     key={index}
                     onClick={() => handleQuickSearch(destination.city, cardIndex)}
                     disabled={loadingCardIndex === cardIndex}
-                    className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-200 hover:border-purple-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loadingCardIndex === cardIndex && (
                       <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
@@ -648,21 +667,18 @@ export default function HotelSearchPage() {
                     <img
                       src={destination.image}
                       alt={destination.city}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-gray-900/20 to-transparent"></div>
                     <div className="absolute bottom-0 left-0 right-0 p-4">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-white font-bold text-lg">{destination.city}</h3>
-                        <span className="bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded font-medium">
+                        <h3 className="text-white font-bold text-sm">{destination.city}</h3>
+                        <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded">
                           {destination.cityCode}
                         </span>
                       </div>
-                      <p className="text-white/90 text-xs mb-1">{destination.description}</p>
-                      <p className="text-white/70 text-xs">{destination.hotels}</p>
-                    </div>
-                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Sparkles className="w-4 h-4 text-purple-600" />
+                      <p className="text-white/90 text-[10px] mb-1">{destination.description}</p>
+                      <p className="text-white/70 text-[10px]">{destination.hotels}</p>
                     </div>
                   </div>
                 </button>
@@ -674,61 +690,60 @@ export default function HotelSearchPage() {
 
         {/* Search Form - Desktop only, always hidden on mobile */}
         <div className="hidden md:block relative mb-6 md:mb-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl md:rounded-3xl blur-xl"></div>
-          <form onSubmit={handleSearch} className="relative bg-white rounded-2xl md:rounded-3xl p-3 md:p-4 lg:p-5 shadow-2xl border border-gray-200">
+          <form onSubmit={handleSearch} className="relative bg-white rounded-lg p-3 md:p-4 lg:p-5 border border-gray-200">
             {/* Location and Dates */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 mb-4 md:mb-6">
               {/* Address/City */}
               <div className="lg:col-span-3">
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Location</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Location</label>
                 <CityAutocomplete
                   value={address}
                   onChange={setAddress}
                   placeholder="City or address"
                   required
-                  className="py-2.5 md:py-3 text-sm border-2 hover:border-gray-300"
+                  className="py-2.5 md:py-3 text-sm border hover:border-gray-300"
                 />
-                <p className="text-[10px] md:text-xs text-gray-500 mt-1">City name or detailed address</p>
+                <p className="text-[10px] text-gray-500 mt-1">City name or detailed address</p>
               </div>
 
               {/* Check-in Date */}
               <div className="lg:col-span-3">
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Check-in</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Check-in</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                  <Calendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="date"
                     value={checkInDate}
                     onChange={(e) => setCheckInDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
                   />
                 </div>
               </div>
 
               {/* Check-out Date */}
               <div className="lg:col-span-3">
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Check-out</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Check-out</label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                  <Calendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="date"
                     value={checkOutDate}
                     onChange={(e) => setCheckOutDate(e.target.value)}
                     min={checkInDate || new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
                   />
                 </div>
               </div>
 
               {/* Nights Display */}
               <div className="lg:col-span-3">
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Duration</label>
-                <div className="flex items-center h-[42px] md:h-[50px] px-3 md:px-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg md:rounded-xl border-2 border-blue-200">
-                  <span className="text-xl md:text-2xl font-bold text-blue-600">{calculateNights()}</span>
-                  <span className="ml-2 text-xs md:text-sm text-gray-600">
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Duration</label>
+                <div className="flex items-center h-[42px] md:h-[50px] px-3 md:px-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <span className="text-lg md:text-xl font-bold text-gray-900">{calculateNights()}</span>
+                  <span className="ml-2 text-xs text-gray-600">
                     {calculateNights() === 1 ? 'night' : 'nights'}
                   </span>
                 </div>
@@ -739,9 +754,9 @@ export default function HotelSearchPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
               {/* Adults */}
               <div>
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Adults</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Adults</label>
                 <div className="relative">
-                  <Users className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                  <Users className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="number"
                     value={adults}
@@ -749,16 +764,16 @@ export default function HotelSearchPage() {
                     min={1}
                     max={9}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
                   />
                 </div>
               </div>
 
               {/* Rooms */}
               <div>
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Rooms</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Rooms</label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                  <Building2 className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="number"
                     value={roomQuantity}
@@ -766,25 +781,25 @@ export default function HotelSearchPage() {
                     min={1}
                     max={9}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
                   />
                 </div>
               </div>
 
               {/* Search Radius */}
               <div>
-                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">
                   Radius (km)
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
+                  <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="number"
                     value={radius}
                     onChange={(e) => setRadius(Math.max(1, parseInt(e.target.value) || 5))}
                     min={1}
                     max={300}
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
                   />
                 </div>
               </div>
@@ -794,16 +809,16 @@ export default function HotelSearchPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 md:py-4 text-sm md:text-base bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg md:rounded-xl font-semibold hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:scale-[1.02]"
+              className="w-full py-3 md:py-4 text-sm bg-gray-900 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
-                  <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   Searching...
                 </>
               ) : (
                 <>
-                  <Search className="w-4 h-4 md:w-5 md:h-5" />
+                  <Search className="w-4 h-4" />
                   Search Hotels
                 </>
               )}
@@ -813,7 +828,7 @@ export default function HotelSearchPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+          <div className="mb-8 p-4 bg-gray-100 border border-gray-300 rounded-xl text-gray-700">
             {error}
           </div>
         )}
@@ -823,13 +838,13 @@ export default function HotelSearchPage() {
           <div>
             {/* Results Header with Filters and View Toggle */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900">
                 {filteredHotels.length} of {hotels.length} {hotels.length === 1 ? 'hotel' : 'hotels'}
               </h2>
 
               <div className="flex flex-wrap items-center gap-3">
                 {/* Sort Dropdown */}
-                <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-lg border border-gray-200">
                   <ArrowUpDown className="w-4 h-4 text-gray-600" />
                   <select
                     value={sortBy}
@@ -843,8 +858,8 @@ export default function HotelSearchPage() {
                 </div>
 
                 {/* Rating Filter */}
-                <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm">
-                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-lg border border-gray-200">
+                  <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                   <select
                     value={minRating}
                     onChange={(e) => setMinRating(parseFloat(e.target.value))}
@@ -860,10 +875,10 @@ export default function HotelSearchPage() {
                 {/* Filters Toggle Button */}
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border ${
                     showFilters
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300 shadow-sm'
+                      ? 'bg-gray-900 text-white border-gray-900'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   <SlidersHorizontal className="w-4 h-4" />
@@ -876,7 +891,7 @@ export default function HotelSearchPage() {
                     onClick={() => setViewMode('list')}
                     className={`p-2 rounded-lg transition-all ${
                       viewMode === 'list'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-gray-900 text-white'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                     title="List view"
@@ -887,7 +902,7 @@ export default function HotelSearchPage() {
                     onClick={() => setViewMode('grid')}
                     className={`p-2 rounded-lg transition-all ${
                       viewMode === 'grid'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-gray-900 text-white'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                     title="Grid view"
@@ -898,7 +913,7 @@ export default function HotelSearchPage() {
                     onClick={() => setViewMode('map')}
                     className={`p-2 rounded-lg transition-all ${
                       viewMode === 'map'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-gray-900 text-white'
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                     title="Map view"
@@ -911,16 +926,16 @@ export default function HotelSearchPage() {
 
             {/* Extended Filters Panel */}
             {showFilters && (
-              <div className="bg-white rounded-2xl p-3 md:p-4 lg:p-5 shadow-lg border border-gray-200 mb-6 space-y-4">
+              <div className="bg-white rounded-lg p-3 md:p-4 lg:p-5 border border-gray-200 mb-6 space-y-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-gray-900">Advanced Filters</h3>
+                  <h3 className="text-sm font-bold text-gray-900">Advanced Filters</h3>
                   <button
                     onClick={() => {
                       setSortBy('recommended');
                       setMinRating(0);
                       setMaxPrice(0);
                     }}
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-xs text-gray-700 hover:text-gray-900 font-medium"
                   >
                     Reset All
                   </button>
@@ -929,7 +944,7 @@ export default function HotelSearchPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {/* Rating Filter */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2">
                       Minimum Rating
                     </label>
                     <div className="flex gap-2">
@@ -937,18 +952,18 @@ export default function HotelSearchPage() {
                         <button
                           key={rating}
                           onClick={() => setMinRating(rating)}
-                          className={`flex-1 px-3 py-2 rounded-lg border-2 transition-all ${
+                          className={`flex-1 px-3 py-2 rounded-lg border ${
                             minRating === rating
-                              ? 'border-blue-600 bg-blue-50 text-blue-700'
-                              : 'border-gray-200 hover:border-blue-300 text-gray-700'
+                              ? 'border-gray-900 bg-gray-100 text-gray-900'
+                              : 'border-gray-200 hover:border-gray-300 text-gray-700'
                           }`}
                         >
                           <div className="flex items-center justify-center gap-1">
                             {rating === 0 ? (
-                              <span className="text-sm font-medium">Any</span>
+                              <span className="text-xs font-medium">Any</span>
                             ) : (
                               <>
-                                <span className="text-sm font-medium">{rating}</span>
+                                <span className="text-xs font-medium">{rating}</span>
                                 <Star className="w-3 h-3 fill-current" />
                               </>
                             )}
@@ -960,7 +975,7 @@ export default function HotelSearchPage() {
 
                   {/* Price Filter */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2">
                       Max Price (per night)
                     </label>
                     <div className="flex gap-2">
@@ -968,14 +983,14 @@ export default function HotelSearchPage() {
                         <button
                           key={price}
                           onClick={() => setMaxPrice(price)}
-                          className={`flex-1 px-3 py-2 rounded-lg border-2 transition-all ${
+                          className={`flex-1 px-3 py-2 rounded-lg border ${
                             maxPrice === price
-                              ? 'border-blue-600 bg-blue-50 text-blue-700'
-                              : 'border-gray-200 hover:border-blue-300 text-gray-700'
+                              ? 'border-gray-900 bg-gray-100 text-gray-900'
+                              : 'border-gray-200 hover:border-gray-300 text-gray-700'
                           }`}
                         >
                           <div className="flex items-center justify-center">
-                            <span className="text-sm font-medium">
+                            <span className="text-xs font-medium">
                               {price === 0 ? 'Any' : `$${price}`}
                             </span>
                           </div>
@@ -986,13 +1001,13 @@ export default function HotelSearchPage() {
 
                   {/* Sort By */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs font-semibold text-gray-700 mb-2">
                       Sort By
                     </label>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as any)}
-                      className="w-full px-3 py-2 rounded-lg border-2 border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-sm"
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-gray-900 focus:ring-1 focus:ring-gray-100 outline-none text-sm"
                     >
                       <option value="recommended">Recommended</option>
                       <option value="price">Price (Low to High)</option>
@@ -1003,12 +1018,12 @@ export default function HotelSearchPage() {
 
                   {/* Active Filters Count */}
                   <div className="flex items-end">
-                    <div className="w-full px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
-                      <div className="text-xs text-gray-600 mb-1">Showing</div>
-                      <div className="text-xl font-bold text-blue-600">
+                    <div className="w-full px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="text-[10px] text-gray-600 mb-1">Showing</div>
+                      <div className="text-lg font-bold text-gray-900">
                         {filteredHotels.length} / {hotels.length}
                       </div>
-                      <div className="text-xs text-gray-600">hotels</div>
+                      <div className="text-[10px] text-gray-600">hotels</div>
                     </div>
                   </div>
                 </div>
@@ -1021,7 +1036,7 @@ export default function HotelSearchPage() {
                 {filteredHotels.map((hotel, index) => (
               <div
                 key={index}
-                className="group bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-md md:shadow-lg border border-gray-200 hover:shadow-2xl hover:border-blue-200 transition-all duration-300"
+                className="group bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300"
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Hotel Image */}
@@ -1031,15 +1046,15 @@ export default function HotelSearchPage() {
                         ? (hotel.hotel.media[0].uri || hotel.hotel.media[0].url)
                         : getPlaceholderImage(index)}
                       alt={hotel.hotel?.name || 'Hotel'}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
 
                     {/* Overlay badges */}
                     <div className="absolute top-2 md:top-4 left-2 md:left-4 right-2 md:right-4 flex items-start justify-between z-10">
                       {hotel.hotel?.rating && (
-                        <div className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1.5 md:py-2 bg-white/95 backdrop-blur-sm rounded-lg md:rounded-xl shadow-md md:shadow-lg">
-                          <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-500 fill-yellow-500" />
-                          <span className="text-xs md:text-sm font-bold text-gray-900">
+                        <div className="flex items-center gap-1 px-2 md:px-3 py-1.5 md:py-2 bg-white/95 rounded-lg border border-gray-200">
+                          <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                          <span className="text-xs font-bold text-gray-900">
                             {hotel.hotel.rating}
                           </span>
                         </div>
@@ -1060,15 +1075,15 @@ export default function HotelSearchPage() {
                   {/* Hotel Info */}
                   <div className="flex-1 p-3 md:p-4 lg:p-5">
                     <div className="mb-3 md:mb-5">
-                      <h3 className="text-base md:text-xl font-bold text-gray-900 mb-2 md:mb-3 group-hover:text-blue-600 transition-colors leading-tight">
+                      <h3 className="text-sm font-bold text-gray-900 mb-2 md:mb-3 leading-tight line-clamp-1">
                         {hotel.hotel?.name || 'Hotel'}
                       </h3>
                       <div className="flex items-start gap-1.5 md:gap-2.5 text-gray-700 mb-2 md:mb-3">
-                        <MapPin className="w-4 h-4 md:w-5 md:h-5 mt-0.5 flex-shrink-0 text-blue-500" />
+                        <MapPin className="w-3 h-3 md:w-4 md:h-4 mt-0.5 flex-shrink-0 text-gray-500" />
                         <div className="flex-1">
-                          <span className="line-clamp-2 text-xs md:text-sm font-medium">{formatHotelAddress(hotel)}</span>
+                          <span className="line-clamp-2 text-[10px] md:text-xs font-medium">{formatHotelAddress(hotel)}</span>
                           {getDistanceDisplay(hotel) && (
-                            <span className="text-[10px] md:text-xs text-blue-600 font-semibold mt-1 block bg-blue-50 px-1.5 md:px-2 py-0.5 md:py-1 rounded inline-block">
+                            <span className="text-[10px] text-gray-700 font-semibold mt-1 block bg-gray-100 px-1.5 md:px-2 py-0.5 md:py-1 rounded inline-block">
                               {getDistanceDisplay(hotel)}
                             </span>
                           )}
@@ -1077,7 +1092,7 @@ export default function HotelSearchPage() {
 
                       {/* Hotel Description */}
                       {hotel.hotel?.description && (
-                        <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mb-3 md:mb-4 leading-relaxed">
+                        <p className="text-[10px] md:text-xs text-gray-600 line-clamp-2 mb-3 md:mb-4 leading-relaxed">
                           {hotel.hotel.description}
                         </p>
                       )}
@@ -1087,11 +1102,11 @@ export default function HotelSearchPage() {
                     <div className="grid grid-cols-2 gap-2 md:gap-3 mb-3 md:mb-4">
                       {/* Distance to City Center */}
                       {hotel.hotel?.distance?.value && (
-                        <div className="flex items-start gap-1.5 md:gap-2 p-2 md:p-3 bg-blue-50 rounded-lg border border-blue-100">
-                          <MapPin className="w-3 h-3 md:w-4 md:h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-1.5 md:gap-2 p-2 md:p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <MapPin className="w-3 h-3 text-gray-600 mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="text-[10px] md:text-xs font-semibold text-gray-700">City Center</div>
-                            <div className="text-[10px] md:text-xs text-blue-600 font-bold">
+                            <div className="text-[10px] font-semibold text-gray-700">City Center</div>
+                            <div className="text-[10px] text-gray-900 font-bold">
                               {hotel.hotel.distance.value} {hotel.hotel.distance.unit.toLowerCase()}
                             </div>
                           </div>
@@ -1100,11 +1115,11 @@ export default function HotelSearchPage() {
 
                       {/* Facilities Count */}
                       {hotel.hotel?.amenities && hotel.hotel.amenities.length > 0 && (
-                        <div className="flex items-start gap-1.5 md:gap-2 p-2 md:p-3 bg-purple-50 rounded-lg border border-purple-100">
-                          <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-1.5 md:gap-2 p-2 md:p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <Sparkles className="w-3 h-3 text-gray-600 mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="text-[10px] md:text-xs font-semibold text-gray-700">Facilities</div>
-                            <div className="text-[10px] md:text-xs text-purple-600 font-bold">
+                            <div className="text-[10px] font-semibold text-gray-700">Facilities</div>
+                            <div className="text-[10px] text-gray-900 font-bold">
                               {hotel.hotel.amenities.length}+ amenities
                             </div>
                           </div>
@@ -1115,22 +1130,20 @@ export default function HotelSearchPage() {
                     {/* Top Amenities */}
                     {hotel.hotel?.amenities && hotel.hotel.amenities.length > 0 && (
                       <div className="mb-3 md:mb-4">
-                        <div className="text-[10px] md:text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Popular Facilities</div>
+                        <div className="text-[10px] font-semibold text-gray-700 mb-1.5 md:mb-2">Popular Facilities</div>
                         <div className="flex flex-wrap gap-1.5 md:gap-2">
                           {hotel.hotel.amenities.slice(0, 6).map((amenity: string, idx: number) => {
-                            const Icon = getAmenityIcon(amenity);
                             return (
                               <div
                                 key={idx}
-                                className="flex items-center gap-1 md:gap-1.5 px-2 md:px-3 py-1 md:py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-md md:rounded-lg text-[10px] md:text-xs font-medium text-gray-700 hover:shadow-md transition-shadow"
+                                className="px-2 md:px-3 py-1 md:py-1.5 text-[10px] text-gray-700"
                               >
-                                <Icon className="w-3 h-3 md:w-4 md:h-4 text-blue-600" />
-                                <span className="capitalize">{amenity.replace(/_/g, ' ').toLowerCase()}</span>
+                                <span>{amenity.replace(/_/g, ' ').toLowerCase()}</span>
                               </div>
                             );
                           })}
                           {hotel.hotel.amenities.length > 6 && (
-                            <div className="flex items-center px-2 md:px-3 py-1 md:py-1.5 bg-gray-100 rounded-md md:rounded-lg text-[10px] md:text-xs font-semibold text-gray-600">
+                            <div className="px-2 md:px-3 py-1 md:py-1.5 text-[10px] text-gray-600">
                               +{hotel.hotel.amenities.length - 6} more
                             </div>
                           )}
@@ -1141,18 +1154,18 @@ export default function HotelSearchPage() {
                     {/* Additional Info Pills */}
                     <div className="flex flex-wrap gap-1.5 md:gap-2">
                       {hotel.offers && hotel.offers.length > 0 && (
-                        <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-green-50 border border-green-200 rounded-full text-[10px] md:text-xs font-semibold text-green-700">
-                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                          Available Now
+                        <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-gray-100 border border-gray-200 rounded text-[10px] font-semibold text-gray-700">
+                          <span className="w-1.5 h-1.5 bg-gray-500 rounded-full"></span>
+                          Available
                         </div>
                       )}
                       {hotel.hotel?.rating && hotel.hotel.rating >= 4 && (
-                        <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-yellow-50 border border-yellow-200 rounded-full text-[10px] md:text-xs font-semibold text-yellow-700">
+                        <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-gray-100 border border-gray-200 rounded text-[10px] font-semibold text-gray-700">
                           <Star className="w-2.5 h-2.5 md:w-3 md:h-3 fill-yellow-500 text-yellow-500" />
                           Highly Rated
                         </div>
                       )}
-                      <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-blue-50 border border-blue-200 rounded-full text-[10px] md:text-xs font-semibold text-blue-700">
+                      <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-gray-100 border border-gray-200 rounded text-[10px] font-semibold text-gray-700">
                         <Building2 className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         Business Travel
                       </div>
@@ -1160,31 +1173,28 @@ export default function HotelSearchPage() {
                   </div>
 
                   {/* Pricing & CTA */}
-                  <div className="lg:w-64 flex flex-col justify-between p-3 md:p-4 lg:p-5 bg-gradient-to-br from-gray-50 to-blue-50/30 border-t lg:border-t-0 lg:border-l border-gray-200">
+                  <div className="lg:w-64 flex flex-col justify-between p-3 md:p-4 lg:p-5 bg-gray-50 border-t lg:border-t-0 lg:border-l border-gray-200">
                     <div className="mb-3 md:mb-6">
                       {hotel.offers && hotel.offers.length > 0 ? (
                         <>
-                          <div className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1 md:mb-2">
+                          <div className="text-[10px] font-semibold text-gray-600 mb-1 md:mb-2">
                             Total Price
                           </div>
                           <div className="flex items-baseline gap-1 mb-0.5 md:mb-1">
-                            <span className="text-xl md:text-3xl font-bold text-gray-900">
+                            <span className="text-lg md:text-2xl font-bold text-gray-900">
                               ${hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00'}
                             </span>
-                            <span className="text-xs md:text-sm font-medium text-gray-600">
-                              {hotel.offers[0].price?.currency || 'USD'}
-                            </span>
                           </div>
-                          <div className="text-[10px] md:text-xs text-gray-500 font-medium">
+                          <div className="text-[10px] text-gray-500 font-medium">
                             for {calculateNights()} {calculateNights() === 1 ? 'night' : 'nights'}
                           </div>
                         </>
                       ) : (
                         <>
-                          <div className="text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1 md:mb-2">
+                          <div className="text-[10px] font-semibold text-gray-600 mb-1 md:mb-2">
                             Pricing
                           </div>
-                          <div className="text-xs md:text-sm font-semibold text-blue-600 bg-blue-50 px-2 md:px-3 py-1.5 md:py-2 rounded-lg">
+                          <div className="text-xs font-semibold text-gray-700 bg-gray-100 px-2 md:px-3 py-1.5 md:py-2 rounded-lg">
                             Check availability
                           </div>
                         </>
@@ -1193,10 +1203,9 @@ export default function HotelSearchPage() {
 
                     <Link
                       href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
-                      className="w-full px-4 md:px-6 py-2.5 md:py-3.5 bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 text-white rounded-lg md:rounded-xl text-sm md:text-base font-semibold hover:shadow-2xl hover:shadow-blue-500/50 hover:scale-[1.02] transition-all duration-300 text-center flex items-center justify-center gap-2 group"
+                      className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium text-center"
                     >
-                      <span>View Details</span>
-                      <Building2 className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />
+                      View Details
                     </Link>
                   </div>
                 </div>
@@ -1209,7 +1218,7 @@ export default function HotelSearchPage() {
             {viewMode === 'map' && (
               <div className={`${isFullMapView ? 'fixed inset-0 z-50 bg-white' : 'grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-400px)] min-h-[600px]'}`}>
                 {/* Map Container */}
-                <div className={`bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 h-full relative ${isFullMapView ? 'rounded-none h-screen' : ''}`}>
+                <div className={`bg-white rounded-2xl overflow-hidden border border-gray-200 h-full relative ${isFullMapView ? 'rounded-none h-screen' : ''}`}>
                   <Suspense
                     fallback={
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-2xl">
@@ -1234,24 +1243,24 @@ export default function HotelSearchPage() {
                   {/* Map overlay with hotel count and fullscreen toggle */}
                   <div className="absolute top-4 left-4 right-4 z-[1000] pointer-events-auto">
                     <div className="flex items-center justify-between gap-4">
-                      <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-2 md:p-3 border border-gray-200 flex-1">
+                      <div className="bg-white/95 backdrop-blur-sm rounded-xl p-2 md:p-3 border border-gray-200 flex-1">
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="text-sm font-semibold text-gray-900">{filteredHotels.length} hotels found</div>
                             <div className="text-xs text-gray-600">in {address || 'this area'}</div>
                           </div>
-                          <MapPin className="w-5 h-5 text-blue-600" />
+                          <MapPin className="w-5 h-5 text-gray-700" />
                         </div>
                       </div>
 
                       {/* Fullscreen Toggle Button */}
                       <button
                         onClick={() => setIsFullMapView(!isFullMapView)}
-                        className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-2 md:p-3 border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-all"
+                        className="bg-white/95 backdrop-blur-sm rounded-xl p-2 md:p-3 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
                         title={isFullMapView ? 'Exit fullscreen' : 'Fullscreen map'}
                       >
                         {isFullMapView ? (
-                          <Minimize2 className="w-5 h-5 text-blue-600" />
+                          <Minimize2 className="w-5 h-5 text-gray-700" />
                         ) : (
                           <Maximize2 className="w-5 h-5 text-gray-700" />
                         )}
@@ -1267,10 +1276,10 @@ export default function HotelSearchPage() {
                     <div
                       key={index}
                       onClick={() => setSelectedHotel(hotel)}
-                      className={`group bg-white rounded-2xl overflow-hidden shadow-md border-2 transition-all duration-300 cursor-pointer ${
+                      className={`group bg-white rounded-lg overflow-hidden border transition-all duration-300 cursor-pointer ${
                         selectedHotel?.hotel?.hotelId === hotel.hotel?.hotelId
-                          ? 'border-blue-500 shadow-xl'
-                          : 'border-gray-200 hover:border-blue-300 hover:shadow-lg'
+                          ? 'border-blue-500'
+                          : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <div className="flex gap-3 p-2 md:p-3">
@@ -1284,7 +1293,7 @@ export default function HotelSearchPage() {
                             className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           />
                           {hotel.hotel?.rating && (
-                            <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg">
+                            <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200">
                               <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                               <span className="text-xs font-bold text-gray-900">{hotel.hotel.rating}</span>
                             </div>
@@ -1293,11 +1302,11 @@ export default function HotelSearchPage() {
 
                         {/* Hotel Info */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
+                          <h3 className="text-sm font-bold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors line-clamp-1">
                             {hotel.hotel?.name || 'Hotel'}
                           </h3>
                           <div className="flex items-start gap-1.5 text-gray-600 mb-2">
-                            <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0 text-blue-500" />
+                            <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-600" />
                             <span className="line-clamp-1 text-xs">{formatHotelAddress(hotel)}</span>
                           </div>
 
@@ -1307,17 +1316,16 @@ export default function HotelSearchPage() {
                               <span className="text-lg font-bold text-gray-900">
                                 ${hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00'}
                               </span>
-                              <span className="text-xs text-gray-600">total</span>
                             </div>
                           ) : (
-                            <div className="text-xs font-medium text-blue-600">Check availability</div>
+                            <div className="text-xs font-medium text-gray-700">Check availability</div>
                           )}
                         </div>
 
                         {/* View Button */}
                         <Link
                           href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
-                          className="flex-shrink-0 self-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all text-xs"
+                          className="flex-shrink-0 self-center px-4 py-2 bg-gray-900 text-white rounded-lg font-medium transition-all text-xs"
                           onClick={(e) => e.stopPropagation()}
                         >
                           View
@@ -1336,7 +1344,7 @@ export default function HotelSearchPage() {
                 {filteredHotels.map((hotel, index) => (
                   <div
                     key={index}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl hover:border-blue-200 transition-all duration-300"
+                    className="group bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300"
                   >
                     {/* Hotel Image */}
                     <div className="h-48 relative overflow-hidden">
@@ -1350,7 +1358,7 @@ export default function HotelSearchPage() {
 
                       {/* Rating Badge */}
                       {hotel.hotel?.rating && (
-                        <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg z-10">
+                        <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200 z-10">
                           <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
                           <span className="text-sm font-bold text-gray-900">{hotel.hotel.rating}</span>
                         </div>
@@ -1369,16 +1377,16 @@ export default function HotelSearchPage() {
 
                     {/* Hotel Info */}
                     <div className="p-3 md:p-4">
-                      <h3 className="text-base font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
+                      <h3 className="text-sm font-bold text-gray-900 mb-3 group-hover:text-gray-700 transition-colors line-clamp-1 leading-tight">
                         {hotel.hotel?.name || 'Hotel'}
                       </h3>
 
                       <div className="flex items-start gap-2 text-gray-700 mb-3">
-                        <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-500" />
+                        <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600" />
                         <div className="flex-1">
                           <span className="line-clamp-1 text-xs font-medium">{formatHotelAddress(hotel)}</span>
                           {getDistanceDisplay(hotel) && (
-                            <span className="text-xs text-blue-600 font-semibold mt-1 block bg-blue-50 px-2 py-0.5 rounded inline-block">
+                            <span className="text-xs text-gray-700 font-semibold mt-1 block bg-gray-100 px-2 py-0.5 rounded inline-block">
                               {getDistanceDisplay(hotel)}
                             </span>
                           )}
@@ -1420,7 +1428,7 @@ export default function HotelSearchPage() {
                                   ${hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00'}
                                 </div>
                                 <div className="text-xs text-gray-500">
-                                  {hotel.offers[0].price?.currency || 'USD'} for {calculateNights()} {calculateNights() === 1 ? 'night' : 'nights'}
+                                  for {calculateNights()} {calculateNights() === 1 ? 'night' : 'nights'}
                                 </div>
                               </>
                             ) : (
@@ -1436,7 +1444,7 @@ export default function HotelSearchPage() {
 
                         <Link
                           href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
-                          className="w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200 text-center flex items-center justify-center gap-2 text-sm"
+                          className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg font-medium text-center text-sm"
                         >
                           View Details
                         </Link>
@@ -1453,22 +1461,22 @@ export default function HotelSearchPage() {
                 <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="px-8 py-3.5 bg-gray-900 text-white rounded-lg font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loadingMore ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Loading 20 More...
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-sm">Loading 20 More...</span>
                     </>
                   ) : (
                     <>
-                      <TrendingUp className="w-5 h-5" />
-                      Load 20 More Hotels
+                      <TrendingUp className="w-4 h-4" />
+                      <span className="text-sm">Load 20 More Hotels</span>
                     </>
                   )}
                 </button>
-                <p className="text-sm text-gray-600">
-                  Showing {filteredHotels.length} hotels • Click to load 20 more
+                <p className="text-xs text-gray-600">
+                  Showing {filteredHotels.length} hotels
                 </p>
               </div>
             )}
@@ -1491,10 +1499,10 @@ export default function HotelSearchPage() {
       {hotels.length > 0 && (
         <button
           onClick={() => setShowSearchForm(true)}
-          className="md:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105 active:scale-95"
+          className="md:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-4 bg-gray-900 text-white rounded-lg font-semibold border border-gray-200"
         >
-          <Search className="w-5 h-5" />
-          <span>Modify Search</span>
+          <Search className="w-4 h-4" />
+          <span className="text-sm">Modify Search</span>
         </button>
       )}
 
@@ -1508,7 +1516,7 @@ export default function HotelSearchPage() {
           ></div>
 
           {/* Modal Content - Bottom Sheet */}
-          <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl max-h-[90vh] overflow-y-auto animate-slide-up">
+          <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl border border-gray-200 max-h-[90vh] overflow-y-auto animate-slide-up">
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between rounded-t-3xl z-10">
               <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
@@ -1546,7 +1554,7 @@ export default function HotelSearchPage() {
                       onChange={(e) => setCheckInDate(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
                       required
-                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none"
                     />
                   </div>
                 </div>
@@ -1560,7 +1568,7 @@ export default function HotelSearchPage() {
                       onChange={(e) => setCheckOutDate(e.target.value)}
                       min={checkInDate || new Date().toISOString().split('T')[0]}
                       required
-                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none"
                     />
                   </div>
                 </div>
@@ -1570,7 +1578,7 @@ export default function HotelSearchPage() {
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1.5">Duration</label>
                 <div className="flex items-center h-[42px] px-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
-                  <span className="text-xl font-bold text-blue-600">{calculateNights()}</span>
+                  <span className="text-xl font-bold text-gray-700">{calculateNights()}</span>
                   <span className="ml-2 text-xs text-gray-600">
                     {calculateNights() === 1 ? 'night' : 'nights'}
                   </span>
@@ -1590,7 +1598,7 @@ export default function HotelSearchPage() {
                       min={1}
                       max={9}
                       required
-                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none"
                     />
                   </div>
                 </div>
@@ -1605,7 +1613,7 @@ export default function HotelSearchPage() {
                       min={1}
                       max={9}
                       required
-                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none"
                     />
                   </div>
                 </div>
@@ -1622,7 +1630,7 @@ export default function HotelSearchPage() {
                     onChange={(e) => setRadius(Math.max(1, parseInt(e.target.value) || 5))}
                     min={1}
                     max={300}
-                    className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    className="w-full pl-10 pr-3 py-2.5 text-sm border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   />
                 </div>
               </div>
@@ -1631,7 +1639,7 @@ export default function HotelSearchPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 text-sm bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 text-sm bg-gray-900 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

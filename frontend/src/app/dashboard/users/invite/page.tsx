@@ -114,39 +114,39 @@ export default function InviteUserPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
-      <div className="w-full px-4 md:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition"
+            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4 transition"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg">
-              <UserPlus className="w-6 h-6 text-white" />
+            <div className="p-2.5 bg-gray-900 rounded-xl shadow-lg">
+              <UserPlus className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Invite User</h1>
-              <p className="text-gray-600">Add a new member to your organization</p>
+              <h1 className="text-2xl font-bold text-gray-900">Invite User</h1>
+              <p className="text-sm text-gray-600">Add a new member to your organization</p>
             </div>
           </div>
         </div>
 
         {/* Success Message */}
         {success && (
-          <div className="mb-6 p-6 bg-green-50 border border-green-200 rounded-2xl">
-            <div className="flex items-start gap-3">
-              <Mail className="w-5 h-5 text-green-600 mt-0.5" />
+          <div className="mb-4 p-4 bg-gray-50 border border-gray-300 rounded-xl">
+            <div className="flex items-start gap-2">
+              <Mail className="w-4 h-4 text-gray-700 mt-0.5" />
               <div className="flex-1">
-                <h3 className="font-semibold text-green-900 mb-1">Invitation Sent!</h3>
-                <p className="text-sm text-green-700 mb-3">
+                <h3 className="text-sm font-semibold text-gray-900 mb-1">Invitation Sent!</h3>
+                <p className="text-xs text-gray-700 mb-2">
                   The user has been invited successfully. Share this invitation link:
                 </p>
-                <div className="bg-white p-3 rounded-lg border border-green-200">
+                <div className="bg-white p-2 rounded-lg border border-gray-300">
                   <code className="text-xs text-gray-700 break-all">{invitationLink}</code>
                 </div>
                 <button
@@ -154,7 +154,7 @@ export default function InviteUserPage() {
                     navigator.clipboard.writeText(invitationLink);
                     alert('Link copied to clipboard!');
                   }}
-                  className="mt-3 text-sm text-green-700 hover:text-green-800 font-medium"
+                  className="mt-2 text-xs text-gray-700 hover:text-gray-900 font-medium"
                 >
                   Copy Link
                 </button>
@@ -165,17 +165,17 @@ export default function InviteUserPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
-            <p className="text-sm text-red-700">{error}</p>
+          <div className="mb-4 p-3 bg-gray-50 border border-gray-300 rounded-xl">
+            <p className="text-xs text-gray-700">{error}</p>
           </div>
         )}
 
         {/* Form */}
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">
                 Email Address <span className="text-red-500">*</span>
               </label>
               <input
@@ -184,15 +184,15 @@ export default function InviteUserPage() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
                 placeholder="john.doe@company.com"
               />
             </div>
 
             {/* First Name & Last Name */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   First Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -201,12 +201,12 @@ export default function InviteUserPage() {
                   value={formData.firstName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
                   placeholder="John"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Last Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -215,23 +215,23 @@ export default function InviteUserPage() {
                   value={formData.lastName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
                   placeholder="Doe"
                 />
               </div>
             </div>
 
             {/* Role & Department */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Role
                 </label>
                 <select
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
                 >
                   <option value="traveler">Traveler</option>
                   <option value="manager">Manager</option>
@@ -239,7 +239,7 @@ export default function InviteUserPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Department
                 </label>
                 <input
@@ -247,7 +247,7 @@ export default function InviteUserPage() {
                   name="department"
                   value={formData.department}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
                   placeholder="Engineering"
                 />
               </div>
@@ -256,7 +256,7 @@ export default function InviteUserPage() {
             {/* Credit Limit - Only show for traveler and manager roles */}
             {(formData.role === 'traveler' || formData.role === 'manager') && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Credit Limit (USD)
                 </label>
                 <input
@@ -267,17 +267,17 @@ export default function InviteUserPage() {
                   min="0"
                   step="0.01"
                   max={orgCredits.available}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
                   placeholder="5000.00"
                 />
-                <div className="mt-2 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm">
+                <div className="mt-1.5 flex items-start gap-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 text-gray-700 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs">
                     <p className="text-gray-600">
                       Organization available credits: <span className="font-semibold text-gray-900">${orgCredits.available.toLocaleString()}</span>
                     </p>
                     {formData.creditLimit && parseFloat(formData.creditLimit) > orgCredits.available && (
-                      <p className="text-red-600 font-medium mt-1">
+                      <p className="text-red-600 font-medium mt-0.5">
                         ⚠️ Insufficient credits! Reduce the amount or add more credits to your organization.
                       </p>
                     )}
@@ -287,27 +287,27 @@ export default function InviteUserPage() {
             )}
 
             {/* Submit Button */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-3 pt-2">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 bg-gray-900 text-white py-2.5 px-4 rounded-lg text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     Sending Invitation...
                   </>
                 ) : (
                   <>
-                    <UserPlus className="w-5 h-5" />
+                    <UserPlus className="w-4 h-4" />
                     Send Invitation
                   </>
                 )}
               </button>
               <Link
                 href="/dashboard"
-                className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition"
+                className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
               >
                 Cancel
               </Link>

@@ -88,7 +88,7 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
           <div className="flex items-center justify-between">
@@ -179,7 +179,7 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
           </div>
 
           {/* Amount */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200">
+          <div className="bg-blue-50 rounded-xl p-4 border border-gray-200">
             <div className="flex items-center justify-between">
               <span className="text-gray-700 font-medium">Total Amount</span>
               <span className="text-2xl font-bold text-gray-900">
@@ -624,12 +624,12 @@ export default function ApprovalsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20" style={{ minWidth: '100%' }}>
+    <div className="min-h-screen bg-gray-50" style={{ minWidth: '100%' }}>
       {/* Navigation */}
       <UnifiedNavBar currentPage="approvals" user={user} />
 
       {/* Main Content */}
-      <div className="w-full px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-8xl mx-auto w-full px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -680,42 +680,42 @@ export default function ApprovalsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-sm border border-amber-200 p-6 hover:shadow-md transition">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 transition">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-amber-700 mb-1">Pending Approvals</p>
-                <p className="text-3xl font-bold text-amber-900">{pagination.total}</p>
+                <p className="text-sm font-medium text-gray-700 mb-1">Pending Approvals</p>
+                <p className="text-3xl font-bold text-gray-900">{pagination.total}</p>
               </div>
-              <div className="w-14 h-14 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 bg-amber-500 rounded-xl flex items-center justify-center">
                 <Clock className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-sm border border-blue-200 p-6 hover:shadow-md transition">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 transition">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700 mb-1">Total Value</p>
-                <p className="text-3xl font-bold text-blue-900">
+                <p className="text-sm font-medium text-gray-700 mb-1">Total Value</p>
+                <p className="text-3xl font-bold text-gray-900">
                   {filteredBookings.length > 0 ? formatAmount(
                     filteredBookings.reduce((sum, b) => sum + Number(b.totalPrice), 0),
                     filteredBookings[0].currency
                   ) : formatAmount(0, 'USD')}
                 </p>
               </div>
-              <div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center">
                 <DollarSign className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-sm border border-purple-200 p-6 hover:shadow-md transition">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 transition">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-700 mb-1">Travelers</p>
-                <p className="text-3xl font-bold text-purple-900">
+                <p className="text-sm font-medium text-gray-700 mb-1">Travelers</p>
+                <p className="text-3xl font-bold text-gray-900">
                   {filteredBookings.reduce((sum, b) => sum + b.numberOfTravelers, 0)}
                 </p>
               </div>
-              <div className="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center">
                 <Users className="w-7 h-7 text-white" />
               </div>
             </div>
@@ -724,7 +724,7 @@ export default function ApprovalsPage() {
 
         {/* Bulk Actions Bar */}
         {selectedBookingIds.size > 0 && (
-          <div className="bg-blue-600 text-white rounded-2xl shadow-lg border border-blue-700 p-4 mb-6">
+          <div className="bg-blue-600 text-white rounded-2xl shadow-sm border border-blue-700 p-4 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5" />
@@ -839,7 +839,7 @@ export default function ApprovalsPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
+                            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-semibold">
                               {booking.user.firstName[0]}{booking.user.lastName[0]}
                             </div>
                             <div>

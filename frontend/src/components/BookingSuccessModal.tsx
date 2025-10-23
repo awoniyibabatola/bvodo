@@ -23,14 +23,14 @@ export default function BookingSuccessModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
         {/* Success Icon */}
-        <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-8 text-center">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-12 h-12 text-green-600" strokeWidth={3} />
+        <div className="bg-gray-900 p-8 text-center border-b border-gray-700">
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-gray-200">
+            <Check className="w-12 h-12 text-gray-900" strokeWidth={3} />
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">
             Booking Successful!
           </h2>
-          <p className="text-green-50">
+          <p className="text-gray-200">
             Your booking has been confirmed
           </p>
         </div>
@@ -71,7 +71,7 @@ export default function BookingSuccessModal({
 
             <button
               onClick={onClose}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all hover:scale-105"
+              className="w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-all"
             >
               View My Bookings
             </button>

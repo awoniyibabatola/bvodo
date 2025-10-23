@@ -153,15 +153,15 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
-      <div className="w-full px-4 md:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-8xl mx-auto w-full px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <Link
@@ -173,7 +173,7 @@ export default function ReportsPage() {
           </Link>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl shadow-lg">
+              <div className="p-3 bg-purple-600 rounded-2xl">
                 <BarChart3 className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -183,7 +183,7 @@ export default function ReportsPage() {
             </div>
             <button
               onClick={exportToCSV}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition shadow-lg"
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-sm"
             >
               <Download className="w-5 h-5" />
               Export CSV
@@ -194,7 +194,7 @@ export default function ReportsPage() {
         {/* Key Metrics */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-2xl shadow-lg border border-blue-200 p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-blue-50 rounded-xl">
                   <Plane className="w-5 h-5 text-blue-600" />

@@ -165,22 +165,22 @@ export default function ManageCreditsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
+    <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
       <UnifiedNavBar currentPage="dashboard" user={user} />
 
-      <div className="w-full px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-8xl mx-auto w-full px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 md:p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg flex-shrink-0">
+            <div className="p-2.5 md:p-3 bg-green-600 rounded-2xl flex-shrink-0">
               <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
@@ -194,7 +194,7 @@ export default function ManageCreditsPage() {
         {stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
             {/* Total Credits */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6">
               <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
                 <div className="p-1.5 md:p-2 bg-blue-50 rounded-xl">
                   <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />

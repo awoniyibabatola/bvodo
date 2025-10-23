@@ -498,32 +498,26 @@ export default function PassengerDetailsModal({
   const progress = showCheckout ? 100 : ((currentStep + 1) / numberOfTravelers) * 100;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black/60 backdrop-blur-md">
-      <div className="bg-white rounded-2xl max-w-[95vw] w-full my-2 shadow-2xl flex flex-col h-[calc(100vh-1rem)] border border-gray-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black/60">
+      <div className="bg-white rounded-lg max-w-[95vw] w-full my-2 flex flex-col h-[calc(100vh-1rem)] border border-gray-200 overflow-hidden">
         {/* Header */}
-        <div className="relative bg-gray-50 px-6 py-4 border-b border-gray-200 flex-shrink-0 rounded-t-2xl z-10">
+        <div className="relative bg-white px-4 py-3 border-b border-gray-200 flex-shrink-0 z-10">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               {/* Icon */}
-              <div className={`p-2 rounded-lg flex-shrink-0 ${
-                showCheckout
-                  ? 'bg-emerald-100 text-emerald-600'
-                  : bookingType === 'flight'
-                  ? 'bg-blue-100 text-blue-600'
-                  : 'bg-purple-100 text-purple-600'
-              }`}>
+              <div className="p-1.5 rounded border border-gray-200 flex-shrink-0 bg-white">
                 {showCheckout ? (
-                  <CreditCardIcon className="w-5 h-5" />
+                  <CreditCardIcon className="w-4 h-4 text-gray-700" />
                 ) : bookingType === 'flight' ? (
-                  <Plane className="w-5 h-5" />
+                  <Plane className="w-4 h-4 text-gray-700" />
                 ) : (
-                  <Hotel className="w-5 h-5" />
+                  <Hotel className="w-4 h-4 text-gray-700" />
                 )}
               </div>
 
               {/* Title and Progress */}
               <div className="min-w-0">
-                <h2 className="text-xl font-bold text-gray-900 truncate">
+                <h2 className="text-sm font-bold text-gray-900 truncate">
                   {showCheckout
                     ? 'Complete Your Booking'
                     : `${bookingType === 'flight' ? 'Passenger' : 'Guest'} Information`}
@@ -536,7 +530,7 @@ export default function PassengerDetailsModal({
               </div>
             </div>
 
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Add Guest Button */}
               {!showCheckout && numberOfTravelers > 1 && currentStep < numberOfTravelers - 1 && (
                 <button
@@ -560,9 +554,9 @@ export default function PassengerDetailsModal({
 
                     setCurrentStep(currentStep + 1);
                   }}
-                  className="relative z-20 flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-bold hover:shadow-xl transition-all hover:scale-105 shadow-lg"
+                  className="relative z-20 flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-300 text-gray-900 rounded text-xs font-semibold hover:bg-gray-50 transition-all"
                 >
-                  <UserPlus className="w-5 h-5" />
+                  <UserPlus className="w-3 h-3" />
                   <span>Add {bookingType === 'flight' ? 'Passenger' : 'Guest'}</span>
                 </button>
               )}
@@ -570,18 +564,18 @@ export default function PassengerDetailsModal({
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="relative z-20 p-2 hover:bg-gray-200 rounded-lg transition-all text-gray-500 hover:text-gray-900 flex-shrink-0"
+                className="relative z-20 p-1.5 hover:bg-gray-100 rounded transition-all text-gray-500 hover:text-gray-900 flex-shrink-0"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {/* Progress Bar */}
           {!showCheckout && (
-            <div className="mt-3 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div className="mt-2 h-1 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-full transition-all duration-500"
+                className="h-full bg-gray-900 rounded-full transition-all duration-500"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>
@@ -593,18 +587,18 @@ export default function PassengerDetailsModal({
           <div className="h-full">
           {/* Checkout View */}
           {showCheckout ? (
-            <div className="min-h-[600px] bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-8">
-              <div className="max-w-2xl mx-auto space-y-8">
+            <div className="min-h-[600px] bg-white p-6">
+              <div className="max-w-2xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="text-center space-y-2">
-                  <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <div className="text-center space-y-1">
+                  <h2 className="text-base font-bold text-gray-900">
                     Review & Confirm
                   </h2>
-                  <p className="text-gray-600">Please review your booking details and payment method</p>
+                  <p className="text-xs text-gray-600">Please review your booking details and payment method</p>
                 </div>
 
                 {/* Credit Card Display */}
-                <div className="flex justify-center transform hover:scale-105 transition-transform duration-300">
+                <div className="flex justify-center">
                   <CreditCard
                     organizationName={organizationName}
                     availableBalance={availableCredits}
@@ -614,50 +608,47 @@ export default function PassengerDetailsModal({
                 </div>
 
                 {/* Booking Summary */}
-                <div className="relative group">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition"></div>
-                  <div className="relative bg-white rounded-2xl p-6 shadow-xl">
-                    <h3 className="text-xl font-bold text-gray-900 mb-5 flex items-center gap-2">
-                      <Shield className="w-6 h-6 text-blue-600" />
-                      Booking Summary
-                    </h3>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center py-2">
-                        <span className="text-gray-600 font-medium">Travelers</span>
-                        <span className="font-bold text-gray-900">{totalGuests} {bookingType === 'flight' ? 'passenger(s)' : 'guest(s)'}</span>
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-gray-700" />
+                    Booking Summary
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-xs text-gray-600">Travelers</span>
+                      <span className="text-xs font-bold text-gray-900">{totalGuests} {bookingType === 'flight' ? 'passenger(s)' : 'guest(s)'}</span>
+                    </div>
+                    {isGroupBooking && groupName && (
+                      <div className="flex justify-between items-center py-1">
+                        <span className="text-xs text-gray-600">Group Name</span>
+                        <span className="text-xs font-bold text-gray-900">{groupName}</span>
                       </div>
-                      {isGroupBooking && groupName && (
-                        <div className="flex justify-between items-center py-2">
-                          <span className="text-gray-600 font-medium">Group Name</span>
-                          <span className="font-bold text-gray-900">{groupName}</span>
-                        </div>
-                      )}
-                      <div className="border-t-2 border-gray-200 pt-4 mt-4">
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="text-xl font-bold text-gray-900">Total Amount</span>
-                          <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center py-2 px-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl">
-                          <span className="text-gray-700 font-medium">Remaining Balance</span>
-                          <span className={`text-lg font-bold ${availableCredits - totalPrice >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                            ${(availableCredits - totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </span>
-                        </div>
+                    )}
+                    <div className="border-t border-gray-200 pt-3 mt-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-bold text-gray-900">Total Amount</span>
+                        <span className="text-lg font-bold text-gray-900">
+                          ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded border border-gray-200">
+                        <span className="text-xs text-gray-700">Remaining Balance</span>
+                        <span className={`text-sm font-bold ${availableCredits - totalPrice >= 0 ? 'text-gray-900' : 'text-gray-900'}`}>
+                          ${(availableCredits - totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Security Notice */}
-                <div className="flex items-start gap-4 p-5 bg-emerald-50 border-2 border-emerald-200 rounded-2xl shadow-md">
-                  <div className="p-2 bg-emerald-100 rounded-full">
-                    <Lock className="w-5 h-5 text-emerald-600" />
+                <div className="flex items-start gap-3 p-3 bg-gray-50 border border-gray-200 rounded">
+                  <div className="p-1 bg-white rounded border border-gray-200">
+                    <Lock className="w-3 h-3 text-gray-700" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-emerald-900 font-medium mb-1">Secure Payment</p>
-                    <p className="text-xs text-emerald-700">
+                    <p className="text-xs text-gray-900 font-semibold mb-0.5">Secure Payment</p>
+                    <p className="text-xs text-gray-600">
                       Your booking will be charged to your organization's credit balance. All transactions are encrypted and secure.
                     </p>
                   </div>
@@ -665,13 +656,13 @@ export default function PassengerDetailsModal({
 
                 {/* Insufficient Credits Warning */}
                 {availableCredits < totalPrice && (
-                  <div className="flex items-start gap-4 p-5 bg-red-50 border-2 border-red-200 rounded-2xl shadow-md">
-                    <div className="p-2 bg-red-100 rounded-full">
-                      <X className="w-5 h-5 text-red-600" />
+                  <div className="flex items-start gap-3 p-3 bg-gray-50 border border-gray-300 rounded">
+                    <div className="p-1 bg-white rounded border border-gray-300">
+                      <X className="w-3 h-3 text-gray-700" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-red-900 font-medium mb-1">Insufficient Credits</p>
-                      <p className="text-xs text-red-700">
+                      <p className="text-xs text-gray-900 font-semibold mb-0.5">Insufficient Credits</p>
+                      <p className="text-xs text-gray-600">
                         Please contact your administrator to add credits before completing this booking.
                       </p>
                     </div>
@@ -680,48 +671,45 @@ export default function PassengerDetailsModal({
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
               {/* Left Column - Form (2/3 width in normal mode, full width in multi-room) */}
-              <div className={`space-y-6 ${isMultiRoomMode ? 'lg:col-span-3' : 'lg:col-span-2'}`}>
+              <div className={`space-y-4 ${isMultiRoomMode ? 'lg:col-span-3' : 'lg:col-span-2'}`}>
                 {/* Group Booking Toggle */}
                 {numberOfTravelers > 1 && currentStep === 0 && (
-                  <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition"></div>
-                    <div className="relative p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl">
-                      <label className="flex items-start gap-4 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={isGroupBooking}
-                          onChange={(e) => setIsGroupBooking(e.target.checked)}
-                          className="mt-1 w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"
-                        />
-                        <div className="flex-1">
-                          <div className="font-bold text-indigo-900 flex items-center gap-2 mb-2">
-                            <Users className="w-5 h-5" />
-                            Group Booking
-                          </div>
-                          <p className="text-sm text-indigo-700">
-                            Enable for corporate groups, family trips, or team travel
-                          </p>
+                  <div className="p-4 bg-white border border-gray-200 rounded">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isGroupBooking}
+                        onChange={(e) => setIsGroupBooking(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 text-gray-900 rounded focus:ring-1 focus:ring-gray-900"
+                      />
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 flex items-center gap-2 mb-1 text-xs">
+                          <Users className="w-3 h-3" />
+                          Group Booking
                         </div>
-                      </label>
+                        <p className="text-xs text-gray-600">
+                          Enable for corporate groups, family trips, or team travel
+                        </p>
+                      </div>
+                    </label>
 
-                      {isGroupBooking && (
-                        <div className="mt-5 pt-5 border-t-2 border-indigo-200">
-                          <label className="block text-sm font-bold text-indigo-900 mb-3">
-                            Group Name *
-                          </label>
-                          <input
-                            type="text"
-                            value={groupName}
-                            onChange={(e) => setGroupName(e.target.value)}
-                            placeholder="e.g., Sales Team Q1 Conference, Smith Family Vacation"
-                            className="w-full px-4 py-3 border-2 border-indigo-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white shadow-sm"
-                            required={isGroupBooking}
-                          />
-                        </div>
-                      )}
-                    </div>
+                    {isGroupBooking && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <label className="block text-xs font-semibold text-gray-900 mb-2">
+                          Group Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={groupName}
+                          onChange={(e) => setGroupName(e.target.value)}
+                          placeholder="e.g., Sales Team Q1 Conference"
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                          required={isGroupBooking}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -729,10 +717,10 @@ export default function PassengerDetailsModal({
                 {isMultiRoomMode && !showCheckout && (
                   <div className="grid grid-cols-12 gap-3 h-[calc(100vh-16rem)]">
                     {/* LEFT COLUMN: Room Cards with Add Guest & Room Type */}
-                    <div className="col-span-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-3 overflow-y-auto">
+                    <div className="col-span-3 bg-white rounded border border-gray-200 p-3 overflow-y-auto">
                       <div className="mb-3">
-                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                          <Bed className="w-4 h-4 text-blue-600" />
+                        <h3 className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                          <Bed className="w-3 h-3 text-gray-700" />
                           Rooms ({numberOfRooms})
                         </h3>
                       </div>
@@ -764,28 +752,28 @@ export default function PassengerDetailsModal({
                           return (
                             <div
                               key={room.roomNumber}
-                              className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-3 border border-gray-200 shadow-sm hover:shadow-md transition-all"
+                              className="bg-white rounded p-2 border border-gray-200"
                             >
                               {/* Room Header */}
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                    <span className="text-xs font-bold text-white">{room.roomNumber}</span>
+                              <div className="flex items-center justify-between mb-1.5">
+                                <div className="flex items-center gap-1.5">
+                                  <div className="w-4 h-4 rounded bg-gray-200 flex items-center justify-center">
+                                    <span className="text-xs font-bold text-gray-700">{room.roomNumber}</span>
                                   </div>
-                                  <span className="font-bold text-sm">Room {room.roomNumber}</span>
+                                  <span className="font-bold text-xs">Room {room.roomNumber}</span>
                                   {allGuestsFilled && (
-                                    <div className="ml-1 w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
-                                      <Check className="w-3 h-3 text-white" />
+                                    <div className="ml-1 w-3 h-3 rounded-full bg-gray-200 flex items-center justify-center">
+                                      <Check className="w-2 h-2 text-gray-700" />
                                     </div>
                                   )}
                                 </div>
-                                <div className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                <div className="text-xs font-bold text-gray-900">
                                   ${parseFloat(room.price.total).toFixed(0)}
                                 </div>
                               </div>
 
                               {/* Room Type Selector */}
-                              <div className="mb-2">
+                              <div className="mb-1.5">
                                 <label className="block text-xs font-semibold text-gray-700 mb-1">
                                   Room Type
                                 </label>
@@ -797,7 +785,7 @@ export default function PassengerDetailsModal({
                                       updateRoomOffer(room.roomNumber, selectedOffer);
                                     }
                                   }}
-                                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
                                 >
                                   {availableOffers.map((offer) => {
                                     const roomType = offer.room?.typeEstimated?.category
@@ -815,16 +803,16 @@ export default function PassengerDetailsModal({
 
                               {/* Guest List */}
                               <div>
-                                <div className="flex items-center justify-between mb-1.5">
+                                <div className="flex items-center justify-between mb-1">
                                   <div className="text-xs font-semibold text-gray-700">
                                     Guests ({roomGuests.length})
                                   </div>
                                   <button
                                     type="button"
                                     onClick={() => handleAddGuestToRoom(room.roomNumber)}
-                                    className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1"
+                                    className="text-xs text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-1"
                                   >
-                                    <Plus className="w-3 h-3" />
+                                    <Plus className="w-2.5 h-2.5" />
                                     Add
                                   </button>
                                 </div>
@@ -838,9 +826,9 @@ export default function PassengerDetailsModal({
                                         key={guestId}
                                         type="button"
                                         onClick={() => handleEditGuestInRoom(room.roomNumber, guestId)}
-                                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-all ${
+                                        className={`w-full text-left px-2.5 py-2 rounded text-xs transition-all ${
                                           isFilled
-                                            ? 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 text-gray-900 hover:from-blue-100 hover:to-purple-100'
+                                            ? 'bg-gray-50 border border-gray-200 text-gray-900 hover:bg-gray-100'
                                             : 'bg-gray-50 border border-dashed border-gray-300 text-gray-500 hover:bg-gray-100 hover:border-gray-400'
                                         }`}
                                       >
@@ -849,8 +837,8 @@ export default function PassengerDetailsModal({
                                             {isFilled ? `${guest.firstName} ${guest.lastName}` : `Click to add guest`}
                                           </span>
                                           {isFilled && (
-                                            <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                                              <Check className="w-2.5 h-2.5 text-white" />
+                                            <div className="w-3 h-3 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0">
+                                              <Check className="w-2 h-2 text-white" />
                                             </div>
                                           )}
                                         </div>
@@ -870,13 +858,13 @@ export default function PassengerDetailsModal({
                       {selectedRoomForGuest !== null && currentPassenger ? (
                         <div className="space-y-4">
                           {/* Header */}
-                          <div className="bg-white rounded-xl border-2 border-blue-200 p-4">
+                          <div className="bg-white rounded border border-gray-200 p-3">
                             <div className="flex items-center justify-between">
                               <div>
-                                <h3 className="text-lg font-bold text-gray-900">
+                                <h3 className="text-sm font-bold text-gray-900">
                                   {editingGuestIndex !== null ? 'Edit' : 'Add'} Guest for Room {selectedRoomForGuest}
                                 </h3>
-                                <p className="text-sm text-gray-600 mt-1">
+                                <p className="text-xs text-gray-600 mt-0.5">
                                   Guest {currentStep + 1} - Fill in details below
                                 </p>
                               </div>
@@ -886,24 +874,24 @@ export default function PassengerDetailsModal({
                                   setSelectedRoomForGuest(null);
                                   setEditingGuestIndex(null);
                                 }}
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-all"
+                                className="p-1.5 hover:bg-gray-100 rounded transition-all"
                               >
-                                <X className="w-5 h-5 text-gray-600" />
+                                <X className="w-4 h-4 text-gray-600" />
                               </button>
                             </div>
                           </div>
 
                           {/* Personal Information Section - Compact */}
-                          <div className="bg-white rounded-xl border-2 border-blue-200 p-4">
-                            <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                              <Users className="w-4 h-4 text-blue-600" />
+                          <div className="bg-white rounded border border-gray-200 p-3">
+                            <h4 className="text-xs font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+                              <Users className="w-3 h-3 text-gray-700" />
                               Personal Information
                             </h4>
 
-                            <div className="space-y-3">
-                              <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                  <label className="block text-xs font-semibold text-gray-700 mb-0.5">
                                     First Name *
                                   </label>
                                   <input
@@ -911,12 +899,12 @@ export default function PassengerDetailsModal({
                                     value={currentPassenger.firstName}
                                     onChange={(e) => updatePassenger(currentStep, 'firstName', e.target.value)}
                                     placeholder="John"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                                    className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
                                     required
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                  <label className="block text-xs font-semibold text-gray-700 mb-0.5">
                                     Last Name *
                                   </label>
                                   <input
@@ -924,26 +912,26 @@ export default function PassengerDetailsModal({
                                     value={currentPassenger.lastName}
                                     onChange={(e) => updatePassenger(currentStep, 'lastName', e.target.value)}
                                     placeholder="Doe"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                                    className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
                                     required
                                   />
                                 </div>
                               </div>
 
                               <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">Email Address *</label>
+                                <label className="block text-xs font-semibold text-gray-700 mb-0.5">Email Address *</label>
                                 <input
                                   type="email"
                                   value={currentPassenger.email}
                                   onChange={(e) => updatePassenger(currentStep, 'email', e.target.value)}
                                   placeholder="john.doe@example.com"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
                                   required
                                 />
                               </div>
 
                               <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                <label className="block text-xs font-semibold text-gray-700 mb-0.5">
                                   Phone Number
                                 </label>
                                 <input
@@ -951,23 +939,23 @@ export default function PassengerDetailsModal({
                                   value={currentPassenger.phone}
                                   onChange={(e) => updatePassenger(currentStep, 'phone', e.target.value)}
                                   placeholder="+1 (555) 123-4567"
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
                                 />
                               </div>
                             </div>
                           </div>
 
                           {/* Address Information - Compact */}
-                          <div className="bg-white rounded-xl border-2 border-green-200 p-4">
-                            <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                              <MapPin className="w-4 h-4 text-green-600" />
+                          <div className="bg-white rounded border border-gray-200 p-3">
+                            <h4 className="text-xs font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+                              <MapPin className="w-3 h-3 text-gray-700" />
                               Address Information
                             </h4>
 
-                            <div className="space-y-3">
-                              <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                  <label className="block text-xs font-semibold text-gray-700 mb-0.5">
                                     City *
                                   </label>
                                   <input
@@ -975,12 +963,12 @@ export default function PassengerDetailsModal({
                                     value={currentPassenger.city}
                                     onChange={(e) => updatePassenger(currentStep, 'city', e.target.value)}
                                     placeholder="New York"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                                    className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
                                     required
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                                  <label className="block text-xs font-semibold text-gray-700 mb-0.5">
                                     Country *
                                   </label>
                                   <input
@@ -988,7 +976,7 @@ export default function PassengerDetailsModal({
                                     value={currentPassenger.country}
                                     onChange={(e) => updatePassenger(currentStep, 'country', e.target.value)}
                                     placeholder="United States"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                                    className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
                                     required
                                   />
                                 </div>
@@ -997,13 +985,13 @@ export default function PassengerDetailsModal({
                           </div>
 
                           {/* Save Button */}
-                          <div className="sticky bottom-0 bg-white border-t-2 border-gray-200 pt-4 mt-4">
+                          <div className="sticky bottom-0 bg-white border-t border-gray-200 pt-3 mt-3">
                             <button
                               type="button"
                               onClick={handleSaveGuestToRoom}
-                              className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg"
+                              className="w-full px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded font-semibold flex items-center justify-center gap-1.5 transition-all text-xs"
                             >
-                              <Check className="w-5 h-5" />
+                              <Check className="w-3 h-3" />
                               Save Guest & Return to Rooms
                             </button>
                           </div>
@@ -1022,15 +1010,15 @@ export default function PassengerDetailsModal({
                     </div>
 
                     {/* RIGHT COLUMN: Summary */}
-                    <div className="col-span-3 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl border-2 border-gray-200 p-3 overflow-y-auto">
-                      <h3 className="text-sm font-bold text-gray-900 mb-2">Booking Summary</h3>
+                    <div className="col-span-3 bg-gray-50 rounded border border-gray-200 p-3 overflow-y-auto">
+                      <h3 className="text-xs font-bold text-gray-900 mb-2">Booking Summary</h3>
 
                       {/* Room Breakdown */}
                       <div className="space-y-1.5 mb-3">
                         {rooms.map((room) => {
                           const roomGuests = room.assignedGuestIds.map(id => passengers[id]).filter(g => g && g.firstName);
                           return (
-                            <div key={room.roomNumber} className="bg-white rounded-lg p-3 border border-gray-200">
+                            <div key={room.roomNumber} className="bg-white rounded p-2 border border-gray-200">
                               <div className="flex items-start justify-between mb-1">
                                 <div>
                                   <div className="font-bold text-xs text-gray-900">Room {room.roomNumber}</div>
@@ -1039,7 +1027,7 @@ export default function PassengerDetailsModal({
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-sm font-bold text-blue-600">${parseFloat(room.price.total).toFixed(0)}</div>
+                                  <div className="text-xs font-bold text-gray-900">${parseFloat(room.price.total).toFixed(0)}</div>
                                   {bookingDetails?.numberOfNights && (
                                     <div className="text-xs text-gray-500">
                                       ${(parseFloat(room.price.total) / bookingDetails.numberOfNights).toFixed(0)}/night
@@ -1094,14 +1082,14 @@ export default function PassengerDetailsModal({
 
                 {/* Passenger Navigation - Show all passengers */}
                 {numberOfTravelers > 1 && !isMultiRoomMode && (
-                  <div className="bg-white rounded-2xl border-2 border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide">
+                  <div className="bg-white rounded border border-gray-200 p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-xs font-bold text-gray-700">
                         {bookingType === 'flight' ? 'Passengers' : 'Guests'} ({numberOfTravelers})
                       </h4>
                       <span className="text-xs text-gray-500">Click to jump to any {bookingType === 'flight' ? 'passenger' : 'guest'}</span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {Array.from({ length: numberOfTravelers }).map((_, idx) => {
                         const passenger = passengers[idx];
                         const isComplete = passenger && passenger.firstName && passenger.lastName && passenger.email;
@@ -1112,20 +1100,20 @@ export default function PassengerDetailsModal({
                             key={idx}
                             type="button"
                             onClick={() => setCurrentStep(idx)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${
+                            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded font-semibold transition-all text-xs ${
                               isCurrent
-                                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                                ? 'bg-gray-900 text-white'
                                 : isComplete
-                                ? 'bg-green-100 text-green-700 border-2 border-green-300 hover:bg-green-200'
-                                : 'bg-gray-100 text-gray-600 border-2 border-gray-300 hover:bg-gray-200'
+                                ? 'bg-gray-50 text-gray-900 border border-gray-300 hover:bg-gray-100'
+                                : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
                             }`}
                           >
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                              isCurrent ? 'bg-white/20' : isComplete ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'
+                            <div className={`w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold ${
+                              isCurrent ? 'bg-white/20' : isComplete ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-600'
                             }`}>
                               {isComplete && !isCurrent ? '✓' : idx + 1}
                             </div>
-                            <span className="text-sm">
+                            <span className="text-xs">
                               {passenger?.firstName || `${bookingType === 'flight' ? 'Passenger' : 'Guest'} ${idx + 1}`}
                             </span>
                           </button>
@@ -1139,18 +1127,15 @@ export default function PassengerDetailsModal({
                 {!isMultiRoomMode && currentPassenger && (
                   <div className="space-y-6">
                     {/* Passenger Header */}
-                    <div className="flex items-center gap-4 pb-5 border-b-2 border-gray-200">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl blur opacity-50"></div>
-                        <div className="relative w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                          {currentStep + 1}
-                        </div>
+                    <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
+                      <div className="w-8 h-8 bg-gray-900 rounded flex items-center justify-center text-white font-bold text-sm">
+                        {currentStep + 1}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-900">
+                        <h3 className="text-sm font-bold text-gray-900">
                           {bookingType === 'flight' ? 'Passenger' : 'Guest'} {currentStep + 1}
                         </h3>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-xs text-gray-600 mt-0.5">
                           {currentPassenger.firstName
                             ? `Editing ${currentPassenger.firstName}'s information`
                             : 'Fields marked with * are required'}
@@ -1159,30 +1144,30 @@ export default function PassengerDetailsModal({
                     </div>
 
                     {/* Personal Information Section */}
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-100 overflow-hidden">
+                    <div className="bg-white rounded border border-gray-200">
                       <button
                         type="button"
                         onClick={() => toggleSection('personal')}
-                        className="w-full p-4 flex items-center justify-between hover:bg-blue-100/50 transition-colors"
+                        className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                            <Users className="w-4 h-4 text-white" />
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
+                            <Users className="w-3 h-3 text-white" />
                           </div>
-                          <h4 className="font-bold text-gray-900">Personal Information</h4>
+                          <h4 className="font-bold text-gray-900 text-xs">Personal Information</h4>
                         </div>
                         <ChevronDown
-                          className={`w-5 h-5 text-blue-600 transition-transform duration-200 ${
+                          className={`w-4 h-4 text-gray-700 transition-transform duration-200 ${
                             expandedSections.personal ? 'rotate-180' : ''
                           }`}
                         />
                       </button>
 
                       {expandedSections.personal && (
-                        <div className="px-6 pb-6">
-                          <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="px-3 pb-3">
+                          <div className="grid grid-cols-2 gap-2 mb-2">
                         <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                          <label className="block text-xs font-bold text-gray-700 mb-1">
                             First Name *
                           </label>
                           <input
@@ -1190,12 +1175,12 @@ export default function PassengerDetailsModal({
                             value={currentPassenger.firstName}
                             onChange={(e) => updatePassenger(currentStep, 'firstName', e.target.value)}
                             placeholder="John"
-                            className="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm transition"
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                          <label className="block text-xs font-bold text-gray-700 mb-1">
                             Last Name *
                           </label>
                           <input
@@ -1203,27 +1188,27 @@ export default function PassengerDetailsModal({
                             value={currentPassenger.lastName}
                             onChange={(e) => updatePassenger(currentStep, 'lastName', e.target.value)}
                             placeholder="Doe"
-                            className="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm transition"
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                             required
                           />
                         </div>
                       </div>
 
-                      <div className="mb-4">
-                        <label className="block text-sm font-bold text-gray-700 mb-2">Email Address *</label>
+                      <div className="mb-2">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">Email Address *</label>
                         <input
                           type="email"
                           value={currentPassenger.email}
                           onChange={(e) => updatePassenger(currentStep, 'email', e.target.value)}
                           placeholder="john.doe@example.com"
-                          className="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm transition"
+                          className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                           required
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                          <label className="block text-xs font-bold text-gray-700 mb-1">
                             Phone Number
                           </label>
                           <input
@@ -1231,18 +1216,18 @@ export default function PassengerDetailsModal({
                             value={currentPassenger.phone}
                             onChange={(e) => updatePassenger(currentStep, 'phone', e.target.value)}
                             placeholder="+1 (555) 123-4567"
-                            className="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm transition"
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                          <label className="block text-xs font-bold text-gray-700 mb-1">
                             Date of Birth
                           </label>
                           <input
                             type="date"
                             value={currentPassenger.dateOfBirth}
                             onChange={(e) => updatePassenger(currentStep, 'dateOfBirth', e.target.value)}
-                            className="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm transition"
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                           />
                         </div>
                       </div>
@@ -1251,30 +1236,30 @@ export default function PassengerDetailsModal({
                     </div>
 
                     {/* Address Information */}
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border-2 border-green-100 overflow-hidden">
+                    <div className="bg-white rounded border border-gray-200">
                       <button
                         type="button"
                         onClick={() => toggleSection('address')}
-                        className="w-full p-4 flex items-center justify-between hover:bg-green-100/50 transition-colors"
+                        className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                            <MapPin className="w-4 h-4 text-white" />
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
+                            <MapPin className="w-3 h-3 text-white" />
                           </div>
-                          <h4 className="font-bold text-gray-900">Address Information</h4>
+                          <h4 className="font-bold text-gray-900 text-xs">Address Information</h4>
                         </div>
                         <ChevronDown
-                          className={`w-5 h-5 text-green-600 transition-transform duration-200 ${
+                          className={`w-4 h-4 text-gray-700 transition-transform duration-200 ${
                             expandedSections.address ? 'rotate-180' : ''
                           }`}
                         />
                       </button>
 
                       {expandedSections.address && (
-                        <div className="px-6 pb-6">
+                        <div className="px-3 pb-3">
 
-                      <div className="mb-4">
-                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                      <div className="mb-2">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
                           Street Address
                         </label>
                         <input
@@ -1282,13 +1267,13 @@ export default function PassengerDetailsModal({
                           value={currentPassenger.address}
                           onChange={(e) => updatePassenger(currentStep, 'address', e.target.value)}
                           placeholder="123 Main Street, Apt 4B"
-                          className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm transition"
+                          className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                          <label className="block text-xs font-bold text-gray-700 mb-1">
                             City *
                           </label>
                           <input
@@ -1296,12 +1281,12 @@ export default function PassengerDetailsModal({
                             value={currentPassenger.city}
                             onChange={(e) => updatePassenger(currentStep, 'city', e.target.value)}
                             placeholder="New York"
-                            className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm transition"
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                          <label className="block text-xs font-bold text-gray-700 mb-1">
                             Country *
                           </label>
                           <input
@@ -1309,7 +1294,7 @@ export default function PassengerDetailsModal({
                             value={currentPassenger.country}
                             onChange={(e) => updatePassenger(currentStep, 'country', e.target.value)}
                             placeholder="United States"
-                            className="w-full px-4 py-3 border-2 border-green-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white shadow-sm transition"
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                             required
                           />
                         </div>
@@ -1320,29 +1305,29 @@ export default function PassengerDetailsModal({
 
                     {/* Passport Details (for flights) */}
                     {bookingType === 'flight' && (
-                      <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-100 overflow-hidden">
+                      <div className="bg-white rounded border border-gray-200">
                         <button
                           type="button"
                           onClick={() => toggleSection('passport')}
-                          className="w-full p-4 flex items-center justify-between hover:bg-amber-100/50 transition-colors"
+                          className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-                              <Shield className="w-4 h-4 text-white" />
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
+                              <Shield className="w-3 h-3 text-white" />
                             </div>
-                            <h4 className="font-bold text-gray-900">Passport Information (Optional)</h4>
+                            <h4 className="font-bold text-gray-900 text-xs">Passport Information (Optional)</h4>
                           </div>
                           <ChevronDown
-                            className={`w-5 h-5 text-amber-600 transition-transform duration-200 ${
+                            className={`w-4 h-4 text-gray-700 transition-transform duration-200 ${
                               expandedSections.passport ? 'rotate-180' : ''
                             }`}
                           />
                         </button>
 
                         {expandedSections.passport && (
-                          <div className="px-6 pb-6">
-                            <div className="mb-4">
-                          <label className="block text-sm font-bold text-gray-700 mb-2">
+                          <div className="px-3 pb-3">
+                            <div className="mb-2">
+                          <label className="block text-xs font-bold text-gray-700 mb-1">
                             Passport Number
                           </label>
                           <input
@@ -1352,13 +1337,13 @@ export default function PassengerDetailsModal({
                               updatePassenger(currentStep, 'passportNumber', e.target.value)
                             }
                             placeholder="A12345678"
-                            className="w-full px-4 py-3 border-2 border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white shadow-sm transition"
+                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                           />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                            <label className="block text-xs font-bold text-gray-700 mb-1">
                               Passport Expiry Date
                             </label>
                             <input
@@ -1367,11 +1352,11 @@ export default function PassengerDetailsModal({
                               onChange={(e) =>
                                 updatePassenger(currentStep, 'passportExpiry', e.target.value)
                               }
-                              className="w-full px-4 py-3 border-2 border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white shadow-sm transition"
+                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                            <label className="block text-xs font-bold text-gray-700 mb-1">
                               Issuing Country
                             </label>
                             <input
@@ -1381,7 +1366,7 @@ export default function PassengerDetailsModal({
                                 updatePassenger(currentStep, 'passportCountry', e.target.value)
                               }
                               placeholder="United States"
-                              className="w-full px-4 py-3 border-2 border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white shadow-sm transition"
+                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                             />
                           </div>
                         </div>
@@ -1394,92 +1379,90 @@ export default function PassengerDetailsModal({
               </div>
 
               {/* Right Column - Booking Summary (1/3 width) - Hide in multi-room mode */}
-              {!isMultiRoomMode && (<div className="lg:col-span-1 space-y-6">
+              {!isMultiRoomMode && (<div className="lg:col-span-1 space-y-3">
                 {/* Booking Summary Card */}
                 <div className="sticky top-6">
-                  <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-30 group-hover:opacity-50 transition"></div>
-                    <div className="relative bg-white rounded-3xl p-6 border-2 border-gray-100 shadow-xl">
-                      <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6 flex items-center gap-2">
-                        {bookingType === 'flight' ? (
-                          <Plane className="w-6 h-6 text-blue-600" />
-                        ) : (
-                          <Hotel className="w-6 h-6 text-purple-600" />
-                        )}
-                        Booking Summary
-                      </h3>
+                  <div className="bg-white rounded border border-gray-200 p-3">
+                    <h3 className="text-xs font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+                      {bookingType === 'flight' ? (
+                        <Plane className="w-3 h-3 text-gray-700" />
+                      ) : (
+                        <Hotel className="w-3 h-3 text-gray-700" />
+                      )}
+                      Booking Summary
+                    </h3>
 
                       {/* Booking Details */}
                       {bookingDetails && (
-                        <div className="mb-6 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-5 border-2 border-cyan-200">
+                        <div className="mb-3 bg-gray-50 rounded p-2 border border-gray-200">
                           {bookingType === 'hotel' ? (
                             <>
-                              <div className="flex items-start gap-3 mb-4">
-                                <Hotel className="w-6 h-6 text-cyan-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex items-start gap-2 mb-2">
+                                <Hotel className="w-3 h-3 text-gray-700 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-bold text-gray-900 text-lg mb-1 truncate">
+                                  <h4 className="font-bold text-gray-900 text-xs mb-0.5 truncate">
                                     {bookingDetails.hotelName || 'Hotel Booking'}
                                   </h4>
                                   {bookingDetails.roomType && (
-                                    <p className="text-sm text-gray-600 font-medium">
+                                    <p className="text-xs text-gray-600 font-medium">
                                       {bookingDetails.roomType}
                                     </p>
                                   )}
                                 </div>
                               </div>
-                              <div className="space-y-2 text-sm">
+                              <div className="space-y-1 text-xs">
                                 {bookingDetails.checkInDate && bookingDetails.checkOutDate && (
-                                  <div className="flex items-center gap-2 text-gray-700">
-                                    <Calendar className="w-4 h-4 text-cyan-600" />
-                                    <span className="font-medium">
+                                  <div className="flex items-center gap-1.5 text-gray-700">
+                                    <Calendar className="w-3 h-3 text-gray-600" />
+                                    <span className="font-medium text-xs">
                                       {new Date(bookingDetails.checkInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(bookingDetails.checkOutDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                     </span>
                                   </div>
                                 )}
                                 {bookingDetails.numberOfNights && (
-                                  <div className="flex items-center gap-2 text-gray-700">
-                                    <Clock className="w-4 h-4 text-cyan-600" />
-                                    <span className="font-medium">{bookingDetails.numberOfNights} {bookingDetails.numberOfNights === 1 ? 'night' : 'nights'}</span>
+                                  <div className="flex items-center gap-1.5 text-gray-700">
+                                    <Clock className="w-3 h-3 text-gray-600" />
+                                    <span className="font-medium text-xs">{bookingDetails.numberOfNights} {bookingDetails.numberOfNights === 1 ? 'night' : 'nights'}</span>
                                   </div>
                                 )}
                               </div>
                             </>
                           ) : (
                             <>
-                              <div className="flex items-start gap-3 mb-4">
-                                <Plane className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex items-start gap-2 mb-2">
+                                <Plane className="w-3 h-3 text-gray-700 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-bold text-gray-900 text-lg mb-1">
+                                  <h4 className="font-bold text-gray-900 text-xs mb-0.5">
                                     {bookingDetails.airline || 'Flight Booking'}
                                   </h4>
                                   {bookingDetails.flightNumber && (
-                                    <p className="text-sm text-gray-600 font-medium">
+                                    <p className="text-xs text-gray-600 font-medium">
                                       Flight {bookingDetails.flightNumber}
                                     </p>
                                   )}
                                 </div>
                               </div>
-                              <div className="space-y-2 text-sm">
+                              <div className="space-y-1 text-xs">
                                 {bookingDetails.departureAirport && bookingDetails.arrivalAirport && (
-                                  <div className="flex items-center gap-2 text-gray-700">
-                                    <MapPin className="w-4 h-4 text-blue-600" />
-                                    <span className="font-medium">
+                                  <div className="flex items-center gap-1.5 text-gray-700">
+                                    <MapPin className="w-3 h-3 text-gray-600" />
+                                    <span className="font-medium text-xs">
                                       {bookingDetails.departureAirport} → {bookingDetails.arrivalAirport}
                                     </span>
                                   </div>
                                 )}
                                 {bookingDetails.departureDate && (
-                                  <div className="flex items-center gap-2 text-gray-700">
-                                    <Calendar className="w-4 h-4 text-blue-600" />
-                                    <span className="font-medium">
+                                  <div className="flex items-center gap-1.5 text-gray-700">
+                                    <Calendar className="w-3 h-3 text-gray-600" />
+                                    <span className="font-medium text-xs">
                                       {new Date(bookingDetails.departureDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
                                     </span>
                                   </div>
                                 )}
                                 {bookingDetails.cabinClass && (
-                                  <div className="flex items-center gap-2 text-gray-700">
-                                    <Users className="w-4 h-4 text-blue-600" />
-                                    <span className="font-medium capitalize">{bookingDetails.cabinClass}</span>
+                                  <div className="flex items-center gap-1.5 text-gray-700">
+                                    <Users className="w-3 h-3 text-gray-600" />
+                                    <span className="font-medium text-xs capitalize">{bookingDetails.cabinClass}</span>
                                   </div>
                                 )}
                               </div>
@@ -1489,48 +1472,48 @@ export default function PassengerDetailsModal({
                       )}
 
                       {/* Details */}
-                      <div className="space-y-4">
-                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm text-gray-600 font-medium">Travelers</span>
-                            <span className="text-lg font-bold text-gray-900">{numberOfTravelers}</span>
+                      <div className="space-y-2">
+                        <div className="bg-gray-50 rounded p-2 border border-gray-200">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs text-gray-600 font-medium">Travelers</span>
+                            <span className="text-sm font-bold text-gray-900">{numberOfTravelers}</span>
                           </div>
                           {isGroupBooking && groupName && (
-                            <div className="pt-2 border-t border-blue-200 mt-2">
-                              <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 text-indigo-600" />
-                                <span className="text-sm font-semibold text-indigo-900">{groupName}</span>
+                            <div className="pt-1 border-t border-gray-200 mt-1">
+                              <div className="flex items-center gap-1.5">
+                                <Users className="w-3 h-3 text-gray-700" />
+                                <span className="text-xs font-semibold text-gray-900">{groupName}</span>
                               </div>
                             </div>
                           )}
                         </div>
 
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+                        <div className="bg-gray-50 rounded p-2 border border-gray-200">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600 font-medium">Total Amount</span>
-                            <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                            <span className="text-xs text-gray-600 font-medium">Total Amount</span>
+                            <span className="text-sm font-bold text-gray-900">
                               ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </span>
                           </div>
-                          <div className="text-xs text-gray-500 mt-1">{currency}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{currency}</div>
                         </div>
 
                         {/* Progress Indicator */}
-                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                          <div className="text-sm font-medium text-gray-700 mb-3">Completion Progress</div>
-                          <div className="space-y-2">
+                        <div className="bg-gray-50 rounded p-2 border border-gray-200">
+                          <div className="text-xs font-medium text-gray-700 mb-2">Completion Progress</div>
+                          <div className="space-y-1.5">
                             {Array.from({ length: numberOfTravelers }).map((_, idx) => (
-                              <div key={idx} className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                              <div key={idx} className="flex items-center gap-2">
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
                                   idx < currentStep
-                                    ? 'bg-gradient-to-br from-green-500 to-emerald-600 text-white'
+                                    ? 'bg-gray-700 text-white'
                                     : idx === currentStep
-                                    ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
+                                    ? 'bg-gray-900 text-white'
                                     : 'bg-gray-200 text-gray-500'
                                 }`}>
                                   {idx < currentStep ? '✓' : idx + 1}
                                 </div>
-                                <span className={`text-sm ${
+                                <span className={`text-xs ${
                                   idx <= currentStep ? 'font-semibold text-gray-900' : 'text-gray-500'
                                 }`}>
                                   {bookingType === 'flight' ? 'Passenger' : 'Guest'} {idx + 1}
@@ -1541,15 +1524,14 @@ export default function PassengerDetailsModal({
                         </div>
 
                         {/* Security Badge */}
-                        <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
-                          <Lock className="w-4 h-4 text-blue-600" />
-                          <span className="text-xs text-blue-900 font-medium">Secure & Encrypted</span>
+                        <div className="flex items-center gap-1.5 p-2 bg-gray-50 border border-gray-200 rounded">
+                          <Lock className="w-3 h-3 text-gray-700" />
+                          <span className="text-xs text-gray-900 font-medium">Secure & Encrypted</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
               )}
             </div>
           )}
@@ -1557,14 +1539,14 @@ export default function PassengerDetailsModal({
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-blue-50 border-t-2 border-gray-200 flex items-center justify-between gap-4 flex-shrink-0">
+        <div className="px-4 py-3 bg-white border-t border-gray-200 flex items-center justify-between gap-3 flex-shrink-0">
           {showCheckout ? (
             <>
               {/* Back to Details Button */}
               <button
                 type="button"
                 onClick={() => setShowCheckout(false)}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-white hover:border-gray-400 transition-all hover:scale-105 shadow-sm"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all text-xs"
               >
                 ← Back to Details
               </button>
@@ -1576,11 +1558,10 @@ export default function PassengerDetailsModal({
                 type="button"
                 onClick={handleSubmit}
                 disabled={availableCredits < totalPrice}
-                className="group relative px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-bold hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="px-4 py-2 bg-gray-900 text-white rounded font-semibold hover:bg-gray-800 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-700 to-teal-700 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <Check className="w-5 h-5 relative z-10" />
-                <span className="relative z-10">Complete Booking</span>
+                <Check className="w-3 h-3" />
+                <span>Complete Booking</span>
               </button>
             </>
           ) : isMultiRoomMode ? (
@@ -1589,7 +1570,7 @@ export default function PassengerDetailsModal({
               <div className="flex-1" />
 
               <div className="text-center">
-                <p className="text-sm text-gray-600">
+                <p className="text-xs text-gray-600">
                   {passengers.filter(p => p.firstName && p.lastName && p.email).length} of {totalGuests} guests added
                 </p>
               </div>
@@ -1597,11 +1578,10 @@ export default function PassengerDetailsModal({
               <button
                 type="button"
                 onClick={handleMultiRoomSubmit}
-                className="group relative px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2"
+                className="px-4 py-2 bg-gray-900 text-white rounded font-semibold hover:bg-gray-800 transition-all flex items-center gap-1.5 text-xs"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <Check className="w-5 h-5 relative z-10" />
-                <span className="relative z-10">Complete Booking</span>
+                <Check className="w-3 h-3" />
+                <span>Complete Booking</span>
               </button>
             </>
           ) : (
@@ -1611,15 +1591,15 @@ export default function PassengerDetailsModal({
                 type="button"
                 onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                 disabled={currentStep === 0}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-white hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 shadow-sm disabled:hover:scale-100"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-xs"
               >
                 ← Previous
               </button>
 
               <div className="flex-1 text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border-2 border-gray-200 shadow-sm">
-                  <span className="text-sm font-bold text-gray-900">Step {currentStep + 1}</span>
-                  <span className="text-sm text-gray-500">of {numberOfTravelers}</span>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded border border-gray-200">
+                  <span className="text-xs font-bold text-gray-900">Step {currentStep + 1}</span>
+                  <span className="text-xs text-gray-500">of {numberOfTravelers}</span>
                 </div>
               </div>
 
@@ -1646,21 +1626,19 @@ export default function PassengerDetailsModal({
 
                     setCurrentStep(currentStep + 1);
                   }}
-                  className="group relative px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2"
+                  className="px-4 py-2 bg-gray-900 text-white rounded font-semibold hover:bg-gray-800 transition-all flex items-center gap-1.5 text-xs"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <UserPlus className="w-5 h-5 relative z-10" />
-                  <span className="relative z-10">Add {bookingType === 'flight' ? 'Passenger' : 'Guest'}</span>
+                  <UserPlus className="w-3 h-3" />
+                  <span>Add {bookingType === 'flight' ? 'Passenger' : 'Guest'}</span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={handleProceedToCheckout}
-                  className="group relative px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2"
+                  className="px-4 py-2 bg-gray-900 text-white rounded font-semibold hover:bg-gray-800 transition-all flex items-center gap-1.5 text-xs"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <CreditCardIcon className="w-5 h-5 relative z-10" />
-                  <span className="relative z-10">Proceed to Checkout</span>
+                  <CreditCardIcon className="w-3 h-3" />
+                  <span>Proceed to Checkout</span>
                 </button>
               )}
             </>
