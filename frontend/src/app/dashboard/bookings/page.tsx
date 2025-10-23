@@ -150,7 +150,10 @@ export default function BookingsPage() {
   };
 
   const getStatusColor = (status: string) => {
-    // All statuses use grayscale colors for minimal corporate design
+    // Confirmed/approved get lemon, others remain grayscale
+    if (status === 'confirmed' || status === 'approved') {
+      return 'bg-[#ADF802] text-gray-900 border-[#ADF802]';
+    }
     return 'bg-gray-50 text-gray-700 border-gray-200';
   };
 
@@ -226,6 +229,11 @@ export default function BookingsPage() {
         <div className="mb-6">
           <h1 className="text-lg font-bold text-gray-900 mb-1">
             My Bookings
+            {pagination.total > 0 && (
+              <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
+                {pagination.total}
+              </span>
+            )}
           </h1>
           <p className="text-xs text-gray-600">View and manage all your travel bookings</p>
         </div>
@@ -573,11 +581,11 @@ export default function BookingsPage() {
                     days.push(
                       <div
                         key={day}
-                        className={`h-20 md:h-28 border border-gray-200 p-1 md:p-2 overflow-y-auto ${
-                          isToday ? 'bg-blue-50 border-blue-300' : 'bg-white hover:bg-gray-50'
+                        className={`h-20 md:h-28 border p-1 md:p-2 overflow-y-auto ${
+                          isToday ? 'bg-[#F7FEE7] border-[#ADF802]' : 'border-gray-200 bg-white hover:bg-gray-50'
                         }`}
                       >
-                        <div className={`text-xs md:text-sm font-semibold mb-1 ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
+                        <div className={`text-xs md:text-sm font-semibold mb-1 ${isToday ? 'text-[#ADF802]' : 'text-gray-700'}`}>
                           {day}
                         </div>
                         <div className="space-y-1">
@@ -657,12 +665,12 @@ export default function BookingsPage() {
                         <div className="flex items-center gap-2">
                           {booking.bookingType === 'flight' ? (
                             <>
-                              <Plane className="w-4 h-4 text-blue-600" />
+                              <Plane className="w-4 h-4 text-gray-700" />
                               <span className="text-xs md:text-sm text-gray-700">Flight</span>
                             </>
                           ) : (
                             <>
-                              <Hotel className="w-4 h-4 text-purple-600" />
+                              <Hotel className="w-4 h-4 text-gray-700" />
                               <span className="text-xs md:text-sm text-gray-700">Hotel</span>
                             </>
                           )}
@@ -695,7 +703,7 @@ export default function BookingsPage() {
                       <td className="px-3 md:px-4 py-3">
                         <Link
                           href={`/dashboard/bookings/${booking.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-xs md:text-sm"
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-xs md:text-sm"
                         >
                           <Eye className="w-3 h-3 md:w-4 md:h-4" />
                           <span className="hidden md:inline">View</span>

@@ -88,11 +88,11 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">Review Booking</h2>
+            <h2 className="text-lg font-bold text-gray-900">Review Booking</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition"
@@ -106,20 +106,20 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
         {/* Content */}
         <div className="px-6 py-6 space-y-6">
           {/* Booking Details */}
-          <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Booking Reference</span>
-              <span className="font-mono font-semibold text-gray-900">{booking.bookingReference}</span>
+              <span className="text-xs text-gray-600">Booking Reference</span>
+              <span className="font-mono font-semibold text-gray-900 text-sm">{booking.bookingReference}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Traveler</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-xs text-gray-600">Traveler</span>
+              <span className="font-medium text-gray-900 text-sm">
                 {booking.user.firstName} {booking.user.lastName}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Email</span>
-              <span className="text-gray-900">{booking.user.email}</span>
+              <span className="text-xs text-gray-600">Email</span>
+              <span className="text-gray-900 text-sm">{booking.user.email}</span>
             </div>
           </div>
 
@@ -127,25 +127,25 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               {booking.bookingType === 'flight' ? (
-                <Plane className="w-5 h-5 text-blue-600" />
+                <Plane className="w-4 h-4 text-gray-700" />
               ) : (
-                <Hotel className="w-5 h-5 text-purple-600" />
+                <Hotel className="w-4 h-4 text-gray-700" />
               )}
-              <span className="font-semibold text-gray-900 capitalize">{booking.bookingType} Booking</span>
+              <span className="font-semibold text-gray-900 capitalize text-sm">{booking.bookingType} Booking</span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <span className="text-sm text-gray-600 block mb-1">Origin</span>
-                <span className="font-medium text-gray-900">{booking.origin}</span>
+                <span className="text-xs text-gray-600 block mb-1">Origin</span>
+                <span className="font-medium text-gray-900 text-sm">{booking.origin}</span>
               </div>
               <div>
-                <span className="text-sm text-gray-600 block mb-1">Destination</span>
-                <span className="font-medium text-gray-900">{booking.destination}</span>
+                <span className="text-xs text-gray-600 block mb-1">Destination</span>
+                <span className="font-medium text-gray-900 text-sm">{booking.destination}</span>
               </div>
               <div>
-                <span className="text-sm text-gray-600 block mb-1">Departure</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-xs text-gray-600 block mb-1">Departure</span>
+                <span className="font-medium text-gray-900 text-sm">
                   {new Date(booking.departureDate).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -155,8 +155,8 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
               </div>
               {booking.returnDate && (
                 <div>
-                  <span className="text-sm text-gray-600 block mb-1">Return</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="text-xs text-gray-600 block mb-1">Return</span>
+                  <span className="font-medium text-gray-900 text-sm">
                     {new Date(booking.returnDate).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
@@ -168,9 +168,9 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
             </div>
 
             {booking.isGroupBooking && (
-              <div className="flex items-center gap-2 text-blue-600 bg-blue-50 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2 text-gray-900 bg-gray-100 rounded-lg px-3 py-2 border border-gray-200">
                 <Users className="w-4 h-4" />
-                <span className="text-sm font-medium">
+                <span className="text-xs font-medium">
                   Group Booking - {booking.numberOfTravelers} travelers
                   {booking.groupName && ` (${booking.groupName})`}
                 </span>
@@ -179,10 +179,10 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
           </div>
 
           {/* Amount */}
-          <div className="bg-blue-50 rounded-xl p-4 border border-gray-200">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center justify-between">
-              <span className="text-gray-700 font-medium">Total Amount</span>
-              <span className="text-2xl font-bold text-gray-900">
+              <span className="text-gray-700 font-medium text-sm">Total Amount</span>
+              <span className="text-xl font-bold text-gray-900">
                 {formatAmount(Number(booking.totalPrice), booking.currency)}
               </span>
             </div>
@@ -194,25 +194,25 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
               {isSuperAdmin && isAwaitingConfirmation ? (
                 <button
                   onClick={() => setAction('confirm')}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium"
+                  className="flex items-center justify-center gap-2 px-6 py-2.5 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-medium"
                 >
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="w-4 h-4" />
                   Confirm Booking
                 </button>
               ) : (
                 <button
                   onClick={() => setAction('approve')}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-medium"
+                  className="flex items-center justify-center gap-2 px-6 py-2.5 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-medium"
                 >
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="w-4 h-4" />
                   Approve
                 </button>
               )}
               <button
                 onClick={() => setAction('reject')}
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-medium"
+                className="flex items-center justify-center gap-2 px-6 py-2.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
               >
-                <XCircle className="w-5 h-5" />
+                <XCircle className="w-4 h-4" />
                 Reject
               </button>
             </div>
@@ -221,8 +221,8 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
           {/* Approval Form */}
           {action === 'approve' && (
             <div className="space-y-4 border-t border-gray-200 pt-4">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-sm">
+                <CheckCircle className="w-4 h-4 text-gray-700" />
                 Approve Booking
               </h3>
               <div>
@@ -233,7 +233,7 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add any notes or comments about this approval..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none resize-none"
                   rows={3}
                   disabled={isProcessing}
                 />
@@ -242,14 +242,14 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
                 <button
                   onClick={handleSubmit}
                   disabled={isProcessing}
-                  className="flex-1 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-2.5 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isProcessing ? 'Processing...' : 'Confirm Approval'}
                 </button>
                 <button
                   onClick={() => setAction(null)}
                   disabled={isProcessing}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 text-sm border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -260,12 +260,12 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
           {/* Confirmation Form (Super Admin) */}
           {action === 'confirm' && (
             <div className="space-y-4 border-t border-gray-200 pt-4">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-sm">
+                <CheckCircle className="w-4 h-4 text-gray-700" />
                 Final Confirmation
               </h3>
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <p className="text-sm text-blue-800">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <p className="text-xs text-gray-700">
                   <strong>Rate Confirmation:</strong> Please verify rates and availability before confirming this booking.
                   This will finalize the booking and make it active.
                 </p>
@@ -278,7 +278,7 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add availability confirmation details or any notes..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none resize-none"
                   rows={3}
                   disabled={isProcessing}
                 />
@@ -287,14 +287,14 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
                 <button
                   onClick={handleSubmit}
                   disabled={isProcessing}
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-2.5 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isProcessing ? 'Processing...' : 'Confirm Booking'}
                 </button>
                 <button
                   onClick={() => setAction(null)}
                   disabled={isProcessing}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 text-sm border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -305,8 +305,8 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
           {/* Rejection Form */}
           {action === 'reject' && (
             <div className="space-y-4 border-t border-gray-200 pt-4">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <XCircle className="w-5 h-5 text-red-600" />
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-sm">
+                <XCircle className="w-4 h-4 text-red-600" />
                 Reject Booking
               </h3>
               <div>
@@ -317,7 +317,7 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Please provide a clear reason for rejecting this booking..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none resize-none"
                   rows={3}
                   required
                   disabled={isProcessing}
@@ -327,14 +327,14 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
                 <button
                   onClick={handleSubmit}
                   disabled={isProcessing || !reason.trim()}
-                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-2.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isProcessing ? 'Processing...' : 'Confirm Rejection'}
                 </button>
                 <button
                   onClick={() => setAction(null)}
                   disabled={isProcessing}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 text-sm border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -629,13 +629,13 @@ export default function ApprovalsPage() {
       <UnifiedNavBar currentPage="approvals" user={user} />
 
       {/* Main Content */}
-      <div className="max-w-8xl mx-auto w-full px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mb-6">
+          <h1 className="text-lg md:text-xl font-bold text-gray-900 mb-1">
             {user?.role === 'super_admin' ? 'Booking Confirmations' : 'Booking Approvals'}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-xs text-gray-600">
             {user?.role === 'super_admin'
               ? 'Review and confirm bookings that have been approved by managers. Verify rates and availability before confirming.'
               : 'Review and approve or reject pending booking requests. Approved bookings will need rate confirmation.'}
@@ -643,99 +643,78 @@ export default function ApprovalsPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search by reference, traveler, or destination..."
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               />
             </div>
             <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="number"
                 placeholder="Min amount"
                 value={filters.minAmount}
                 onChange={(e) => setFilters({ ...filters, minAmount: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               />
             </div>
             <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="number"
                 placeholder="Max amount"
                 value={filters.maxAmount}
                 onChange={(e) => setFilters({ ...filters, maxAmount: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 transition">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Pending Approvals</p>
-                <p className="text-3xl font-bold text-gray-900">{pagination.total}</p>
-              </div>
-              <div className="w-14 h-14 bg-amber-500 rounded-xl flex items-center justify-center">
-                <Clock className="w-7 h-7 text-white" />
-              </div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <p className="text-xs font-medium text-gray-600 mb-2">Pending Approvals</p>
+            <p className="text-2xl font-bold text-gray-900">{pagination.total}</p>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 transition">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Total Value</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {filteredBookings.length > 0 ? formatAmount(
-                    filteredBookings.reduce((sum, b) => sum + Number(b.totalPrice), 0),
-                    filteredBookings[0].currency
-                  ) : formatAmount(0, 'USD')}
-                </p>
-              </div>
-              <div className="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center">
-                <DollarSign className="w-7 h-7 text-white" />
-              </div>
-            </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <p className="text-xs font-medium text-gray-600 mb-2">Total Value</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {filteredBookings.length > 0 ? formatAmount(
+                filteredBookings.reduce((sum, b) => sum + Number(b.totalPrice), 0),
+                filteredBookings[0].currency
+              ) : formatAmount(0, 'USD')}
+            </p>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 transition">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Travelers</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {filteredBookings.reduce((sum, b) => sum + b.numberOfTravelers, 0)}
-                </p>
-              </div>
-              <div className="w-14 h-14 bg-purple-500 rounded-xl flex items-center justify-center">
-                <Users className="w-7 h-7 text-white" />
-              </div>
-            </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <p className="text-xs font-medium text-gray-600 mb-2">Travelers</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {filteredBookings.reduce((sum, b) => sum + b.numberOfTravelers, 0)}
+            </p>
           </div>
         </div>
 
         {/* Bulk Actions Bar */}
         {selectedBookingIds.size > 0 && (
-          <div className="bg-blue-600 text-white rounded-2xl shadow-sm border border-blue-700 p-4 mb-6">
+          <div className="bg-gray-900 text-white rounded-lg shadow-sm border border-gray-800 p-4 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5" />
-                <span className="font-semibold">{selectedBookingIds.size} booking(s) selected</span>
+                <CheckCircle className="w-4 h-4" />
+                <span className="font-semibold text-sm">{selectedBookingIds.size} booking(s) selected</span>
               </div>
               <div className="flex gap-2">
                 {user?.role === 'super_admin' ? (
                   <button
                     onClick={() => handleBulkAction('confirm')}
                     disabled={isProcessing}
-                    className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition font-medium disabled:opacity-50"
+                    className="px-4 py-2 text-sm bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition font-medium disabled:opacity-50"
                   >
                     Confirm Selected
                   </button>
@@ -743,7 +722,7 @@ export default function ApprovalsPage() {
                   <button
                     onClick={() => handleBulkAction('approve')}
                     disabled={isProcessing}
-                    className="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition font-medium disabled:opacity-50"
+                    className="px-4 py-2 text-sm bg-white text-gray-900 rounded-lg hover:bg-gray-100 transition font-medium disabled:opacity-50"
                   >
                     Approve Selected
                   </button>
@@ -751,13 +730,13 @@ export default function ApprovalsPage() {
                 <button
                   onClick={() => handleBulkAction('reject')}
                   disabled={isProcessing}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50"
+                  className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50"
                 >
                   Reject Selected
                 </button>
                 <button
                   onClick={() => setSelectedBookingIds(new Set())}
-                  className="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition font-medium"
+                  className="px-4 py-2 text-sm bg-white/20 text-white rounded-lg hover:bg-white/30 transition font-medium"
                 >
                   Clear
                 </button>
@@ -768,38 +747,38 @@ export default function ApprovalsPage() {
 
         {/* Bookings Matrix Table */}
         {loading ? (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading pending approvals...</p>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p className="text-gray-600 text-sm">Loading pending approvals...</p>
           </div>
         ) : filteredBookings.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">All caught up!</h3>
-            <p className="text-gray-600">There are no pending approvals at the moment.</p>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <CheckCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">All caught up!</h3>
+            <p className="text-gray-600 text-sm">There are no pending approvals at the moment.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full table-auto" style={{ minWidth: 'auto' }}>
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-4 text-left">
+                    <th className="px-4 py-3 text-left w-12">
                       <input
                         type="checkbox"
                         checked={selectedBookingIds.size === filteredBookings.length && filteredBookings.length > 0}
                         onChange={toggleAllBookings}
-                        className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                        className="w-4 h-4 text-gray-900 rounded focus:ring-1 focus:ring-gray-900"
                       />
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Reference</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Traveler</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Route</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Travelers</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-28">Type</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">Reference</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[180px]">Traveler</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[200px]">Route</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-24">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-20">Travelers</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-28">Amount</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -808,98 +787,98 @@ export default function ApprovalsPage() {
                       <tr
                         key={booking.id}
                         className={`hover:bg-gray-50 transition ${
-                          selectedBookingIds.has(booking.id) ? 'bg-blue-50' : ''
+                          selectedBookingIds.has(booking.id) ? 'bg-gray-50' : ''
                         }`}
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <input
                             type="checkbox"
                             checked={selectedBookingIds.has(booking.id)}
                             onChange={() => toggleBookingSelection(booking.id)}
-                            className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                            className="w-4 h-4 text-gray-900 rounded focus:ring-1 focus:ring-gray-900"
                           />
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-1.5">
                             {booking.bookingType === 'flight' ? (
-                              <Plane className="w-5 h-5 text-blue-600" />
+                              <Plane className="w-4 h-4 text-gray-700 flex-shrink-0" />
                             ) : (
-                              <Hotel className="w-5 h-5 text-purple-600" />
+                              <Hotel className="w-4 h-4 text-gray-700 flex-shrink-0" />
                             )}
-                            <span className="text-base capitalize font-medium">{booking.bookingType}</span>
+                            <span className="text-sm capitalize font-medium text-gray-900">{booking.bookingType}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-4 py-4">
                           <button
                             onClick={() => setExpandedRowId(expandedRowId === booking.id ? null : booking.id)}
-                            className="font-mono text-base text-blue-600 hover:text-blue-800 font-semibold hover:underline"
+                            className="font-mono text-xs text-gray-900 font-semibold hover:text-gray-700 transition"
                           >
                             {booking.bookingReference}
                           </button>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-semibold">
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                               {booking.user.firstName[0]}{booking.user.lastName[0]}
                             </div>
-                            <div>
-                              <div className="font-medium text-gray-900 text-base">
+                            <div className="min-w-0">
+                              <div className="font-medium text-gray-900 text-sm truncate">
                                 {booking.user.firstName} {booking.user.lastName}
                               </div>
-                              <div className="text-sm text-gray-500">{booking.user.email}</div>
+                              <div className="text-xs text-gray-500 truncate">{booking.user.email}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="text-base font-medium text-gray-900">
+                        <td className="px-4 py-4">
+                          <div className="text-sm font-medium text-gray-900 whitespace-nowrap">
                             {booking.origin} → {booking.destination}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="text-base text-gray-900">
+                        <td className="px-4 py-4">
+                          <div className="text-sm text-gray-900 whitespace-nowrap">
                             {new Date(booking.departureDate).toLocaleDateString('en-US', {
                               month: 'short',
                               day: 'numeric',
                             })}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-1.5 text-base">
-                            {booking.isGroupBooking && <Users className="w-4 h-4 text-blue-600" />}
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-1 text-sm">
+                            {booking.isGroupBooking && <Users className="w-3 h-3 text-gray-700 flex-shrink-0" />}
                             <span className="text-gray-900 font-medium">{booking.numberOfTravelers}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="font-bold text-gray-900 text-base">
+                        <td className="px-4 py-4">
+                          <div className="font-semibold text-gray-900 text-sm whitespace-nowrap">
                             {formatAmount(Number(booking.totalPrice), booking.currency)}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-1">
                             <button
                               onClick={() => setSelectedBooking(booking)}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                              className="p-1.5 text-gray-700 hover:bg-gray-100 rounded transition"
                               title="Review"
                             >
-                              <Eye className="w-5 h-5" />
+                              <Eye className="w-4 h-4" />
                             </button>
                             {user?.role === 'super_admin' ? (
                               <button
                                 onClick={() => handleConfirm(booking.id)}
                                 disabled={isProcessing}
-                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition disabled:opacity-50"
+                                className="p-1.5 text-gray-700 hover:bg-gray-100 rounded transition disabled:opacity-50"
                                 title="Confirm"
                               >
-                                <CheckCircle className="w-5 h-5" />
+                                <CheckCircle className="w-4 h-4" />
                               </button>
                             ) : (
                               <button
                                 onClick={() => handleApprove(booking.id)}
                                 disabled={isProcessing}
-                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition disabled:opacity-50"
+                                className="p-1.5 text-gray-700 hover:bg-gray-100 rounded transition disabled:opacity-50"
                                 title="Approve"
                               >
-                                <CheckCircle className="w-5 h-5" />
+                                <CheckCircle className="w-4 h-4" />
                               </button>
                             )}
                             <button
@@ -908,10 +887,10 @@ export default function ApprovalsPage() {
                                 if (reason) handleReject(booking.id, reason);
                               }}
                               disabled={isProcessing}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
+                              className="p-1.5 text-red-600 hover:bg-red-50 rounded transition disabled:opacity-50"
                               title="Reject"
                             >
-                              <XCircle className="w-5 h-5" />
+                              <XCircle className="w-4 h-4" />
                             </button>
                           </div>
                         </td>
@@ -979,8 +958,8 @@ export default function ApprovalsPage() {
 
         {/* Pagination */}
         {!loading && filteredBookings.length > 0 && pagination.totalPages > 1 && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-4 flex items-center justify-between mt-6">
-            <div className="text-sm text-gray-700">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-6 py-4 flex items-center justify-between mt-6">
+            <div className="text-xs text-gray-700">
               Showing page <span className="font-semibold">{pagination.page}</span> of{' '}
               <span className="font-semibold">{pagination.totalPages}</span> (
               <span className="font-semibold">{pagination.total}</span> total)
@@ -991,7 +970,7 @@ export default function ApprovalsPage() {
                   setPagination((prev) => ({ ...prev, page: Math.max(1, prev.page - 1) }))
                 }
                 disabled={pagination.page === 1}
-                className="inline-flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+                className="inline-flex items-center gap-1 px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Previous
@@ -1004,7 +983,7 @@ export default function ApprovalsPage() {
                   }))
                 }
                 disabled={pagination.page === pagination.totalPages}
-                className="inline-flex items-center gap-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+                className="inline-flex items-center gap-1 px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
               >
                 Next
                 <ChevronRight className="w-4 h-4" />

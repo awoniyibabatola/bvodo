@@ -116,21 +116,21 @@ export default function ManageUsersPage() {
 
   const getStatusBadge = (status: string) => {
     const styles = {
-      active: 'bg-green-50 text-green-700 border-green-200',
-      pending: 'bg-orange-50 text-orange-700 border-orange-200',
-      inactive: 'bg-gray-50 text-gray-700 border-gray-200',
+      active: 'bg-[#ADF802]/10 text-gray-900 border-[#ADF802]/30',
+      pending: 'bg-gray-100 text-gray-700 border-gray-200',
+      inactive: 'bg-gray-100 text-gray-700 border-gray-200',
       suspended: 'bg-red-50 text-red-700 border-red-200',
     };
 
     const icons = {
-      active: <CheckCircle className="w-3 h-3" />,
-      pending: <Clock className="w-3 h-3" />,
-      inactive: <XCircle className="w-3 h-3" />,
-      suspended: <XCircle className="w-3 h-3" />,
+      active: <CheckCircle className="w-3 h-3 text-[#ADF802]" />,
+      pending: <Clock className="w-3 h-3 text-gray-600" />,
+      inactive: <XCircle className="w-3 h-3 text-gray-600" />,
+      suspended: <XCircle className="w-3 h-3 text-red-600" />,
     };
 
     return (
-      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${styles[status as keyof typeof styles] || styles.inactive}`}>
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${styles[status as keyof typeof styles] || styles.inactive}`}>
         {icons[status as keyof typeof icons]}
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
@@ -142,41 +142,36 @@ export default function ManageUsersPage() {
       {/* Navigation */}
       <UnifiedNavBar currentPage="users" user={user} />
 
-      <div className="max-w-8xl mx-auto w-full px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6 md:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 md:p-3 bg-blue-600 rounded-2xl flex-shrink-0">
-                <Users className="w-5 h-5 md:w-6 md:h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Users</h1>
-                <p className="text-sm md:text-base text-gray-600">{filteredUsers.length} users in your organization</p>
-              </div>
+            <div>
+              <h1 className="text-lg md:text-xl font-bold text-gray-900">Manage Users</h1>
+              <p className="text-xs text-gray-600">{filteredUsers.length} users in your organization</p>
             </div>
             <Link
               href="/dashboard/users/invite"
-              className="flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-blue-600 text-white rounded-xl text-sm md:text-base font-semibold hover:bg-blue-700 transition shadow-sm whitespace-nowrap"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition whitespace-nowrap"
             >
-              <UserPlus className="w-4 h-4 md:w-5 md:h-5" />
+              <UserPlus className="w-4 h-4" />
               <span>Invite User</span>
             </Link>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               />
             </div>
 
@@ -185,7 +180,7 @@ export default function ManageUsersPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -200,7 +195,7 @@ export default function ManageUsersPage() {
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               >
                 <option value="all">All Roles</option>
                 <option value="admin">Admin</option>
@@ -213,16 +208,16 @@ export default function ManageUsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           {loading ? (
             <div className="p-12 text-center">
-              <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading users...</p>
+              <div className="animate-spin w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full mx-auto"></div>
+              <p className="mt-4 text-gray-600 text-sm">Loading users...</p>
             </div>
           ) : filteredUsers.length === 0 ? (
             <div className="p-12 text-center">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No users found</p>
+              <p className="text-gray-600 text-sm">No users found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -254,14 +249,14 @@ export default function ManageUsersPage() {
                     <tr key={user.id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                          <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                             {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900">
+                            <div className="font-semibold text-gray-900 text-sm">
                               {user.firstName} {user.lastName}
                             </div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="text-xs text-gray-500">{user.email}</div>
                           </div>
                         </div>
                       </td>
@@ -281,7 +276,7 @@ export default function ManageUsersPage() {
                           <div className="font-semibold text-gray-900">
                             ${parseFloat(user.availableCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </div>
-                          <div className="text-gray-500">
+                          <div className="text-xs text-gray-500">
                             / ${parseFloat(user.creditLimit).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </div>
                         </div>
@@ -290,14 +285,14 @@ export default function ManageUsersPage() {
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/dashboard/users/${user.id}/credits`}
-                            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
                             title="Manage Credits"
                           >
                             <DollarSign className="w-4 h-4" />
                           </Link>
                           <Link
                             href={`/dashboard/users/${user.id}/edit`}
-                            className="p-2 text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition"
+                            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
                             title="Edit User"
                           >
                             <Edit className="w-4 h-4" />

@@ -140,7 +140,7 @@ export default function AirportAutocomplete({
           }}
           placeholder={placeholder}
           required={required}
-          className="w-full pl-10 md:pl-12 pr-10 md:pr-12 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all hover:border-gray-300"
+          className="w-full pl-10 md:pl-12 pr-10 md:pr-12 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all hover:border-gray-300"
           autoComplete="off"
         />
 
@@ -180,10 +180,10 @@ export default function AirportAutocomplete({
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-xs md:text-sm text-gray-900 truncate">
+                  <div className="text-xs text-gray-900 truncate normal-case">
                     {location.name}
                   </div>
-                  <div className="text-[10px] md:text-xs text-gray-600 truncate">
+                  <div className="text-[10px] text-gray-600 truncate normal-case">
                     {location.cityName && location.cityName !== location.name && (
                       <span>{location.cityName}, </span>
                     )}
@@ -191,7 +191,7 @@ export default function AirportAutocomplete({
                   </div>
                 </div>
                 <div className="flex-shrink-0">
-                  <span className="inline-block px-1.5 py-0.5 md:px-2 md:py-0.5 bg-gray-100 text-gray-700 text-[10px] md:text-xs font-mono font-semibold rounded">
+                  <span className="inline-block px-1.5 py-0.5 md:px-2 md:py-0.5 bg-gray-100 text-gray-700 text-[10px] font-mono rounded normal-case">
                     {location.iataCode}
                   </span>
                 </div>

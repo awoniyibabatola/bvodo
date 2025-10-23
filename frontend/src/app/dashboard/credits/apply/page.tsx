@@ -137,47 +137,42 @@ export default function ApplyCreditPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
-      <div className="w-full px-4 md:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <Link
             href="/dashboard/credits"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Credits
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg">
-              <CreditCard className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Apply for Credit</h1>
-              <p className="text-gray-600">Get credit to manage your corporate travel bookings</p>
-            </div>
+          <div>
+            <h1 className="text-lg md:text-xl font-bold text-gray-900">Apply for Credit</h1>
+            <p className="text-xs text-gray-600">Get credit to manage your corporate travel bookings</p>
           </div>
         </div>
 
         {/* Info Banner */}
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3 md:p-4 mb-8">
-          <div className="flex items-start gap-4">
-            <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
-              <AlertCircle className="w-5 h-5 text-blue-600" />
+        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-gray-100 rounded-lg flex-shrink-0">
+              <AlertCircle className="w-4 h-4 text-gray-700" />
             </div>
             <div>
-              <h3 className="font-semibold text-blue-900 mb-2">Credit Application Process</h3>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <h3 className="font-semibold text-gray-900 mb-2 text-sm">Credit Application Process</h3>
+              <ul className="text-xs text-gray-700 space-y-1">
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" />
                   <span>Submit your application with complete business information</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" />
                   <span>Our team reviews within 2-3 business days</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" />
                   <span>Upon approval, credits are added to your account immediately</span>
                 </li>
               </ul>
@@ -186,11 +181,11 @@ export default function ApplyCreditPage() {
         </div>
 
         {/* Application Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           {/* Credit Amount Section */}
-          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <DollarSign className="w-5 h-5" />
+          <div className="p-4 md:p-6 border-b border-gray-200">
+            <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <DollarSign className="w-4 h-4" />
               Credit Request
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -206,7 +201,7 @@ export default function ApplyCreditPage() {
                   required
                   min="1000"
                   step="100"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="10000"
                 />
                 <p className="text-xs text-gray-500 mt-1">Minimum: $1,000</p>
@@ -219,7 +214,7 @@ export default function ApplyCreditPage() {
                   name="currency"
                   value={formData.currency}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                 >
                   <option value="USD">USD</option>
                   <option value="EUR">EUR</option>
@@ -231,9 +226,9 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Business Information */}
-          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Building2 className="w-5 h-5" />
+          <div className="p-4 md:p-6 border-b border-gray-200">
+            <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Building2 className="w-4 h-4" />
               Business Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -247,7 +242,7 @@ export default function ApplyCreditPage() {
                   value={formData.companyName}
                   readOnly
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-50 cursor-not-allowed"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed"
                   placeholder="Loading..."
                 />
                 <p className="text-xs text-gray-500 mt-1">Auto-filled from your account</p>
@@ -261,7 +256,7 @@ export default function ApplyCreditPage() {
                   name="registrationNumber"
                   value={formData.registrationNumber}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="RC123456"
                 />
               </div>
@@ -273,7 +268,7 @@ export default function ApplyCreditPage() {
                   name="businessType"
                   value={formData.businessType}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                 >
                   <option value="">Select Business Type</option>
                   <option value="Sole Proprietorship">Sole Proprietorship</option>
@@ -295,7 +290,7 @@ export default function ApplyCreditPage() {
                   name="industry"
                   value={formData.industry}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                 >
                   <option value="">Select Industry</option>
                   <option value="Technology">Technology</option>
@@ -333,7 +328,7 @@ export default function ApplyCreditPage() {
                   onChange={handleChange}
                   min="1900"
                   max={new Date().getFullYear()}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="2020"
                 />
               </div>
@@ -347,7 +342,7 @@ export default function ApplyCreditPage() {
                   value={formData.numberOfEmployees}
                   onChange={handleChange}
                   min="1"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="50"
                 />
               </div>
@@ -362,7 +357,7 @@ export default function ApplyCreditPage() {
                   onChange={handleChange}
                   min="0"
                   step="1000"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="1000000"
                 />
               </div>
@@ -370,9 +365,9 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Contact Information */}
-          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <User className="w-5 h-5" />
+          <div className="p-4 md:p-6 border-b border-gray-200">
+            <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <User className="w-4 h-4" />
               Contact Person
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -386,7 +381,7 @@ export default function ApplyCreditPage() {
                   value={formData.contactPersonName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="John Doe"
                 />
               </div>
@@ -399,7 +394,7 @@ export default function ApplyCreditPage() {
                   name="contactPersonTitle"
                   value={formData.contactPersonTitle}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="CFO"
                 />
               </div>
@@ -413,7 +408,7 @@ export default function ApplyCreditPage() {
                   value={formData.contactEmail}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="john@company.com"
                 />
               </div>
@@ -427,7 +422,7 @@ export default function ApplyCreditPage() {
                   value={formData.contactPhone}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="+234 800 000 0000"
                 />
               </div>
@@ -435,9 +430,9 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Business Address */}
-          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
+          <div className="p-4 md:p-6 border-b border-gray-200">
+            <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
               Business Address
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -451,7 +446,7 @@ export default function ApplyCreditPage() {
                   value={formData.businessAddress}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="123 Business Street"
                 />
               </div>
@@ -465,7 +460,7 @@ export default function ApplyCreditPage() {
                   value={formData.city}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="Lagos"
                 />
               </div>
@@ -478,7 +473,7 @@ export default function ApplyCreditPage() {
                   name="state"
                   value={formData.state}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="Lagos State"
                 />
               </div>
@@ -492,7 +487,7 @@ export default function ApplyCreditPage() {
                   value={formData.country}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="Nigeria"
                 />
               </div>
@@ -506,7 +501,7 @@ export default function ApplyCreditPage() {
                   value={formData.postalCode}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="100001"
                 />
               </div>
@@ -514,9 +509,9 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Credit Terms */}
-          <div className="p-3 md:p-4 lg:p-5 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
+          <div className="p-4 md:p-6 border-b border-gray-200">
+            <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
               Credit Terms
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -528,7 +523,7 @@ export default function ApplyCreditPage() {
                   name="proposedCreditTerm"
                   value={formData.proposedCreditTerm}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                 >
                   <option value="30">30 Days</option>
                   <option value="60">60 Days</option>
@@ -543,7 +538,7 @@ export default function ApplyCreditPage() {
                   name="estimatedMonthlySpend"
                   value={formData.estimatedMonthlySpend}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                 >
                   <option value="">Select Monthly Spend Range</option>
                   <option value="1000">$0 - $1,000</option>
@@ -564,14 +559,14 @@ export default function ApplyCreditPage() {
           </div>
 
           {/* Submit Button */}
-          <div className="p-3 md:p-4 lg:p-5 bg-gray-50">
-            <div className="flex items-start gap-4 mb-6">
+          <div className="p-4 md:p-6 bg-gray-50">
+            <div className="flex items-start gap-3 mb-6">
               <input
                 type="checkbox"
                 required
-                className="w-5 h-5 mt-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 mt-1 text-gray-900 border-gray-300 rounded focus:ring-gray-900"
               />
-              <p className="text-sm text-gray-700">
+              <p className="text-xs text-gray-700">
                 I confirm that the information provided is accurate and complete. I understand that this application
                 is subject to review and approval, and that bvodo reserves the right to request additional documentation
                 or decline the application.
@@ -580,7 +575,7 @@ export default function ApplyCreditPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="w-full bg-gray-900 text-white py-3 rounded-lg font-semibold text-sm hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Submitting Application...' : 'Submit Credit Application'}
             </button>
@@ -591,7 +586,7 @@ export default function ApplyCreditPage() {
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-scale-in">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full overflow-hidden animate-scale-in">
             {/* Confetti Background Effect */}
             <div className="relative bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-8 text-center">
               <div className="absolute inset-0 overflow-hidden">
@@ -658,13 +653,13 @@ export default function ApplyCreditPage() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleSuccessModalClose}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+                  className="flex-1 bg-gray-900 text-white py-2.5 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-all text-sm"
                 >
                   Go to Credits Dashboard
                 </button>
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-all"
+                  className="flex-1 bg-white border border-gray-200 text-gray-700 py-2.5 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-all text-sm"
                 >
                   Back to Home
                 </button>

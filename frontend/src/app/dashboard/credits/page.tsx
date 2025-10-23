@@ -176,71 +176,46 @@ export default function ManageCreditsPage() {
       {/* Navigation */}
       <UnifiedNavBar currentPage="dashboard" user={user} />
 
-      <div className="max-w-8xl mx-auto w-full px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6 md:mb-8">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 md:p-3 bg-green-600 rounded-2xl flex-shrink-0">
-              <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Credits</h1>
-              <p className="text-sm md:text-base text-gray-600">Organization credit management</p>
-            </div>
+          <div>
+            <h1 className="text-lg md:text-xl font-bold text-gray-900">Manage Credits</h1>
+            <p className="text-xs text-gray-600">Organization credit management</p>
           </div>
         </div>
 
         {/* Stats Grid */}
         {stats && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {/* Total Credits */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6">
-              <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                <div className="p-1.5 md:p-2 bg-blue-50 rounded-xl">
-                  <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                </div>
-                <span className="text-xs md:text-sm text-gray-600 font-medium">Total Credits</span>
-              </div>
-              <div className="text-2xl md:text-3xl font-bold text-gray-900">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-xs text-gray-600 font-medium mb-2">Total Credits</div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">
                 ${parseFloat(stats.organization.totalCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
             {/* Available Credits */}
-            <div className="bg-white rounded-2xl shadow-lg border border-green-200 p-4 md:p-6">
-              <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                <div className="p-1.5 md:p-2 bg-green-50 rounded-xl">
-                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
-                </div>
-                <span className="text-xs md:text-sm text-gray-600 font-medium">Available</span>
-              </div>
-              <div className="text-2xl md:text-3xl font-bold text-green-600">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-xs text-gray-600 font-medium mb-2">Available</div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">
                 ${parseFloat(stats.organization.availableCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
             {/* Used Credits */}
-            <div className="bg-white rounded-2xl shadow-lg border border-orange-200 p-4 md:p-6">
-              <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                <div className="p-1.5 md:p-2 bg-orange-50 rounded-xl">
-                  <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
-                </div>
-                <span className="text-xs md:text-sm text-gray-600 font-medium">Allocated</span>
-              </div>
-              <div className="text-2xl md:text-3xl font-bold text-orange-600">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-xs text-gray-600 font-medium mb-2">Allocated</div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">
                 ${parseFloat(stats.organization.usedCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
             {/* Active Users */}
-            <div className="bg-white rounded-2xl shadow-lg border border-purple-200 p-4 md:p-6">
-              <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                <div className="p-1.5 md:p-2 bg-purple-50 rounded-xl">
-                  <Users className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
-                </div>
-                <span className="text-xs md:text-sm text-gray-600 font-medium">Active Users</span>
-              </div>
-              <div className="text-2xl md:text-3xl font-bold text-purple-600">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-xs text-gray-600 font-medium mb-2">Active Users</div>
+              <div className="text-xl md:text-2xl font-bold text-gray-900">
                 {stats.users.active}
               </div>
             </div>
@@ -249,8 +224,8 @@ export default function ManageCreditsPage() {
 
         {/* Credit Applications Section */}
         {creditApplications.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Your Credit Applications</h2>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+            <h2 className="text-base font-bold text-gray-900 mb-4">Your Credit Applications</h2>
             <div className="space-y-3">
               {creditApplications.map((app) => (
                 <div key={app.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
@@ -290,23 +265,18 @@ export default function ManageCreditsPage() {
         )}
 
         {/* Apply for Credit Button */}
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-4 md:p-6 mb-6">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 md:p-6 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3 md:gap-4">
-              <div className="p-2.5 md:p-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex-shrink-0">
-                <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-base md:text-lg font-bold text-gray-900">Need More Credits?</h3>
-                <p className="text-xs md:text-sm text-gray-600">Apply for additional credit to support your travel needs</p>
-              </div>
+            <div>
+              <h3 className="text-base font-bold text-gray-900">Need More Credits?</h3>
+              <p className="text-xs text-gray-600">Apply for additional credit to support your travel needs</p>
             </div>
             <button
               onClick={() => router.push('/dashboard/credits/apply')}
               disabled={creditApplications.some(app => app.status === 'pending' || app.status === 'under_review')}
-              className="w-full sm:w-auto px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-sm md:text-base font-semibold hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
             >
-              <PlusCircle className="w-4 h-4 md:w-5 md:h-5" />
+              <PlusCircle className="w-4 h-4" />
               <span>Apply for Credit</span>
             </button>
           </div>
@@ -320,24 +290,24 @@ export default function ManageCreditsPage() {
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search users to allocate credits..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
             />
           </div>
         </div>
 
         {/* Users Credit Table */}
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">User Credit Allocation</h2>
-            <p className="text-sm text-gray-600 mt-1">Manage individual user credit limits</p>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-4 md:p-6 border-b border-gray-200">
+            <h2 className="text-base font-bold text-gray-900">User Credit Allocation</h2>
+            <p className="text-xs text-gray-600 mt-1">Manage individual user credit limits</p>
           </div>
 
           <div className="overflow-x-auto">
@@ -375,14 +345,14 @@ export default function ManageCreditsPage() {
                     <tr key={user.id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                          <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                             {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900">
+                            <div className="font-semibold text-gray-900 text-sm">
                               {user.firstName} {user.lastName}
                             </div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
+                            <div className="text-xs text-gray-500">{user.email}</div>
                           </div>
                         </div>
                       </td>
@@ -418,7 +388,7 @@ export default function ManageCreditsPage() {
                             setSelectedUser(user);
                             setShowAllocateModal(true);
                           }}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition font-medium text-sm"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-medium text-sm"
                         >
                           <PlusCircle className="w-4 h-4" />
                           Allocate
@@ -435,17 +405,17 @@ export default function ManageCreditsPage() {
         {/* Allocate Credits Modal */}
         {showAllocateModal && selectedUser && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Allocate Credits</h2>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-2">Allocate Credits</h2>
+              <p className="text-xs text-gray-600 mb-6">
                 Managing credits for {selectedUser.firstName} {selectedUser.lastName}
               </p>
 
               <div className="space-y-4">
                 {/* Current Balance */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="text-sm text-gray-600 mb-1">Current Credit Limit</div>
-                  <div className="text-2xl font-bold text-gray-900">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-xs text-gray-600 mb-1">Current Credit Limit</div>
+                  <div className="text-xl font-bold text-gray-900">
                     ${parseFloat(selectedUser.creditLimit).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </div>
                 </div>
@@ -458,7 +428,7 @@ export default function ManageCreditsPage() {
                   <select
                     value={allocateOperation}
                     onChange={(e) => setAllocateOperation(e.target.value as 'set' | 'add')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   >
                     <option value="set">Set to amount</option>
                     <option value="add">Add to current</option>
@@ -476,7 +446,7 @@ export default function ManageCreditsPage() {
                     onChange={(e) => setAllocateAmount(e.target.value)}
                     min="0"
                     step="0.01"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                     placeholder="5000.00"
                   />
                 </div>
@@ -486,7 +456,7 @@ export default function ManageCreditsPage() {
                   <button
                     onClick={handleAllocateCredits}
                     disabled={processing || !allocateAmount}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50"
+                    className="flex-1 bg-gray-900 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50"
                   >
                     {processing ? 'Processing...' : 'Confirm'}
                   </button>
@@ -496,7 +466,7 @@ export default function ManageCreditsPage() {
                       setSelectedUser(null);
                       setAllocateAmount('');
                     }}
-                    className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition"
+                    className="px-6 py-2.5 border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
                   >
                     Cancel
                   </button>

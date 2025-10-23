@@ -1746,9 +1746,9 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 z-40 group"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition animate-pulse"></div>
-          <div className="relative flex items-center gap-2 md:gap-3 px-4 md:px-6 py-3 md:py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
-            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-white animate-pulse" />
+          <div className="absolute inset-0 bg-gray-900 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition"></div>
+          <div className="relative flex items-center gap-2 md:gap-3 px-4 md:px-6 py-3 md:py-4 bg-gray-900 rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
+            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-[#ADF802]" />
             <span className="text-white font-semibold text-sm md:text-base">Chat with AI</span>
             <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-white" />
           </div>
@@ -1762,32 +1762,31 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
           : "fixed inset-0 md:inset-auto md:bottom-6 md:right-6 z-50 md:w-[480px] md:h-[700px] flex flex-col bg-white md:rounded-3xl shadow-2xl border-0 md:border md:border-gray-200 overflow-hidden"
         }>
           {/* Header */}
-          <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-4 md:p-6">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-90"></div>
+          <div className="relative bg-gray-900 p-4 md:p-6 border-b border-gray-800">
             <div className="relative flex items-center justify-between">
               <div className="flex items-center gap-2 md:gap-3">
-                <div className="p-1.5 md:p-2 bg-white/20 backdrop-blur-xl rounded-lg md:rounded-xl">
-                  <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-white animate-pulse" />
+                <div className="p-1.5 md:p-2 bg-[#ADF802]/20 border border-[#ADF802]/30 rounded-lg md:rounded-xl">
+                  <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-[#ADF802]" />
                 </div>
                 <div>
                   <h3 className="text-base md:text-lg font-bold text-white">Your Travel Buddy</h3>
                   <div className="flex items-center gap-1.5 md:gap-2">
-                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <p className="text-[10px] md:text-xs text-blue-100">Online & ready to help!</p>
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-[#ADF802] rounded-full animate-pulse"></div>
+                    <p className="text-[10px] md:text-xs text-gray-400">Online & ready to help!</p>
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/20 rounded-lg md:rounded-xl transition flex-shrink-0"
+                className="p-2 hover:bg-gray-800 rounded-lg md:rounded-xl transition flex-shrink-0"
               >
-                <X className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                <X className="w-5 h-5 md:w-6 md:h-6 text-gray-400 hover:text-white" />
               </button>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 md:p-6 space-y-3 md:space-y-4 bg-gradient-to-br from-gray-50 to-blue-50/20">
+          <div className="flex-1 overflow-y-auto p-3 md:p-6 space-y-3 md:space-y-4 bg-gray-50">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -1796,14 +1795,14 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                 <div
                   className={`max-w-[90%] md:max-w-[85%] ${
                     message.role === 'user'
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                      ? 'bg-gray-900 text-white'
                       : 'bg-white border border-gray-200'
                   } rounded-xl md:rounded-2xl p-3 md:p-4 shadow-md`}
                 >
                   {message.role === 'assistant' && (
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="p-1.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
-                        <Sparkles className="w-3 h-3 text-white" />
+                      <div className="p-1.5 bg-[#ADF802]/20 border border-[#ADF802]/30 rounded-lg">
+                        <Sparkles className="w-3 h-3 text-[#ADF802]" />
                       </div>
                       <span className="text-xs font-semibold text-gray-700">AI Assistant</span>
                     </div>
@@ -1822,11 +1821,11 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                       {message.flightResults.slice(0, 2).map((flight) => (
                         <div
                           key={flight.id}
-                          className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 hover:border-blue-400 transition-all hover:shadow-lg"
+                          className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-[#ADF802] transition-all hover:shadow-lg"
                         >
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center gap-3">
-                              <div className="p-2 bg-blue-600 rounded-lg">
+                              <div className="p-2 bg-gray-900 rounded-lg">
                                 <Plane className="w-5 h-5 text-white" />
                               </div>
                               <div>
@@ -1835,7 +1834,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-xl font-bold text-blue-600">${flight.price}</div>
+                              <div className="text-xl font-bold text-gray-900">${flight.price}</div>
                               <div className="text-xs text-gray-600">per person</div>
                             </div>
                           </div>
@@ -1844,7 +1843,11 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                               <Clock className="w-3 h-3" />
                               <span>{flight.duration}</span>
                             </div>
-                            <div className="px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">
+                            <div className={`px-2 py-1 rounded-full font-medium ${
+                              flight.stops === 0
+                                ? 'bg-[#ADF802] text-gray-900 border border-[#ADF802]'
+                                : 'bg-gray-100 text-gray-700'
+                            }`}>
                               {flight.stops === 0 ? 'Direct ✨' : `${flight.stops} stop${flight.stops > 1 ? 's' : ''}`}
                             </div>
                           </div>
@@ -1887,8 +1890,17 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                                   <span>{hotel.location}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                                  <span className="text-xs font-semibold text-gray-700">{hotel.rating} ⭐</span>
+                                  {hotel.rating >= 4.5 ? (
+                                    <>
+                                      <Star className="w-3 h-3 text-[#ADF802] fill-[#ADF802]" />
+                                      <span className="text-xs font-semibold text-[#ADF802]">{hotel.rating}</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                                      <span className="text-xs font-semibold text-gray-700">{hotel.rating}</span>
+                                    </>
+                                  )}
                                 </div>
                               </div>
                               <div className="text-right">
@@ -1917,17 +1929,19 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
 
                   {/* Booking Confirmation */}
                   {message.bookingConfirmation && (
-                    <div className="mt-4 p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl">
+                    <div className="mt-4 p-4 bg-[#F7FEE7] border-2 border-[#ADF802] rounded-xl">
                       <div className="flex items-center gap-2 mb-3">
-                        <PartyPopper className="w-6 h-6 text-green-600" />
-                        <span className="font-bold text-green-900">Booking Confirmed!</span>
+                        <div className="p-1.5 bg-[#ADF802] rounded-lg">
+                          <PartyPopper className="w-4 h-4 text-gray-900" />
+                        </div>
+                        <span className="font-bold text-gray-900">Booking Confirmed!</span>
                       </div>
                       <div className="text-sm text-gray-700 space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Total Amount:</span>
-                          <span className="font-bold text-green-600">${message.bookingConfirmation.total}</span>
+                          <span className="font-bold text-gray-900">${message.bookingConfirmation.total}</span>
                         </div>
-                        <div className="pt-2 border-t border-green-200 text-xs text-gray-600">
+                        <div className="pt-2 border-t border-[#ADF802]/30 text-xs text-gray-600">
                           Confirmation details sent to your email. Have an amazing trip!                        </div>
                       </div>
                     </div>
@@ -1941,37 +1955,31 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                         // Determine icon based on suggestion content
                         const suggestionLower = suggestion.toLowerCase();
                         let Icon = Sparkles; // default
-                        let iconColor = 'text-purple-600';
+                        let iconColor = 'text-gray-700';
 
                         if (suggestionLower.includes('flight') || suggestionLower.includes('fly')) {
                           Icon = Plane;
-                          iconColor = 'text-blue-600';
                         } else if (suggestionLower.includes('hotel') || suggestionLower.includes('stay')) {
                           Icon = Hotel;
-                          iconColor = 'text-cyan-600';
                         } else if (suggestionLower.includes('budget') || suggestionLower.includes('price') || suggestionLower.includes('$')) {
                           Icon = DollarSign;
-                          iconColor = 'text-green-600';
                         } else if (suggestionLower.includes('luxury') || suggestionLower.includes('5-star')) {
                           Icon = Star;
-                          iconColor = 'text-yellow-600';
                         } else if (suggestionLower.includes('downtown') || suggestionLower.includes('near') || suggestionLower.includes('location')) {
                           Icon = MapPin;
-                          iconColor = 'text-red-600';
                         } else if (suggestionLower.includes('date') || suggestionLower.includes('when') || suggestionLower.includes('next')) {
                           Icon = Calendar;
-                          iconColor = 'text-indigo-600';
                         }
 
                         return (
                           <button
                             key={idx}
                             onClick={() => handleSuggestionClick(suggestion)}
-                            className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border border-blue-200 rounded-lg transition-all hover:shadow-md text-gray-700 hover:text-gray-900 font-medium group"
+                            className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs bg-white hover:bg-gray-50 border border-gray-200 hover:border-[#ADF802] rounded-lg transition-all hover:shadow-md text-gray-700 hover:text-gray-900 font-medium group"
                           >
-                            <Icon className={`w-4 h-4 ${iconColor} flex-shrink-0 group-hover:scale-110 transition-transform`} />
+                            <Icon className={`w-4 h-4 ${iconColor} group-hover:text-[#ADF802] flex-shrink-0 group-hover:scale-110 transition-all`} />
                             <span className="flex-1">{suggestion}</span>
-                            <ArrowRight className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <ArrowRight className="w-3 h-3 text-gray-400 group-hover:text-[#ADF802] opacity-0 group-hover:opacity-100 transition-all" />
                           </button>
                         );
                       })}
@@ -2037,9 +2045,9 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                 <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-md">
                   <div className="flex items-center gap-2">
                     <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                      <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                     </div>
                     <span className="text-sm text-gray-600">Typing...</span>
                   </div>
@@ -2072,12 +2080,12 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Type naturally..."
                 disabled={isLoading}
-                className="flex-1 px-3 md:px-4 py-2.5 md:py-3 bg-gray-50 border border-gray-200 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm disabled:opacity-50 placeholder:text-gray-400"
+                className="flex-1 px-3 md:px-4 py-2.5 md:py-3 bg-white border border-gray-200 rounded-lg md:rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 text-sm disabled:opacity-50 placeholder:text-gray-400 text-gray-900"
               />
               <button
                 onClick={() => handleSendMessage()}
                 disabled={!inputValue.trim() || isLoading}
-                className="p-2.5 md:p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg md:rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 flex-shrink-0"
+                className="p-2.5 md:p-3 bg-gray-900 rounded-lg md:rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 flex-shrink-0 hover:bg-gray-800"
               >
                 <Send className="w-4 h-4 md:w-5 md:h-5 text-white" />
               </button>

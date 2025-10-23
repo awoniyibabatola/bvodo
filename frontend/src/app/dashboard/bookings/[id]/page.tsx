@@ -266,20 +266,17 @@ export default function BookingDetailPage() {
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'confirmed':
-        return 'bg-gray-100 text-gray-900';
-      case 'pending':
-        return 'bg-gray-100 text-gray-900';
-      case 'pending_approval':
-        return 'bg-gray-100 text-gray-900';
-      case 'awaiting_confirmation':
-        return 'bg-gray-100 text-gray-900';
       case 'approved':
-        return 'bg-gray-100 text-gray-900';
+        return 'bg-[#ADF802] text-gray-900 border-[#ADF802]';
+      case 'pending':
+      case 'pending_approval':
+      case 'awaiting_confirmation':
+        return 'bg-gray-100 text-gray-900 border-gray-200';
       case 'cancelled':
       case 'rejected':
-        return 'bg-gray-100 text-gray-900';
+        return 'bg-gray-100 text-gray-900 border-gray-200';
       default:
-        return 'bg-gray-100 text-gray-900';
+        return 'bg-gray-100 text-gray-900 border-gray-200';
     }
   };
 
@@ -319,7 +316,7 @@ export default function BookingDetailPage() {
           <p className="text-xs text-gray-600 mb-4">{error || 'The booking you are looking for does not exist.'}</p>
           <Link
             href="/dashboard/bookings"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white rounded text-xs font-semibold hover:bg-gray-800 transition"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white rounded text-xs font-semibold hover:bg-gray-800 transition-colors"
           >
             <ArrowLeft className="w-3 h-3" />
             Back to Bookings
@@ -408,7 +405,7 @@ export default function BookingDetailPage() {
         <div className="mb-4 no-print">
           <Link
             href="/dashboard/bookings"
-            className="inline-flex items-center gap-1.5 text-gray-700 hover:text-gray-900 font-semibold mb-3 text-xs"
+            className="inline-flex items-center gap-1.5 text-gray-700 hover:text-[#ADF802] font-semibold mb-3 text-xs transition-colors"
           >
             <ArrowLeft className="w-3 h-3" />
             Back to Bookings
@@ -423,7 +420,7 @@ export default function BookingDetailPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 no-print">
-              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs ${getStatusColor(booking.status)}`}>
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs border ${getStatusColor(booking.status)}`}>
                 {getStatusIcon(booking.status)}
                 <span className="font-semibold capitalize">{booking.status.replace('_', ' ')}</span>
               </div>
@@ -456,10 +453,10 @@ export default function BookingDetailPage() {
 
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 rounded-lg hover:border-gray-900 hover:text-gray-900 transition font-semibold"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg hover:border-gray-900 hover:bg-gray-50 transition font-semibold text-gray-900"
               >
-                <Download className="w-5 h-5" />
-                <span className="hidden md:inline">Download</span>
+                <Download className="w-4 h-4" />
+                <span>Download Invoice</span>
               </button>
             </div>
           </div>
@@ -526,12 +523,24 @@ export default function BookingDetailPage() {
                 </div>
 
                 <div className="bg-gray-900 px-6 py-4 border-b border-gray-700">
-                  <div className="flex items-center justify-between text-white">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" />
-                      <span className="font-semibold text-sm">Confirmed Reservation</span>
+                      {booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'approved' ? (
+                        <>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#ADF802] text-gray-900 rounded text-xs font-bold border border-[#ADF802]">
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            Confirmed
+                          </span>
+                          <span className="text-white text-sm">Reservation</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-5 h-5 text-white" />
+                          <span className="font-semibold text-sm text-white">Reservation</span>
+                        </>
+                      )}
                     </div>
-                    <span className="text-sm">Ref: {booking.confirmationNumber}</span>
+                    <span className="text-sm text-white">Ref: {booking.confirmationNumber}</span>
                   </div>
                 </div>
 
@@ -573,7 +582,7 @@ export default function BookingDetailPage() {
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center gap-2 mb-1">
                         <Bed className="w-4 h-4 text-gray-700" />
-                        <p className="text-xs text-gray-600">Rooms</p>
+                        <p className="text-xs text-[#ADF802] font-bold uppercase tracking-wide">Rooms</p>
                       </div>
                       <p className="text-lg font-bold text-gray-900">{hotelDetails.numberOfRooms}</p>
                     </div>
@@ -581,7 +590,7 @@ export default function BookingDetailPage() {
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center gap-2 mb-1">
                         <Users className="w-4 h-4 text-gray-700" />
-                        <p className="text-xs text-gray-600">Guests</p>
+                        <p className="text-xs text-[#ADF802] font-bold uppercase tracking-wide">Guests</p>
                       </div>
                       <p className="text-lg font-bold text-gray-900">{booking.numberOfTravelers}</p>
                     </div>
@@ -589,7 +598,7 @@ export default function BookingDetailPage() {
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar className="w-4 h-4 text-gray-700" />
-                        <p className="text-xs text-gray-600">Nights</p>
+                        <p className="text-xs text-[#ADF802] font-bold uppercase tracking-wide">Nights</p>
                       </div>
                       <p className="text-lg font-bold text-gray-900">{hotelDetails.numberOfNights}</p>
                     </div>
@@ -608,7 +617,7 @@ export default function BookingDetailPage() {
                     <div className="bg-gray-900 px-6 py-4 border-b border-gray-700">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                          <div className="w-8 h-8 bg-[#ADF802] rounded-lg flex items-center justify-center border border-[#ADF802]">
                             <span className="text-base font-bold text-gray-900">{room.roomNumber}</span>
                           </div>
                           <h3 className="text-base font-bold text-white">Room {room.roomNumber}</h3>
@@ -793,9 +802,9 @@ export default function BookingDetailPage() {
                       <p className="text-gray-300 text-xs">Payment Receipt</p>
                     </div>
                     <div className="text-right">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                        <CreditCard className="w-4 h-4 text-gray-300" />
-                        <span className="text-white text-xs font-semibold">PAID</span>
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#ADF802] rounded-lg border border-[#ADF802]">
+                        <CreditCard className="w-4 h-4 text-gray-900" />
+                        <span className="text-gray-900 text-xs font-semibold">PAID</span>
                       </div>
                     </div>
                   </div>

@@ -678,7 +678,10 @@ export default function HotelSearchPage() {
                         </span>
                       </div>
                       <p className="text-white/90 text-[10px] mb-1">{destination.description}</p>
-                      <p className="text-white/70 text-[10px]">{destination.hotels}</p>
+                      <p className="text-white/70 text-[10px]">
+                        <span className="inline-block px-1.5 py-0.5 bg-[#ADF802] text-gray-900 rounded text-[9px] font-bold mr-1">{destination.hotels.split(' ')[0]}</span>
+                        hotels
+                      </p>
                     </div>
                   </div>
                 </button>
@@ -1160,8 +1163,8 @@ export default function HotelSearchPage() {
                         </div>
                       )}
                       {hotel.hotel?.rating && hotel.hotel.rating >= 4 && (
-                        <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-gray-100 border border-gray-200 rounded text-[10px] font-semibold text-gray-700">
-                          <Star className="w-2.5 h-2.5 md:w-3 md:h-3 fill-yellow-500 text-yellow-500" />
+                        <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-[#ADF802] border border-[#ADF802] rounded text-[10px] font-semibold text-gray-900">
+                          <Star className="w-2.5 h-2.5 md:w-3 md:h-3 fill-gray-900 text-gray-900" />
                           Highly Rated
                         </div>
                       )}
@@ -1246,7 +1249,10 @@ export default function HotelSearchPage() {
                       <div className="bg-white/95 backdrop-blur-sm rounded-xl p-2 md:p-3 border border-gray-200 flex-1">
                         <div className="flex items-center justify-between">
                           <div>
-                            <div className="text-sm font-semibold text-gray-900">{filteredHotels.length} hotels found</div>
+                            <div className="text-sm font-semibold text-gray-900">
+                              <span className="inline-block px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900 mr-2">{filteredHotels.length}</span>
+                              hotels found
+                            </div>
                             <div className="text-xs text-gray-600">in {address || 'this area'}</div>
                           </div>
                           <MapPin className="w-5 h-5 text-gray-700" />

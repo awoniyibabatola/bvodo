@@ -154,38 +154,33 @@ export default function ReportsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+        <div className="animate-spin w-12 h-12 border-4 border-gray-900 border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-8xl mx-auto w-full px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-purple-600 rounded-2xl">
-                <BarChart3 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Travel Reports</h1>
-                <p className="text-gray-600">Organization travel analytics and insights</p>
-              </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-lg md:text-xl font-bold text-gray-900">Travel Reports</h1>
+              <p className="text-xs text-gray-600">Organization travel analytics and insights</p>
             </div>
             <button
               onClick={exportToCSV}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-sm"
+              className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition text-sm"
             >
-              <Download className="w-5 h-5" />
+              <Download className="w-4 h-4" />
               Export CSV
             </button>
           </div>
@@ -193,56 +188,36 @@ export default function ReportsPage() {
 
         {/* Key Metrics */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-blue-50 rounded-xl">
-                  <Plane className="w-5 h-5 text-blue-600" />
-                </div>
-                <span className="text-sm text-gray-600 font-medium">Total Flights</span>
-              </div>
-              <div className="text-3xl font-bold text-blue-600">{metrics.flights}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-xs text-gray-600 font-medium mb-2">Total Flights</div>
+              <div className="text-2xl font-bold text-gray-900">{metrics.flights}</div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-purple-200 p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-purple-50 rounded-xl">
-                  <Hotel className="w-5 h-5 text-purple-600" />
-                </div>
-                <span className="text-sm text-gray-600 font-medium">Total Hotels</span>
-              </div>
-              <div className="text-3xl font-bold text-purple-600">{metrics.hotels}</div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-xs text-gray-600 font-medium mb-2">Total Hotels</div>
+              <div className="text-2xl font-bold text-gray-900">{metrics.hotels}</div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-green-200 p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-green-50 rounded-xl">
-                  <DollarSign className="w-5 h-5 text-green-600" />
-                </div>
-                <span className="text-sm text-gray-600 font-medium">Total Spend</span>
-              </div>
-              <div className="text-3xl font-bold text-green-600">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-xs text-gray-600 font-medium mb-2">Total Spend</div>
+              <div className="text-2xl font-bold text-gray-900">
                 ${metrics.totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-orange-200 p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-orange-50 rounded-xl">
-                  <MapPin className="w-5 h-5 text-orange-600" />
-                </div>
-                <span className="text-sm text-gray-600 font-medium">Destinations</span>
-              </div>
-              <div className="text-3xl font-bold text-orange-600">{metrics.destinations}</div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div className="text-xs text-gray-600 font-medium mb-2">Destinations</div>
+              <div className="text-2xl font-bold text-gray-900">{metrics.destinations}</div>
             </div>
           </div>
         )}
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-5 h-5 text-gray-600" />
-            <h3 className="font-semibold text-gray-900">Filters</h3>
+            <Filter className="w-4 h-4 text-gray-600" />
+            <h3 className="font-semibold text-gray-900 text-sm">Filters</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -250,7 +225,7 @@ export default function ReportsPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -265,7 +240,7 @@ export default function ReportsPage() {
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               >
                 <option value="all">All Types</option>
                 <option value="flight">Flights</option>
@@ -280,7 +255,7 @@ export default function ReportsPage() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               />
             </div>
 
@@ -290,23 +265,23 @@ export default function ReportsPage() {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Bookings Table */}
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">All Bookings</h2>
-            <p className="text-sm text-gray-600 mt-1">{bookings.length} bookings found</p>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-4 md:p-6 border-b border-gray-200">
+            <h2 className="text-base font-bold text-gray-900">All Bookings</h2>
+            <p className="text-xs text-gray-600 mt-1">{bookings.length} bookings found</p>
           </div>
 
           {bookings.length === 0 ? (
             <div className="p-12 text-center">
               <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No bookings found with current filters</p>
+              <p className="text-gray-600 text-sm">No bookings found with current filters</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -325,59 +300,59 @@ export default function ReportsPage() {
                 <tbody className="divide-y divide-gray-200">
                   {bookings.map((booking) => (
                     <tr key={booking.id} className="hover:bg-gray-50 transition">
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4">
                         <Link
                           href={`/dashboard/bookings/${booking.id}`}
-                          className="font-mono text-sm text-blue-600 hover:text-blue-700 font-medium"
+                          className="font-mono text-xs text-gray-900 hover:text-gray-700 font-semibold"
                         >
                           {booking.bookingReference}
                         </Link>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-1.5">
                           {booking.bookingType === 'flight' ? (
-                            <Plane className="w-4 h-4 text-blue-600" />
+                            <Plane className="w-4 h-4 text-gray-700 flex-shrink-0" />
                           ) : (
-                            <Hotel className="w-4 h-4 text-purple-600" />
+                            <Hotel className="w-4 h-4 text-gray-700 flex-shrink-0" />
                           )}
-                          <span className="capitalize text-sm">{booking.bookingType}</span>
+                          <span className="capitalize text-sm text-gray-900">{booking.bookingType}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4">
                         <div className="text-sm">
                           <div className="font-medium text-gray-900">
                             {booking.user.firstName} {booking.user.lastName}
                           </div>
-                          <div className="text-gray-500">{booking.user.email}</div>
+                          <div className="text-xs text-gray-500">{booking.user.email}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900 whitespace-nowrap">
                           {booking.origin ? `${booking.origin} → ` : ''}{booking.destination}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900">
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-900 whitespace-nowrap">
                           {new Date(booking.departureDate).toLocaleDateString()}
                           {booking.returnDate && ` - ${new Date(booking.returnDate).toLocaleDateString()}`}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900">
+                      <td className="px-4 py-4">
+                        <div className="font-semibold text-gray-900 text-sm whitespace-nowrap">
                           {booking.currency} {parseFloat(booking.totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${
+                      <td className="px-4 py-4">
+                        <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium border ${
                           booking.status === 'confirmed' || booking.status === 'completed'
-                            ? 'bg-green-50 text-green-700 border-green-200'
+                            ? 'bg-[#ADF802]/10 text-gray-900 border-[#ADF802]/30'
                             : booking.status === 'awaiting_confirmation'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            ? 'bg-gray-100 text-gray-700 border-gray-200'
                             : booking.status === 'pending' || booking.status === 'pending_approval'
-                            ? 'bg-orange-50 text-orange-700 border-orange-200'
+                            ? 'bg-gray-100 text-gray-700 border-gray-200'
                             : booking.status === 'cancelled' || booking.status === 'rejected'
                             ? 'bg-red-50 text-red-700 border-red-200'
-                            : 'bg-gray-50 text-gray-700 border-gray-200'
+                            : 'bg-gray-100 text-gray-700 border-gray-200'
                         }`}>
                           {booking.status === 'awaiting_confirmation' ? 'Pending Confirmation' : booking.status.replace('_', ' ')}
                         </span>

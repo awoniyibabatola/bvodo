@@ -445,7 +445,7 @@ export default function FlightSearchPage() {
                     onChange={(e) => setDepartureDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   />
                 </div>
               </div>
@@ -462,7 +462,7 @@ export default function FlightSearchPage() {
                       onChange={(e) => setReturnDate(e.target.value)}
                       min={departureDate || new Date().toISOString().split('T')[0]}
                       required={tripType === 'roundtrip'}
-                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
+                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                     />
                   </div>
                 </div>
@@ -478,7 +478,7 @@ export default function FlightSearchPage() {
                     value={`${getTotalPassengers()} ${getTotalPassengers() === 1 ? 'Passenger' : 'Passengers'}`}
                     readOnly
                     onClick={() => setShowPassengerSelector(!showPassengerSelector)}
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-lg bg-white cursor-pointer"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-300 rounded-lg bg-white cursor-pointer"
                   />
 
                   {/* Passenger Selector Dropdown */}
@@ -841,11 +841,14 @@ export default function FlightSearchPage() {
             {/* Results Header with Filter */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
               <h2 className="text-sm md:text-lg font-bold text-gray-900">
-                Available Flights ({flights.filter(f => {
-                  if (selectedAirline === 'all') return true;
-                  const airlines = [...new Set(f.itineraries[0].segments.map((seg: any) => seg.carrierCode))];
-                  return airlines.includes(selectedAirline);
-                }).length})
+                Available Flights
+                <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
+                  {flights.filter(f => {
+                    if (selectedAirline === 'all') return true;
+                    const airlines = [...new Set(f.itineraries[0].segments.map((seg: any) => seg.carrierCode))];
+                    return airlines.includes(selectedAirline);
+                  }).length}
+                </span>
               </h2>
 
               {/* Airline Filter */}
@@ -930,7 +933,7 @@ export default function FlightSearchPage() {
                               </span>
                             </div>
                             {airlines.length > 1 && (
-                              <span className="text-[10px] md:text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg border border-gray-300">
+                              <span className="text-[10px] md:text-xs font-semibold text-gray-900 bg-[#ADF802] px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg border border-[#ADF802]">
                                 Multiple Airlines
                               </span>
                             )}

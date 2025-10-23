@@ -135,13 +135,13 @@ export default function Home() {
             <div className="flex gap-2 sm:gap-4">
               <Link
                 href="/login"
-                className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-gray-700 hover:text-gray-900 font-medium transition"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-gray-700 hover:text-[#ADF802] font-medium transition"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="px-4 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-medium"
+                className="px-4 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base bg-gray-900 text-white rounded-lg hover:bg-gray-800 hover:shadow-lg hover:shadow-[#ADF802]/20 transition font-medium"
               >
                 Get Started
               </Link>
@@ -172,8 +172,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-10 sm:py-16 lg:py-20 relative">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="animate-slide-in-left max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-100 text-gray-900 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
-              <Rocket className="w-3 h-3 sm:w-4 sm:h-4" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-[#F7FEE7] text-gray-900 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 border border-[#ADF802]/20">
+              <Rocket className="w-3 h-3 sm:w-4 sm:h-4 text-[#ADF802]" />
               Built for African Businesses
             </div>
             <h1 className="text-5xl sm:text-5xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight text-gray-900">
@@ -244,7 +244,7 @@ export default function Home() {
                         </div>
                         <span className="font-bold">bvodo</span>
                       </div>
-                      <div className="text-xs bg-white/20 px-2 py-1 rounded-full">Live</div>
+                      <div className="text-xs bg-[#ADF802] text-gray-900 px-2 py-1 rounded-full font-semibold">Live</div>
                     </div>
                   </div>
 
@@ -277,7 +277,7 @@ export default function Home() {
                         </div>
                         <div>
                           <div className="text-gray-500">Status</div>
-                          <div className="font-semibold text-gray-900">✓ Confirmed</div>
+                          <div className="font-semibold text-[#ADF802]">✓ Confirmed</div>
                         </div>
                       </div>
                     </div>
@@ -298,7 +298,7 @@ export default function Home() {
                         </div>
                         <div className="text-right text-xs">
                           <div className="font-bold">$280</div>
-                          <div className="text-gray-500">Approved</div>
+                          <div className="text-[#ADF802] font-semibold">Approved</div>
                         </div>
                       </div>
 
@@ -344,13 +344,13 @@ export default function Home() {
               {/* Booking Confirmed Alert - Top Right */}
               <div className="absolute -top-8 -right-12 bg-white rounded-2xl shadow-2xl p-4 border border-gray-200 animate-float w-64">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 bg-[#ADF802] rounded-full flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="w-6 h-6 text-gray-900" />
                   </div>
                   <div className="flex-1">
                     <div className="font-bold text-sm text-gray-900 mb-1">Booking Confirmed!</div>
                     <div className="text-xs text-gray-600">Flight LOS → NBO</div>
-                    <div className="text-xs text-gray-900 font-medium mt-1">Just now</div>
+                    <div className="text-xs text-[#ADF802] font-semibold mt-1">Just now</div>
                   </div>
                 </div>
               </div>
@@ -423,12 +423,12 @@ export default function Home() {
               {/* Policy Compliance Alert - Top Right */}
               <div className="absolute -top-3 -right-4 sm:-top-6 sm:-right-8 bg-white rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl p-2 sm:p-3 border border-gray-200 animate-float w-36 sm:w-48">
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-700 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Lock className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#ADF802] rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Lock className="w-3 h-3 sm:w-4 sm:h-4 text-gray-900" />
                   </div>
                   <div className="flex-1">
                     <div className="font-bold text-[10px] sm:text-xs text-gray-900">Policy Approved</div>
-                    <div className="text-[8px] sm:text-[10px] text-gray-600">Within budget</div>
+                    <div className="text-[8px] sm:text-[10px] text-[#ADF802] font-semibold">Within budget</div>
                   </div>
                 </div>
               </div>
@@ -631,8 +631,8 @@ export default function Home() {
 
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-100 rounded-full text-sm font-semibold text-gray-700 mb-6 animate-bounce">
-            <Sparkles className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-[#F7FEE7] rounded-full text-sm font-semibold text-gray-900 mb-6 animate-bounce border border-[#ADF802]/20">
+            <Sparkles className="w-4 h-4 text-[#ADF802]" />
             AI-Powered Booking
           </div>
           <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-700 via-gray-700 to-gray-800 bg-clip-text text-transparent">
@@ -664,12 +664,12 @@ export default function Home() {
                         <div>
                           <h3 className="font-bold text-sm">AI Assistant</h3>
                           <div className="flex items-center gap-1 text-xs text-gray-100">
-                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-pulse"></div>
+                            <div className="w-1.5 h-1.5 bg-[#ADF802] rounded-full animate-pulse"></div>
                             Online
                           </div>
                         </div>
                       </div>
-                      <div className="text-[10px] bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                      <div className="text-[10px] bg-[#ADF802] text-gray-900 px-2 py-1 rounded-full font-semibold">
                         Demo
                       </div>
                     </div>
@@ -776,10 +776,10 @@ export default function Home() {
 
                     {/* AI Response 3 - Confirmation */}
                     <div className="flex justify-start">
-                      <div className="max-w-[85%] bg-gradient-to-br from-gray-700 to-gray-800 text-white rounded-2xl rounded-tl-sm p-3 shadow-lg border border-gray-400">
+                      <div className="max-w-[85%] bg-[#ADF802] text-gray-900 rounded-2xl rounded-tl-sm p-3 shadow-lg border border-[#ADF802]">
                         <div className="flex items-start gap-2">
-                          <div className="w-6 h-6 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                            <CheckCircle className="w-3 h-3" />
+                          <div className="w-6 h-6 bg-gray-900/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
+                            <CheckCircle className="w-3 h-3 text-gray-900" />
                           </div>
                           <div className="flex-1">
                             <p className="font-bold text-xs mb-1">🎉 All Done!</p>
@@ -797,12 +797,12 @@ export default function Home() {
                                 <span>Invoice sent to email</span>
                               </div>
                             </div>
-                            <div className="mt-2 pt-2 border-t border-white/20 text-[9px]">
+                            <div className="mt-2 pt-2 border-t border-gray-900/20 text-[9px] font-semibold">
                               ⏱️ Done in 4 minutes
                             </div>
                           </div>
                         </div>
-                        <div className="text-[10px] text-gray-100 mt-1">10:27 AM</div>
+                        <div className="text-[10px] text-gray-700 mt-1 font-medium">10:27 AM</div>
                       </div>
                     </div>
 
@@ -846,8 +846,8 @@ export default function Home() {
             {/* Right Side - Book with Bvodo Content */}
             <div className="animate-slide-in-right max-w-2xl">
               <div className="mb-8">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-100 rounded-full text-sm font-semibold text-gray-700 mb-6">
-                  <MessageSquare className="w-4 h-4" />
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#F7FEE7] rounded-full text-sm font-semibold text-gray-900 mb-6 border border-[#ADF802]/20">
+                  <MessageSquare className="w-4 h-4 text-[#ADF802]" />
                   Coming Soon
                 </div>
                 <h3 className="text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-900 bg-clip-text text-transparent">
@@ -948,7 +948,7 @@ export default function Home() {
               <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3">Instant Flight & Hotel Booking</h3>
               <p className="text-sm sm:text-base text-gray-100 mb-3 sm:mb-4">Real-time pricing from Amadeus & Booking.com. Search thousands of flights and hotels across Africa.</p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-2.5 py-1 sm:px-3 bg-white/20 rounded-full text-xs backdrop-blur-sm">Amadeus API</span>
+                <span className="px-2.5 py-1 sm:px-3 bg-[#ADF802] rounded-full text-xs text-gray-900 font-semibold">Amadeus API</span>
                 <span className="px-2.5 py-1 sm:px-3 bg-white/20 rounded-full text-xs backdrop-blur-sm">Live Pricing</span>
               </div>
             </div>
@@ -964,7 +964,7 @@ export default function Home() {
               <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-gray-900">Ground Transportation</h3>
               <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Uber, taxis, car rentals - all tracked automatically. One platform for all travel needs.</p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-2.5 py-1 sm:px-3 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">Uber Integration</span>
+                <span className="px-2.5 py-1 sm:px-3 bg-[#ADF802] text-gray-900 rounded-full text-xs font-semibold">Uber Integration</span>
                 <span className="px-2.5 py-1 sm:px-3 bg-gray-100 text-gray-900 rounded-full text-xs font-medium">Auto-Track</span>
               </div>
             </div>
@@ -1018,7 +1018,7 @@ export default function Home() {
               </div>
               <p className="text-gray-100 mb-4">Just chat naturally. "Book me a flight to Nairobi next Tuesday" - done! Our AI understands your intent and handles the rest.</p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-white/20 rounded-full text-xs backdrop-blur-sm">Natural Language</span>
+                <span className="px-3 py-1 bg-[#ADF802] rounded-full text-xs text-gray-900 font-semibold">Natural Language</span>
                 <span className="px-3 py-1 bg-white/20 rounded-full text-xs backdrop-blur-sm">Instant Quotes</span>
                 <span className="px-3 py-1 bg-white/20 rounded-full text-xs backdrop-blur-sm">Smart Assistant</span>
               </div>
@@ -1179,7 +1179,7 @@ export default function Home() {
                 <div className="bg-white rounded-xl p-6 shadow-2xl relative overflow-hidden">
                   {/* Animated stamp */}
                   <div className={`absolute top-4 right-4 transition-all duration-500 ${invoiceVisible ? 'rotate-0 opacity-100' : 'rotate-45 opacity-0'}`}>
-                    <div className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium border-2 border-gray-500 rotate-12">
+                    <div className="text-xs bg-[#ADF802] text-gray-900 px-3 py-1 rounded-full font-bold border-2 border-[#ADF802] rotate-12">
                       PAID
                     </div>
                   </div>
@@ -1221,7 +1221,7 @@ export default function Home() {
                     invoiceVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
                   }`}>
                     <span>Total</span>
-                    <span className="text-gray-700">$850.00</span>
+                    <span className="text-[#ADF802]">$850.00</span>
                   </div>
 
                   <div className="mt-4 flex gap-2">
@@ -1299,9 +1299,9 @@ export default function Home() {
                     {/* Invoice Type Badge */}
                     <div className="mb-6">
                       <span className={`inline-block px-4 py-2 rounded-lg text-xs font-semibold ${
-                        index === 0 ? 'bg-gray-100 text-gray-900' :
+                        index === 0 ? 'bg-[#F7FEE7] text-gray-900 border border-[#ADF802]/20' :
                         index === 1 ? 'bg-gray-100 text-gray-700' :
-                        'bg-gray-100 text-gray-700'
+                        'bg-[#F7FEE7] text-gray-900 border border-[#ADF802]/20'
                       }`}>
                         {index === 0 ? '📄 Individual Invoice' : index === 1 ? '👥 Group Invoice (5 travelers)' : '⚡ One-Click Invoice'}
                       </span>
@@ -1400,7 +1400,7 @@ export default function Home() {
                     {/* Total */}
                     <div className="flex justify-between items-center pt-6 border-t-2 border-gray-900">
                       <span className="text-lg font-bold">Total</span>
-                      <span className="text-2xl font-bold bg-gray-900 bg-clip-text text-transparent">
+                      <span className="text-2xl font-bold text-[#ADF802]">
                         {index === 0 ? '$930.00' : index === 1 ? '$3,950.00' : '$1,050.00'}
                       </span>
                     </div>
@@ -1408,7 +1408,7 @@ export default function Home() {
                     {/* Status Badge */}
                     <div className="mt-4">
                       <div className={`inline-block px-4 py-2 rounded-lg text-xs font-bold ${
-                        offset === 0 ? 'bg-gray-100 text-gray-700 border-2 border-gray-500 animate-pulse' :
+                        offset === 0 ? 'bg-[#ADF802] text-gray-900 border-2 border-[#ADF802] animate-pulse' :
                         'bg-gray-100 text-gray-500'
                       }`}>
                         {offset === 0 ? '✓ PROCESSED' : 'QUEUED'}

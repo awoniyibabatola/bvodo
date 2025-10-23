@@ -1,12 +1,16 @@
 'use client';
 
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { DM_Sans } from 'next/font/google';
 import './globals.css';
 import { CurrencyProvider } from '@/contexts/CurrencyContext';
 import PageTransition from '@/components/PageTransition';
 
-const inter = Inter({ subsets: ['latin'] });
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+});
 
 export default function RootLayout({
   children,
@@ -20,7 +24,7 @@ export default function RootLayout({
         <meta name="description" content="Streamline your organization's travel booking with bvodo. Manage flights, hotels, budgets, and approvals effortlessly." />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
-      <body className={inter.className}>
+      <body className={dmSans.className}>
         <PageTransition />
         <CurrencyProvider>{children}</CurrencyProvider>
       </body>

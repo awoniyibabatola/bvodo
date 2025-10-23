@@ -150,7 +150,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-3 md:mb-4">
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-gray-900" />
             <h2 className="text-base md:text-lg font-bold text-gray-900">Book with AI Assistant</h2>
-            <span className="px-2 py-0.5 bg-gray-900 text-white text-[10px] md:text-xs font-bold rounded-full">NEW</span>
+            <span className="px-2 py-0.5 bg-[#ADF802] text-gray-900 text-[10px] md:text-xs font-bold rounded-full">NEW</span>
           </div>
           {/* Horizontal scrollable container */}
           <div className="overflow-x-auto pb-3 md:pb-4 -mx-4 px-4 scrollbar-hide py-2">
@@ -261,6 +261,7 @@ export default function DashboardPage() {
                   organizationName={user.organization}
                   availableBalance={dashboardStats?.credits.available || 0}
                   size="large"
+                  disableInternalFlip={true}
                 />
               </div>
 
@@ -313,7 +314,7 @@ export default function DashboardPage() {
               <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Hotel className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-gray-700 font-bold uppercase tracking-wide">Total</span>
+                  <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Total</span>
                 </div>
                 <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.hotelsBooked || 0}</div>
@@ -327,7 +328,7 @@ export default function DashboardPage() {
               <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-gray-700 font-bold uppercase tracking-wide">Nights</span>
+                  <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Nights</span>
                 </div>
                 <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.hotelNights || 0}</div>
@@ -341,7 +342,7 @@ export default function DashboardPage() {
               <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Plane className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-gray-700 font-bold uppercase tracking-wide">Total</span>
+                  <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Total</span>
                 </div>
                 <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.flightsTaken || 0}</div>
@@ -355,7 +356,7 @@ export default function DashboardPage() {
               <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-gray-700 font-bold uppercase tracking-wide">Unique</span>
+                  <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Unique</span>
                 </div>
                 <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.destinations || 0}</div>
@@ -411,9 +412,9 @@ export default function DashboardPage() {
         <div className="grid lg:grid-cols-3 gap-4 md:gap-6 mt-12 md:mt-16">
           {/* Recent Bookings */}
           <div className="lg:col-span-2 bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between mb-4 md:mb-6 lg:mb-8">
-              <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">Recent Bookings</h2>
-              <Link href="/dashboard/bookings" className="flex items-center gap-1 text-xs md:text-sm text-gray-700 hover:text-gray-900 font-medium group">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900">Recent Bookings</h2>
+              <Link href="/dashboard/bookings" className="flex items-center gap-1 text-xs md:text-sm text-gray-700 hover:text-[#ADF802] font-medium group transition-colors">
                 View All
                 <ArrowUpRight className="w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </Link>
@@ -461,7 +462,7 @@ export default function DashboardPage() {
                       <div className="font-bold text-sm md:text-base text-gray-900 mb-1 md:mb-1.5">{booking.amount}</div>
                       <div className={`text-[10px] md:text-xs font-medium px-2 md:px-3 py-1 md:py-1.5 rounded-full inline-flex items-center gap-1 md:gap-1.5 ${
                         booking.status === 'confirmed' || booking.status === 'Confirmed' || booking.status === 'completed'
-                          ? 'bg-gray-900 text-white border border-gray-900'
+                          ? 'bg-[#ADF802] text-gray-900 border border-[#ADF802]'
                           : booking.status === 'awaiting_confirmation'
                           ? 'bg-gray-100 text-gray-700 border border-gray-300'
                           : booking.status === 'cancelled' || booking.status === 'rejected'
@@ -482,32 +483,32 @@ export default function DashboardPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 border border-gray-200 shadow-sm">
-            <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 md:mb-6 lg:mb-8">Quick Actions</h2>
-            <div className="space-y-3 md:space-y-4">
+          <div className="bg-white rounded-2xl p-4 md:p-6 border border-gray-200">
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+            <div className="space-y-2.5">
               <Link
                 href="/dashboard/flights/search"
-                className="group relative block"
+                className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
               >
-                <div className="relative flex items-center justify-between p-4 md:p-5 bg-gray-900 rounded-xl md:rounded-2xl transition-all shadow-sm">
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <Plane className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                    <span className="font-semibold text-sm md:text-base text-white">Book a Flight</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Plane className="w-5 h-5 text-gray-700" />
+                    <span className="text-sm md:text-base text-gray-900">Book a Flight</span>
                   </div>
-                  <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </Link>
 
               <Link
                 href="/dashboard/hotels/search"
-                className="group block p-4 md:p-5 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-100 transition-all hover:shadow-md"
+                className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <Hotel className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-                    <span className="font-semibold text-sm md:text-base text-gray-900">Book a Hotel</span>
+                  <div className="flex items-center gap-3">
+                    <Hotel className="w-5 h-5 text-gray-700" />
+                    <span className="text-sm md:text-base text-gray-900">Book a Hotel</span>
                   </div>
-                  <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600 group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </Link>
 
@@ -515,62 +516,62 @@ export default function DashboardPage() {
                 <>
                   <Link
                     href="/dashboard/users/invite"
-                    className="group block p-4 md:p-5 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-100 transition-all shadow-sm"
+                    className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 md:gap-3">
-                        <UserPlus className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-                        <span className="font-semibold text-sm md:text-base text-gray-900">Invite User</span>
+                      <div className="flex items-center gap-3">
+                        <UserPlus className="w-5 h-5 text-gray-700" />
+                        <span className="text-sm md:text-base text-gray-900">Invite User</span>
                       </div>
-                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </Link>
                   <Link
                     href="/dashboard/users"
-                    className="group block p-4 md:p-5 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-100 transition-all shadow-sm"
+                    className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 md:gap-3">
-                        <Users className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-                        <span className="font-semibold text-sm md:text-base text-gray-900">Manage Users</span>
+                      <div className="flex items-center gap-3">
+                        <Users className="w-5 h-5 text-gray-700" />
+                        <span className="text-sm md:text-base text-gray-900">Manage Users</span>
                       </div>
-                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </Link>
                   <Link
                     href="/dashboard/credits"
-                    className="group block p-4 md:p-5 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-100 transition-all shadow-sm"
+                    className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 md:gap-3">
-                        <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-                        <span className="font-semibold text-sm md:text-base text-gray-900">Manage Credits</span>
+                      <div className="flex items-center gap-3">
+                        <DollarSign className="w-5 h-5 text-gray-700" />
+                        <span className="text-sm md:text-base text-gray-900">Manage Credits</span>
                       </div>
-                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </Link>
                   <Link
                     href="/dashboard/credits/apply"
-                    className="group relative block"
+                    className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
                   >
-                    <div className="relative flex items-center justify-between p-4 md:p-5 bg-gray-800 rounded-xl md:rounded-2xl transition-all shadow-sm">
-                      <div className="flex items-center gap-2 md:gap-3">
-                        <CreditCardIcon className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                        <span className="font-semibold text-sm md:text-base text-white">Apply for Credit</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <CreditCardIcon className="w-5 h-5 text-gray-700" />
+                        <span className="text-sm md:text-base text-gray-900">Apply for Credit</span>
                       </div>
-                      <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5 text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </Link>
                   <Link
                     href="/dashboard/reports"
-                    className="group block p-4 md:p-5 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 hover:border-gray-300 hover:bg-gray-100 transition-all shadow-sm"
+                    className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 md:gap-3">
-                        <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
-                        <span className="font-semibold text-sm md:text-base text-gray-900">View Reports</span>
+                      <div className="flex items-center gap-3">
+                        <BarChart3 className="w-5 h-5 text-gray-700" />
+                        <span className="text-sm md:text-base text-gray-900">View Reports</span>
                       </div>
-                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </Link>
                 </>
@@ -607,7 +608,7 @@ export default function DashboardPage() {
           </div>
 
           {/* AI Badge */}
-          <div className="absolute -top-2 -right-2 bg-gray-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+          <div className="absolute -top-2 -right-2 bg-[#ADF802] text-gray-900 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
             AI
           </div>
         </button>
