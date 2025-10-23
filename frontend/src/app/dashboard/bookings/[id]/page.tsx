@@ -582,7 +582,7 @@ export default function BookingDetailPage() {
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center gap-2 mb-1">
                         <Bed className="w-4 h-4 text-gray-700" />
-                        <p className="text-xs text-[#ADF802] font-bold uppercase tracking-wide">Rooms</p>
+                        <p className="text-xs text-gray-600 font-bold uppercase tracking-wide">Rooms</p>
                       </div>
                       <p className="text-lg font-bold text-gray-900">{hotelDetails.numberOfRooms}</p>
                     </div>
@@ -590,7 +590,7 @@ export default function BookingDetailPage() {
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center gap-2 mb-1">
                         <Users className="w-4 h-4 text-gray-700" />
-                        <p className="text-xs text-[#ADF802] font-bold uppercase tracking-wide">Guests</p>
+                        <p className="text-xs text-gray-600 font-bold uppercase tracking-wide">Guests</p>
                       </div>
                       <p className="text-lg font-bold text-gray-900">{booking.numberOfTravelers}</p>
                     </div>
@@ -598,7 +598,7 @@ export default function BookingDetailPage() {
                     <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center gap-2 mb-1">
                         <Calendar className="w-4 h-4 text-gray-700" />
-                        <p className="text-xs text-[#ADF802] font-bold uppercase tracking-wide">Nights</p>
+                        <p className="text-xs text-gray-600 font-bold uppercase tracking-wide">Nights</p>
                       </div>
                       <p className="text-lg font-bold text-gray-900">{hotelDetails.numberOfNights}</p>
                     </div>

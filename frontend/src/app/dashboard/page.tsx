@@ -43,6 +43,7 @@ interface DashboardStats {
     destinations: number;
   };
   recentBookings: Array<{
+    id: string;
     type: string;
     route: string;
     traveler: string;
@@ -314,7 +315,7 @@ export default function DashboardPage() {
               <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Hotel className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Total</span>
+                  <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Total</span>
                 </div>
                 <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.hotelsBooked || 0}</div>
@@ -328,7 +329,7 @@ export default function DashboardPage() {
               <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Nights</span>
+                  <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Nights</span>
                 </div>
                 <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.hotelNights || 0}</div>
@@ -342,7 +343,7 @@ export default function DashboardPage() {
               <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Plane className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Total</span>
+                  <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Total</span>
                 </div>
                 <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.flightsTaken || 0}</div>
@@ -356,7 +357,7 @@ export default function DashboardPage() {
               <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Unique</span>
+                  <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Unique</span>
                 </div>
                 <div>
                   <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.destinations || 0}</div>
@@ -417,21 +418,19 @@ export default function DashboardPage() {
                 <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
                 <h2 className="text-lg md:text-xl font-bold text-gray-900">Recent Bookings</h2>
               </div>
-              <Link href="/dashboard/bookings" className="flex items-center gap-1 text-xs md:text-sm text-gray-700 hover:text-[#ADF802] font-medium group transition-colors">
+              <Link href="/dashboard/bookings" className="flex items-center gap-1 text-xs md:text-sm text-gray-700 hover:text-gray-900 font-medium group transition-colors">
                 View All
                 <ArrowUpRight className="w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </Link>
             </div>
             <div className="space-y-3 md:space-y-4">
               {(dashboardStats?.recentBookings && dashboardStats.recentBookings.length > 0 ? dashboardStats.recentBookings : [
-                { type: 'Flight', route: 'No bookings yet', traveler: 'Start booking', date: 'Today', status: 'Pending', amount: '$0' },
+                { id: '', type: 'Flight', route: 'No bookings yet', traveler: 'Start booking', date: 'Today', status: 'Pending', amount: '$0' },
               ]).map((booking, index) => {
-                // Determine the link based on booking type
+                // Determine the link based on booking id
                 const isValidBooking = booking.route !== 'No bookings yet';
-                const bookingLink = isValidBooking
-                  ? booking.type === 'Flight'
-                    ? '/dashboard/flights/search'
-                    : '/dashboard/hotels/search'
+                const bookingLink = isValidBooking && booking.id
+                  ? `/dashboard/bookings/${booking.id}`
                   : '#';
 
                 return (

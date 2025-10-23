@@ -182,6 +182,7 @@ export class DashboardController {
         }
 
         return {
+          id: booking.id,
           type: booking.bookingType === 'flight' ? 'Flight' : 'Hotel',
           route,
           traveler: `${booking.user.firstName} ${booking.user.lastName}`,

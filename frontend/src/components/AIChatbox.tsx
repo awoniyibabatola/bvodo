@@ -1821,7 +1821,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                       {message.flightResults.slice(0, 2).map((flight) => (
                         <div
                           key={flight.id}
-                          className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-[#ADF802] transition-all hover:shadow-lg"
+                          className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-gray-300 transition-all hover:shadow-lg"
                         >
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center gap-3">
@@ -1843,17 +1843,13 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                               <Clock className="w-3 h-3" />
                               <span>{flight.duration}</span>
                             </div>
-                            <div className={`px-2 py-1 rounded-full font-medium ${
-                              flight.stops === 0
-                                ? 'bg-[#ADF802] text-gray-900 border border-[#ADF802]'
-                                : 'bg-gray-100 text-gray-700'
-                            }`}>
+                            <div className="px-2 py-1 rounded-full font-medium bg-[#ADF802] text-gray-900 border border-[#ADF802]">
                               {flight.stops === 0 ? 'Direct ✨' : `${flight.stops} stop${flight.stops > 1 ? 's' : ''}`}
                             </div>
                           </div>
                           <button
                             onClick={() => handleViewDetails('flight', flight)}
-                            className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
+                            className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
                           >
                             Yes! Book This One
                             <ThumbsUp className="w-4 h-4" />
@@ -1862,7 +1858,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                       ))}
                       <button
                         onClick={() => handleViewMore('flight')}
-                        className="w-full px-4 py-2 bg-white border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-all text-sm"
+                        className="w-full px-4 py-2 bg-white border-2 border-gray-900 text-gray-900 rounded-lg font-medium hover:bg-gray-50 transition-all text-sm"
                       >
                         Show Me All {message.flightResults.length} Options →
                       </button>
@@ -1875,12 +1871,19 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                       {message.hotelResults.slice(0, 2).map((hotel) => (
                         <div
                           key={hotel.id}
-                          className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl overflow-hidden hover:border-purple-400 transition-all hover:shadow-lg"
+                          className="bg-white border-2 border-gray-200 hover:border-gray-300 rounded-xl overflow-hidden transition-all hover:shadow-lg"
                         >
                           <div
-                            className="h-32 bg-cover bg-center"
+                            className="h-32 bg-cover bg-center relative"
                             style={{ backgroundImage: `url(${hotel.image})` }}
-                          />
+                          >
+                            {hotel.rating >= 4 && (
+                              <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-[#ADF802] rounded text-[10px] font-semibold text-gray-900">
+                                <Star className="w-2.5 h-2.5 fill-gray-900 text-gray-900" />
+                                Highly Rated
+                              </div>
+                            )}
+                          </div>
                           <div className="p-4">
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex-1">
@@ -1890,27 +1893,18 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                                   <span>{hotel.location}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  {hotel.rating >= 4.5 ? (
-                                    <>
-                                      <Star className="w-3 h-3 text-[#ADF802] fill-[#ADF802]" />
-                                      <span className="text-xs font-semibold text-[#ADF802]">{hotel.rating}</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                                      <span className="text-xs font-semibold text-gray-700">{hotel.rating}</span>
-                                    </>
-                                  )}
+                                  <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                                  <span className="text-xs font-semibold text-gray-700">{hotel.rating}</span>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <div className="text-xl font-bold text-purple-600">${hotel.price}</div>
+                                <div className="text-xl font-bold text-gray-900">${hotel.price}</div>
                                 <div className="text-xs text-gray-600">per night</div>
                               </div>
                             </div>
                             <button
                               onClick={() => handleViewDetails('hotel', hotel)}
-                              className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
+                              className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
                             >
                               Perfect! Book This
                               <ThumbsUp className="w-4 h-4" />
@@ -1920,7 +1914,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                       ))}
                       <button
                         onClick={() => handleViewMore('hotel')}
-                        className="w-full px-4 py-2 bg-white border-2 border-purple-600 text-purple-600 rounded-lg font-medium hover:bg-purple-50 transition-all text-sm"
+                        className="w-full px-4 py-2 bg-white border-2 border-gray-900 text-gray-900 rounded-lg font-medium hover:bg-gray-50 transition-all text-sm"
                       >
                         Explore All {message.hotelResults.length} Hotels →
                       </button>
@@ -1998,9 +1992,9 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
 
             {/* Booking Flow */}
             {bookingFlow && bookingFlow.step === 'confirm' && (
-              <div className="bg-white border-2 border-blue-300 rounded-2xl p-4 shadow-lg">
+              <div className="bg-white border-2 border-gray-200 rounded-2xl p-4 shadow-lg">
                 <div className="flex items-center gap-2 mb-3">
-                  <CreditCard className="w-5 h-5 text-blue-600" />
+                  <CreditCard className="w-5 h-5 text-gray-900" />
                   <span className="font-bold text-gray-900">Ready to Book?</span>
                 </div>
                 <div className="space-y-3 mb-4">
@@ -2016,9 +2010,9 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                         : bookingFlow.selectedItem.location}
                     </div>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <span className="text-sm font-semibold text-gray-700">Total:</span>
-                    <span className="text-xl font-bold text-blue-600">${bookingFlow.selectedItem.price}</span>
+                    <span className="text-xl font-bold text-gray-900">${bookingFlow.selectedItem.price}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -2030,7 +2024,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                   </button>
                   <button
                     onClick={handleConfirmBooking}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2"
                   >
                     Yes, Book It!
                     <PartyPopper className="w-4 h-4" />
