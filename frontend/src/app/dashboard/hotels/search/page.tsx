@@ -587,6 +587,7 @@ export default function HotelSearchPage() {
         {!hotels.length && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
               <History className="w-4 h-4 text-gray-700" />
               <h2 className="text-sm font-semibold text-gray-900">Recent Bookings</h2>
             </div>
@@ -642,6 +643,7 @@ export default function HotelSearchPage() {
         {!hotels.length && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
               <TrendingUp className="w-4 h-4 text-gray-600" />
               <h2 className="text-sm font-semibold text-gray-900">Popular Destinations</h2>
             </div>
@@ -658,7 +660,7 @@ export default function HotelSearchPage() {
                     {loadingCardIndex === cardIndex && (
                       <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
                         <div className="flex flex-col items-center gap-2">
-                          <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                          <div className="w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
                           <span className="text-sm font-medium text-gray-700">Searching...</span>
                         </div>
                       </div>
@@ -841,9 +843,12 @@ export default function HotelSearchPage() {
           <div>
             {/* Results Header with Filters and View Toggle */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-              <h2 className="text-lg font-bold text-gray-900">
-                {filteredHotels.length} of {hotels.length} {hotels.length === 1 ? 'hotel' : 'hotels'}
-              </h2>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  {filteredHotels.length} of {hotels.length} {hotels.length === 1 ? 'hotel' : 'hotels'}
+                </h2>
+              </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 {/* Sort Dropdown */}
@@ -1039,7 +1044,7 @@ export default function HotelSearchPage() {
                 {filteredHotels.map((hotel, index) => (
               <div
                 key={index}
-                className="group bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300"
+                className="group bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 border-l-2 border-l-gray-900"
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Hotel Image */}
@@ -1078,9 +1083,12 @@ export default function HotelSearchPage() {
                   {/* Hotel Info */}
                   <div className="flex-1 p-3 md:p-4 lg:p-5">
                     <div className="mb-3 md:mb-5">
-                      <h3 className="text-sm font-bold text-gray-900 mb-2 md:mb-3 leading-tight line-clamp-1">
-                        {hotel.hotel?.name || 'Hotel'}
-                      </h3>
+                      <div className="flex items-center gap-2 mb-2 md:mb-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-gray-700 flex-shrink-0"></div>
+                        <h3 className="text-sm font-bold text-gray-900 leading-tight line-clamp-1">
+                          {hotel.hotel?.name || 'Hotel'}
+                        </h3>
+                      </div>
                       <div className="flex items-start gap-1.5 md:gap-2.5 text-gray-700 mb-2 md:mb-3">
                         <MapPin className="w-3 h-3 md:w-4 md:h-4 mt-0.5 flex-shrink-0 text-gray-500" />
                         <div className="flex-1">
@@ -1350,7 +1358,7 @@ export default function HotelSearchPage() {
                 {filteredHotels.map((hotel, index) => (
                   <div
                     key={index}
-                    className="group bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300"
+                    className="group bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 border-l-2 border-l-gray-900"
                   >
                     {/* Hotel Image */}
                     <div className="h-48 relative overflow-hidden">
@@ -1383,9 +1391,12 @@ export default function HotelSearchPage() {
 
                     {/* Hotel Info */}
                     <div className="p-3 md:p-4">
-                      <h3 className="text-sm font-bold text-gray-900 mb-3 group-hover:text-gray-700 transition-colors line-clamp-1 leading-tight">
-                        {hotel.hotel?.name || 'Hotel'}
-                      </h3>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-gray-700 flex-shrink-0"></div>
+                        <h3 className="text-sm font-bold text-gray-900 group-hover:text-gray-700 transition-colors line-clamp-1 leading-tight">
+                          {hotel.hotel?.name || 'Hotel'}
+                        </h3>
+                      </div>
 
                       <div className="flex items-start gap-2 text-gray-700 mb-3">
                         <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600" />
@@ -1525,7 +1536,10 @@ export default function HotelSearchPage() {
           <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl border border-gray-200 max-h-[90vh] overflow-y-auto animate-slide-up">
             {/* Modal Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between rounded-t-3xl z-10">
-              <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+                <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
+              </div>
               <button
                 onClick={() => setShowSearchForm(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition"
@@ -1583,7 +1597,7 @@ export default function HotelSearchPage() {
               {/* Duration Display */}
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1.5">Duration</label>
-                <div className="flex items-center h-[42px] px-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200">
+                <div className="flex items-center h-[42px] px-3 bg-gray-50 rounded-lg border-2 border-gray-200">
                   <span className="text-xl font-bold text-gray-700">{calculateNights()}</span>
                   <span className="ml-2 text-xs text-gray-600">
                     {calculateNights() === 1 ? 'night' : 'nights'}

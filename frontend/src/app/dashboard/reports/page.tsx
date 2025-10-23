@@ -189,24 +189,24 @@ export default function ReportsPage() {
         {/* Key Metrics */}
         {stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 border-l-2 border-l-gray-900">
               <div className="text-xs text-gray-600 font-medium mb-2">Total Flights</div>
               <div className="text-2xl font-bold text-gray-900">{metrics.flights}</div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 border-l-2 border-l-gray-900">
               <div className="text-xs text-gray-600 font-medium mb-2">Total Hotels</div>
               <div className="text-2xl font-bold text-gray-900">{metrics.hotels}</div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 border-l-2 border-l-gray-900">
               <div className="text-xs text-gray-600 font-medium mb-2">Total Spend</div>
               <div className="text-2xl font-bold text-gray-900">
                 ${metrics.totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 border-l-2 border-l-gray-900">
               <div className="text-xs text-gray-600 font-medium mb-2">Destinations</div>
               <div className="text-2xl font-bold text-gray-900">{metrics.destinations}</div>
             </div>
@@ -215,7 +215,8 @@ export default function ReportsPage() {
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
+            <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
             <Filter className="w-4 h-4 text-gray-600" />
             <h3 className="font-semibold text-gray-900 text-sm">Filters</h3>
           </div>
@@ -273,9 +274,14 @@ export default function ReportsPage() {
 
         {/* Bookings Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 md:p-6 border-b border-gray-200">
-            <h2 className="text-base font-bold text-gray-900">All Bookings</h2>
-            <p className="text-xs text-gray-600 mt-1">{bookings.length} bookings found</p>
+          <div className="p-4 md:p-6 border-b border-gray-200 bg-gray-50/50">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+              <div>
+                <h2 className="text-base font-bold text-gray-900">All Bookings</h2>
+                <p className="text-xs text-gray-600">{bookings.length} bookings found</p>
+              </div>
+            </div>
           </div>
 
           {bookings.length === 0 ? (
@@ -311,9 +317,15 @@ export default function ReportsPage() {
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-1.5">
                           {booking.bookingType === 'flight' ? (
-                            <Plane className="w-4 h-4 text-gray-700 flex-shrink-0" />
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                              <Plane className="w-4 h-4 text-gray-700 flex-shrink-0" />
+                            </div>
                           ) : (
-                            <Hotel className="w-4 h-4 text-gray-700 flex-shrink-0" />
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-gray-700 flex-shrink-0"></div>
+                              <Hotel className="w-4 h-4 text-gray-700 flex-shrink-0" />
+                            </div>
                           )}
                           <span className="capitalize text-sm text-gray-900">{booking.bookingType}</span>
                         </div>
@@ -347,12 +359,12 @@ export default function ReportsPage() {
                           booking.status === 'confirmed' || booking.status === 'completed'
                             ? 'bg-[#ADF802]/10 text-gray-900 border-[#ADF802]/30'
                             : booking.status === 'awaiting_confirmation'
-                            ? 'bg-gray-100 text-gray-700 border-gray-200'
+                            ? 'bg-blue-50/50 text-blue-800 border-blue-200/50'
                             : booking.status === 'pending' || booking.status === 'pending_approval'
-                            ? 'bg-gray-100 text-gray-700 border-gray-200'
+                            ? 'bg-amber-50/50 text-amber-800 border-amber-200/50'
                             : booking.status === 'cancelled' || booking.status === 'rejected'
                             ? 'bg-red-50 text-red-700 border-red-200'
-                            : 'bg-gray-100 text-gray-700 border-gray-200'
+                            : 'bg-gray-100 text-gray-600 border-gray-300'
                         }`}>
                           {booking.status === 'awaiting_confirmation' ? 'Pending Confirmation' : booking.status.replace('_', ' ')}
                         </span>

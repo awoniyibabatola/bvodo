@@ -117,15 +117,15 @@ export default function ManageUsersPage() {
   const getStatusBadge = (status: string) => {
     const styles = {
       active: 'bg-[#ADF802]/10 text-gray-900 border-[#ADF802]/30',
-      pending: 'bg-gray-100 text-gray-700 border-gray-200',
-      inactive: 'bg-gray-100 text-gray-700 border-gray-200',
+      pending: 'bg-amber-50/50 text-amber-800 border-amber-200/50',
+      inactive: 'bg-gray-100 text-gray-600 border-gray-300',
       suspended: 'bg-red-50 text-red-700 border-red-200',
     };
 
     const icons = {
       active: <CheckCircle className="w-3 h-3 text-[#ADF802]" />,
-      pending: <Clock className="w-3 h-3 text-gray-600" />,
-      inactive: <XCircle className="w-3 h-3 text-gray-600" />,
+      pending: <Clock className="w-3 h-3 text-amber-600" />,
+      inactive: <XCircle className="w-3 h-3 text-gray-500" />,
       suspended: <XCircle className="w-3 h-3 text-red-600" />,
     };
 

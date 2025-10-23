@@ -168,9 +168,9 @@ export default function UserCreditsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <div className="animate-spin w-12 h-12 border-4 border-gray-900 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-gray-600">Loading user data...</p>
         </div>
       </div>
@@ -179,13 +179,13 @@ export default function UserCreditsPage() {
 
   if (error && !userData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <p className="text-red-600 mb-4">{error}</p>
           <Link
             href="/dashboard/users"
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            className="text-gray-900 hover:text-gray-700 font-medium"
           >
             Back to Users
           </Link>
@@ -200,7 +200,7 @@ export default function UserCreditsPage() {
   const utilizationPercent = creditLimit > 0 ? (usedCredits / creditLimit) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
+    <div className="min-h-screen bg-gray-50">
       <div className="w-full px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">

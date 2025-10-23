@@ -588,13 +588,13 @@ export default function ApplyCreditPage() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-lg shadow-2xl max-w-md w-full overflow-hidden animate-scale-in">
             {/* Confetti Background Effect */}
-            <div className="relative bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-8 text-center">
+            <div className="relative bg-gray-50 p-8 text-center">
               <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-0 left-1/4 w-2 h-2 bg-green-400 rounded-full animate-float"></div>
-                <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-blue-400 rounded-full animate-float animation-delay-1000"></div>
-                <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-purple-400 rounded-full animate-float animation-delay-2000"></div>
-                <div className="absolute top-1/3 right-1/3 w-2 h-2 bg-yellow-400 rounded-full animate-float animation-delay-500"></div>
-                <div className="absolute bottom-1/3 left-1/4 w-3 h-3 bg-pink-400 rounded-full animate-float animation-delay-1500"></div>
+                <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-gray-400 rounded-full animate-float animation-delay-1000"></div>
+                <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-gray-400 rounded-full animate-float animation-delay-2000"></div>
+                <div className="absolute top-1/3 right-1/3 w-2 h-2 bg-gray-400 rounded-full animate-float animation-delay-500"></div>
+                <div className="absolute bottom-1/3 left-1/4 w-3 h-3 bg-gray-400 rounded-full animate-float animation-delay-1500"></div>
               </div>
 
               {/* Success Icon */}
@@ -644,7 +644,7 @@ export default function ApplyCreditPage() {
               </div>
 
               {/* Application Reference */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 mb-6 border border-blue-200">
+              <div className="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-200">
                 <p className="text-xs text-gray-600 mb-1">You can track your application status in</p>
                 <p className="font-bold text-blue-600">Dashboard → Manage Credits</p>
               </div>

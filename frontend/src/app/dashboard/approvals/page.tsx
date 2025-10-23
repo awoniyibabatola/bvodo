@@ -127,9 +127,15 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               {booking.bookingType === 'flight' ? (
-                <Plane className="w-4 h-4 text-gray-700" />
+                <>
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                  <Plane className="w-4 h-4 text-gray-700" />
+                </>
               ) : (
-                <Hotel className="w-4 h-4 text-gray-700" />
+                <>
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-700 flex-shrink-0"></div>
+                  <Hotel className="w-4 h-4 text-gray-700" />
+                </>
               )}
               <span className="font-semibold text-gray-900 capitalize text-sm">{booking.bookingType} Booking</span>
             </div>
@@ -643,8 +649,13 @@ export default function ApprovalsPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+          <div className="px-4 py-3 bg-gray-50/50 border-b border-gray-100 flex items-center gap-2">
+            <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+            <Filter className="w-4 h-4 text-gray-600" />
+            <h3 className="font-semibold text-gray-900 text-sm">Filters</h3>
+          </div>
+          <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -680,11 +691,11 @@ export default function ApprovalsPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 border-l-2 border-l-gray-900">
             <p className="text-xs font-medium text-gray-600 mb-2">Pending Approvals</p>
             <p className="text-2xl font-bold text-gray-900">{pagination.total}</p>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 border-l-2 border-l-gray-900">
             <p className="text-xs font-medium text-gray-600 mb-2">Total Value</p>
             <p className="text-2xl font-bold text-gray-900">
               {filteredBookings.length > 0 ? formatAmount(
@@ -693,7 +704,7 @@ export default function ApprovalsPage() {
               ) : formatAmount(0, 'USD')}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 border-l-2 border-l-gray-900">
             <p className="text-xs font-medium text-gray-600 mb-2">Travelers</p>
             <p className="text-2xl font-bold text-gray-900">
               {filteredBookings.reduce((sum, b) => sum + b.numberOfTravelers, 0)}
@@ -801,9 +812,15 @@ export default function ApprovalsPage() {
                         <td className="px-4 py-4">
                           <div className="flex items-center gap-1.5">
                             {booking.bookingType === 'flight' ? (
-                              <Plane className="w-4 h-4 text-gray-700 flex-shrink-0" />
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                <Plane className="w-4 h-4 text-gray-700 flex-shrink-0" />
+                              </div>
                             ) : (
-                              <Hotel className="w-4 h-4 text-gray-700 flex-shrink-0" />
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-gray-700 flex-shrink-0"></div>
+                                <Hotel className="w-4 h-4 text-gray-700 flex-shrink-0" />
+                              </div>
                             )}
                             <span className="text-sm capitalize font-medium text-gray-900">{booking.bookingType}</span>
                           </div>

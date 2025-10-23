@@ -311,7 +311,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-3 md:gap-4 flex-shrink-0 w-full max-w-[400px] mx-auto lg:mx-0 h-auto lg:h-[220px]">
             {/* Hotels Booked */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Hotel className="w-4 h-4 text-gray-900" />
                   <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Total</span>
@@ -325,7 +325,7 @@ export default function DashboardPage() {
 
             {/* Hotel Nights */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 text-gray-900" />
                   <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Nights</span>
@@ -339,7 +339,7 @@ export default function DashboardPage() {
 
             {/* Flights Taken */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Plane className="w-4 h-4 text-gray-900" />
                   <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Total</span>
@@ -353,7 +353,7 @@ export default function DashboardPage() {
 
             {/* Destinations */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="w-4 h-4 text-gray-900" />
                   <span className="text-[10px] md:text-xs text-[#ADF802] font-bold uppercase tracking-wide">Unique</span>
@@ -413,7 +413,10 @@ export default function DashboardPage() {
           {/* Recent Bookings */}
           <div className="lg:col-span-2 bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 lg:p-8 border border-gray-200 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg md:text-xl font-bold text-gray-900">Recent Bookings</h2>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+                <h2 className="text-lg md:text-xl font-bold text-gray-900">Recent Bookings</h2>
+              </div>
               <Link href="/dashboard/bookings" className="flex items-center gap-1 text-xs md:text-sm text-gray-700 hover:text-[#ADF802] font-medium group transition-colors">
                 View All
                 <ArrowUpRight className="w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -435,15 +438,21 @@ export default function DashboardPage() {
                 <Link key={index} href={bookingLink} className="group relative block">
                   <div className="relative flex items-center justify-between p-3 md:p-4 lg:p-5 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 hover:border-gray-400 transition-all cursor-pointer shadow-sm">
                     <div className="flex items-center gap-2 md:gap-3 lg:gap-4 flex-1 min-w-0">
-                      <div className={`p-2 md:p-2.5 lg:p-3 ${
-                        booking.type === 'Flight'
-                          ? 'bg-gray-900'
-                          : 'bg-gray-700'
-                      } rounded-xl md:rounded-2xl flex-shrink-0`}>
+                      <div className="flex items-center gap-1.5">
                         {booking.type === 'Flight' ? (
-                          <Plane className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                          <>
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                            <div className="p-2 md:p-2.5 lg:p-3 bg-gray-900 rounded-xl md:rounded-2xl flex-shrink-0">
+                              <Plane className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                            </div>
+                          </>
                         ) : (
-                          <Hotel className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                          <>
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-700 flex-shrink-0"></div>
+                            <div className="p-2 md:p-2.5 lg:p-3 bg-gray-700 rounded-xl md:rounded-2xl flex-shrink-0">
+                              <Hotel className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                            </div>
+                          </>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -460,19 +469,35 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-right flex-shrink-0 ml-2">
                       <div className="font-bold text-sm md:text-base text-gray-900 mb-1 md:mb-1.5">{booking.amount}</div>
-                      <div className={`text-[10px] md:text-xs font-medium px-2 md:px-3 py-1 md:py-1.5 rounded-full inline-flex items-center gap-1 md:gap-1.5 ${
+                      <div className={`text-[10px] md:text-xs font-medium px-2 md:px-3 py-1 md:py-1.5 rounded-full inline-flex items-center gap-1 md:gap-1.5 border ${
                         booking.status === 'confirmed' || booking.status === 'Confirmed' || booking.status === 'completed'
-                          ? 'bg-[#ADF802] text-gray-900 border border-[#ADF802]'
+                          ? 'bg-[#ADF802]/10 text-gray-900 border-[#ADF802]/30'
                           : booking.status === 'awaiting_confirmation'
-                          ? 'bg-gray-100 text-gray-700 border border-gray-300'
+                          ? 'bg-blue-50/50 text-blue-800 border-blue-200/50'
+                          : booking.status === 'pending' || booking.status === 'Pending' || booking.status === 'pending_approval'
+                          ? 'bg-amber-50/50 text-amber-800 border-amber-200/50'
                           : booking.status === 'cancelled' || booking.status === 'rejected'
-                          ? 'bg-gray-200 text-gray-600 border border-gray-400'
-                          : 'bg-gray-50 text-gray-700 border border-gray-300'
+                          ? 'bg-red-50 text-red-700 border-red-200'
+                          : 'bg-gray-100 text-gray-600 border-gray-300'
                       }`}>
                         {(booking.status === 'confirmed' || booking.status === 'Confirmed' || booking.status === 'completed') && <CheckCircle className="w-2.5 h-2.5 md:w-3 md:h-3" />}
                         {(booking.status === 'pending' || booking.status === 'Pending' || booking.status === 'pending_approval' || booking.status === 'awaiting_confirmation') && <Clock className="w-2.5 h-2.5 md:w-3 md:h-3" />}
-                        <span className="hidden md:inline">{booking.status === 'awaiting_confirmation' ? 'Pending Confirmation' : booking.status.replace(/_/g, ' ').toUpperCase()}</span>
-                        <span className="md:hidden">{booking.status === 'confirmed' || booking.status === 'Confirmed' ? 'OK' : booking.status === 'pending' || booking.status === 'Pending' ? 'Pending' : 'N/A'}</span>
+                        <span className="hidden md:inline">
+                          {booking.status === 'awaiting_confirmation'
+                            ? 'Pending Confirmation'
+                            : booking.status.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+                          }
+                        </span>
+                        <span className="md:hidden">
+                          {booking.status === 'confirmed' || booking.status === 'Confirmed'
+                            ? 'Confirmed'
+                            : booking.status === 'pending' || booking.status === 'Pending'
+                            ? 'Pending'
+                            : booking.status === 'completed'
+                            ? 'Completed'
+                            : booking.status.charAt(0).toUpperCase() + booking.status.slice(1).toLowerCase()
+                          }
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -484,14 +509,18 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="bg-white rounded-2xl p-4 md:p-6 border border-gray-200">
-            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+              <h2 className="text-lg md:text-xl font-bold text-gray-900">Quick Actions</h2>
+            </div>
             <div className="space-y-2.5">
               <Link
                 href="/dashboard/flights/search"
                 className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
                     <Plane className="w-5 h-5 text-gray-700" />
                     <span className="text-sm md:text-base text-gray-900">Book a Flight</span>
                   </div>
@@ -504,7 +533,8 @@ export default function DashboardPage() {
                 className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500 flex-shrink-0"></div>
                     <Hotel className="w-5 h-5 text-gray-700" />
                     <span className="text-sm md:text-base text-gray-900">Book a Hotel</span>
                   </div>

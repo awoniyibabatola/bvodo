@@ -52,7 +52,10 @@
       "Bash(npx tsc:*)",
       "Bash(node -e:*)",
       "Bash(powershell -Command:*)",
-      "Bash(timeout /t 10)"
+      "Bash(timeout /t 10)",
+      "Bash(cat:*)",
+      "Bash(awk:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []

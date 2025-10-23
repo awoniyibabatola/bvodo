@@ -366,7 +366,7 @@ export default function FlightSearchPage() {
 
         {/* Search Form - Desktop only, always hidden on mobile */}
         <div className="hidden md:block relative mb-6 md:mb-8">
-          <form onSubmit={handleSearch} className="bg-white rounded-lg p-3 md:p-4 lg:p-5 border border-gray-300">
+          <form onSubmit={handleSearch} className="bg-white rounded-lg p-3 md:p-4 lg:p-5 border border-gray-200">
             {/* Trip Type */}
             <div className="flex gap-2 mb-3 md:mb-4">
               <button
@@ -658,7 +658,10 @@ export default function FlightSearchPage() {
             <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-lg border-t border-gray-300 max-h-[90vh] overflow-y-auto">
               {/* Header */}
               <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between rounded-t-lg">
-                <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+                  <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
+                </div>
                 <button
                   onClick={() => setShowSearchForm(false)}
                   className="p-2 rounded-full"
@@ -840,16 +843,19 @@ export default function FlightSearchPage() {
           <div className="space-y-3 md:space-y-6">
             {/* Results Header with Filter */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
-              <h2 className="text-sm md:text-lg font-bold text-gray-900">
-                Available Flights
-                <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
-                  {flights.filter(f => {
-                    if (selectedAirline === 'all') return true;
-                    const airlines = [...new Set(f.itineraries[0].segments.map((seg: any) => seg.carrierCode))];
-                    return airlines.includes(selectedAirline);
-                  }).length}
-                </span>
-              </h2>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+                <h2 className="text-sm md:text-lg font-bold text-gray-900">
+                  Available Flights
+                  <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
+                    {flights.filter(f => {
+                      if (selectedAirline === 'all') return true;
+                      const airlines = [...new Set(f.itineraries[0].segments.map((seg: any) => seg.carrierCode))];
+                      return airlines.includes(selectedAirline);
+                    }).length}
+                  </span>
+                </h2>
+              </div>
 
               {/* Airline Filter */}
               <div className="flex items-center gap-2 md:gap-3">
@@ -898,13 +904,13 @@ export default function FlightSearchPage() {
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-lg overflow-hidden border border-gray-300"
+                  className="bg-white rounded-lg overflow-hidden border border-gray-200"
                 >
                   <div className="p-3 md:p-4 lg:p-5">
                     <div className="flex flex-col lg:flex-row gap-3 md:gap-6 items-center">
                       {/* Airline Info with Logo */}
                       <div className="flex-shrink-0 text-center">
-                        <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-lg flex items-center justify-center border border-gray-300 overflow-hidden mb-1 md:mb-2">
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden mb-1 md:mb-2">
                           <img
                             src={getAirlineLogo(firstSegment.carrierCode)}
                             alt={AIRLINE_NAMES[firstSegment.carrierCode] || firstSegment.carrierCode}
@@ -926,8 +932,11 @@ export default function FlightSearchPage() {
                         {/* Airline Name - Prominent Header */}
                         <div className="mb-3 md:mb-4">
                           <div className="flex items-center gap-2 md:gap-3">
-                            <div className="flex items-center gap-2 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 bg-gray-100 border border-gray-300 rounded-lg">
-                              <Plane className="w-4 h-4 text-gray-700" />
+                            <div className="flex items-center gap-2 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 bg-gray-100 border border-gray-200 rounded-lg">
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                <Plane className="w-4 h-4 text-gray-700" />
+                              </div>
                               <span className="text-xs md:text-sm font-bold text-gray-900">
                                 {airlines.length > 0 ? airlines.map(code => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
                               </span>
