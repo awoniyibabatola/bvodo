@@ -1322,7 +1322,7 @@ export default function FlightSearchPage() {
                       return f.itineraries[0].segments.map((seg: any) => seg.carrierCode);
                     }
                     return [];
-                  }))].sort().map(code => (
+                  }))].sort().map((code: string) => (
                     <option key={code} value={code}>
                       {AIRLINE_NAMES[code] || code} ({code})
                     </option>
@@ -1402,7 +1402,7 @@ export default function FlightSearchPage() {
                                 <Plane className="w-4 h-4 text-gray-700" />
                               </div>
                               <span className="text-xs md:text-sm font-bold text-gray-900">
-                                {airlines.length > 0 ? airlines.map(code => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
+                                {airlines.length > 0 ? airlines.map((code: string) => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
                               </span>
                             </div>
                             {airlines.length > 1 && (
