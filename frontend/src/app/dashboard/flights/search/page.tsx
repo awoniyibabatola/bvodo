@@ -195,8 +195,6 @@ const AIRLINE_NAMES: { [key: string]: string } = {
   'G8': 'Go Air',
   '5J': 'Cebu Pacific',
   'Z2': 'Philippines AirAsia',
-  'FZ': 'Fly Dubai',
-  'XY': 'Flynas',
   'J9': 'Jazeera Airways',
   'KU': 'Kuwait Airways',
   '7C': 'Jeju Air',
