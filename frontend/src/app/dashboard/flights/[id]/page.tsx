@@ -191,12 +191,14 @@ export default function FlightDetailsPage() {
         at: segment.departure.time,
         iataCode: segment.departure.airportCode,
         terminal: segment.departure.terminal,
+        airport: segment.departure.airport, // Full airport name
+        city: segment.departure.city,
       };
     } else if (segment.departure?.at) {
       // Amadeus format
       return segment.departure;
     }
-    return { at: '', iataCode: '', terminal: '' };
+    return { at: '', iataCode: '', terminal: '', airport: '', city: '' };
   };
 
   const getSegmentArrival = (segment: any) => {
@@ -206,12 +208,14 @@ export default function FlightDetailsPage() {
         at: segment.arrival.time,
         iataCode: segment.arrival.airportCode,
         terminal: segment.arrival.terminal,
+        airport: segment.arrival.airport, // Full airport name
+        city: segment.arrival.city,
       };
     } else if (segment.arrival?.at) {
       // Amadeus format
       return segment.arrival;
     }
-    return { at: '', iataCode: '', terminal: '' };
+    return { at: '', iataCode: '', terminal: '', airport: '', city: '' };
   };
 
   const getFlightPrice = (flight: any) => {
@@ -525,10 +529,10 @@ export default function FlightDetailsPage() {
                             {departureInfo.time}
                           </div>
                           <div className="text-xs font-semibold text-gray-900">
-                            {AIRPORT_NAMES[firstDeparture.iataCode]?.city || firstDeparture.iataCode}
+                            {firstDeparture.city || AIRPORT_NAMES[firstDeparture.iataCode]?.city || firstDeparture.iataCode}
                           </div>
                           <div className="text-[10px] text-gray-600 mt-0.5">
-                            {AIRPORT_NAMES[firstDeparture.iataCode]?.airport || firstDeparture.iataCode}
+                            {firstDeparture.airport || AIRPORT_NAMES[firstDeparture.iataCode]?.airport || firstDeparture.iataCode}
                           </div>
                           <div className="text-[10px] text-gray-500 mt-0.5">{departureInfo.date}</div>
                         </div>
@@ -552,10 +556,10 @@ export default function FlightDetailsPage() {
                             {arrivalInfo.time}
                           </div>
                           <div className="text-xs font-semibold text-gray-900">
-                            {AIRPORT_NAMES[lastArrival.iataCode]?.city || lastArrival.iataCode}
+                            {lastArrival.city || AIRPORT_NAMES[lastArrival.iataCode]?.city || lastArrival.iataCode}
                           </div>
                           <div className="text-[10px] text-gray-600 mt-0.5">
-                            {AIRPORT_NAMES[lastArrival.iataCode]?.airport || lastArrival.iataCode}
+                            {lastArrival.airport || AIRPORT_NAMES[lastArrival.iataCode]?.airport || lastArrival.iataCode}
                           </div>
                           <div className="text-[10px] text-gray-500 mt-0.5">{arrivalInfo.date}</div>
                         </div>
@@ -598,7 +602,7 @@ export default function FlightDetailsPage() {
                                     {AIRLINE_NAMES[airlineCode] || airlineCode}
                                   </div>
                                   <div className="text-[10px] text-gray-600">
-                                    {airlineCode} {flightNumber} • {AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode} → {AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
+                                    {airlineCode} {flightNumber} • {segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode} → {segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
                                   </div>
                                 </div>
                                 {/* Flight Times - Visible when collapsed */}
@@ -609,10 +613,10 @@ export default function FlightDetailsPage() {
                                       <div className="text-xs font-semibold text-gray-700">{segDeparture.time}</div>
                                       <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
                                       <div className="text-[10px] text-gray-600 font-medium mt-0.5">
-                                        {AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}
+                                        {segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}
                                       </div>
                                       <div className="text-[9px] text-gray-500">
-                                        {AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || ''}
+                                        {segmentDeparture.airport || AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || ''}
                                       </div>
                                     </div>
                                     <div className="flex flex-col items-center pt-6">
@@ -624,10 +628,10 @@ export default function FlightDetailsPage() {
                                       <div className="text-xs font-semibold text-gray-700">{segArrival.time}</div>
                                       <div className="text-[10px] text-gray-500">{segArrival.date}</div>
                                       <div className="text-[10px] text-gray-600 font-medium mt-0.5">
-                                        {AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
+                                        {segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
                                       </div>
                                       <div className="text-[9px] text-gray-500">
-                                        {AIRPORT_NAMES[segmentArrival.iataCode]?.airport || ''}
+                                        {segmentArrival.airport || AIRPORT_NAMES[segmentArrival.iataCode]?.airport || ''}
                                       </div>
                                     </div>
                                   </div>
@@ -648,8 +652,8 @@ export default function FlightDetailsPage() {
                                     <div className="font-semibold text-gray-900 text-sm">
                                       {segDeparture.time}
                                     </div>
-                                    <div className="text-xs font-semibold text-gray-700">{AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}</div>
-                                    <div className="text-[10px] text-gray-600">{AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || segmentDeparture.iataCode}</div>
+                                    <div className="text-xs font-semibold text-gray-700">{segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}</div>
+                                    <div className="text-[10px] text-gray-600">{segmentDeparture.airport || AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || segmentDeparture.iataCode}</div>
                                     <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
                                   </div>
                                   <div>
@@ -657,8 +661,8 @@ export default function FlightDetailsPage() {
                                     <div className="font-semibold text-gray-900 text-sm">
                                       {segArrival.time}
                                     </div>
-                                    <div className="text-xs font-semibold text-gray-700">{AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}</div>
-                                    <div className="text-[10px] text-gray-600">{AIRPORT_NAMES[segmentArrival.iataCode]?.airport || segmentArrival.iataCode}</div>
+                                    <div className="text-xs font-semibold text-gray-700">{segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}</div>
+                                    <div className="text-[10px] text-gray-600">{segmentArrival.airport || AIRPORT_NAMES[segmentArrival.iataCode]?.airport || segmentArrival.iataCode}</div>
                                     <div className="text-[10px] text-gray-500">{segArrival.date}</div>
                                   </div>
                                 </div>
@@ -693,7 +697,7 @@ export default function FlightDetailsPage() {
                               <div className="flex items-center justify-center py-2">
                                 <div className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-[10px] text-gray-700">
                                   <Clock className="w-3 h-3 inline mr-1" />
-                                  Layover at {AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode} • {layoverHours}h {layoverMins}m
+                                  Layover at {segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode} • {layoverHours}h {layoverMins}m
                                 </div>
                               </div>
                             );
