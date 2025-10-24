@@ -127,7 +127,6 @@ const AIRLINE_NAMES: { [key: string]: string } = {
   'SA': 'South African Airways',
   'ET': 'Ethiopian Airlines',
   'KQ': 'Kenya Airways',
-  'MS': 'EgyptAir',
   'AT': 'Royal Air Maroc',
   'TU': 'Tunisair',
   'AH': 'Air Algerie',
