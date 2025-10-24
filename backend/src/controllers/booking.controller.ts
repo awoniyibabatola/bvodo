@@ -11,6 +11,30 @@ import {
   sendBookingRejectionEmail,
   sendBookingCancellationEmail,
 } from '../utils/email.service';
+import duffelService from '../services/duffel.service';
+import emailService from '../services/email.service';
+
+/**
+ * Parse ISO 8601 duration string to minutes
+ * Example: "PT7H12M" -> 432 minutes (7*60 + 12)
+ */
+function parseDurationToMinutes(duration: string | null | undefined): number | null {
+  if (!duration) return null;
+
+  try {
+    // Match pattern: PT(hours)H(minutes)M or PT(hours)H or PT(minutes)M
+    const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+    if (!matches) return null;
+
+    const hours = matches[1] ? parseInt(matches[1]) : 0;
+    const minutes = matches[2] ? parseInt(matches[2]) : 0;
+
+    return hours * 60 + minutes;
+  } catch (error) {
+    logger.error('Error parsing duration:', error);
+    return null;
+  }
+}
 
 /**
  * Get all bookings for an organization
@@ -247,9 +271,11 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       currency,
       travelReason,
       notes,
+      provider,                     // NEW: Provider type (duffel, amadeus)
       providerName,
       providerBookingReference,
       bookingData,
+      services,                     // NEW: Services array (seats & baggage)
       flightDetails,
       hotelDetails,
     } = req.body;
@@ -318,18 +344,64 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
           approverId: requiresApproval && currentUser?.approverId ? currentUser.approverId : null,
           travelReason,
           notes,
+          provider: provider || 'duffel',  // NEW: Save provider type
           providerName,
           providerBookingReference,
-          bookingData,
+          bookingData: {
+            ...bookingData,
+            services: services || undefined,  // Store services in bookingData JSON
+          },
         },
       });
 
       // Create flight booking if flight details provided
       if (bookingType === 'flight' && flightDetails) {
+        // Extract only the fields that belong in the FlightBooking table
+        const flightBookingData: any = {};
+
+        // Map airline fields
+        if (flightDetails.airline) flightBookingData.airline = flightDetails.airline;
+        if (flightDetails.airlineCode) flightBookingData.airlineCode = flightDetails.airlineCode;
+        if (flightDetails.flightNumber) flightBookingData.flightNumber = flightDetails.flightNumber;
+
+        // Map airport fields
+        if (flightDetails.departureAirport) flightBookingData.departureAirport = flightDetails.departureAirport;
+        if (flightDetails.departureAirportCode) flightBookingData.departureAirportCode = flightDetails.departureAirportCode;
+        if (flightDetails.arrivalAirport) flightBookingData.arrivalAirport = flightDetails.arrivalAirport;
+        if (flightDetails.arrivalAirportCode) flightBookingData.arrivalAirportCode = flightDetails.arrivalAirportCode;
+
+        // Map time fields (convert to Date objects)
+        if (flightDetails.departureTime) flightBookingData.departureTime = new Date(flightDetails.departureTime);
+        if (flightDetails.arrivalTime) flightBookingData.arrivalTime = new Date(flightDetails.arrivalTime);
+
+        // Map duration (convert ISO 8601 to minutes)
+        if (flightDetails.duration) flightBookingData.duration = parseDurationToMinutes(flightDetails.duration);
+
+        // Map cabin class
+        if (flightDetails.cabinClass) flightBookingData.cabinClass = flightDetails.cabinClass;
+
+        // Map stops (numberOfStops → stops)
+        if (flightDetails.numberOfStops !== undefined) flightBookingData.stops = flightDetails.numberOfStops;
+
+        // Map layover info
+        if (flightDetails.layoverInfo) flightBookingData.layoverInfo = flightDetails.layoverInfo;
+
+        // Map baggage allowance (convert to string)
+        if (flightDetails.baggageAllowance != null) flightBookingData.baggageAllowance = String(flightDetails.baggageAllowance);
+
+        // Map optional fields
+        if (flightDetails.carryOnAllowance) flightBookingData.carryOnAllowance = flightDetails.carryOnAllowance;
+        if (flightDetails.seatNumbers) flightBookingData.seatNumbers = flightDetails.seatNumbers;
+        if (flightDetails.aircraft) flightBookingData.aircraft = flightDetails.aircraft;
+        if (flightDetails.terminal) flightBookingData.terminal = flightDetails.terminal;
+        if (flightDetails.gate) flightBookingData.gate = flightDetails.gate;
+        if (flightDetails.eTicketNumbers) flightBookingData.eTicketNumbers = flightDetails.eTicketNumbers;
+        if (flightDetails.pnr) flightBookingData.pnr = flightDetails.pnr;
+
         await tx.flightBooking.create({
           data: {
             bookingId: newBooking.id,
-            ...flightDetails,
+            ...flightBookingData,
           },
         });
       }
@@ -391,7 +463,9 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
         }
       }
 
-      // Create credit transaction (hold funds)
+      // NOTE: Credits are NOT deducted here - only held/reserved until approval
+      // When admin approves, credits will be deducted and Duffel order created
+      // This validates user has sufficient credits but doesn't charge yet
       if (totalPrice && parseFloat(totalPrice) > 0) {
         const bookingCost = parseFloat(totalPrice);
 
@@ -410,34 +484,13 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
 
         const userBalance = parseFloat(bookingUser.availableCredits.toString());
 
-        // Check if user has sufficient credits
+        // Check if user has sufficient credits (validation only - no deduction)
         if (userBalance < bookingCost) {
           throw new Error('Insufficient credits. Please contact your administrator to increase your credit limit.');
         }
 
-        // Deduct from user's available credits
-        await tx.user.update({
-          where: { id: user.userId },
-          data: {
-            availableCredits: userBalance - bookingCost,
-          },
-        });
-
-        // Create credit transaction
-        await tx.creditTransaction.create({
-          data: {
-            organizationId: user.organizationId,
-            userId: user.userId,
-            bookingId: newBooking.id,
-            transactionType: 'credit_held',
-            amount: bookingCost,
-            currency: currency || 'USD',
-            balanceBefore: userBalance,
-            balanceAfter: userBalance - bookingCost,
-            description: `Credit held for booking ${bookingReference}`,
-            createdBy: user.userId,
-          },
-        });
+        // NOTE: No credit deduction here! Credits will be deducted on approval
+        // This just validates the user has enough credits for the booking
       }
 
       return newBooking;
@@ -495,9 +548,23 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
     });
   } catch (error: any) {
     logger.error('Create booking error:', error);
+
+    // Don't expose detailed Prisma errors to client (security risk)
+    // Only send generic error messages
+    let userMessage = 'Failed to create booking. Please try again.';
+
+    // Check for specific known errors we want to show to users
+    if (error.message?.includes('Insufficient credits')) {
+      userMessage = error.message;
+    } else if (error.message?.includes('User not found')) {
+      userMessage = 'User account not found';
+    } else if (error.message?.includes('Organization not found')) {
+      userMessage = 'Organization not found';
+    }
+
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to create booking',
+      message: userMessage,
     });
   }
 };
@@ -674,6 +741,18 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
         organizationId: user.organizationId,
         status: 'pending_approval',
       },
+      include: {
+        flightBookings: true,
+        hotelBookings: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
     });
 
     if (!booking) {
@@ -684,32 +763,225 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    const updatedBooking = await prisma.booking.update({
-      where: { id },
-      data: {
-        status: 'awaiting_confirmation',
-        approverId: user.userId,
-        approvedAt: new Date(),
-        approvalNotes,
-      },
-      include: {
-        user: {
+    // Process approval in transaction: deduct credits + create Duffel order
+    const updatedBooking = await prisma.$transaction(async (tx) => {
+      // 1. Deduct credits from user
+      const bookingCost = parseFloat(booking.totalPrice.toString());
+
+      if (bookingCost > 0) {
+        // Get user's current credit balance
+        const bookingUser = await tx.user.findUnique({
+          where: { id: booking.userId },
           select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
+            availableCredits: true,
           },
-        },
-        approver: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
+        });
+
+        if (!bookingUser) {
+          throw new Error('Booking user not found');
+        }
+
+        const userBalance = parseFloat(bookingUser.availableCredits.toString());
+
+        // Check if user still has sufficient credits
+        if (userBalance < bookingCost) {
+          throw new Error('Insufficient credits. User no longer has enough credits for this booking.');
+        }
+
+        // Deduct from user's available credits
+        await tx.user.update({
+          where: { id: booking.userId },
+          data: {
+            availableCredits: userBalance - bookingCost,
           },
+        });
+
+        // Create credit transaction for deduction
+        await tx.creditTransaction.create({
+          data: {
+            organizationId: booking.organizationId,
+            userId: booking.userId,
+            bookingId: booking.id,
+            transactionType: 'booking_charged',
+            amount: bookingCost,
+            currency: booking.currency,
+            balanceBefore: userBalance,
+            balanceAfter: userBalance - bookingCost,
+            description: `Booking approved and charged: ${booking.bookingReference}`,
+            createdBy: user.userId,
+          },
+        });
+      }
+
+      // 2. Update booking status to confirmed
+      const updated = await tx.booking.update({
+        where: { id },
+        data: {
+          status: 'confirmed',
+          approverId: user.userId,
+          approvedAt: new Date(),
+          approvalNotes,
         },
-      },
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+          approver: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+          flightBookings: true,
+        },
+      });
+
+      return updated;
     });
+
+    // 3. Create Duffel order for flight bookings (outside transaction as it's external API)
+    if (updatedBooking.bookingType === 'flight' && updatedBooking.provider === 'duffel') {
+      try {
+        // Get offer ID from either providerBookingReference or bookingData.id
+        const bookingData = updatedBooking.bookingData as any;
+        const offerId = updatedBooking.providerBookingReference || bookingData?.id;
+
+        if (!offerId) {
+          logger.error(`No offer ID found for booking ${updatedBooking.bookingReference}`);
+          throw new Error('Cannot create Duffel order: Offer ID not found');
+        }
+
+        logger.info(`Creating Duffel order for booking ${updatedBooking.bookingReference}`);
+        logger.info(`Provider: ${updatedBooking.provider}, Offer ID: ${offerId}`);
+
+        // First, check if the offer is still valid by trying to fetch it
+        try {
+          await duffelService.getOfferDetails(offerId as string);
+          logger.info(`[Duffel] Offer ${offerId} is still valid`);
+        } catch (offerError: any) {
+          // Offer has expired or is no longer available
+          logger.error(`[Duffel] Offer ${offerId} is no longer valid:`, offerError.message);
+
+          // Update booking status to indicate offer expired
+          await prisma.booking.update({
+            where: { id: updatedBooking.id },
+            data: {
+              status: 'pending_reselection',
+              notes: `${updatedBooking.notes || ''}\n\n[System] Offer expired. Please have the traveler re-search and select a new flight, then try approving again.`.trim(),
+            },
+          });
+
+          throw new Error(
+            'The selected flight offer has expired. Please have the traveler search for flights again and select a new option. ' +
+            'Duffel flight offers are only valid for 5-15 minutes. Once a new flight is selected, you can approve the booking again.'
+          );
+        }
+
+        // Cast passengerDetails to proper type
+        const passengerDetails = updatedBooking.passengerDetails as any;
+
+        // Extract contact info from first passenger or updated booking user
+        const firstPassenger = Array.isArray(passengerDetails) ? passengerDetails[0] : null;
+        const contactEmail = firstPassenger?.email || updatedBooking.user.email;
+        const contactPhone = firstPassenger?.phone || '';
+
+        logger.info(`Passenger count: ${Array.isArray(passengerDetails) ? passengerDetails.length : 0}`);
+        logger.info(`Contact: ${contactEmail}, ${contactPhone}`);
+
+        // Extract services (seats & baggage) from booking data if available
+        const bookingDataWithServices = updatedBooking.bookingData as any;
+        const servicesData = bookingDataWithServices?.services;
+        logger.info(`Services found: ${servicesData ? JSON.stringify(servicesData) : 'none'}`);
+
+        // Create Duffel order with services
+        const duffelOrder = await duffelService.createBooking({
+          offerId: offerId as string,
+          passengers: passengerDetails || [],
+          contactEmail,
+          contactPhone,
+          services: servicesData || undefined, // Include seat & baggage services
+        });
+
+        // Update booking with Duffel order details and PNR
+        const bookingWithPNR = await prisma.booking.update({
+          where: { id: updatedBooking.id },
+          data: {
+            providerOrderId: duffelOrder.bookingReference,
+            providerConfirmationNumber: duffelOrder.bookingReference,
+            providerRawData: duffelOrder.rawData,
+          },
+        });
+
+        logger.info(`Duffel order created successfully: ${duffelOrder.bookingReference}`);
+
+        // Send detailed booking confirmation email with ticket details
+        try {
+          const flightData = updatedBooking.bookingData as any;
+          const firstSegment = flightData?.outbound?.[0];
+          const lastSegment = flightData?.outbound?.[flightData.outbound.length - 1];
+
+          if (firstSegment && passengerDetails) {
+            await emailService.sendBookingConfirmation({
+              bookingId: updatedBooking.id,
+              bookingReference: updatedBooking.bookingReference,
+              pnr: duffelOrder.bookingReference,
+              travelerName: `${passengerDetails[0]?.firstName || updatedBooking.user.firstName} ${passengerDetails[0]?.lastName || updatedBooking.user.lastName}`,
+              bookerName: `${updatedBooking.user.firstName} ${updatedBooking.user.lastName}`,
+              bookerEmail: updatedBooking.user.email,
+              flightDetails: {
+                airline: firstSegment.airline || 'N/A',
+                from: updatedBooking.origin || firstSegment.departure?.airportCode || 'N/A',
+                to: updatedBooking.destination || lastSegment.arrival?.airportCode || 'N/A',
+                departureDate: new Date(updatedBooking.departureDate).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }),
+                departureTime: firstSegment.departure?.time ? new Date(firstSegment.departure.time).toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'N/A',
+                arrivalTime: lastSegment.arrival?.time ? new Date(lastSegment.arrival.time).toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'N/A',
+                flightNumber: firstSegment.flightNumber || undefined,
+              },
+              passengerDetails: Array.isArray(passengerDetails) ? passengerDetails.map((p: any) => ({
+                firstName: p.firstName,
+                lastName: p.lastName,
+                email: p.email,
+              })) : [],
+              priceDetails: {
+                basePrice: Number(updatedBooking.basePrice),
+                taxes: Number(updatedBooking.taxesFees),
+                total: Number(updatedBooking.totalPrice),
+                currency: updatedBooking.currency,
+              },
+              seatsSelected: flightData?.seatsSelected || undefined,
+              baggageSelected: flightData?.baggageSelected || undefined,
+            });
+            logger.info(`Booking confirmation email sent for ${updatedBooking.bookingReference}`);
+          }
+        } catch (emailError) {
+          logger.error('Failed to send booking confirmation email:', emailError);
+          // Don't fail the approval if email fails
+        }
+      } catch (error: any) {
+        logger.error('Failed to create Duffel order:', error);
+        logger.error('Error details:', error.response?.data || error.message);
+        // Don't fail the approval if Duffel order creation fails
+        // The booking is still approved, but needs manual intervention for Duffel
+        logger.warn(`Booking ${updatedBooking.bookingReference} approved but Duffel order creation failed. Manual intervention required.`);
+      }
+    }
 
     // Send approval email to traveler
     if (updatedBooking.approver) {
@@ -726,7 +998,7 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
 
     res.status(200).json({
       success: true,
-      message: 'Booking approved successfully. Awaiting rate confirmation.',
+      message: 'Booking approved successfully. Credits charged and booking confirmed.',
       data: updatedBooking,
     });
   } catch (error: any) {
@@ -1024,3 +1296,6 @@ export const getBookingStats = async (req: AuthRequest, res: Response): Promise<
     });
   }
 };
+
+
+

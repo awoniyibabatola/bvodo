@@ -185,7 +185,7 @@ model Booking {
 
   // Booking Status
   status                      String   @default("pending") @db.VarChar(30)
-  // pending, pending_approval, approved, awaiting_confirmation, confirmed, cancelled, rejected, completed, failed
+  // pending, pending_approval, approved, awaiting_confirmation, confirmed, cancelled, rejected, completed, failed, pending_reselection
 
   // Two-Tier Approval Workflow
   requiresApproval            Boolean  @default(false) @map("requires_approval")
@@ -209,9 +209,16 @@ model Booking {
   notes                       String?  @db.Text
 
   // Provider Information
+  provider                    String   @default("duffel") @db.VarChar(20) // duffel, amadeus
   providerName                String?  @map("provider_name") @db.VarChar(100)
+  providerOrderId             String?  @map("provider_order_id") @db.VarChar(100) // Duffel order ID or Amadeus PNR
   providerBookingReference    String?  @map("provider_booking_reference") @db.VarChar(100)
   providerConfirmationNumber  String?  @map("provider_confirmation_number") @db.VarChar(100)
+  providerRawData             Json?    @map("provider_raw_data") // Full provider response for reference
+
+  // Duffel-specific checkout fields
+  checkoutSessionId           String?  @map("checkout_session_id") @db.VarChar(200)
+  paymentStatus               String   @default("pending") @map("payment_status") @db.VarChar(30) // pending, completed, failed, refunded
 
   // Documents
   confirmationUrl             String?  @map("confirmation_url") @db.VarChar(500)
@@ -246,6 +253,9 @@ model Booking {
   @@index([departureDate])
   @@index([bookingReference])
   @@index([isGroupBooking])
+  @@index([provider])
+  @@index([providerOrderId])
+  @@index([paymentStatus])
   @@map("bookings")
 }
 

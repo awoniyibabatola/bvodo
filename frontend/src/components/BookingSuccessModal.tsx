@@ -21,10 +21,10 @@ export default function BookingSuccessModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 max-w-md w-full overflow-hidden">
         {/* Success Icon */}
         <div className="bg-gray-900 p-8 text-center border-b border-gray-700">
-          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-gray-200">
+          <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-200">
             <Check className="w-12 h-12 text-gray-900" strokeWidth={3} />
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">

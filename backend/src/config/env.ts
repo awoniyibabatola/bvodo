@@ -28,6 +28,14 @@ const envSchema = z.object({
   AMADEUS_API_URL: z.string().url().optional(),
   AMADEUS_ENVIRONMENT: z.enum(['test', 'production']).default('test'),
 
+  // Duffel
+  DUFFEL_ACCESS_TOKEN: z.string().optional(),
+  DUFFEL_ENVIRONMENT: z.enum(['test', 'production']).default('test'),
+
+  // Flight Provider Configuration
+  PRIMARY_FLIGHT_PROVIDER: z.enum(['amadeus', 'duffel']).default('duffel'),
+  ENABLE_PROVIDER_FALLBACK: z.enum(['true', 'false']).default('true').transform(val => val === 'true'),
+
   // Booking.com
   BOOKING_COM_API_KEY: z.string().optional(),
 
