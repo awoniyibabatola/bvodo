@@ -101,11 +101,8 @@ export default function UserMenu({ user }: UserMenuProps) {
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center gap-3 pl-3 border-l border-gray-200 hover:bg-gray-50 rounded-r-xl transition-colors py-1 pr-2"
         >
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur opacity-50"></div>
-            <div className="relative w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-blue-500/25">
-              {user.name?.charAt(0) || 'U'}
-            </div>
+          <div className="w-10 h-10 bg-[#FF6B6B] rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white ring-2 ring-[#FF6B6B]/20">
+            {user.name?.charAt(0) || 'U'}
           </div>
           <div className="hidden md:block text-left">
             <p className="text-sm font-semibold text-gray-900">{user.name || 'User'}</p>

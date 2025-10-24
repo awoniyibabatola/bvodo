@@ -8,6 +8,7 @@ import {
   ArrowLeftRight,
   Calendar,
   Users,
+  User,
   Search,
   MapPin,
   ArrowLeft,
@@ -180,9 +181,13 @@ export default function FlightSearchPage() {
   const [flights, setFlights] = useState<any[]>([]);
   const [error, setError] = useState('');
   const [selectedAirline, setSelectedAirline] = useState<string>('all');
+  const [selectedCabinClass, setSelectedCabinClass] = useState<string>('all');
   const [showSearchForm, setShowSearchForm] = useState(false);
   const [showPassengerSelector, setShowPassengerSelector] = useState(false);
   const passengerSelectorRef = useRef<HTMLDivElement>(null);
+  const [recentBookings, setRecentBookings] = useState<any[]>([]);
+  const [draftBookings, setDraftBookings] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(true);
 
   // Close passenger selector when clicking outside
   useEffect(() => {
@@ -207,9 +212,71 @@ export default function FlightSearchPage() {
         organization: parsedUser.organization || '',
       });
     }
+
+    // Fetch recent and draft flight bookings
+    const fetchBookings = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        console.log('🔑 Token exists:', !!token);
+        if (!token) {
+          console.log('❌ No token found');
+          setLoadingBookings(false);
+          return;
+        }
+
+        const headers = {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        };
+
+        // Fetch recent confirmed flight bookings
+        const recentUrl = `${getApiEndpoint('bookings')}?bookingType=flight&status=confirmed&limit=5&sortBy=createdAt&sortOrder=desc`;
+        console.log('📡 Fetching confirmed bookings:', recentUrl);
+        const recentResponse = await fetch(recentUrl, { headers });
+        const recentData = await recentResponse.json();
+        console.log('✅ Confirmed bookings response:', recentData);
+        if (recentData.success) {
+          console.log('✅ Setting recent bookings:', recentData.data?.length || 0, 'items');
+          setRecentBookings(recentData.data || []);
+        }
+
+        // Fetch draft/pending flight bookings (pending_approval and approved)
+        const pendingUrl = `${getApiEndpoint('bookings')}?bookingType=flight&status=pending_approval&limit=5&sortBy=createdAt&sortOrder=desc`;
+        console.log('📡 Fetching pending bookings:', pendingUrl);
+        const [pendingResponse, approvedResponse] = await Promise.all([
+          fetch(pendingUrl, { headers }),
+          fetch(
+            `${getApiEndpoint('bookings')}?bookingType=flight&status=approved&limit=5&sortBy=createdAt&sortOrder=desc`,
+            { headers }
+          ),
+        ]);
+
+        const pendingData = await pendingResponse.json();
+        const approvedData = await approvedResponse.json();
+        console.log('✅ Pending bookings response:', pendingData);
+        console.log('✅ Approved bookings response:', approvedData);
+
+        const combined = [
+          ...(pendingData.success ? pendingData.data || [] : []),
+          ...(approvedData.success ? approvedData.data || [] : []),
+        ];
+
+        console.log('✅ Combined draft bookings:', combined.length, 'items');
+        // Sort by createdAt and take top 5
+        combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setDraftBookings(combined.slice(0, 5));
+      } catch (error) {
+        console.error('❌ Error fetching bookings:', error);
+      } finally {
+        setLoadingBookings(false);
+        console.log('✅ Loading complete');
+      }
+    };
+
+    fetchBookings();
   }, []);
 
-  // Read URL params and trigger search on mount
+  // Read URL params and trigger search on mount, or restore from sessionStorage
   useEffect(() => {
     const origin = searchParams.get('origin');
     const destination = searchParams.get('destination');
@@ -217,8 +284,19 @@ export default function FlightSearchPage() {
     const retDate = searchParams.get('returnDate');
     const adults = searchParams.get('adults');
     const directFlight = searchParams.get('directFlight');
+    const clearCache = searchParams.get('new'); // Check if we should start fresh
+    const restoreCache = searchParams.get('restore'); // Explicit flag to restore
 
+    // Clear cache if 'new' param is present OR if no explicit restore flag
+    if (clearCache === 'true' || (!restoreCache && !origin)) {
+      sessionStorage.removeItem('flightSearchResults');
+      console.log('🗑️ Cleared search cache');
+      return; // Start with empty form
+    }
+
+    // Priority 1: URL params - if present, do a new search
     if (origin && destination && depDate) {
+      console.log('🔍 Searching from URL params');
       // Set form values from URL params
       setFrom(origin);
       setTo(destination);
@@ -235,6 +313,38 @@ export default function FlightSearchPage() {
 
       // Trigger search automatically
       performSearch(origin, destination, depDate, retDate, parseInt(adults || '1'), directFlight === 'true');
+      return;
+    }
+
+    // Priority 2: Restore from cache ONLY if explicitly requested
+    if (restoreCache === 'true') {
+      const cachedSearch = sessionStorage.getItem('flightSearchResults');
+      if (cachedSearch) {
+        try {
+          const cached = JSON.parse(cachedSearch);
+          // Only use cache if less than 30 minutes old
+          const cacheAge = Date.now() - cached.timestamp;
+          if (cacheAge < 30 * 60 * 1000) {
+            console.log('✅ Restoring search from cache');
+            setFlights(cached.results);
+            setFrom(cached.params.from);
+            setTo(cached.params.to);
+            setFromDisplay(cached.params.fromDisplay);
+            setToDisplay(cached.params.toDisplay);
+            setDepartureDate(cached.params.departureDate);
+            setReturnDate(cached.params.returnDate);
+            setTripType(cached.params.tripType);
+            setPassengers(cached.params.passengers);
+            setTravelClass(cached.params.travelClass);
+          } else {
+            console.log('⏰ Cache expired');
+            sessionStorage.removeItem('flightSearchResults');
+          }
+        } catch (e) {
+          console.error('Error restoring search cache:', e);
+          sessionStorage.removeItem('flightSearchResults');
+        }
+      }
     }
   }, [searchParams]);
 
@@ -253,6 +363,7 @@ export default function FlightSearchPage() {
         nonStop: directFlight ? 'true' : 'false',
         currencyCode: 'USD',
         max: '50',
+        provider: 'duffel', // Use Duffel as primary provider
       });
 
       const response = await fetch(`${getApiEndpoint('flights/search')}?${params}`);
@@ -260,6 +371,22 @@ export default function FlightSearchPage() {
 
       if (data.success) {
         setFlights(data.data);
+        // Store search results in sessionStorage
+        sessionStorage.setItem('flightSearchResults', JSON.stringify({
+          results: data.data,
+          params: {
+            from: origin,
+            to: destination,
+            fromDisplay,
+            toDisplay,
+            departureDate: depDate,
+            returnDate: retDate,
+            tripType: retDate ? 'roundtrip' : 'oneway',
+            passengers,
+            travelClass,
+          },
+          timestamp: Date.now(),
+        }));
       } else {
         setError(data.message || 'Failed to search flights');
       }
@@ -289,13 +416,33 @@ export default function FlightSearchPage() {
         nonStop: 'false',
         currencyCode: 'USD',
         max: '50',
+        provider: 'duffel', // Use Duffel as primary provider
       });
+
+      // Update URL with search params (without navigation)
+      window.history.replaceState({}, '', `?${params}`);
 
       const response = await fetch(`${getApiEndpoint('flights/search')}?${params}`);
       const data = await response.json();
 
       if (data.success) {
         setFlights(data.data);
+        // Store search results in sessionStorage
+        sessionStorage.setItem('flightSearchResults', JSON.stringify({
+          results: data.data,
+          params: {
+            from,
+            to,
+            fromDisplay,
+            toDisplay,
+            departureDate,
+            returnDate,
+            tripType,
+            passengers,
+            travelClass,
+          },
+          timestamp: Date.now(),
+        }));
       } else {
         setError(data.message || 'Failed to search flights');
       }
@@ -317,6 +464,95 @@ export default function FlightSearchPage() {
 
   const getTotalPassengers = () => {
     return passengers.adults + passengers.children + passengers.infants;
+  };
+
+  // Helper functions to normalize flight data between Duffel and Amadeus formats
+  const getFlightSegments = (flight: any) => {
+    if (flight.outbound) {
+      // Duffel format
+      return flight.outbound;
+    } else if (flight.itineraries && flight.itineraries[0]) {
+      // Amadeus format
+      return flight.itineraries[0].segments;
+    }
+    return [];
+  };
+
+  const getAirlineCodes = (flight: any) => {
+    const segments = getFlightSegments(flight);
+    if (flight.outbound) {
+      // Duffel format - use airlineCode
+      return [...new Set(segments.map((seg: any) => seg.airlineCode))].filter(Boolean);
+    } else {
+      // Amadeus format - use carrierCode
+      return [...new Set(segments.map((seg: any) => seg.carrierCode))].filter(Boolean);
+    }
+  };
+
+  const getSegmentAirlineCode = (segment: any) => {
+    return segment.airlineCode || segment.carrierCode;
+  };
+
+  const getSegmentNumber = (segment: any) => {
+    return segment.flightNumber || segment.number;
+  };
+
+  const getSegmentDeparture = (segment: any) => {
+    if (segment.departure?.time) {
+      // Duffel format
+      return {
+        at: segment.departure.time,
+        iataCode: segment.departure.airportCode,
+        terminal: segment.departure.terminal,
+      };
+    } else if (segment.departure?.at) {
+      // Amadeus format
+      return segment.departure;
+    }
+    return { at: '', iataCode: '', terminal: '' };
+  };
+
+  const getSegmentArrival = (segment: any) => {
+    if (segment.arrival?.time) {
+      // Duffel format
+      return {
+        at: segment.arrival.time,
+        iataCode: segment.arrival.airportCode,
+        terminal: segment.arrival.terminal,
+      };
+    } else if (segment.arrival?.at) {
+      // Amadeus format
+      return segment.arrival;
+    }
+    return { at: '', iataCode: '', terminal: '' };
+  };
+
+  const getFlightDuration = (flight: any) => {
+    if (flight.outbound && flight.outbound[0]) {
+      // Duffel format - duration is on each segment
+      return flight.outbound[0].duration || '';
+    } else if (flight.itineraries && flight.itineraries[0]) {
+      // Amadeus format - duration is on itinerary
+      return flight.itineraries[0].duration || '';
+    }
+    return '';
+  };
+
+  const getFlightPrice = (flight: any) => {
+    if (flight.price) {
+      // Duffel format
+      return {
+        total: flight.price.total,
+        currency: flight.price.currency,
+      };
+    } else if (flight.price?.total) {
+      // Amadeus format
+      return {
+        total: parseFloat(flight.price.total),
+        currency: flight.price.currency,
+      };
+    }
+    return { total: 0, currency: 'USD' };
   };
 
   return (
@@ -406,6 +642,7 @@ export default function FlightSearchPage() {
                   placeholder="City or Airport"
                   label="From"
                   required
+                  initialDisplayValue={fromDisplay}
                 />
               </div>
 
@@ -431,6 +668,7 @@ export default function FlightSearchPage() {
                   placeholder="City or Airport"
                   label="To"
                   required
+                  initialDisplayValue={toDisplay}
                 />
               </div>
 
@@ -483,7 +721,7 @@ export default function FlightSearchPage() {
 
                   {/* Passenger Selector Dropdown */}
                   {showPassengerSelector && (
-                    <div className="absolute z-50 w-full md:w-96 right-0 mt-2 bg-white border border-gray-300 rounded-lg p-4 md:p-5">
+                    <div className="absolute z-[100] w-full md:w-96 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-xl p-4 md:p-5 max-h-[500px] overflow-y-auto">
                       <h3 className="text-sm font-bold text-gray-900 mb-4">Select Passengers</h3>
 
                       {/* Adults */}
@@ -709,6 +947,7 @@ export default function FlightSearchPage() {
                     placeholder="City or Airport"
                     label="From"
                     required
+                    initialDisplayValue={fromDisplay}
                   />
 
                   <button
@@ -728,6 +967,7 @@ export default function FlightSearchPage() {
                     placeholder="City or Airport"
                     label="To"
                     required
+                    initialDisplayValue={toDisplay}
                   />
                 </div>
 
@@ -831,6 +1071,191 @@ export default function FlightSearchPage() {
           </div>
         )}
 
+        {/* Draft and Recent Bookings - Show only when no search results */}
+        {(() => {
+          console.log('🎨 Render conditions:', {
+            loading,
+            flightsLength: flights.length,
+            error,
+            loadingBookings,
+            draftBookingsLength: draftBookings.length,
+            recentBookingsLength: recentBookings.length,
+            shouldShow: !loading && flights.length === 0 && !error
+          });
+          return null;
+        })()}
+        {!loading && flights.length === 0 && !error && (
+          <div className="mb-8 space-y-6">
+            {/* Draft Flights */}
+            {draftBookings.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-1 h-5 bg-[#ADF802] rounded-full"></div>
+                  <h2 className="text-lg font-bold text-gray-900">
+                    Pending Bookings
+                    <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
+                      {draftBookings.length}
+                    </span>
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {draftBookings.map((booking) => (
+                    <Link
+                      key={booking.id}
+                      href={`/dashboard/bookings/${booking.id}`}
+                      className="block bg-white rounded-lg border border-gray-200 p-4 hover:border-[#ADF802] transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                          <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded">
+                            Pending Approval
+                          </span>
+                        </div>
+                        <Plane className="w-4 h-4 text-gray-500" />
+                      </div>
+                      <div className="space-y-2">
+                        {/* Passenger Name */}
+                        {booking.passengerDetails?.[0] && (
+                          <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1 flex-wrap">
+                            <User className="w-3 h-3 flex-shrink-0" />
+                            <span className="break-words">{booking.passengerDetails[0].firstName} {booking.passengerDetails[0].lastName}</span>
+                            {booking.passengerDetails.length > 1 && (
+                              <span className="text-gray-400 flex-shrink-0">+{booking.passengerDetails.length - 1}</span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Route with City Names */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-bold text-gray-900 break-words">
+                                {booking.bookingData?.outbound?.[0]?.departure?.city || booking.bookingData?.outbound?.[0]?.departure?.airportCode || 'N/A'}
+                              </div>
+                              <div className="text-xs text-gray-500 break-words">
+                                {booking.bookingData?.outbound?.[0]?.departure?.airportCode}
+                              </div>
+                            </div>
+                            <ArrowLeftRight className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                            <div className="flex-1 text-right min-w-0">
+                              <div className="text-sm font-bold text-gray-900 break-words">
+                                {booking.bookingData?.outbound?.[booking.bookingData.outbound.length - 1]?.arrival?.city || booking.bookingData?.outbound?.[booking.bookingData.outbound.length - 1]?.arrival?.airportCode || 'N/A'}
+                              </div>
+                              <div className="text-xs text-gray-500 break-words">
+                                {booking.bookingData?.outbound?.[booking.bookingData.outbound.length - 1]?.arrival?.airportCode}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-gray-500">
+                          {new Date(booking.bookingData?.outbound?.[0]?.departure?.time || booking.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </div>
+                        <div className="text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
+                          {booking.currency} {parseFloat(booking.totalPrice)?.toFixed(2)}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recent Bookings */}
+            {recentBookings.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+                  <h2 className="text-lg font-bold text-gray-900">
+                    Recent Bookings
+                    <span className="inline-block ml-2 px-2 py-0.5 bg-gray-100 rounded text-xs font-bold text-gray-900">
+                      {recentBookings.length}
+                    </span>
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {recentBookings.map((booking) => (
+                    <Link
+                      key={booking.id}
+                      href={`/dashboard/bookings/${booking.id}`}
+                      className="block bg-white rounded-lg border border-gray-200 p-4 hover:border-gray-900 transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                          <span className="text-xs font-semibold text-green-700 bg-green-50 px-2 py-1 rounded">
+                            Confirmed
+                          </span>
+                        </div>
+                        <Plane className="w-4 h-4 text-gray-500" />
+                      </div>
+                      <div className="space-y-2">
+                        {/* Passenger Name */}
+                        {booking.passengerDetails?.[0] && (
+                          <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1 flex-wrap">
+                            <User className="w-3 h-3 flex-shrink-0" />
+                            <span className="break-words">{booking.passengerDetails[0].firstName} {booking.passengerDetails[0].lastName}</span>
+                            {booking.passengerDetails.length > 1 && (
+                              <span className="text-gray-400 flex-shrink-0">+{booking.passengerDetails.length - 1}</span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Route with City Names */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-bold text-gray-900 break-words">
+                                {booking.bookingData?.outbound?.[0]?.departure?.city || booking.bookingData?.outbound?.[0]?.departure?.airportCode || 'N/A'}
+                              </div>
+                              <div className="text-xs text-gray-500 break-words">
+                                {booking.bookingData?.outbound?.[0]?.departure?.airportCode}
+                              </div>
+                            </div>
+                            <ArrowLeftRight className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                            <div className="flex-1 text-right min-w-0">
+                              <div className="text-sm font-bold text-gray-900 break-words">
+                                {booking.bookingData?.outbound?.[booking.bookingData.outbound.length - 1]?.arrival?.city || booking.bookingData?.outbound?.[booking.bookingData.outbound.length - 1]?.arrival?.airportCode || 'N/A'}
+                              </div>
+                              <div className="text-xs text-gray-500 break-words">
+                                {booking.bookingData?.outbound?.[booking.bookingData.outbound.length - 1]?.arrival?.airportCode}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-gray-500">
+                          {new Date(booking.bookingData?.outbound?.[0]?.departure?.time || booking.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </div>
+                        <div className="text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
+                          {booking.currency} {parseFloat(booking.totalPrice)?.toFixed(2)}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!loadingBookings && draftBookings.length === 0 && recentBookings.length === 0 && (
+              <div className="text-center py-12">
+                <Plane className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No recent or pending flight bookings</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Error Message */}
         {error && (
           <div className="mb-8 p-4 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
@@ -849,26 +1274,55 @@ export default function FlightSearchPage() {
                   Available Flights
                   <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
                     {flights.filter(f => {
-                      if (selectedAirline === 'all') return true;
-                      const airlines = [...new Set(f.itineraries[0].segments.map((seg: any) => seg.carrierCode))];
-                      return airlines.includes(selectedAirline);
+                      // Filter by airline
+                      if (selectedAirline !== 'all') {
+                        const airlines = getAirlineCodes(f);
+                        if (!airlines.includes(selectedAirline)) return false;
+                      }
+                      // Filter by cabin class
+                      if (selectedCabinClass !== 'all') {
+                        const cabinClass = f.cabinClass || f.cabin || 'ECONOMY';
+                        if (cabinClass !== selectedCabinClass) return false;
+                      }
+                      return true;
                     }).length}
                   </span>
                 </h2>
               </div>
 
-              {/* Airline Filter */}
-              <div className="flex items-center gap-2 md:gap-3">
+              {/* Filters */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3">
                 <label className="text-xs font-semibold text-gray-700">Filter:</label>
+
+                {/* Cabin Class Filter */}
+                <select
+                  value={selectedCabinClass}
+                  onChange={(e) => setSelectedCabinClass(e.target.value)}
+                  className="w-full sm:w-auto px-3 md:px-4 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
+                >
+                  <option value="all">All Classes</option>
+                  <option value="ECONOMY">Economy</option>
+                  <option value="PREMIUM_ECONOMY">Premium Economy</option>
+                  <option value="BUSINESS">Business</option>
+                  <option value="FIRST">First Class</option>
+                </select>
+
+                {/* Airline Filter */}
                 <select
                   value={selectedAirline}
                   onChange={(e) => setSelectedAirline(e.target.value)}
-                  className="flex-1 md:flex-none px-3 md:px-4 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
+                  className="w-full sm:w-auto px-3 md:px-4 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
                 >
                   <option value="all">All Airlines</option>
-                  {[...new Set(flights.flatMap(f =>
-                    f.itineraries[0].segments.map((seg: any) => seg.carrierCode)
-                  ))].sort().map(code => (
+                  {[...new Set(flights.flatMap(f => {
+                    // Handle both Duffel (outbound/inbound) and Amadeus (itineraries) formats
+                    if (f.outbound) {
+                      return [...f.outbound, ...(f.inbound || [])].map((seg: any) => seg.airlineCode);
+                    } else if (f.itineraries) {
+                      return f.itineraries[0].segments.map((seg: any) => seg.carrierCode);
+                    }
+                    return [];
+                  }))].sort().map(code => (
                     <option key={code} value={code}>
                       {AIRLINE_NAMES[code] || code} ({code})
                     </option>
@@ -878,27 +1332,37 @@ export default function FlightSearchPage() {
             </div>
 
             {flights.filter(f => {
-              if (selectedAirline === 'all') return true;
-              const airlines = [...new Set(f.itineraries[0].segments.map((seg: any) => seg.carrierCode))];
-              return airlines.includes(selectedAirline);
+              // Filter by airline
+              if (selectedAirline !== 'all') {
+                const airlines = getAirlineCodes(f);
+                if (!airlines.includes(selectedAirline)) return false;
+              }
+              // Filter by cabin class
+              if (selectedCabinClass !== 'all') {
+                const cabinClass = f.cabinClass || f.cabin || 'ECONOMY';
+                if (cabinClass !== selectedCabinClass) return false;
+              }
+              return true;
             }).map((flight, index) => {
-              const outbound = flight.itineraries[0];
-              const firstSegment = outbound.segments[0];
-              const lastSegment = outbound.segments[outbound.segments.length - 1];
-              const departureTime = new Date(firstSegment.departure.at).toLocaleTimeString('en-US', {
+              const segments = getFlightSegments(flight);
+              const firstSegment = segments[0];
+              const lastSegment = segments[segments.length - 1];
+              const departure = getSegmentDeparture(firstSegment);
+              const arrival = getSegmentArrival(lastSegment);
+              const departureTime = new Date(departure.at).toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
               });
-              const arrivalTime = new Date(lastSegment.arrival.at).toLocaleTimeString('en-US', {
+              const arrivalTime = new Date(arrival.at).toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
               });
 
-              const duration = outbound.duration.replace('PT', '').toLowerCase();
-              const stops = outbound.segments.length - 1;
+              const duration = getFlightDuration(flight).replace('PT', '').toLowerCase();
+              const stops = segments.length - 1;
 
               // Get unique airlines
-              const airlines = [...new Set(outbound.segments.map((seg: any) => seg.carrierCode))].filter(Boolean) as string[];
+              const airlines = getAirlineCodes(flight);
               const airlineNames = airlines.join(', ');
 
               return (
@@ -912,8 +1376,8 @@ export default function FlightSearchPage() {
                       <div className="flex-shrink-0 text-center">
                         <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden mb-1 md:mb-2">
                           <img
-                            src={getAirlineLogo(firstSegment.carrierCode)}
-                            alt={AIRLINE_NAMES[firstSegment.carrierCode] || firstSegment.carrierCode}
+                            src={getAirlineLogo(getSegmentAirlineCode(firstSegment))}
+                            alt={AIRLINE_NAMES[getSegmentAirlineCode(firstSegment)] || getSegmentAirlineCode(firstSegment)}
                             className="w-full h-full object-contain p-2"
                             onError={(e) => {
                               // Fallback to plane icon if logo fails to load
@@ -923,8 +1387,8 @@ export default function FlightSearchPage() {
                           />
                           <Plane className="w-6 h-6 md:w-8 md:h-8 text-gray-600 hidden" />
                         </div>
-                        <div className="text-xs font-bold text-gray-900">{firstSegment.carrierCode}</div>
-                        <div className="text-[10px] text-gray-500">{firstSegment.number}</div>
+                        <div className="text-xs font-bold text-gray-900">{getSegmentAirlineCode(firstSegment)}</div>
+                        <div className="text-[10px] text-gray-500">{getSegmentNumber(firstSegment)}</div>
                       </div>
 
                       {/* Flight Details */}
@@ -956,10 +1420,10 @@ export default function FlightSearchPage() {
                               {departureTime}
                             </div>
                             <div className="text-xs font-semibold text-gray-900">
-                              {firstSegment.departure.iataCode}
+                              {departure.iataCode}
                             </div>
                             <div className="text-[10px] text-gray-500 mt-0.5">
-                              {AIRPORT_CITY_NAMES[firstSegment.departure.iataCode] || firstSegment.departure.cityName || firstSegment.departure.iataCode}
+                              {AIRPORT_CITY_NAMES[departure.iataCode] || departure.iataCode}
                             </div>
                           </div>
 
@@ -983,10 +1447,10 @@ export default function FlightSearchPage() {
                               {arrivalTime}
                             </div>
                             <div className="text-xs font-semibold text-gray-900">
-                              {lastSegment.arrival.iataCode}
+                              {arrival.iataCode}
                             </div>
                             <div className="text-[10px] text-gray-500 mt-0.5">
-                              {AIRPORT_CITY_NAMES[lastSegment.arrival.iataCode] || lastSegment.arrival.cityName || lastSegment.arrival.iataCode}
+                              {AIRPORT_CITY_NAMES[arrival.iataCode] || arrival.iataCode}
                             </div>
                           </div>
                         </div>
@@ -1003,10 +1467,12 @@ export default function FlightSearchPage() {
                                   Layover{stops > 1 ? 's' : ''}: {stops} Stop{stops > 1 ? 's' : ''}
                                 </div>
                                 <div className="flex flex-wrap gap-1.5 md:gap-2">
-                                  {outbound.segments.slice(0, -1).map((segment: any, segIndex: number) => {
-                                    const nextSegment = outbound.segments[segIndex + 1];
-                                    const layoverStart = new Date(segment.arrival.at);
-                                    const layoverEnd = new Date(nextSegment.departure.at);
+                                  {segments.slice(0, -1).map((segment: any, segIndex: number) => {
+                                    const nextSegment = segments[segIndex + 1];
+                                    const segArrival = getSegmentArrival(segment);
+                                    const nextSegDeparture = getSegmentDeparture(nextSegment);
+                                    const layoverStart = new Date(segArrival.at);
+                                    const layoverEnd = new Date(nextSegDeparture.at);
                                     const layoverMinutes = Math.floor((layoverEnd.getTime() - layoverStart.getTime()) / 60000);
                                     const layoverHours = Math.floor(layoverMinutes / 60);
                                     const layoverMins = layoverMinutes % 60;
@@ -1016,14 +1482,14 @@ export default function FlightSearchPage() {
                                         <div className="flex items-center gap-1 md:gap-1.5">
                                           <MapPin className="w-2.5 h-2.5 text-gray-600" />
                                           <span className="text-[10px] font-bold text-gray-900">
-                                            {segment.arrival.iataCode}
+                                            {segArrival.iataCode}
                                           </span>
                                           <span className="text-[10px] text-gray-700 font-medium">
                                             {layoverHours > 0 && `${layoverHours}h `}{layoverMins}m
                                           </span>
                                         </div>
                                         <div className="text-[9px] text-gray-600 pl-4 md:pl-5">
-                                          {AIRPORT_CITY_NAMES[segment.arrival.iataCode] || segment.arrival.cityName || segment.arrival.iataCode}
+                                          {AIRPORT_CITY_NAMES[segArrival.iataCode] || segArrival.iataCode}
                                         </div>
                                       </div>
                                     );
@@ -1048,8 +1514,8 @@ export default function FlightSearchPage() {
                             Total Price
                           </div>
                           <div className="text-lg md:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">
-                            {flight.price.currency}{' '}
-                            {parseFloat(flight.price.total).toLocaleString('en-US', {
+                            {getFlightPrice(flight).currency}{' '}
+                            {getFlightPrice(flight).total.toLocaleString('en-US', {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             })}

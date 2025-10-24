@@ -556,7 +556,7 @@ export default function BookingsPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg">
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
               <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                   <div key={day} className="p-2 md:p-3 text-center text-xs md:text-sm font-semibold text-gray-700">
@@ -624,7 +624,7 @@ export default function BookingsPage() {
           </div>
         ) : (
           /* Table View */
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg">
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">

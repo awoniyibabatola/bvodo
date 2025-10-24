@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import PassengerDetailsModal from '@/components/PassengerDetailsModal';
+import SeatSelection from '@/components/SeatSelection';
+import BaggageSelection from '@/components/BaggageSelection';
 import { getApiEndpoint } from '@/lib/api-config';
 
 // Airline names mapping
@@ -100,8 +102,17 @@ export default function FlightDetailsPage() {
   const [flight, setFlight] = useState<any>(null);
   const [expandedSegments, setExpandedSegments] = useState<{ [key: number]: boolean }>({});
 
-  // Group booking modal state
+  // Multi-step booking modal state
   const [showPassengerModal, setShowPassengerModal] = useState(false);
+  const [showSeatSelection, setShowSeatSelection] = useState(false);
+  const [showBaggageSelection, setShowBaggageSelection] = useState(false);
+
+  // Collected booking data across steps
+  const [collectedPassengers, setCollectedPassengers] = useState<any[]>([]);
+  const [collectedSeats, setCollectedSeats] = useState<any[]>([]);
+  const [collectedBaggage, setCollectedBaggage] = useState<any[]>([]);
+  const [isGroupBooking, setIsGroupBooking] = useState(false);
+  const [groupName, setGroupName] = useState<string | undefined>();
 
   useEffect(() => {
     if (flightDataParam) {
@@ -133,14 +144,157 @@ export default function FlightDetailsPage() {
     };
   };
 
+  // Helper functions to normalize flight data between Duffel and Amadeus formats
+  const getItineraries = (flight: any) => {
+    if (flight.outbound) {
+      // Duffel format - convert to itinerary-like structure
+      const itineraries = [
+        {
+          segments: flight.outbound,
+          duration: flight.outbound[0]?.duration || '',
+        },
+      ];
+      if (flight.inbound) {
+        itineraries.push({
+          segments: flight.inbound,
+          duration: flight.inbound[0]?.duration || '',
+        });
+      }
+      return itineraries;
+    } else if (flight.itineraries) {
+      // Amadeus format
+      return flight.itineraries;
+    }
+    return [];
+  };
+
+  const getSegmentAirlineCode = (segment: any) => {
+    return segment.airlineCode || segment.carrierCode;
+  };
+
+  const getSegmentNumber = (segment: any) => {
+    return segment.flightNumber || segment.number;
+  };
+
+  const getSegmentDeparture = (segment: any) => {
+    if (segment.departure?.time) {
+      // Duffel format
+      return {
+        at: segment.departure.time,
+        iataCode: segment.departure.airportCode,
+        terminal: segment.departure.terminal,
+      };
+    } else if (segment.departure?.at) {
+      // Amadeus format
+      return segment.departure;
+    }
+    return { at: '', iataCode: '', terminal: '' };
+  };
+
+  const getSegmentArrival = (segment: any) => {
+    if (segment.arrival?.time) {
+      // Duffel format
+      return {
+        at: segment.arrival.time,
+        iataCode: segment.arrival.airportCode,
+        terminal: segment.arrival.terminal,
+      };
+    } else if (segment.arrival?.at) {
+      // Amadeus format
+      return segment.arrival;
+    }
+    return { at: '', iataCode: '', terminal: '' };
+  };
+
+  const getFlightPrice = (flight: any) => {
+    if (flight.price) {
+      return {
+        base: flight.price.base || flight.price.total,
+        total: flight.price.total,
+        currency: flight.price.currency,
+      };
+    }
+    return { base: 0, total: 0, currency: 'USD' };
+  };
+
+  const getTravelerPricings = (flight: any) => {
+    // Duffel doesn't have travelerPricings, return a default structure
+    if (flight.travelerPricings) {
+      return flight.travelerPricings;
+    }
+    // Return a single traveler for Duffel
+    return [{ travelerType: 'ADULT' }];
+  };
+
   const handleContinueToBook = () => {
     setShowPassengerModal(true);
   };
 
+  // Step 1: Passenger details collected
   const handlePassengerDetailsSubmit = async (
     passengers: any[],
     isGroupBooking: boolean,
     groupName?: string
+  ) => {
+    // Store passenger data
+    setCollectedPassengers(passengers);
+    setIsGroupBooking(isGroupBooking);
+    setGroupName(groupName);
+
+    // Close passenger modal
+    setShowPassengerModal(false);
+
+    // Move to Step 2: Seat Selection
+    // Check if provider supports seat maps (only Duffel does)
+    if (flight.provider === 'duffel') {
+      setShowSeatSelection(true);
+    } else {
+      // Skip to baggage for providers that don't support seat maps
+      setShowBaggageSelection(true);
+    }
+  };
+
+  // Step 2: Seats collected (or skipped)
+  const handleSeatSelectionConfirm = (selectedSeats: any[]) => {
+    setCollectedSeats(selectedSeats);
+    setShowSeatSelection(false);
+
+    // Move to Step 3: Baggage Selection
+    setShowBaggageSelection(true);
+  };
+
+  // Step 2 Alternative: User skips seat selection
+  const handleSkipSeats = () => {
+    setCollectedSeats([]);
+    setShowSeatSelection(false);
+
+    // Move to Step 3: Baggage Selection
+    setShowBaggageSelection(true);
+  };
+
+  // Step 3: Baggage collected (or skipped) - Final step, submit booking
+  const handleBaggageSelectionConfirm = async (selectedBaggage: any[]) => {
+    setCollectedBaggage(selectedBaggage);
+    setShowBaggageSelection(false);
+
+    // Now submit the complete booking with all collected data
+    await submitCompleteBooking(collectedPassengers, collectedSeats, selectedBaggage);
+  };
+
+  // Step 3 Alternative: User skips baggage
+  const handleSkipBaggage = async () => {
+    setCollectedBaggage([]);
+    setShowBaggageSelection(false);
+
+    // Submit booking without baggage
+    await submitCompleteBooking(collectedPassengers, collectedSeats, []);
+  };
+
+  // Final submission with all collected data
+  const submitCompleteBooking = async (
+    passengers: any[],
+    seats: any[],
+    baggage: any[]
   ) => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -151,9 +305,47 @@ export default function FlightDetailsPage() {
         return;
       }
 
-      const firstSegment = flight.itineraries[0].segments[0];
-      const lastSegment = flight.itineraries[0].segments[flight.itineraries[0].segments.length - 1];
-      const returnSegment = flight.itineraries[1]?.segments[0];
+      const itineraries = getItineraries(flight);
+      const firstSegment = itineraries[0].segments[0];
+      const lastSegment = itineraries[0].segments[itineraries[0].segments.length - 1];
+      const returnSegment = itineraries[1]?.segments[0];
+
+      const firstDeparture = getSegmentDeparture(firstSegment);
+      const lastArrival = getSegmentArrival(lastSegment);
+      const returnDeparture = returnSegment ? getSegmentDeparture(returnSegment) : null;
+      const returnLastSegment = itineraries[1] ? itineraries[1].segments[itineraries[1].segments.length - 1] : null;
+      const returnArrival = returnLastSegment ? getSegmentArrival(returnLastSegment) : null;
+
+      const airlineCode = getSegmentAirlineCode(firstSegment);
+      const flightNumber = getSegmentNumber(firstSegment);
+      const returnFlightNumber = returnSegment ? getSegmentNumber(returnSegment) : null;
+
+      const price = getFlightPrice(flight);
+      const travelerPricings = getTravelerPricings(flight);
+
+      // Build services array from seats and baggage (Duffel format)
+      const services: Array<{ id: string; quantity: number }> = [];
+
+      // Add seat services (each seat is quantity 1)
+      seats.forEach((seat) => {
+        services.push({
+          id: seat.serviceId,
+          quantity: 1,
+        });
+      });
+
+      // Add baggage services (can be quantity > 1)
+      baggage.forEach((bag) => {
+        services.push({
+          id: bag.serviceId,
+          quantity: bag.quantity,
+        });
+      });
+
+      // Calculate additional services cost
+      const seatsCost = seats.reduce((sum, seat) => sum + (seat.price?.amount || 0), 0);
+      const baggageCost = baggage.reduce((sum, bag) => sum + (bag.totalPrice || 0), 0);
+      const servicesCost = seatsCost + baggageCost;
 
       const bookingData = {
         bookingType: 'flight',
@@ -161,41 +353,83 @@ export default function FlightDetailsPage() {
         numberOfTravelers: passengers.length,
         groupName: isGroupBooking ? groupName : undefined,
 
+        // Provider details - needed for Duffel order creation on approval
+        provider: 'duffel',                  // Provider type (duffel, amadeus)
+        providerName: 'duffel',              // Provider display name
+        providerBookingReference: flight.id, // Duffel offer ID
+
         // Trip details
-        origin: firstSegment.departure.iataCode,
-        destination: lastSegment.arrival.iataCode,
-        departureDate: firstSegment.departure.at,
-        returnDate: returnSegment?.departure.at || null,
+        origin: firstDeparture.iataCode,
+        destination: lastArrival.iataCode,
+        departureDate: firstDeparture.at,
+        returnDate: returnDeparture?.at || null,
         passengers: passengers.length,
         passengerDetails: passengers,
 
-        // Pricing
-        basePrice: parseFloat(flight.price.base),
-        taxesFees: parseFloat(flight.price.total) - parseFloat(flight.price.base),
-        totalPrice: parseFloat(flight.price.total),
-        currency: flight.price.currency,
+        // Pricing (include services in total)
+        basePrice: parseFloat(price.base.toString()),
+        taxesFees: parseFloat(price.total.toString()) - parseFloat(price.base.toString()),
+        totalPrice: parseFloat(price.total.toString()) + servicesCost,
+        currency: price.currency,
+
+        // Services (seats & baggage) - NEW!
+        services: services.length > 0 ? services : undefined,
 
         // Flight specific details
         flightDetails: {
-          airline: AIRLINE_NAMES[firstSegment.carrierCode] || firstSegment.carrierCode,
-          airlineCode: firstSegment.carrierCode,
-          flightNumber: firstSegment.number,
-          departureAirport: firstSegment.departure.iataCode,
-          departureAirportCode: firstSegment.departure.iataCode,
-          arrivalAirport: lastSegment.arrival.iataCode,
-          arrivalAirportCode: lastSegment.arrival.iataCode,
-          departureTime: firstSegment.departure.at,
-          arrivalTime: lastSegment.arrival.at,
-          cabinClass: flight.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || 'ECONOMY',
-          numberOfStops: flight.itineraries[0].segments.length - 1,
-          duration: flight.itineraries[0].duration,
-          baggageAllowance: flight.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.includedCheckedBags?.quantity || 0,
-          isRoundTrip: flight.itineraries.length > 1,
-          returnFlightNumber: returnSegment?.number || null,
-          returnDepartureTime: returnSegment?.departure.at || null,
-          returnArrivalTime: returnSegment ? flight.itineraries[1].segments[flight.itineraries[1].segments.length - 1].arrival.at : null,
+          airline: AIRLINE_NAMES[airlineCode] || airlineCode,
+          airlineCode: airlineCode,
+          flightNumber: flightNumber,
+          departureAirport: firstDeparture.iataCode,
+          departureAirportCode: firstDeparture.iataCode,
+          arrivalAirport: lastArrival.iataCode,
+          arrivalAirportCode: lastArrival.iataCode,
+          departureTime: firstDeparture.at,
+          arrivalTime: lastArrival.at,
+          cabinClass: travelerPricings[0]?.fareDetailsBySegment?.[0]?.cabin || firstSegment.cabinClass || 'ECONOMY',
+          numberOfStops: itineraries[0].segments.length - 1,
+          duration: itineraries[0].duration,
+          baggageAllowance: travelerPricings[0]?.fareDetailsBySegment?.[0]?.includedCheckedBags?.quantity || 0,
+          isRoundTrip: itineraries.length > 1,
+          returnFlightNumber: returnFlightNumber || null,
+          returnDepartureTime: returnDeparture?.at || null,
+          returnArrivalTime: returnArrival?.at || null,
+        },
+
+        // Store raw flight data AND seat/baggage selections for display and processing later
+        bookingData: {
+          ...flight,
+          // Add seat and baggage selections to bookingData
+          seatsSelected: seats?.length > 0 ? seats.map(seat => ({
+            passengerId: seat.passengerId,
+            passengerName: seat.passengerName,
+            segmentId: seat.segmentId,
+            seatDesignator: seat.seatDesignator,
+            serviceId: seat.serviceId,
+            price: seat.price
+          })) : undefined,
+          baggageSelected: baggage?.length > 0 ? baggage.map(bag => ({
+            serviceId: bag.serviceId,
+            description: bag.description,
+            quantity: bag.quantity,
+            price: bag.price,
+            totalPrice: bag.totalPrice
+          })) : undefined,
         },
       };
+
+      console.log('=== BOOKING SUBMISSION ===');
+      console.log('Passengers:', passengers.length);
+      console.log('Seats selected:', seats.length);
+      console.log('Seats data:', seats);
+      console.log('Baggage items:', baggage.length);
+      console.log('Baggage data:', baggage);
+      console.log('Services array:', services);
+      console.log('seatsSelected in bookingData:', bookingData.bookingData.seatsSelected);
+      console.log('baggageSelected in bookingData:', bookingData.bookingData.baggageSelected);
+      console.log('Total price (including services):', bookingData.totalPrice);
+      console.log('Services cost:', servicesCost);
+      console.log('=========================');
 
       const response = await fetch(getApiEndpoint('bookings'), {
         method: 'POST',
@@ -208,7 +442,6 @@ export default function FlightDetailsPage() {
 
       if (response.ok) {
         const result = await response.json();
-        setShowPassengerModal(false);
         alert('Booking created successfully!');
         router.push(`/dashboard/bookings/${result.data.id}`);
       } else {
@@ -239,7 +472,7 @@ export default function FlightDetailsPage() {
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="flex items-center gap-4 h-16">
             <Link
-              href="/dashboard/flights/search"
+              href="/dashboard/flights/search?restore=true"
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -259,11 +492,13 @@ export default function FlightDetailsPage() {
               <h1 className="text-base font-bold text-gray-900 mb-4">Flight Details</h1>
 
               {/* Itineraries */}
-              {flight.itineraries.map((itinerary: any, itinIndex: number) => {
+              {getItineraries(flight).map((itinerary: any, itinIndex: number) => {
                 const firstSegment = itinerary.segments[0];
                 const lastSegment = itinerary.segments[itinerary.segments.length - 1];
-                const departureInfo = formatDateTime(firstSegment.departure.at);
-                const arrivalInfo = formatDateTime(lastSegment.arrival.at);
+                const firstDeparture = getSegmentDeparture(firstSegment);
+                const lastArrival = getSegmentArrival(lastSegment);
+                const departureInfo = formatDateTime(firstDeparture.at);
+                const arrivalInfo = formatDateTime(lastArrival.at);
 
                 return (
                   <div key={itinIndex} className="mb-6 last:mb-0">
@@ -282,10 +517,10 @@ export default function FlightDetailsPage() {
                             {departureInfo.time}
                           </div>
                           <div className="text-xs font-semibold text-gray-900">
-                            {AIRPORT_NAMES[firstSegment.departure.iataCode]?.city || firstSegment.departure.iataCode}
+                            {AIRPORT_NAMES[firstDeparture.iataCode]?.city || firstDeparture.iataCode}
                           </div>
                           <div className="text-[10px] text-gray-600 mt-0.5">
-                            {AIRPORT_NAMES[firstSegment.departure.iataCode]?.airport || firstSegment.departure.iataCode}
+                            {AIRPORT_NAMES[firstDeparture.iataCode]?.airport || firstDeparture.iataCode}
                           </div>
                           <div className="text-[10px] text-gray-500 mt-0.5">{departureInfo.date}</div>
                         </div>
@@ -309,10 +544,10 @@ export default function FlightDetailsPage() {
                             {arrivalInfo.time}
                           </div>
                           <div className="text-xs font-semibold text-gray-900">
-                            {AIRPORT_NAMES[lastSegment.arrival.iataCode]?.city || lastSegment.arrival.iataCode}
+                            {AIRPORT_NAMES[lastArrival.iataCode]?.city || lastArrival.iataCode}
                           </div>
                           <div className="text-[10px] text-gray-600 mt-0.5">
-                            {AIRPORT_NAMES[lastSegment.arrival.iataCode]?.airport || lastSegment.arrival.iataCode}
+                            {AIRPORT_NAMES[lastArrival.iataCode]?.airport || lastArrival.iataCode}
                           </div>
                           <div className="text-[10px] text-gray-500 mt-0.5">{arrivalInfo.date}</div>
                         </div>
@@ -321,8 +556,12 @@ export default function FlightDetailsPage() {
 
                     {/* Segment Details */}
                     {itinerary.segments.map((segment: any, segIndex: number) => {
-                      const segDeparture = formatDateTime(segment.departure.at);
-                      const segArrival = formatDateTime(segment.arrival.at);
+                      const segmentDeparture = getSegmentDeparture(segment);
+                      const segmentArrival = getSegmentArrival(segment);
+                      const segDeparture = formatDateTime(segmentDeparture.at);
+                      const segArrival = formatDateTime(segmentArrival.at);
+                      const airlineCode = getSegmentAirlineCode(segment);
+                      const flightNumber = getSegmentNumber(segment);
                       const isExpanded = expandedSegments[itinIndex * 100 + segIndex];
 
                       return (
@@ -336,8 +575,8 @@ export default function FlightDetailsPage() {
                                 {/* Airline Logo */}
                                 <div className="w-10 h-10 bg-white rounded flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
                                   <img
-                                    src={getAirlineLogo(segment.carrierCode)}
-                                    alt={AIRLINE_NAMES[segment.carrierCode] || segment.carrierCode}
+                                    src={getAirlineLogo(airlineCode)}
+                                    alt={AIRLINE_NAMES[airlineCode] || airlineCode}
                                     className="w-full h-full object-contain p-1"
                                     onError={(e) => {
                                       e.currentTarget.style.display = 'none';
@@ -348,24 +587,24 @@ export default function FlightDetailsPage() {
                                 </div>
                                 <div className="flex-1">
                                   <div className="font-bold text-gray-900 text-sm">
-                                    {AIRLINE_NAMES[segment.carrierCode] || segment.carrierCode}
+                                    {AIRLINE_NAMES[airlineCode] || airlineCode}
                                   </div>
                                   <div className="text-[10px] text-gray-600">
-                                    {segment.carrierCode} {segment.number} • {AIRPORT_NAMES[segment.departure.iataCode]?.city || segment.departure.iataCode} → {AIRPORT_NAMES[segment.arrival.iataCode]?.city || segment.arrival.iataCode}
+                                    {airlineCode} {flightNumber} • {AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode} → {AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
                                   </div>
                                 </div>
                                 {/* Flight Times - Visible when collapsed */}
                                 {!isExpanded && (
                                   <div className="flex items-start gap-4 mr-2">
                                     <div className="text-center">
-                                      <div className="text-base font-bold text-gray-900">{segment.departure.iataCode}</div>
+                                      <div className="text-base font-bold text-gray-900">{segmentDeparture.iataCode}</div>
                                       <div className="text-xs font-semibold text-gray-700">{segDeparture.time}</div>
                                       <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
                                       <div className="text-[10px] text-gray-600 font-medium mt-0.5">
-                                        {AIRPORT_NAMES[segment.departure.iataCode]?.city || segment.departure.iataCode}
+                                        {AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}
                                       </div>
                                       <div className="text-[9px] text-gray-500">
-                                        {AIRPORT_NAMES[segment.departure.iataCode]?.airport || ''}
+                                        {AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || ''}
                                       </div>
                                     </div>
                                     <div className="flex flex-col items-center pt-6">
@@ -373,14 +612,14 @@ export default function FlightDetailsPage() {
                                       <div className="text-[10px] text-gray-600 font-medium mt-1">{formatDuration(segment.duration)}</div>
                                     </div>
                                     <div className="text-center">
-                                      <div className="text-base font-bold text-gray-900">{segment.arrival.iataCode}</div>
+                                      <div className="text-base font-bold text-gray-900">{segmentArrival.iataCode}</div>
                                       <div className="text-xs font-semibold text-gray-700">{segArrival.time}</div>
                                       <div className="text-[10px] text-gray-500">{segArrival.date}</div>
                                       <div className="text-[10px] text-gray-600 font-medium mt-0.5">
-                                        {AIRPORT_NAMES[segment.arrival.iataCode]?.city || segment.arrival.iataCode}
+                                        {AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
                                       </div>
                                       <div className="text-[9px] text-gray-500">
-                                        {AIRPORT_NAMES[segment.arrival.iataCode]?.airport || ''}
+                                        {AIRPORT_NAMES[segmentArrival.iataCode]?.airport || ''}
                                       </div>
                                     </div>
                                   </div>
@@ -401,8 +640,8 @@ export default function FlightDetailsPage() {
                                     <div className="font-semibold text-gray-900 text-sm">
                                       {segDeparture.time}
                                     </div>
-                                    <div className="text-xs font-semibold text-gray-700">{AIRPORT_NAMES[segment.departure.iataCode]?.city || segment.departure.iataCode}</div>
-                                    <div className="text-[10px] text-gray-600">{AIRPORT_NAMES[segment.departure.iataCode]?.airport || segment.departure.iataCode}</div>
+                                    <div className="text-xs font-semibold text-gray-700">{AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}</div>
+                                    <div className="text-[10px] text-gray-600">{AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || segmentDeparture.iataCode}</div>
                                     <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
                                   </div>
                                   <div>
@@ -410,8 +649,8 @@ export default function FlightDetailsPage() {
                                     <div className="font-semibold text-gray-900 text-sm">
                                       {segArrival.time}
                                     </div>
-                                    <div className="text-xs font-semibold text-gray-700">{AIRPORT_NAMES[segment.arrival.iataCode]?.city || segment.arrival.iataCode}</div>
-                                    <div className="text-[10px] text-gray-600">{AIRPORT_NAMES[segment.arrival.iataCode]?.airport || segment.arrival.iataCode}</div>
+                                    <div className="text-xs font-semibold text-gray-700">{AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}</div>
+                                    <div className="text-[10px] text-gray-600">{AIRPORT_NAMES[segmentArrival.iataCode]?.airport || segmentArrival.iataCode}</div>
                                     <div className="text-[10px] text-gray-500">{segArrival.date}</div>
                                   </div>
                                 </div>
@@ -423,8 +662,8 @@ export default function FlightDetailsPage() {
                                   <div className="flex items-center gap-1">
                                     <Briefcase className="w-3 h-3" />
                                     <span>
-                                      {flight.travelerPricings?.[0]?.fareDetailsBySegment?.[segIndex]
-                                        ?.cabin || 'Economy'}
+                                      {getTravelerPricings(flight)[0]?.fareDetailsBySegment?.[segIndex]
+                                        ?.cabin || segment.cabinClass || 'Economy'}
                                     </span>
                                   </div>
                                 </div>
@@ -435,8 +674,9 @@ export default function FlightDetailsPage() {
                           {/* Layover Notice */}
                           {segIndex < itinerary.segments.length - 1 && (() => {
                             const nextSegment = itinerary.segments[segIndex + 1];
-                            const layoverStart = new Date(segment.arrival.at);
-                            const layoverEnd = new Date(nextSegment.departure.at);
+                            const nextSegmentDeparture = getSegmentDeparture(nextSegment);
+                            const layoverStart = new Date(segmentArrival.at);
+                            const layoverEnd = new Date(nextSegmentDeparture.at);
                             const layoverMinutes = Math.floor((layoverEnd.getTime() - layoverStart.getTime()) / (1000 * 60));
                             const layoverHours = Math.floor(layoverMinutes / 60);
                             const layoverMins = layoverMinutes % 60;
@@ -445,7 +685,7 @@ export default function FlightDetailsPage() {
                               <div className="flex items-center justify-center py-2">
                                 <div className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-[10px] text-gray-700">
                                   <Clock className="w-3 h-3 inline mr-1" />
-                                  Layover at {AIRPORT_NAMES[segment.arrival.iataCode]?.city || segment.arrival.iataCode} • {layoverHours}h {layoverMins}m
+                                  Layover at {AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode} • {layoverHours}h {layoverMins}m
                                 </div>
                               </div>
                             );
@@ -463,28 +703,36 @@ export default function FlightDetailsPage() {
               <h2 className="text-sm font-bold text-gray-900 mb-3">Baggage & Policies</h2>
 
               <div className="space-y-2">
-                {flight.travelerPricings?.[0]?.fareDetailsBySegment?.map(
-                  (fareDetail: any, index: number) => (
-                    <div
-                      key={index}
-                      className="p-2 bg-gray-50 rounded border border-gray-200"
-                    >
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <Luggage className="w-3 h-3 text-gray-700" />
-                        <span className="font-semibold text-gray-900 text-xs">Segment {index + 1}</span>
+                {getTravelerPricings(flight)[0]?.fareDetailsBySegment ? (
+                  getTravelerPricings(flight)[0].fareDetailsBySegment.map(
+                    (fareDetail: any, index: number) => (
+                      <div
+                        key={index}
+                        className="p-2 bg-gray-50 rounded border border-gray-200"
+                      >
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Luggage className="w-3 h-3 text-gray-700" />
+                          <span className="font-semibold text-gray-900 text-xs">Segment {index + 1}</span>
+                        </div>
+                        <div className="text-[10px] text-gray-600">
+                          {fareDetail.includedCheckedBags?.quantity ? (
+                            <span className="flex items-center gap-1">
+                              <Check className="w-3 h-3 text-gray-700" />
+                              {fareDetail.includedCheckedBags.quantity} checked bag(s) included
+                            </span>
+                          ) : (
+                            <span>No checked bags included</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-[10px] text-gray-600">
-                        {fareDetail.includedCheckedBags?.quantity ? (
-                          <span className="flex items-center gap-1">
-                            <Check className="w-3 h-3 text-gray-700" />
-                            {fareDetail.includedCheckedBags.quantity} checked bag(s) included
-                          </span>
-                        ) : (
-                          <span>No checked bags included</span>
-                        )}
-                      </div>
-                    </div>
+                    )
                   )
+                ) : (
+                  <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                    <div className="text-[10px] text-gray-600">
+                      Baggage information will be provided after booking
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -500,15 +748,16 @@ export default function FlightDetailsPage() {
                 <div className="flex justify-between text-xs text-gray-600">
                   <span>Base Fare</span>
                   <span className="font-semibold">
-                    {flight.price.currency} {parseFloat(flight.price.base).toLocaleString('en-US', {
+                    {getFlightPrice(flight).currency} {parseFloat(getFlightPrice(flight).base.toString()).toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
                   </span>
                 </div>
                 {(() => {
-                  const baseFare = parseFloat(flight.price.base);
-                  const totalFare = parseFloat(flight.price.total);
+                  const price = getFlightPrice(flight);
+                  const baseFare = parseFloat(price.base.toString());
+                  const totalFare = parseFloat(price.total.toString());
                   const taxesAndFees = totalFare - baseFare;
 
                   if (taxesAndFees > 0) {
@@ -516,7 +765,7 @@ export default function FlightDetailsPage() {
                       <div className="flex justify-between text-xs text-gray-600">
                         <span>Taxes & Fees</span>
                         <span className="font-semibold">
-                          {flight.price.currency}{' '}
+                          {price.currency}{' '}
                           {taxesAndFees.toLocaleString('en-US', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
@@ -534,15 +783,15 @@ export default function FlightDetailsPage() {
                   <span className="text-xs font-semibold text-gray-900">Total Price</span>
                   <div className="text-right">
                     <div className="text-lg font-bold text-gray-900">
-                      {flight.price.currency}{' '}
-                      {parseFloat(flight.price.total).toLocaleString('en-US', {
+                      {getFlightPrice(flight).currency}{' '}
+                      {parseFloat(getFlightPrice(flight).total.toString()).toLocaleString('en-US', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </div>
                     <div className="text-[10px] text-gray-500">
-                      For {flight.travelerPricings?.length || 1}{' '}
-                      {flight.travelerPricings?.length === 1 ? 'passenger' : 'passengers'}
+                      For {getTravelerPricings(flight).length || 1}{' '}
+                      {getTravelerPricings(flight).length === 1 ? 'passenger' : 'passengers'}
                     </div>
                   </div>
                 </div>
@@ -579,14 +828,46 @@ export default function FlightDetailsPage() {
       {/* AI Chatbox */}
       <AIChatbox />
 
-      {/* Passenger Details Modal */}
+      {/* Step 1: Passenger Details Modal */}
       <PassengerDetailsModal
         isOpen={showPassengerModal}
         onClose={() => setShowPassengerModal(false)}
-        numberOfTravelers={flight.travelerPricings?.length || 1}
+        numberOfTravelers={getTravelerPricings(flight).length || 1}
         bookingType="flight"
+        totalPrice={parseFloat(getFlightPrice(flight).total.toString())}
+        currency={getFlightPrice(flight).currency}
         onSubmit={handlePassengerDetailsSubmit}
       />
+
+      {/* Step 2: Seat Selection Modal */}
+      {collectedPassengers.length > 0 && (
+        <SeatSelection
+          isOpen={showSeatSelection}
+          onClose={handleSkipSeats}
+          offerId={flight.id}
+          passengers={collectedPassengers.map((p, index) => ({
+            id: `passenger-${index}`,
+            firstName: p.firstName,
+            lastName: p.lastName,
+          }))}
+          onConfirm={handleSeatSelectionConfirm}
+        />
+      )}
+
+      {/* Step 3: Baggage Selection Modal */}
+      {collectedPassengers.length > 0 && (
+        <BaggageSelection
+          isOpen={showBaggageSelection}
+          onClose={handleSkipBaggage}
+          offerId={flight.id}
+          passengers={collectedPassengers.map((p, index) => ({
+            id: `passenger-${index}`,
+            firstName: p.firstName,
+            lastName: p.lastName,
+          }))}
+          onConfirm={handleBaggageSelectionConfirm}
+        />
+      )}
     </div>
   );
 }

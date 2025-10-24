@@ -19,6 +19,7 @@ interface AirportAutocompleteProps {
   label?: string;
   required?: boolean;
   className?: string;
+  initialDisplayValue?: string;
 }
 
 export default function AirportAutocomplete({
@@ -28,14 +29,22 @@ export default function AirportAutocomplete({
   label,
   required = false,
   className = '',
+  initialDisplayValue = '',
 }: AirportAutocompleteProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [displayValue, setDisplayValue] = useState('');
+  const [displayValue, setDisplayValue] = useState(initialDisplayValue);
   const [locations, setLocations] = useState<Location[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Update display value when initialDisplayValue changes
+  useEffect(() => {
+    if (initialDisplayValue) {
+      setDisplayValue(initialDisplayValue);
+    }
+  }, [initialDisplayValue]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

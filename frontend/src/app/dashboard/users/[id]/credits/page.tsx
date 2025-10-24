@@ -13,9 +13,12 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle,
-  User
+  User,
+  CreditCard,
+  Wallet
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
+import UnifiedNavBar from '@/components/UnifiedNavBar';
 
 interface UserData {
   id: string;
@@ -44,6 +47,19 @@ export default function UserCreditsPage() {
   const [amount, setAmount] = useState('');
   const [operation, setOperation] = useState<'set' | 'add'>('set');
   const [reason, setReason] = useState('');
+  const [user, setUser] = useState({
+    name: 'User',
+    email: '',
+    role: 'company_admin',
+    organization: '',
+  });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     fetchUser();
@@ -168,10 +184,13 @@ export default function UserCreditsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-gray-900 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading user data...</p>
+      <div className="min-h-screen bg-gray-50">
+        <UnifiedNavBar currentPage="users" user={user} />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-gray-900 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-sm text-gray-600 font-medium">Loading user data...</p>
+          </div>
         </div>
       </div>
     );
@@ -179,16 +198,23 @@ export default function UserCreditsPage() {
 
   if (error && !userData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 mb-4">{error}</p>
-          <Link
-            href="/dashboard/users"
-            className="text-gray-900 hover:text-gray-700 font-medium"
-          >
-            Back to Users
-          </Link>
+      <div className="min-h-screen bg-gray-50">
+        <UnifiedNavBar currentPage="users" user={user} />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center max-w-md mx-auto px-4">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-8 h-8 text-red-600" />
+            </div>
+            <h2 className="text-lg font-bold text-gray-900 mb-2">Error Loading User</h2>
+            <p className="text-sm text-gray-600 mb-6">{error}</p>
+            <Link
+              href="/dashboard/users"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-medium text-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Users</span>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -201,61 +227,65 @@ export default function UserCreditsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="w-full px-4 md:px-6 lg:px-8 py-8">
+      {/* Navigation */}
+      <UnifiedNavBar currentPage="users" user={user} />
+
+      {/* Main Content */}
+      <div className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-6">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <Link
             href="/dashboard/users"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition"
+            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Users
+            <span>Back to Users</span>
           </Link>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg">
-              <DollarSign className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center">
+              <Wallet className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Manage User Credits</h1>
-              <p className="text-gray-600">Allocate or reduce credit balance</p>
+              <h1 className="text-2xl font-bold text-gray-900">Manage User Credits</h1>
+              <p className="text-sm text-gray-600">Allocate or reduce credit balance</p>
             </div>
           </div>
         </div>
 
         {/* Success Message */}
         {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl flex items-center gap-3">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <p className="text-sm text-green-700 font-medium">{success}</p>
+          <div className="mb-4 p-4 bg-[#C6F432] border border-[#C6F432] rounded-lg flex items-center gap-3 shadow-sm">
+            <CheckCircle className="w-5 h-5 text-gray-900 flex-shrink-0" />
+            <p className="text-sm text-gray-900 font-medium">{success}</p>
           </div>
         )}
 
         {/* Error Message */}
         {error && userData && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600" />
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 shadow-sm">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
 
         {/* User Info Card */}
         {userData && (
-          <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-6 mb-6">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center text-gray-900 font-bold text-lg flex-shrink-0 border border-gray-200">
                 {userData.firstName.charAt(0)}{userData.lastName.charAt(0)}
               </div>
-              <div className="flex-1">
-                <div className="text-xl font-bold text-gray-900">
+              <div className="flex-1 min-w-0">
+                <div className="text-lg font-bold text-gray-900 mb-1">
                   {userData.firstName} {userData.lastName}
                 </div>
-                <div className="text-sm text-gray-600">{userData.email}</div>
-                <div className="flex gap-2 mt-1">
-                  <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-200 capitalize">
+                <div className="text-sm text-gray-600 mb-2 break-words">{userData.email}</div>
+                <div className="flex gap-2 flex-wrap">
+                  <span className="text-xs px-2.5 py-1 bg-gray-900 text-white rounded-lg font-medium capitalize">
                     {userData.role.replace('_', ' ')}
                   </span>
                   {userData.department && (
-                    <span className="text-xs px-2 py-1 bg-gray-50 text-gray-700 rounded-full border border-gray-200">
+                    <span className="text-xs px-2.5 py-1 bg-[#C6F432] text-gray-900 rounded-lg font-medium border border-[#C6F432]">
                       {userData.department}
                     </span>
                   )}
@@ -266,54 +296,54 @@ export default function UserCreditsPage() {
             {/* Credit Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Credit Limit */}
-              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm text-blue-700 font-medium">Credit Limit</span>
+              <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-gray-700" />
+                  </div>
+                  <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Credit Limit</span>
                 </div>
-                <div className="text-2xl font-bold text-blue-900">
+                <div className="text-2xl font-bold text-gray-900">
                   ${creditLimit.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </div>
               </div>
 
               {/* Available Credits */}
-              <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-green-700 font-medium">Available</span>
+              <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-gray-700" />
+                  </div>
+                  <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Available</span>
                 </div>
-                <div className="text-2xl font-bold text-green-900">
+                <div className="text-2xl font-bold text-gray-900">
                   ${availableCredits.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </div>
               </div>
 
               {/* Used Credits */}
-              <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingDown className="w-4 h-4 text-orange-600" />
-                  <span className="text-sm text-orange-700 font-medium">Used</span>
+              <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <TrendingDown className="w-5 h-5 text-gray-700" />
+                  </div>
+                  <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Used</span>
                 </div>
-                <div className="text-2xl font-bold text-orange-900">
+                <div className="text-2xl font-bold text-gray-900">
                   ${usedCredits.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </div>
               </div>
             </div>
 
             {/* Utilization Bar */}
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                <span>Credit Utilization</span>
-                <span className="font-semibold">{utilizationPercent.toFixed(1)}%</span>
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+                <span className="font-semibold uppercase tracking-wide">Credit Utilization</span>
+                <span className="font-bold text-gray-900">{utilizationPercent.toFixed(1)}%</span>
               </div>
-              <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
                 <div
-                  className={`h-full transition-all ${
-                    utilizationPercent > 90
-                      ? 'bg-red-500'
-                      : utilizationPercent > 70
-                      ? 'bg-orange-500'
-                      : 'bg-green-500'
-                  }`}
+                  className="h-full transition-all bg-gray-600"
                   style={{ width: `${Math.min(utilizationPercent, 100)}%` }}
                 ></div>
               </div>
@@ -322,39 +352,40 @@ export default function UserCreditsPage() {
         )}
 
         {/* Credit Management Form */}
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-6">Credit Management</h2>
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Action Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Action Type
               </label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setAction('allocate')}
-                  className={`p-4 rounded-xl border-2 transition flex items-center justify-center gap-3 ${
+                  className={`p-4 rounded-lg border transition-all flex items-center justify-center gap-2.5 ${
                     action === 'allocate'
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-gray-300 bg-gray-100 shadow-sm'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   }`}
                 >
-                  <PlusCircle className={`w-5 h-5 ${action === 'allocate' ? 'text-green-600' : 'text-gray-400'}`} />
-                  <span className={`font-semibold ${action === 'allocate' ? 'text-green-900' : 'text-gray-700'}`}>
+                  <PlusCircle className={`w-5 h-5 ${action === 'allocate' ? 'text-gray-900' : 'text-gray-400'}`} />
+                  <span className={`font-medium text-sm ${action === 'allocate' ? 'text-gray-900' : 'text-gray-700'}`}>
                     Allocate Credits
                   </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setAction('reduce')}
-                  className={`p-4 rounded-xl border-2 transition flex items-center justify-center gap-3 ${
+                  className={`p-4 rounded-lg border transition-all flex items-center justify-center gap-2.5 ${
                     action === 'reduce'
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-gray-300 bg-gray-100 shadow-sm'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   }`}
                 >
-                  <MinusCircle className={`w-5 h-5 ${action === 'reduce' ? 'text-orange-600' : 'text-gray-400'}`} />
-                  <span className={`font-semibold ${action === 'reduce' ? 'text-orange-900' : 'text-gray-700'}`}>
+                  <MinusCircle className={`w-5 h-5 ${action === 'reduce' ? 'text-gray-900' : 'text-gray-400'}`} />
+                  <span className={`font-medium text-sm ${action === 'reduce' ? 'text-gray-900' : 'text-gray-700'}`}>
                     Reduce Credits
                   </span>
                 </button>
@@ -370,7 +401,7 @@ export default function UserCreditsPage() {
                 <select
                   value={operation}
                   onChange={(e) => setOperation(e.target.value as 'set' | 'add')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none text-sm"
                 >
                   <option value="set">Set credit limit to amount</option>
                   <option value="add">Add to current credit limit</option>
@@ -383,16 +414,19 @@ export default function UserCreditsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Amount (USD) <span className="text-red-500">*</span>
               </label>
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                min="0.01"
-                step="0.01"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="1000.00"
-              />
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</div>
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  min="0.01"
+                  step="0.01"
+                  required
+                  className="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none text-sm"
+                  placeholder="1000.00"
+                />
+              </div>
             </div>
 
             {/* Reason (optional for allocate, visible for reduce) */}
@@ -405,43 +439,39 @@ export default function UserCreditsPage() {
                   type="text"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none text-sm"
                   placeholder="e.g., End of quarter adjustment"
                 />
               </div>
             )}
 
             {/* Submit Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <button
                 type="submit"
                 disabled={processing}
-                className={`flex-1 text-white py-3 px-6 rounded-xl font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                  action === 'allocate'
-                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-                    : 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700'
-                }`}
+                className="flex-1 text-white py-3 px-6 rounded-lg font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm bg-gray-900 hover:bg-gray-800"
               >
                 {processing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Processing...
+                    <span>Processing...</span>
                   </>
                 ) : action === 'allocate' ? (
                   <>
                     <PlusCircle className="w-5 h-5" />
-                    Allocate Credits
+                    <span>Allocate Credits</span>
                   </>
                 ) : (
                   <>
                     <MinusCircle className="w-5 h-5" />
-                    Reduce Credits
+                    <span>Reduce Credits</span>
                   </>
                 )}
               </button>
               <Link
                 href="/dashboard/users"
-                className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition"
+                className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center"
               >
                 Cancel
               </Link>

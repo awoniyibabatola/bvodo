@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { formatCurrency } from '@/utils/currency';
 import { useCurrency } from '@/contexts/CurrencyContext';
@@ -354,6 +355,7 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
 }
 
 export default function ApprovalsPage() {
+  const router = useRouter();
   const { formatAmount } = useCurrency();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -465,9 +467,15 @@ export default function ApprovalsPage() {
 
       if (response.ok) {
         const data = await response.json();
-        alert(data.message || 'Booking approved successfully! Awaiting rate confirmation.');
         setSelectedBooking(null);
-        fetchApprovals(); // Refresh list
+
+        // Check if this is a flight booking - redirect to confirmation page
+        if (selectedBooking?.bookingType === 'flight') {
+          router.push(`/dashboard/bookings/confirmed?booking=${bookingId}`);
+        } else {
+          alert(data.message || 'Booking approved successfully! Awaiting rate confirmation.');
+          fetchApprovals(); // Refresh list
+        }
       } else {
         const errorData = await response.json();
         alert(`Failed to approve booking: ${errorData.message || 'Unknown error'}`);
@@ -498,9 +506,15 @@ export default function ApprovalsPage() {
       );
 
       if (response.ok) {
-        alert('Booking confirmed successfully!');
         setSelectedBooking(null);
-        fetchApprovals(); // Refresh list
+
+        // Check if this is a flight booking - redirect to confirmation page
+        if (selectedBooking?.bookingType === 'flight') {
+          router.push(`/dashboard/bookings/confirmed?booking=${bookingId}`);
+        } else {
+          alert('Booking confirmed successfully!');
+          fetchApprovals(); // Refresh list
+        }
       } else {
         const errorData = await response.json();
         alert(`Failed to confirm booking: ${errorData.message || 'Unknown error'}`);

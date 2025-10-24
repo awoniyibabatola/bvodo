@@ -11,6 +11,8 @@ interface PassengerDetail {
   email: string;
   phone: string;
   dateOfBirth: string;
+  gender?: string;
+  type?: 'adult' | 'child' | 'infant_without_seat';  // Passenger type - required for flights
   address?: string;
   city?: string;
   country?: string;
@@ -190,6 +192,7 @@ export default function PassengerDetailsModal({
       email: '',
       phone: '',
       dateOfBirth: '',
+      gender: '',
       address: '',
       city: '',
       country: '',
@@ -269,6 +272,79 @@ export default function PassengerDetailsModal({
         alert(`Please fill in required fields for ${bookingType === 'flight' ? 'passenger' : 'guest'} ${i + 1}`);
         setCurrentStep(i);
         return;
+      }
+
+      // Gender validation for flights
+      if (bookingType === 'flight' && (!passenger.gender || !passenger.gender.trim())) {
+        alert(`Please select gender for passenger ${i + 1}`);
+        setCurrentStep(i);
+        return;
+      }
+
+      // Passenger type validation for flights (REQUIRED by Duffel API)
+      if (bookingType === 'flight' && (!passenger.type || !passenger.type.trim())) {
+        alert(`Please select passenger type for passenger ${i + 1}`);
+        setCurrentStep(i);
+        return;
+      }
+
+      // Phone validation for flights (REQUIRED by Duffel API)
+      if (bookingType === 'flight') {
+        if (!passenger.phone || !passenger.phone.trim()) {
+          alert(`Phone number is required for passenger ${i + 1}. Airlines need this for booking confirmation.`);
+          setCurrentStep(i);
+          return;
+        }
+        // Strip spaces and validate E.164 format
+        const phoneWithoutSpaces = passenger.phone.replace(/\s/g, '');
+        const phoneRegex = /^\+[1-9]\d{1,14}$/;
+        if (!phoneRegex.test(phoneWithoutSpaces)) {
+          alert(`Please enter a valid phone number with country code for passenger ${i + 1} (e.g., +1 416 555 1234)`);
+          setCurrentStep(i);
+          return;
+        }
+        // Update passenger with space-stripped phone number
+        passenger.phone = phoneWithoutSpaces;
+      }
+
+      // Date of Birth validation for flights (REQUIRED by Duffel API)
+      if (bookingType === 'flight') {
+        if (!passenger.dateOfBirth || !passenger.dateOfBirth.trim()) {
+          alert(`Date of birth is required for passenger ${i + 1}. Airlines need this for booking confirmation.`);
+          setCurrentStep(i);
+          return;
+        }
+        // Check minimum age (at least 2 years old)
+        const birthDate = new Date(passenger.dateOfBirth);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+        const actualAge = age - (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? 1 : 0);
+
+        if (actualAge < 2) {
+          alert(`Passenger ${i + 1} must be at least 2 years old to travel alone. Infants require special booking.`);
+          setCurrentStep(i);
+          return;
+        }
+
+        // Validate that passenger type matches age
+        const expectedType = actualAge >= 12 ? 'adult' : actualAge >= 2 ? 'child' : 'infant_without_seat';
+        if (passenger.type && passenger.type !== expectedType) {
+          const typeLabels = {
+            'adult': 'Adult (12+ years)',
+            'child': 'Child (2-11 years)',
+            'infant_without_seat': 'Infant (under 2 years)'
+          };
+          if (!confirm(
+            `Warning: Passenger ${i + 1} is ${actualAge} years old but marked as "${typeLabels[passenger.type as keyof typeof typeLabels]}".\n\n` +
+            `Based on age, they should be "${typeLabels[expectedType as keyof typeof typeLabels]}".\n\n` +
+            `Continue anyway? (This may cause booking errors with the airline)`
+          )) {
+            setCurrentStep(i);
+            return;
+          }
+        }
       }
 
       // Email validation
@@ -353,6 +429,7 @@ export default function PassengerDetailsModal({
         email: '',
         phone: '',
         dateOfBirth: '',
+        gender: '',
         address: '',
         city: '',
         country: '',
@@ -460,6 +537,22 @@ export default function PassengerDetailsModal({
       const passenger = passengers[i];
       if (!passenger.firstName || !passenger.lastName || !passenger.email) {
         alert(`Please fill in required fields for ${bookingType === 'flight' ? 'passenger' : 'guest'} ${i + 1}`);
+        setCurrentStep(i);
+        setShowCheckout(false);
+        return;
+      }
+
+      // Gender validation for flights
+      if (bookingType === 'flight' && (!passenger.gender || !passenger.gender.trim())) {
+        alert(`Please select gender for passenger ${i + 1}`);
+        setCurrentStep(i);
+        setShowCheckout(false);
+        return;
+      }
+
+      // Passenger type validation for flights (REQUIRED by Duffel API)
+      if (bookingType === 'flight' && (!passenger.type || !passenger.type.trim())) {
+        alert(`Please select passenger type for passenger ${i + 1}`);
         setCurrentStep(i);
         setShowCheckout(false);
         return;
@@ -918,6 +1011,43 @@ export default function PassengerDetailsModal({
                                 </div>
                               </div>
 
+                              {bookingType === 'flight' && (
+                                <>
+                                  <div>
+                                    <label className="block text-xs font-semibold text-gray-700 mb-0.5">
+                                      Gender *
+                                    </label>
+                                    <select
+                                      value={currentPassenger.gender || ''}
+                                      onChange={(e) => updatePassenger(currentStep, 'gender', e.target.value)}
+                                      className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
+                                      required
+                                    >
+                                      <option value="">Select gender</option>
+                                      <option value="m">Male</option>
+                                      <option value="f">Female</option>
+                                    </select>
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-xs font-semibold text-gray-700 mb-0.5">
+                                      Passenger Type *
+                                    </label>
+                                    <select
+                                      value={currentPassenger.type || ''}
+                                      onChange={(e) => updatePassenger(currentStep, 'type', e.target.value as 'adult' | 'child' | 'infant_without_seat')}
+                                      className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
+                                      required
+                                    >
+                                      <option value="">Select passenger type</option>
+                                      <option value="adult">Adult (12+ years)</option>
+                                      <option value="child">Child (2-11 years)</option>
+                                      <option value="infant_without_seat">Infant (under 2 years)</option>
+                                    </select>
+                                  </div>
+                                </>
+                              )}
+
                               <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-0.5">Email Address *</label>
                                 <input
@@ -925,6 +1055,8 @@ export default function PassengerDetailsModal({
                                   value={currentPassenger.email}
                                   onChange={(e) => updatePassenger(currentStep, 'email', e.target.value)}
                                   placeholder="john.doe@example.com"
+                                  pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+                                  title="Please enter a valid email address (e.g., john.doe@example.com)"
                                   className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
                                   required
                                 />
@@ -932,14 +1064,17 @@ export default function PassengerDetailsModal({
 
                               <div>
                                 <label className="block text-xs font-semibold text-gray-700 mb-0.5">
-                                  Phone Number
+                                  Phone Number {bookingType === 'flight' ? '*' : <span className="text-gray-500 font-normal">(Optional)</span>}
                                 </label>
                                 <input
                                   type="tel"
                                   value={currentPassenger.phone}
                                   onChange={(e) => updatePassenger(currentStep, 'phone', e.target.value)}
-                                  placeholder="+1 (555) 123-4567"
+                                  placeholder="+1 416 555 1234"
+                                  pattern="^\+[1-9]\d{1,14}$"
+                                  title="Please enter a valid phone number with country code (e.g., +1 416 555 1234)"
                                   className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
+                                  required={bookingType === 'flight'}
                                 />
                               </div>
                             </div>
@@ -1194,6 +1329,43 @@ export default function PassengerDetailsModal({
                         </div>
                       </div>
 
+                      {bookingType === 'flight' && (
+                        <>
+                          <div className="mb-2">
+                            <label className="block text-xs font-bold text-gray-700 mb-1">
+                              Gender *
+                            </label>
+                            <select
+                              value={currentPassenger.gender || ''}
+                              onChange={(e) => updatePassenger(currentStep, 'gender', e.target.value)}
+                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
+                              required
+                            >
+                              <option value="">Select gender</option>
+                              <option value="m">Male</option>
+                              <option value="f">Female</option>
+                            </select>
+                          </div>
+
+                          <div className="mb-2">
+                            <label className="block text-xs font-bold text-gray-700 mb-1">
+                              Passenger Type *
+                            </label>
+                            <select
+                              value={currentPassenger.type || ''}
+                              onChange={(e) => updatePassenger(currentStep, 'type', e.target.value as 'adult' | 'child' | 'infant_without_seat')}
+                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
+                              required
+                            >
+                              <option value="">Select passenger type</option>
+                              <option value="adult">Adult (12+ years)</option>
+                              <option value="child">Child (2-11 years)</option>
+                              <option value="infant_without_seat">Infant (under 2 years)</option>
+                            </select>
+                          </div>
+                        </>
+                      )}
+
                       <div className="mb-2">
                         <label className="block text-xs font-bold text-gray-700 mb-1">Email Address *</label>
                         <input
@@ -1201,6 +1373,8 @@ export default function PassengerDetailsModal({
                           value={currentPassenger.email}
                           onChange={(e) => updatePassenger(currentStep, 'email', e.target.value)}
                           placeholder="john.doe@example.com"
+                          pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+                          title="Please enter a valid email address (e.g., john.doe@example.com)"
                           className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                           required
                         />
@@ -1209,26 +1383,34 @@ export default function PassengerDetailsModal({
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <label className="block text-xs font-bold text-gray-700 mb-1">
-                            Phone Number
+                            Phone Number {bookingType === 'flight' ? '*' : <span className="text-gray-500 font-normal">(Optional)</span>}
                           </label>
                           <input
                             type="tel"
                             value={currentPassenger.phone}
                             onChange={(e) => updatePassenger(currentStep, 'phone', e.target.value)}
-                            placeholder="+1 (555) 123-4567"
+                            placeholder="+1 416 555 1234"
+                            title="Please enter a valid phone number with country code (e.g., +1 416 555 1234). Spaces are allowed for readability."
                             className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
+                            required={bookingType === 'flight'}
                           />
+                          <p className="text-xs text-gray-500 mt-0.5">Required for airline bookings. Include country code (e.g., +1 for US/Canada)</p>
                         </div>
                         <div>
                           <label className="block text-xs font-bold text-gray-700 mb-1">
-                            Date of Birth
+                            Date of Birth {bookingType === 'flight' ? '*' : <span className="text-gray-500 font-normal">(Optional)</span>}
                           </label>
                           <input
                             type="date"
                             value={currentPassenger.dateOfBirth}
                             onChange={(e) => updatePassenger(currentStep, 'dateOfBirth', e.target.value)}
+                            max={new Date().toISOString().split('T')[0]}
+                            min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
+                            title="Please select your date of birth. Must be at least 2 years old to travel alone."
                             className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
+                            required={bookingType === 'flight'}
                           />
+                          <p className="text-xs text-gray-500 mt-0.5">Required for airline bookings. Must be at least 2 years old.</p>
                         </div>
                       </div>
                         </div>
@@ -1289,14 +1471,37 @@ export default function PassengerDetailsModal({
                           <label className="block text-xs font-bold text-gray-700 mb-1">
                             Country *
                           </label>
-                          <input
-                            type="text"
+                          <select
                             value={currentPassenger.country}
                             onChange={(e) => updatePassenger(currentStep, 'country', e.target.value)}
-                            placeholder="United States"
                             className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                             required
-                          />
+                          >
+                            <option value="">Select country</option>
+                            <option value="United States">United States</option>
+                            <option value="Canada">Canada</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Spain">Spain</option>
+                            <option value="Netherlands">Netherlands</option>
+                            <option value="Belgium">Belgium</option>
+                            <option value="Switzerland">Switzerland</option>
+                            <option value="Mexico">Mexico</option>
+                            <option value="Brazil">Brazil</option>
+                            <option value="Argentina">Argentina</option>
+                            <option value="India">India</option>
+                            <option value="China">China</option>
+                            <option value="Japan">Japan</option>
+                            <option value="South Korea">South Korea</option>
+                            <option value="Singapore">Singapore</option>
+                            <option value="Nigeria">Nigeria</option>
+                            <option value="South Africa">South Africa</option>
+                            <option value="Kenya">Kenya</option>
+                            <option value="Egypt">Egypt</option>
+                          </select>
                         </div>
                       </div>
                         </div>
@@ -1326,9 +1531,16 @@ export default function PassengerDetailsModal({
 
                         {expandedSections.passport && (
                           <div className="px-3 pb-3">
+                            {/* Info Box */}
+                            <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-3">
+                              <p className="text-xs text-blue-900">
+                                <strong>Note:</strong> Passport details are optional but recommended for international flights. They may be required by airlines for booking confirmation.
+                              </p>
+                            </div>
+
                             <div className="mb-2">
                           <label className="block text-xs font-bold text-gray-700 mb-1">
-                            Passport Number
+                            Passport Number <span className="text-gray-500 font-normal">(Optional)</span>
                           </label>
                           <input
                             type="text"
@@ -1339,12 +1551,13 @@ export default function PassengerDetailsModal({
                             placeholder="A12345678"
                             className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                           />
+                          <p className="text-xs text-gray-500 mt-0.5">As shown on your passport</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <label className="block text-xs font-bold text-gray-700 mb-1">
-                              Passport Expiry Date
+                              Passport Expiry <span className="text-gray-500 font-normal">(Optional)</span>
                             </label>
                             <input
                               type="date"
@@ -1352,22 +1565,47 @@ export default function PassengerDetailsModal({
                               onChange={(e) =>
                                 updatePassenger(currentStep, 'passportExpiry', e.target.value)
                               }
+                              min={new Date().toISOString().split('T')[0]}
                               className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                             />
+                            <p className="text-xs text-gray-500 mt-0.5">Must be valid for travel</p>
                           </div>
                           <div>
                             <label className="block text-xs font-bold text-gray-700 mb-1">
-                              Issuing Country
+                              Issuing Country <span className="text-gray-500 font-normal">(Optional)</span>
                             </label>
-                            <input
-                              type="text"
+                            <select
                               value={currentPassenger.passportCountry}
                               onChange={(e) =>
                                 updatePassenger(currentStep, 'passportCountry', e.target.value)
                               }
-                              placeholder="United States"
                               className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                            />
+                            >
+                              <option value="">Select country</option>
+                              <option value="United States">United States</option>
+                              <option value="Canada">Canada</option>
+                              <option value="United Kingdom">United Kingdom</option>
+                              <option value="Australia">Australia</option>
+                              <option value="Germany">Germany</option>
+                              <option value="France">France</option>
+                              <option value="Italy">Italy</option>
+                              <option value="Spain">Spain</option>
+                              <option value="Netherlands">Netherlands</option>
+                              <option value="Belgium">Belgium</option>
+                              <option value="Switzerland">Switzerland</option>
+                              <option value="Mexico">Mexico</option>
+                              <option value="Brazil">Brazil</option>
+                              <option value="Argentina">Argentina</option>
+                              <option value="India">India</option>
+                              <option value="China">China</option>
+                              <option value="Japan">Japan</option>
+                              <option value="South Korea">South Korea</option>
+                              <option value="Singapore">Singapore</option>
+                              <option value="Nigeria">Nigeria</option>
+                              <option value="South Africa">South Africa</option>
+                              <option value="Kenya">Kenya</option>
+                              <option value="Egypt">Egypt</option>
+                            </select>
                           </div>
                         </div>
                           </div>

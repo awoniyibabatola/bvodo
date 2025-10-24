@@ -46,7 +46,7 @@ export default function UnifiedNavBar({
     const baseLinks: NavLink[] = [
       { label: 'Dashboard', href: '/dashboard', key: 'dashboard' },
       { label: 'Bookings', href: '/dashboard/bookings', key: 'bookings' },
-      { label: 'Flights', href: '/dashboard/flights/search', key: 'flights' },
+      { label: 'Flights', href: '/dashboard/flights/search?new=true', key: 'flights' },
       { label: 'Hotels', href: '/dashboard/hotels/search', key: 'hotels' },
     ];
 

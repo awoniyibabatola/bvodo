@@ -312,7 +312,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-3 md:gap-4 flex-shrink-0 w-full max-w-[400px] mx-auto lg:mx-0 h-auto lg:h-[220px]">
             {/* Hotels Booked */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Hotel className="w-4 h-4 text-gray-900" />
                   <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Total</span>
@@ -326,7 +326,7 @@ export default function DashboardPage() {
 
             {/* Hotel Nights */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 text-gray-900" />
                   <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Nights</span>
@@ -340,7 +340,7 @@ export default function DashboardPage() {
 
             {/* Flights Taken */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <Plane className="w-4 h-4 text-gray-900" />
                   <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Total</span>
@@ -354,7 +354,7 @@ export default function DashboardPage() {
 
             {/* Destinations */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 border-l-2 border-l-gray-900 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="w-4 h-4 text-gray-900" />
                   <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Unique</span>
@@ -455,9 +455,9 @@ export default function DashboardPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm md:text-base text-gray-900 mb-1 md:mb-1.5 truncate">{booking.route}</div>
-                        <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
-                          <span className="truncate">{booking.traveler}</span>
+                        <div className="font-semibold text-sm md:text-base text-gray-900 mb-1 md:mb-1.5 break-words">{booking.route}</div>
+                        <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600 flex-wrap">
+                          <span className="break-words">{booking.traveler}</span>
                           <span className="text-gray-400 hidden sm:inline">•</span>
                           <span className="hidden sm:flex items-center gap-1">
                             <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5" />
@@ -514,7 +514,7 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-2.5">
               <Link
-                href="/dashboard/flights/search"
+                href="/dashboard/flights/search?new=true"
                 className="group block p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
               >
                 <div className="flex items-center justify-between">
