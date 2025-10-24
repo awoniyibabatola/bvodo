@@ -478,14 +478,14 @@ export default function FlightSearchPage() {
     return [];
   };
 
-  const getAirlineCodes = (flight: any) => {
+  const getAirlineCodes = (flight: any): string[] => {
     const segments = getFlightSegments(flight);
     if (flight.outbound) {
       // Duffel format - use airlineCode
-      return [...new Set(segments.map((seg: any) => seg.airlineCode))].filter(Boolean);
+      return [...new Set(segments.map((seg: any) => seg.airlineCode))].filter(Boolean) as string[];
     } else {
       // Amadeus format - use carrierCode
-      return [...new Set(segments.map((seg: any) => seg.carrierCode))].filter(Boolean);
+      return [...new Set(segments.map((seg: any) => seg.carrierCode))].filter(Boolean) as string[];
     }
   };
 
@@ -1322,9 +1322,9 @@ export default function FlightSearchPage() {
                       return f.itineraries[0].segments.map((seg: any) => seg.carrierCode);
                     }
                     return [];
-                  }))].sort().map((code: string) => (
+                  }))].sort().map(code => (
                     <option key={code} value={code}>
-                      {AIRLINE_NAMES[code] || code} ({code})
+                      {AIRLINE_NAMES[code as string] || code} ({code})
                     </option>
                   ))}
                 </select>
@@ -1402,7 +1402,7 @@ export default function FlightSearchPage() {
                                 <Plane className="w-4 h-4 text-gray-700" />
                               </div>
                               <span className="text-xs md:text-sm font-bold text-gray-900">
-                                {airlines.length > 0 ? airlines.map((code: string) => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
+                                {airlines.length > 0 ? airlines.map(code => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
                               </span>
                             </div>
                             {airlines.length > 1 && (
