@@ -1743,13 +1743,18 @@ export default function FlightSearchPage() {
                             for {getTotalPassengers()} {getTotalPassengers() === 1 ? 'passenger' : 'passengers'}
                           </div>
 
-                          <Link
-                            href={`/dashboard/flights/${flight.id || index}?flightData=${encodeURIComponent(JSON.stringify(flight))}`}
+                          <button
+                            onClick={() => {
+                              // Store flight data in sessionStorage to avoid URL length limits
+                              sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flight));
+                              // Navigate to details page
+                              window.location.href = `/dashboard/flights/${flight.id || index}`;
+                            }}
                             className="w-full px-4 md:px-6 py-2.5 md:py-3 bg-gray-900 text-white rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2"
                           >
                             View Details
                             <Plane className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                          </Link>
+                          </button>
                         </div>
                       </div>
                     </div>

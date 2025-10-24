@@ -97,7 +97,6 @@ export default function FlightDetailsPage() {
   const router = useRouter();
 
   const flightId = params.id as string;
-  const flightDataParam = searchParams.get('flightData');
 
   const [flight, setFlight] = useState<any>(null);
   const [expandedSegments, setExpandedSegments] = useState<{ [key: number]: boolean }>({});
@@ -115,15 +114,24 @@ export default function FlightDetailsPage() {
   const [groupName, setGroupName] = useState<string | undefined>();
 
   useEffect(() => {
-    if (flightDataParam) {
+    // Try to get flight data from sessionStorage first
+    const sessionKey = `flight_${flightId}`;
+    const cachedFlightData = sessionStorage.getItem(sessionKey);
+
+    if (cachedFlightData) {
       try {
-        const parsedFlight = JSON.parse(decodeURIComponent(flightDataParam));
+        const parsedFlight = JSON.parse(cachedFlightData);
         setFlight(parsedFlight);
       } catch (error) {
-        console.error('Failed to parse flight data:', error);
+        console.error('Failed to parse flight data from sessionStorage:', error);
+        router.push('/dashboard/flights/search');
       }
+    } else {
+      // If no cached data found, redirect back to search
+      console.error('No flight data found. Redirecting to search page.');
+      router.push('/dashboard/flights/search');
     }
-  }, [flightDataParam]);
+  }, [flightId, router]);
 
   const toggleSegment = (index: number) => {
     setExpandedSegments((prev) => ({
