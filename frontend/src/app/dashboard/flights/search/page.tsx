@@ -1284,15 +1284,15 @@ export default function FlightSearchPage() {
             ></div>
 
             {/* Modal */}
-            <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl border border-gray-200 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl border border-gray-200 max-h-[75vh] overflow-y-auto shadow-2xl">
               {/* Handle Bar */}
               <div className="flex justify-center pt-3 pb-1">
                 <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
               </div>
 
               {/* Header */}
-              <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
-                <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
+              <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-3.5 flex items-center justify-between z-10">
+                <h2 className="text-base font-bold text-gray-900">Modify Search</h2>
                 <button
                   onClick={() => setShowSearchForm(false)}
                   className="p-2 hover:bg-gray-100 rounded-full transition"
@@ -1302,7 +1302,7 @@ export default function FlightSearchPage() {
               </div>
 
               {/* Form Content */}
-              <form onSubmit={handleSearch} className="p-5 space-y-4">
+              <form onSubmit={handleSearch} className="p-5 space-y-3.5">
                 {/* Trip Type */}
                 <div className="flex gap-2">
                   <button
