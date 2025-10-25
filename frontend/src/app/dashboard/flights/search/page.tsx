@@ -19,6 +19,9 @@ import {
   Plus,
   Minus,
   Building2,
+  Check,
+  X,
+  AlertCircle,
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import { getApiEndpoint } from '@/lib/api-config';
@@ -1727,17 +1730,6 @@ export default function FlightSearchPage() {
                           const firstSegment = flight.outbound?.[0];
                           const baggage = firstSegment?.baggage;
 
-                          // Debug logging - remove after testing
-                          if (typeof window !== 'undefined') {
-                            console.log('Flight baggage data:', {
-                              provider: flight.provider,
-                              hasOutbound: !!flight.outbound,
-                              firstSegment: firstSegment ? 'exists' : 'missing',
-                              baggage: baggage,
-                              fullSegment: firstSegment
-                            });
-                          }
-
                           if (baggage) {
                             return (
                               <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs text-gray-600 mt-2">
@@ -1765,6 +1757,27 @@ export default function FlightSearchPage() {
                           }
                           return null;
                         })()}
+
+                        {/* Service Availability Indicators */}
+                        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+                          {flight.provider === 'duffel' ? (
+                            <>
+                              <div className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-md text-[10px] font-medium border border-green-200">
+                                <Check className="w-3 h-3" />
+                                <span>Seat selection available</span>
+                              </div>
+                              <div className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-md text-[10px] font-medium border border-green-200">
+                                <Check className="w-3 h-3" />
+                                <span>Extra baggage available</span>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 text-gray-600 rounded-md text-[10px] font-medium border border-gray-200">
+                              <AlertCircle className="w-3 h-3" />
+                              <span>Seat/baggage selection not available</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Price & CTA */}
