@@ -1315,7 +1315,7 @@ export default function PassengerDetailsModal({
                               value={currentPassenger.firstName}
                               onChange={(e) => updatePassenger(currentStep, 'firstName', e.target.value)}
                               placeholder="John"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                               required
                             />
                           </div>
@@ -1328,12 +1328,10 @@ export default function PassengerDetailsModal({
                               value={currentPassenger.lastName}
                               onChange={(e) => updatePassenger(currentStep, 'lastName', e.target.value)}
                               placeholder="Doe"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                               required
                             />
                           </div>
-                      </div>
-
                         </div>
 
                         {bookingType === 'flight' && (
@@ -1345,7 +1343,7 @@ export default function PassengerDetailsModal({
                               <select
                                 value={currentPassenger.gender || ''}
                                 onChange={(e) => updatePassenger(currentStep, 'gender', e.target.value)}
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                                 required
                               >
                                 <option value="">Select gender</option>
@@ -1361,7 +1359,7 @@ export default function PassengerDetailsModal({
                               <select
                                 value={currentPassenger.type || ''}
                                 onChange={(e) => updatePassenger(currentStep, 'type', e.target.value as 'adult' | 'child' | 'infant_without_seat')}
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                                 required
                               >
                                 <option value="">Select passenger type</option>
@@ -1382,7 +1380,7 @@ export default function PassengerDetailsModal({
                             placeholder="john.doe@example.com"
                             pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
                             title="Please enter a valid email address (e.g., john.doe@example.com)"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                             required
                           />
                         </div>
@@ -1398,7 +1396,7 @@ export default function PassengerDetailsModal({
                               onChange={(e) => updatePassenger(currentStep, 'phone', e.target.value)}
                               placeholder="+1 416 555 1234"
                               title="Please enter a valid phone number with country code (e.g., +1 416 555 1234). Spaces are allowed for readability."
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                               required={bookingType === 'flight'}
                             />
                             <p className="text-xs text-gray-500 mt-1.5">With country code</p>
@@ -1414,7 +1412,7 @@ export default function PassengerDetailsModal({
                               max={new Date().toISOString().split('T')[0]}
                               min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
                               title="Please select your date of birth. Must be at least 2 years old to travel alone."
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                               required={bookingType === 'flight'}
                             />
                             <p className="text-xs text-gray-500 mt-1.5">Min. 2 years old</p>
@@ -1442,7 +1440,7 @@ export default function PassengerDetailsModal({
                             value={currentPassenger.address}
                             onChange={(e) => updatePassenger(currentStep, 'address', e.target.value)}
                             placeholder="123 Main Street, Apt 4B"
-                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                           />
                         </div>
 
@@ -1456,7 +1454,7 @@ export default function PassengerDetailsModal({
                               value={currentPassenger.city}
                               onChange={(e) => updatePassenger(currentStep, 'city', e.target.value)}
                               placeholder="New York"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                               required
                             />
                           </div>
@@ -1467,7 +1465,7 @@ export default function PassengerDetailsModal({
                             <select
                               value={currentPassenger.country}
                               onChange={(e) => updatePassenger(currentStep, 'country', e.target.value)}
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                               required
                             >
                               <option value="">Select country</option>
@@ -1511,7 +1509,7 @@ export default function PassengerDetailsModal({
                                 updatePassenger(currentStep, 'passportNumber', e.target.value)
                               }
                               placeholder="A12345678"
-                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                             />
                           </div>
 
@@ -1527,7 +1525,7 @@ export default function PassengerDetailsModal({
                                   updatePassenger(currentStep, 'passportExpiry', e.target.value)
                                 }
                                 min={new Date().toISOString().split('T')[0]}
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                               />
                             </div>
                             <div>
@@ -1539,7 +1537,7 @@ export default function PassengerDetailsModal({
                                 onChange={(e) =>
                                   updatePassenger(currentStep, 'passportCountry', e.target.value)
                                 }
-                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
                               >
                                 <option value="">Select country</option>
                                 {COUNTRIES.map((country) => (
