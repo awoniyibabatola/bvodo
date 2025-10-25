@@ -222,12 +222,11 @@ export class DuffelService implements IFlightProvider {
         }
       }
 
-      // Determine payment type based on environment
-      // Test mode: use 'balance' (virtual credit)
-      // Production mode: use 'arc_bsp_cash' (real payment settlement)
-      const paymentType = env.DUFFEL_ENVIRONMENT === 'production' ? 'arc_bsp_cash' : 'balance';
+      // Always use 'balance' payment type since we're using Bvodo prepaid credits
+      // This works with Duffel's prepaid balance system in both test and production
+      const paymentType = 'balance';
 
-      logger.info(`[Duffel] Using payment type: ${paymentType} (environment: ${env.DUFFEL_ENVIRONMENT})`);
+      logger.info(`[Duffel] Using payment type: ${paymentType} (Bvodo credit/prepaid system)`);
 
       // Build order create params with correct payment amount
       const orderParams: DuffelOrderCreateParams = {
