@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Users, Plus, Trash2, UserPlus, Check, CreditCard as CreditCardIcon, Plane, Shield, Lock, MapPin, Hotel, Calendar, Clock, ChevronDown, Bed } from 'lucide-react';
+import { X, Users, Plus, Trash2, UserPlus, Check, CreditCard as CreditCardIcon, Plane, Shield, Lock, MapPin, Hotel, Calendar, Clock, Bed } from 'lucide-react';
 import CreditCard from './CreditCard';
 import { getApiEndpoint } from '@/lib/api-config';
 
@@ -129,11 +129,6 @@ export default function PassengerDetailsModal({
   const [showCheckout, setShowCheckout] = useState(false);
   const [availableCredits, setAvailableCredits] = useState(5000);
   const [organizationName, setOrganizationName] = useState('Corporate Travel');
-  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
-    personal: true,
-    address: false,
-    passport: false,
-  });
 
   // Multi-room state
   const [rooms, setRooms] = useState<RoomSelection[]>([]);
@@ -277,13 +272,6 @@ export default function PassengerDetailsModal({
     const updated = [...passengers];
     updated[index] = { ...updated[index], [field]: value };
     setPassengers(updated);
-  };
-
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -615,8 +603,8 @@ export default function PassengerDetailsModal({
   const progress = showCheckout ? 100 : ((currentStep + 1) / numberOfTravelers) * 100;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black/60">
-      <div className="bg-white rounded-lg max-w-[95vw] w-full my-2 flex flex-col h-[calc(100vh-1rem)] border border-gray-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+      <div className="bg-white rounded-lg max-w-2xl w-full my-2 flex flex-col max-h-[calc(100vh-2rem)] border border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="relative bg-white px-4 py-3 border-b border-gray-200 flex-shrink-0 z-10">
           <div className="flex items-center justify-between gap-4">
@@ -788,9 +776,9 @@ export default function PassengerDetailsModal({
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
-              {/* Left Column - Form (2/3 width in normal mode, full width in multi-room) */}
-              <div className={`space-y-4 ${isMultiRoomMode ? 'lg:col-span-3' : 'lg:col-span-2'}`}>
+            <div className="p-6">
+              {/* Form Content */}
+              <div className="space-y-4 max-w-3xl mx-auto">
                 {/* Group Booking Toggle */}
                 {numberOfTravelers > 1 && currentStep === 0 && (
                   <div className="p-4 bg-white border border-gray-200 rounded">
@@ -1308,289 +1296,179 @@ export default function PassengerDetailsModal({
                     </div>
 
                     {/* Personal Information Section */}
-                    <div className="bg-white rounded border border-gray-200">
-                      <button
-                        type="button"
-                        onClick={() => toggleSection('personal')}
-                        className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
-                            <Users className="w-3 h-3 text-white" />
-                          </div>
-                          <h4 className="font-bold text-gray-900 text-xs">Personal Information</h4>
+                    <div className="bg-white rounded-lg border border-gray-200 p-5">
+                      <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-200">
+                        <div className="w-9 h-9 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+                          <Users className="w-4 h-4 text-white" />
                         </div>
-                        <ChevronDown
-                          className={`w-4 h-4 text-gray-700 transition-transform duration-200 ${
-                            expandedSections.personal ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
-
-                      {expandedSections.personal && (
-                        <div className="px-3 pb-3">
-                          <div className="grid grid-cols-2 gap-2 mb-2">
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1">
-                            First Name *
-                          </label>
-                          <input
-                            type="text"
-                            value={currentPassenger.firstName}
-                            onChange={(e) => updatePassenger(currentStep, 'firstName', e.target.value)}
-                            placeholder="John"
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1">
-                            Last Name *
-                          </label>
-                          <input
-                            type="text"
-                            value={currentPassenger.lastName}
-                            onChange={(e) => updatePassenger(currentStep, 'lastName', e.target.value)}
-                            placeholder="Doe"
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                            required
-                          />
-                        </div>
+                        <h4 className="font-bold text-gray-900 text-sm">Personal Information</h4>
                       </div>
 
-                      {bookingType === 'flight' && (
-                        <>
-                          <div className="mb-2">
-                            <label className="block text-xs font-bold text-gray-700 mb-1">
-                              Gender *
-                            </label>
-                            <select
-                              value={currentPassenger.gender || ''}
-                              onChange={(e) => updatePassenger(currentStep, 'gender', e.target.value)}
-                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                              required
-                            >
-                              <option value="">Select gender</option>
-                              <option value="m">Male</option>
-                              <option value="f">Female</option>
-                            </select>
-                          </div>
-
-                          <div className="mb-2">
-                            <label className="block text-xs font-bold text-gray-700 mb-1">
-                              Passenger Type *
-                            </label>
-                            <select
-                              value={currentPassenger.type || ''}
-                              onChange={(e) => updatePassenger(currentStep, 'type', e.target.value as 'adult' | 'child' | 'infant_without_seat')}
-                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                              required
-                            >
-                              <option value="">Select passenger type</option>
-                              <option value="adult">Adult (12+ years)</option>
-                              <option value="child">Child (2-11 years)</option>
-                              <option value="infant_without_seat">Infant (under 2 years)</option>
-                            </select>
-                          </div>
-                        </>
-                      )}
-
-                      <div className="mb-2">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">Email Address *</label>
-                        <input
-                          type="email"
-                          value={currentPassenger.email}
-                          onChange={(e) => updatePassenger(currentStep, 'email', e.target.value)}
-                          placeholder="john.doe@example.com"
-                          pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
-                          title="Please enter a valid email address (e.g., john.doe@example.com)"
-                          className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                          required
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1">
-                            Phone Number {bookingType === 'flight' ? '*' : <span className="text-gray-500 font-normal">(Optional)</span>}
-                          </label>
-                          <input
-                            type="tel"
-                            value={currentPassenger.phone}
-                            onChange={(e) => updatePassenger(currentStep, 'phone', e.target.value)}
-                            placeholder="+1 416 555 1234"
-                            title="Please enter a valid phone number with country code (e.g., +1 416 555 1234). Spaces are allowed for readability."
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                            required={bookingType === 'flight'}
-                          />
-                          <p className="text-xs text-gray-500 mt-0.5">Required for airline bookings. Include country code (e.g., +1 for US/Canada)</p>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1">
-                            Date of Birth {bookingType === 'flight' ? '*' : <span className="text-gray-500 font-normal">(Optional)</span>}
-                          </label>
-                          <input
-                            type="date"
-                            value={currentPassenger.dateOfBirth}
-                            onChange={(e) => updatePassenger(currentStep, 'dateOfBirth', e.target.value)}
-                            max={new Date().toISOString().split('T')[0]}
-                            min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
-                            title="Please select your date of birth. Must be at least 2 years old to travel alone."
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                            required={bookingType === 'flight'}
-                          />
-                          <p className="text-xs text-gray-500 mt-0.5">Required for airline bookings. Must be at least 2 years old.</p>
-                        </div>
-                      </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Address Information */}
-                    <div className="bg-white rounded border border-gray-200">
-                      <button
-                        type="button"
-                        onClick={() => toggleSection('address')}
-                        className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
-                            <MapPin className="w-3 h-3 text-white" />
-                          </div>
-                          <h4 className="font-bold text-gray-900 text-xs">Address Information</h4>
-                        </div>
-                        <ChevronDown
-                          className={`w-4 h-4 text-gray-700 transition-transform duration-200 ${
-                            expandedSections.address ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
-
-                      {expandedSections.address && (
-                        <div className="px-3 pb-3">
-
-                      <div className="mb-2">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">
-                          Street Address
-                        </label>
-                        <input
-                          type="text"
-                          value={currentPassenger.address}
-                          onChange={(e) => updatePassenger(currentStep, 'address', e.target.value)}
-                          placeholder="123 Main Street, Apt 4B"
-                          className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1">
-                            City *
-                          </label>
-                          <input
-                            type="text"
-                            value={currentPassenger.city}
-                            onChange={(e) => updatePassenger(currentStep, 'city', e.target.value)}
-                            placeholder="New York"
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-1">
-                            Country *
-                          </label>
-                          <select
-                            value={currentPassenger.country}
-                            onChange={(e) => updatePassenger(currentStep, 'country', e.target.value)}
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                            required
-                          >
-                            <option value="">Select country</option>
-                            {COUNTRIES.map((country) => (
-                              <option key={country} value={country}>
-                                {country}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Passport Details (for flights) */}
-                    {bookingType === 'flight' && (
-                      <div className="bg-white rounded border border-gray-200">
-                        <button
-                          type="button"
-                          onClick={() => toggleSection('passport')}
-                          className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
-                              <Shield className="w-3 h-3 text-white" />
-                            </div>
-                            <h4 className="font-bold text-gray-900 text-xs">Passport Information (Optional)</h4>
-                          </div>
-                          <ChevronDown
-                            className={`w-4 h-4 text-gray-700 transition-transform duration-200 ${
-                              expandedSections.passport ? 'rotate-180' : ''
-                            }`}
-                          />
-                        </button>
-
-                        {expandedSections.passport && (
-                          <div className="px-3 pb-3">
-                            {/* Info Box */}
-                            <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-3">
-                              <p className="text-xs text-blue-900">
-                                <strong>Note:</strong> Passport details are optional but recommended for international flights. They may be required by airlines for booking confirmation.
-                              </p>
-                            </div>
-
-                            <div className="mb-2">
-                          <label className="block text-xs font-bold text-gray-700 mb-1">
-                            Passport Number <span className="text-gray-500 font-normal">(Optional)</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={currentPassenger.passportNumber}
-                            onChange={(e) =>
-                              updatePassenger(currentStep, 'passportNumber', e.target.value)
-                            }
-                            placeholder="A12345678"
-                            className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
-                          />
-                          <p className="text-xs text-gray-500 mt-0.5">As shown on your passport</p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-bold text-gray-700 mb-1">
-                              Passport Expiry <span className="text-gray-500 font-normal">(Optional)</span>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              First Name *
+                            </label>
+                            <input
+                              type="text"
+                              value={currentPassenger.firstName}
+                              onChange={(e) => updatePassenger(currentStep, 'firstName', e.target.value)}
+                              placeholder="John"
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Last Name *
+                            </label>
+                            <input
+                              type="text"
+                              value={currentPassenger.lastName}
+                              onChange={(e) => updatePassenger(currentStep, 'lastName', e.target.value)}
+                              placeholder="Doe"
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              required
+                            />
+                          </div>
+                      </div>
+
+                        </div>
+
+                        {bookingType === 'flight' && (
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                Gender *
+                              </label>
+                              <select
+                                value={currentPassenger.gender || ''}
+                                onChange={(e) => updatePassenger(currentStep, 'gender', e.target.value)}
+                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                                required
+                              >
+                                <option value="">Select gender</option>
+                                <option value="m">Male</option>
+                                <option value="f">Female</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                Passenger Type *
+                              </label>
+                              <select
+                                value={currentPassenger.type || ''}
+                                onChange={(e) => updatePassenger(currentStep, 'type', e.target.value as 'adult' | 'child' | 'infant_without_seat')}
+                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                                required
+                              >
+                                <option value="">Select passenger type</option>
+                                <option value="adult">Adult (12+ years)</option>
+                                <option value="child">Child (2-11 years)</option>
+                                <option value="infant_without_seat">Infant (under 2 years)</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-900 mb-2">Email Address *</label>
+                          <input
+                            type="email"
+                            value={currentPassenger.email}
+                            onChange={(e) => updatePassenger(currentStep, 'email', e.target.value)}
+                            placeholder="john.doe@example.com"
+                            pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+                            title="Please enter a valid email address (e.g., john.doe@example.com)"
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                            required
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Phone Number {bookingType === 'flight' ? '*' : <span className="text-gray-500 font-normal">(Optional)</span>}
+                            </label>
+                            <input
+                              type="tel"
+                              value={currentPassenger.phone}
+                              onChange={(e) => updatePassenger(currentStep, 'phone', e.target.value)}
+                              placeholder="+1 416 555 1234"
+                              title="Please enter a valid phone number with country code (e.g., +1 416 555 1234). Spaces are allowed for readability."
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              required={bookingType === 'flight'}
+                            />
+                            <p className="text-xs text-gray-500 mt-1.5">With country code</p>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Date of Birth {bookingType === 'flight' ? '*' : <span className="text-gray-500 font-normal">(Optional)</span>}
                             </label>
                             <input
                               type="date"
-                              value={currentPassenger.passportExpiry}
-                              onChange={(e) =>
-                                updatePassenger(currentStep, 'passportExpiry', e.target.value)
-                              }
-                              min={new Date().toISOString().split('T')[0]}
-                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
+                              value={currentPassenger.dateOfBirth}
+                              onChange={(e) => updatePassenger(currentStep, 'dateOfBirth', e.target.value)}
+                              max={new Date().toISOString().split('T')[0]}
+                              min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
+                              title="Please select your date of birth. Must be at least 2 years old to travel alone."
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              required={bookingType === 'flight'}
                             />
-                            <p className="text-xs text-gray-500 mt-0.5">Must be valid for travel</p>
+                            <p className="text-xs text-gray-500 mt-1.5">Min. 2 years old</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Address Information */}
+                    <div className="bg-white rounded-lg border border-gray-200 p-5">
+                      <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-200">
+                        <div className="w-9 h-9 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+                          <MapPin className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="font-bold text-gray-900 text-sm">Address Information</h4>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-900 mb-2">
+                            Street Address
+                          </label>
+                          <input
+                            type="text"
+                            value={currentPassenger.address}
+                            onChange={(e) => updatePassenger(currentStep, 'address', e.target.value)}
+                            placeholder="123 Main Street, Apt 4B"
+                            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              City *
+                            </label>
+                            <input
+                              type="text"
+                              value={currentPassenger.city}
+                              onChange={(e) => updatePassenger(currentStep, 'city', e.target.value)}
+                              placeholder="New York"
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              required
+                            />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-gray-700 mb-1">
-                              Issuing Country <span className="text-gray-500 font-normal">(Optional)</span>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Country *
                             </label>
                             <select
-                              value={currentPassenger.passportCountry}
-                              onChange={(e) =>
-                                updatePassenger(currentStep, 'passportCountry', e.target.value)
-                              }
-                              className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
+                              value={currentPassenger.country}
+                              onChange={(e) => updatePassenger(currentStep, 'country', e.target.value)}
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              required
                             >
                               <option value="">Select country</option>
                               {COUNTRIES.map((country) => (
@@ -1601,16 +1479,83 @@ export default function PassengerDetailsModal({
                             </select>
                           </div>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Passport Details (for flights) */}
+                    {bookingType === 'flight' && (
+                      <div className="bg-white rounded-lg border border-gray-200 p-5">
+                        <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-200">
+                          <div className="w-9 h-9 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+                            <Shield className="w-4 h-4 text-white" />
                           </div>
-                        )}
+                          <h4 className="font-bold text-gray-900 text-sm">Passport Information <span className="text-gray-500 font-normal text-xs">(Optional)</span></h4>
+                        </div>
+
+                        <div className="space-y-4">
+                          {/* Info Box */}
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                            <p className="text-sm text-gray-700">
+                              <strong>Note:</strong> Recommended for international flights
+                            </p>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Passport Number
+                            </label>
+                            <input
+                              type="text"
+                              value={currentPassenger.passportNumber}
+                              onChange={(e) =>
+                                updatePassenger(currentStep, 'passportNumber', e.target.value)
+                              }
+                              placeholder="A12345678"
+                              className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                Expiry Date
+                              </label>
+                              <input
+                                type="date"
+                                value={currentPassenger.passportExpiry}
+                                onChange={(e) =>
+                                  updatePassenger(currentStep, 'passportExpiry', e.target.value)
+                                }
+                                min={new Date().toISOString().split('T')[0]}
+                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                Issuing Country
+                              </label>
+                              <select
+                                value={currentPassenger.passportCountry}
+                                onChange={(e) =>
+                                  updatePassenger(currentStep, 'passportCountry', e.target.value)
+                                }
+                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all"
+                              >
+                                <option value="">Select country</option>
+                                {COUNTRIES.map((country) => (
+                                  <option key={country} value={country}>
+                                    {country}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
                 )}
               </div>
-
-              {/* Right Column - Booking Summary (1/3 width) - Hide in multi-room mode */}
-              {!isMultiRoomMode && (<div className="lg:col-span-1 space-y-3">
                 {/* Booking Summary Card */}
                 <div className="sticky top-6">
                   <div className="bg-white rounded border border-gray-200 p-3">
@@ -1763,7 +1708,6 @@ export default function PassengerDetailsModal({
                     </div>
                   </div>
                 </div>
-              )}
             </div>
           )}
           </div>
