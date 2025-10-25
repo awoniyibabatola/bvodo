@@ -150,13 +150,29 @@
   /* iOS-specific date input fixes for mobile devices only */
   @media (max-width: 768px) {
     input[type="date"] {
-      font-size: 18px !important;
-      min-height: 52px !important;
-      padding-top: 14px !important;
-      padding-bottom: 14px !important;
-      padding-left: 3rem !important;
+      font-size: 16px !important;
+      min-height: 48px !important;
+      padding-top: 12px !important;
+      padding-bottom: 12px !important;
+      padding-left: 2.75rem !important;
+      padding-right: 0.75rem !important;
       line-height: 1.5 !important;
-      background-color: white !important;
+      background-color: #ffffff !important;
+      color: #111827 !important;
+    }
+
+    /* Ensure calendar icon doesn't overlap on iOS */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      background: transparent;
+      position: absolute;
+      right: 0.75rem;
+      color: #9ca3af;
+    }
+
+    /* Target the date input value specifically on iOS */
+    input[type="date"]::-webkit-date-and-time-value {
+      text-align: left;
+      margin-left: 0;
     }
   }
 }
