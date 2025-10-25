@@ -21,6 +21,7 @@ import AIChatbox from '@/components/AIChatbox';
 import PassengerDetailsModal from '@/components/PassengerDetailsModal';
 import SeatSelection from '@/components/SeatSelection';
 import BaggageSelection from '@/components/BaggageSelection';
+import PaymentMethodSelector from '@/components/PaymentMethodSelector';
 import { getApiEndpoint } from '@/lib/api-config';
 
 // Airline names mapping
@@ -113,6 +114,10 @@ export default function FlightDetailsPage() {
   const [isGroupBooking, setIsGroupBooking] = useState(false);
   const [groupName, setGroupName] = useState<string | undefined>();
 
+  // Payment method selection
+  const [paymentMethod, setPaymentMethod] = useState<'credit' | 'card'>('credit');
+  const [userCredits, setUserCredits] = useState<number>(0);
+
   useEffect(() => {
     // Try to get flight data from sessionStorage first
     const sessionKey = `flight_${flightId}`;
@@ -132,6 +137,31 @@ export default function FlightDetailsPage() {
       router.push('/dashboard/flights/search');
     }
   }, [flightId, router]);
+
+  // Fetch user's credit balance
+  useEffect(() => {
+    const fetchUserCredits = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        const response = await fetch(getApiEndpoint('dashboard/overview'), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserCredits(data.data.organization?.creditBalance || 0);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user credits:', error);
+      }
+    };
+
+    fetchUserCredits();
+  }, []);
 
   const toggleSegment = (index: number) => {
     setExpandedSegments((prev) => ({
@@ -365,6 +395,9 @@ export default function FlightDetailsPage() {
         numberOfTravelers: passengers.length,
         groupName: isGroupBooking ? groupName : undefined,
 
+        // Payment method - NEW!
+        paymentMethod,
+
         // Provider details - needed for Duffel order creation on approval
         provider: 'duffel',                  // Provider type (duffel, amadeus)
         providerName: 'duffel',              // Provider display name
@@ -454,8 +487,16 @@ export default function FlightDetailsPage() {
 
       if (response.ok) {
         const result = await response.json();
-        alert('Booking created successfully!');
-        router.push(`/dashboard/bookings/${result.data.id}`);
+
+        // If card payment, redirect to Stripe checkout
+        if (paymentMethod === 'card' && result.checkoutUrl) {
+          console.log('Redirecting to Stripe checkout:', result.checkoutUrl);
+          window.location.href = result.checkoutUrl;
+        } else {
+          // For credit payment, show success and go to booking details
+          alert('Booking created successfully!');
+          router.push(`/dashboard/bookings/${result.data.bookingReference}`);
+        }
       } else {
         const error = await response.json();
         alert(error.message || 'Failed to create booking');
@@ -823,6 +864,16 @@ export default function FlightDetailsPage() {
                   <Check className="w-3 h-3 text-gray-700" />
                   <span>Flexible booking</span>
                 </div>
+              </div>
+
+              {/* Payment Method Selector */}
+              <div className="mb-4">
+                <PaymentMethodSelector
+                  value={paymentMethod}
+                  onChange={setPaymentMethod}
+                  userCredits={userCredits}
+                  bookingAmount={parseFloat(getFlightPrice(flight).total.toString())}
+                />
               </div>
 
               <button

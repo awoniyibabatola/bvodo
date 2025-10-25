@@ -2,7 +2,9 @@ import { Request, Response } from 'express';
 import { stripeService } from '../services/stripe.service';
 import { prisma } from '../config/database';
 import { logger } from '../utils/logger';
-import { duffelService } from '../services/duffel.service';
+import { DuffelService } from '../services/duffel.service';
+
+const duffelService = new DuffelService();
 
 /**
  * Create Stripe checkout session for booking payment
@@ -183,9 +185,10 @@ async function handleCheckoutSessionCompleted(session: any) {
       try {
         logger.info(`[Payment] Creating Duffel order for approved booking ${booking.bookingReference}`);
 
-        const offerId = booking.providerBookingReference || booking.bookingData?.id;
+        const bookingData = booking.bookingData as any;
+        const offerId = booking.providerBookingReference || bookingData?.id;
         const passengerDetails = booking.passengerDetails as any;
-        const services = booking.bookingData?.services as any;
+        const services = bookingData?.services as any;
 
         if (!offerId) {
           throw new Error('Offer ID not found in booking');
