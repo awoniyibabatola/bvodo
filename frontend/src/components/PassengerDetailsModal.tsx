@@ -5,6 +5,30 @@ import { X, Users, Plus, Trash2, UserPlus, Check, CreditCard as CreditCardIcon, 
 import CreditCard from './CreditCard';
 import { getApiEndpoint } from '@/lib/api-config';
 
+// Comprehensive list of countries
+const COUNTRIES = [
+  'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
+  'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
+  'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
+  'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
+  'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt',
+  'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
+  'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
+  'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel',
+  'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kosovo', 'Kuwait', 'Kyrgyzstan',
+  'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Madagascar',
+  'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia',
+  'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal',
+  'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'North Macedonia', 'Norway', 'Oman', 'Pakistan',
+  'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar',
+  'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia',
+  'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa',
+  'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan',
+  'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan',
+  'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City',
+  'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+];
+
 interface PassengerDetail {
   firstName: string;
   lastName: string;
@@ -1106,14 +1130,19 @@ export default function PassengerDetailsModal({
                                   <label className="block text-xs font-semibold text-gray-700 mb-0.5">
                                     Country *
                                   </label>
-                                  <input
-                                    type="text"
+                                  <select
                                     value={currentPassenger.country}
                                     onChange={(e) => updatePassenger(currentStep, 'country', e.target.value)}
-                                    placeholder="United States"
                                     className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
                                     required
-                                  />
+                                  >
+                                    <option value="">Select country</option>
+                                    {COUNTRIES.map((country) => (
+                                      <option key={country} value={country}>
+                                        {country}
+                                      </option>
+                                    ))}
+                                  </select>
                                 </div>
                               </div>
                             </div>
@@ -1478,29 +1507,11 @@ export default function PassengerDetailsModal({
                             required
                           >
                             <option value="">Select country</option>
-                            <option value="United States">United States</option>
-                            <option value="Canada">Canada</option>
-                            <option value="United Kingdom">United Kingdom</option>
-                            <option value="Australia">Australia</option>
-                            <option value="Germany">Germany</option>
-                            <option value="France">France</option>
-                            <option value="Italy">Italy</option>
-                            <option value="Spain">Spain</option>
-                            <option value="Netherlands">Netherlands</option>
-                            <option value="Belgium">Belgium</option>
-                            <option value="Switzerland">Switzerland</option>
-                            <option value="Mexico">Mexico</option>
-                            <option value="Brazil">Brazil</option>
-                            <option value="Argentina">Argentina</option>
-                            <option value="India">India</option>
-                            <option value="China">China</option>
-                            <option value="Japan">Japan</option>
-                            <option value="South Korea">South Korea</option>
-                            <option value="Singapore">Singapore</option>
-                            <option value="Nigeria">Nigeria</option>
-                            <option value="South Africa">South Africa</option>
-                            <option value="Kenya">Kenya</option>
-                            <option value="Egypt">Egypt</option>
+                            {COUNTRIES.map((country) => (
+                              <option key={country} value={country}>
+                                {country}
+                              </option>
+                            ))}
                           </select>
                         </div>
                       </div>
@@ -1582,29 +1593,11 @@ export default function PassengerDetailsModal({
                               className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white transition"
                             >
                               <option value="">Select country</option>
-                              <option value="United States">United States</option>
-                              <option value="Canada">Canada</option>
-                              <option value="United Kingdom">United Kingdom</option>
-                              <option value="Australia">Australia</option>
-                              <option value="Germany">Germany</option>
-                              <option value="France">France</option>
-                              <option value="Italy">Italy</option>
-                              <option value="Spain">Spain</option>
-                              <option value="Netherlands">Netherlands</option>
-                              <option value="Belgium">Belgium</option>
-                              <option value="Switzerland">Switzerland</option>
-                              <option value="Mexico">Mexico</option>
-                              <option value="Brazil">Brazil</option>
-                              <option value="Argentina">Argentina</option>
-                              <option value="India">India</option>
-                              <option value="China">China</option>
-                              <option value="Japan">Japan</option>
-                              <option value="South Korea">South Korea</option>
-                              <option value="Singapore">Singapore</option>
-                              <option value="Nigeria">Nigeria</option>
-                              <option value="South Africa">South Africa</option>
-                              <option value="Kenya">Kenya</option>
-                              <option value="Egypt">Egypt</option>
+                              {COUNTRIES.map((country) => (
+                                <option key={country} value={country}>
+                                  {country}
+                                </option>
+                              ))}
                             </select>
                           </div>
                         </div>
