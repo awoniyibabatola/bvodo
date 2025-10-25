@@ -1727,6 +1727,17 @@ export default function FlightSearchPage() {
                           const firstSegment = flight.outbound?.[0];
                           const baggage = firstSegment?.baggage;
 
+                          // Debug logging - remove after testing
+                          if (typeof window !== 'undefined') {
+                            console.log('Flight baggage data:', {
+                              provider: flight.provider,
+                              hasOutbound: !!flight.outbound,
+                              firstSegment: firstSegment ? 'exists' : 'missing',
+                              baggage: baggage,
+                              fullSegment: firstSegment
+                            });
+                          }
+
                           if (baggage) {
                             return (
                               <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs text-gray-600 mt-2">
