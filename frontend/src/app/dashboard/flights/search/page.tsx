@@ -1570,27 +1570,80 @@ export default function FlightSearchPage() {
               const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
 
               if (hasRoundTrip && showReturnFlightSelection && selectedOutboundFlight) {
+                // Show selected outbound flight summary
+                const outboundSegments = selectedOutboundFlight.outbound || [];
+                const firstSegment = outboundSegments[0];
+                const lastSegment = outboundSegments[outboundSegments.length - 1];
+                const departure = getSegmentDeparture(firstSegment);
+                const arrival = getSegmentArrival(lastSegment);
+                const depTime = new Date(departure.at).toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                });
+                const arrTime = new Date(arrival.at).toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                });
+
                 return (
-                  <div>
-                    <button
-                      onClick={() => {
-                        setShowReturnFlightSelection(false);
-                        setSelectedOutboundFlight(null);
-                      }}
-                      className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-3 transition-colors"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      <span>Change outbound flight</span>
-                    </button>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  <div className="mb-6 space-y-4">
+                    {/* Progress Steps */}
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center">
+                          <Check className="w-5 h-5" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">Outbound Selected</span>
+                      </div>
+                      <div className="w-16 h-0.5 bg-gray-300"></div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                           2
                         </div>
+                        <span className="text-sm font-medium text-gray-900">Choose Return</span>
+                      </div>
+                    </div>
+
+                    {/* Selected Outbound Flight Card */}
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-xl p-5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <Plane className="w-5 h-5 text-green-700 rotate-90" />
+                            <div>
+                              <div className="text-xs font-bold text-green-700 uppercase">Outbound Flight Selected</div>
+                              <div className="text-sm font-bold text-gray-900 mt-1">
+                                {departure.iataCode} → {arrival.iataCode}
+                              </div>
+                              <div className="text-xs text-gray-600 mt-0.5">
+                                {depTime} - {arrTime} • {new Date(departure.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setShowReturnFlightSelection(false);
+                            setSelectedOutboundFlight(null);
+                          }}
+                          className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-white/50 rounded-lg transition-colors flex items-center gap-2"
+                        >
+                          <ArrowLeft className="w-4 h-4" />
+                          Change
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Return Flight Selection Header */}
+                    <div className="bg-white border-2 border-blue-400 rounded-xl p-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                          <Plane className="w-5 h-5 text-white -rotate-90" />
+                        </div>
                         <div>
-                          <h3 className="text-base font-bold text-gray-900">Choose your return flight</h3>
+                          <h3 className="text-lg font-bold text-gray-900">Select Your Return Flight</h3>
                           <p className="text-sm text-gray-600 mt-0.5">
-                            Select a return flight that works for your schedule
+                            Choose when you want to fly back
                           </p>
                         </div>
                       </div>
@@ -1601,16 +1654,36 @@ export default function FlightSearchPage() {
 
               if (hasRoundTrip && !showReturnFlightSelection) {
                 return (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
-                        1
+                  <div className="mb-6">
+                    {/* Progress Steps */}
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                          1
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">Choose Outbound</span>
                       </div>
-                      <div>
-                        <h3 className="text-base font-bold text-gray-900">Choose your outbound flight</h3>
-                        <p className="text-sm text-gray-600 mt-0.5">
-                          You'll select your return flight in the next step
-                        </p>
+                      <div className="w-16 h-0.5 bg-gray-300"></div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">
+                          2
+                        </div>
+                        <span className="text-sm font-medium text-gray-500">Choose Return</span>
+                      </div>
+                    </div>
+
+                    {/* Outbound Selection Header */}
+                    <div className="bg-white border-2 border-blue-400 rounded-xl p-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                          <Plane className="w-5 h-5 text-white rotate-90" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900">Select Your Outbound Flight</h3>
+                          <p className="text-sm text-gray-600 mt-0.5">
+                            Choose when you want to depart
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
