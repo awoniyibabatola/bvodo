@@ -13,6 +13,7 @@ import {
 } from '../utils/email.service';
 import duffelService from '../services/duffel.service';
 import emailService from '../services/email.service';
+import { stripeService } from '../services/stripe.service';
 
 /**
  * Parse ISO 8601 duration string to minutes
@@ -276,6 +277,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       providerBookingReference,
       bookingData,
       services,                     // NEW: Services array (seats & baggage)
+      paymentMethod = 'credit',     // NEW: Payment method ('credit' or 'card')
       flightDetails,
       hotelDetails,
     } = req.body;
@@ -496,8 +498,9 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       return newBooking;
     });
 
-    // For bookings that don't require approval: deduct credits and create Duffel order immediately
-    if (!requiresApproval) {
+    // For bookings that don't require approval AND using Bvodo credits: deduct credits and create Duffel order immediately
+    // For card payments, this will be handled after Stripe payment via webhook
+    if (!requiresApproval && paymentMethod === 'credit') {
       // 2. Create Duffel order for flight bookings FIRST (before deducting credits)
       let duffelOrder: any = null;
 
@@ -747,12 +750,55 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       );
     }
 
+    // If payment method is 'card', create Stripe checkout session
+    let checkoutUrl = null;
+    if (paymentMethod === 'card' && completeBooking) {
+      try {
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+
+        const session = await stripeService.createCheckoutSession({
+          bookingReference: completeBooking.bookingReference,
+          amount: parseFloat(completeBooking.totalPrice.toString()),
+          currency: completeBooking.currency,
+          customerEmail: completeBooking.user.email,
+          successUrl: `${frontendUrl}/dashboard/bookings/${completeBooking.bookingReference}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${frontendUrl}/dashboard/bookings/${completeBooking.bookingReference}?payment=cancelled`,
+          metadata: {
+            bookingId: completeBooking.id,
+            userId: completeBooking.userId,
+            organizationId: completeBooking.organizationId,
+            requiresApproval: requiresApproval.toString(),
+          },
+        });
+
+        checkoutUrl = session.url;
+
+        // Update booking with checkout session ID
+        await prisma.booking.update({
+          where: { id: completeBooking.id },
+          data: {
+            checkoutSessionId: session.id,
+            paymentStatus: 'pending',
+          },
+        });
+
+        logger.info(`[Booking] Stripe checkout created for ${completeBooking.bookingReference}: ${session.id}`);
+      } catch (stripeError: any) {
+        logger.error('[Booking] Failed to create Stripe checkout:', stripeError);
+        // Don't fail the booking, just log the error
+        // User can retry payment later via the payment page
+      }
+    }
+
     res.status(201).json({
       success: true,
       message: requiresApproval
         ? 'Booking created and pending approval'
-        : 'Booking created successfully',
+        : paymentMethod === 'card'
+          ? 'Booking created. Please complete payment to confirm.'
+          : 'Booking created successfully',
       data: completeBooking,
+      checkoutUrl, // Include checkout URL for card payments
     });
   } catch (error: any) {
     logger.error('Create booking error:', error);

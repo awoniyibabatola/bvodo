@@ -17,6 +17,7 @@ import companyAdminRoutes from './routes/company-admin.routes';
 import superAdminRoutes from './routes/super-admin.routes';
 import creditApplicationRoutes from './routes/credit-application.routes';
 import testRoutes from './routes/test.routes';
+import paymentRoutes from './routes/payment.routes';
 // import userRoutes from './routes/user.routes';
 // import organizationRoutes from './routes/organization.routes';
 // import creditRoutes from './routes/credit.routes';
@@ -56,7 +57,14 @@ app.use(
 );
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
+// Stripe webhook needs raw body, so exclude it from JSON parsing
+app.use((req, res, next) => {
+  if (req.originalUrl.includes('/payments/webhook')) {
+    next();
+  } else {
+    express.json({ limit: '10mb' })(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // HTTP request logger
@@ -90,6 +98,7 @@ app.use(`${apiPrefix}/dashboard`, dashboardRoutes);
 app.use(`${apiPrefix}/company-admin`, companyAdminRoutes);
 app.use(`${apiPrefix}/super-admin`, superAdminRoutes);
 app.use(`${apiPrefix}/credit-applications`, creditApplicationRoutes);
+app.use(`${apiPrefix}/payments`, paymentRoutes);
 app.use(`${apiPrefix}/test`, testRoutes);
 // app.use(`${apiPrefix}/users`, userRoutes);
 // app.use(`${apiPrefix}/organizations`, organizationRoutes);
