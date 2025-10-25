@@ -882,34 +882,85 @@ export default function FlightSearchPage() {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-        @keyframes slide-down {
-          from {
-            transform: translate(-50%, -100%);
+        @keyframes fade-scale {
+          0% {
             opacity: 0;
+            transform: scale(0.9);
           }
-          to {
-            transform: translate(-50%, 0);
+          100% {
             opacity: 1;
+            transform: scale(1);
           }
         }
-        .animate-slide-down {
-          animation: slide-down 0.4s ease-out;
+        @keyframes progress-bar {
+          0% {
+            width: 0%;
+          }
+          100% {
+            width: 100%;
+          }
+        }
+        .animate-fade-scale {
+          animation: fade-scale 0.3s ease-out;
+        }
+        .animate-progress {
+          animation: progress-bar 4s linear;
         }
       `}</style>
       <div className="min-h-screen bg-gray-50">
         {/* Navigation */}
         <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
 
-        {/* Transition Notification Toast */}
+        {/* Transition Notification */}
         {showTransitionNotification && (
-          <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-slide-down">
-            <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-4 rounded-lg shadow-2xl border-2 border-green-500 flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                <Check className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <div className="font-bold text-sm">Outbound Flight Selected!</div>
-                <div className="text-xs text-gray-300 mt-0.5">Now select your return flight</div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="animate-fade-scale">
+              <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md mx-4">
+                {/* Success Header */}
+                <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                      <Check className="w-7 h-7 text-green-600" />
+                    </div>
+                    <div className="text-white">
+                      <div className="font-bold text-lg">Outbound Flight Selected</div>
+                      <div className="text-sm text-green-100">Step 1 of 2 complete</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="px-6 py-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <Check className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-600">Outbound flight</span>
+                      </div>
+                      <div className="w-full h-1 bg-green-500 rounded-full"></div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">2</span>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">Return flight</span>
+                      </div>
+                      <div className="w-full h-1 bg-gray-200 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <p className="text-gray-600 text-center text-sm">
+                    Great! Now choose your return flight to complete your booking
+                  </p>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="h-1 bg-gray-100">
+                  <div className="h-full bg-green-500 animate-progress"></div>
+                </div>
               </div>
             </div>
           </div>
