@@ -1554,158 +1554,6 @@ export default function PassengerDetailsModal({
                   </div>
                 )}
               </div>
-                {/* Booking Summary Card */}
-                <div className="sticky top-6">
-                  <div className="bg-white rounded border border-gray-200 p-3">
-                    <h3 className="text-xs font-bold text-gray-900 mb-3 flex items-center gap-1.5">
-                      {bookingType === 'flight' ? (
-                        <Plane className="w-3 h-3 text-gray-700" />
-                      ) : (
-                        <Hotel className="w-3 h-3 text-gray-700" />
-                      )}
-                      Booking Summary
-                    </h3>
-
-                      {/* Booking Details */}
-                      {bookingDetails && (
-                        <div className="mb-3 bg-gray-50 rounded p-2 border border-gray-200">
-                          {bookingType === 'hotel' ? (
-                            <>
-                              <div className="flex items-start gap-2 mb-2">
-                                <Hotel className="w-3 h-3 text-gray-700 flex-shrink-0 mt-0.5" />
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-bold text-gray-900 text-xs mb-0.5 truncate">
-                                    {bookingDetails.hotelName || 'Hotel Booking'}
-                                  </h4>
-                                  {bookingDetails.roomType && (
-                                    <p className="text-xs text-gray-600 font-medium">
-                                      {bookingDetails.roomType}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="space-y-1 text-xs">
-                                {bookingDetails.checkInDate && bookingDetails.checkOutDate && (
-                                  <div className="flex items-center gap-1.5 text-gray-700">
-                                    <Calendar className="w-3 h-3 text-gray-600" />
-                                    <span className="font-medium text-xs">
-                                      {new Date(bookingDetails.checkInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(bookingDetails.checkOutDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </span>
-                                  </div>
-                                )}
-                                {bookingDetails.numberOfNights && (
-                                  <div className="flex items-center gap-1.5 text-gray-700">
-                                    <Clock className="w-3 h-3 text-gray-600" />
-                                    <span className="font-medium text-xs">{bookingDetails.numberOfNights} {bookingDetails.numberOfNights === 1 ? 'night' : 'nights'}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="flex items-start gap-2 mb-2">
-                                <Plane className="w-3 h-3 text-gray-700 flex-shrink-0 mt-0.5" />
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-bold text-gray-900 text-xs mb-0.5">
-                                    {bookingDetails.airline || 'Flight Booking'}
-                                  </h4>
-                                  {bookingDetails.flightNumber && (
-                                    <p className="text-xs text-gray-600 font-medium">
-                                      Flight {bookingDetails.flightNumber}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="space-y-1 text-xs">
-                                {bookingDetails.departureAirport && bookingDetails.arrivalAirport && (
-                                  <div className="flex items-center gap-1.5 text-gray-700">
-                                    <MapPin className="w-3 h-3 text-gray-600" />
-                                    <span className="font-medium text-xs">
-                                      {bookingDetails.departureAirport} → {bookingDetails.arrivalAirport}
-                                    </span>
-                                  </div>
-                                )}
-                                {bookingDetails.departureDate && (
-                                  <div className="flex items-center gap-1.5 text-gray-700">
-                                    <Calendar className="w-3 h-3 text-gray-600" />
-                                    <span className="font-medium text-xs">
-                                      {new Date(bookingDetails.departureDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </span>
-                                  </div>
-                                )}
-                                {bookingDetails.cabinClass && (
-                                  <div className="flex items-center gap-1.5 text-gray-700">
-                                    <Users className="w-3 h-3 text-gray-600" />
-                                    <span className="font-medium text-xs capitalize">{bookingDetails.cabinClass}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Details */}
-                      <div className="space-y-2">
-                        <div className="bg-gray-50 rounded p-2 border border-gray-200">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs text-gray-600 font-medium">Travelers</span>
-                            <span className="text-sm font-bold text-gray-900">{numberOfTravelers}</span>
-                          </div>
-                          {isGroupBooking && groupName && (
-                            <div className="pt-1 border-t border-gray-200 mt-1">
-                              <div className="flex items-center gap-1.5">
-                                <Users className="w-3 h-3 text-gray-700" />
-                                <span className="text-xs font-semibold text-gray-900">{groupName}</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="bg-gray-50 rounded p-2 border border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-600 font-medium">Total Amount</span>
-                            <span className="text-sm font-bold text-gray-900">
-                              ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            </span>
-                          </div>
-                          <div className="text-xs text-gray-500 mt-0.5">{currency}</div>
-                        </div>
-
-                        {/* Progress Indicator */}
-                        <div className="bg-gray-50 rounded p-2 border border-gray-200">
-                          <div className="text-xs font-medium text-gray-700 mb-2">Completion Progress</div>
-                          <div className="space-y-1.5">
-                            {Array.from({ length: numberOfTravelers }).map((_, idx) => (
-                              <div key={idx} className="flex items-center gap-2">
-                                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                                  idx < currentStep
-                                    ? 'bg-gray-700 text-white'
-                                    : idx === currentStep
-                                    ? 'bg-gray-900 text-white'
-                                    : 'bg-gray-200 text-gray-500'
-                                }`}>
-                                  {idx < currentStep ? '✓' : idx + 1}
-                                </div>
-                                <span className={`text-xs ${
-                                  idx <= currentStep ? 'font-semibold text-gray-900' : 'text-gray-500'
-                                }`}>
-                                  {bookingType === 'flight' ? 'Passenger' : 'Guest'} {idx + 1}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Security Badge */}
-                        <div className="flex items-center gap-1.5 p-2 bg-gray-50 border border-gray-200 rounded">
-                          <Lock className="w-3 h-3 text-gray-700" />
-                          <span className="text-xs text-gray-900 font-medium">Secure & Encrypted</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
             </div>
           )}
           </div>
@@ -1742,19 +1590,13 @@ export default function PassengerDetailsModal({
               {/* Multi-room footer: just show complete booking button */}
               <div className="flex-1" />
 
-              <div className="text-center">
-                <p className="text-xs text-gray-600">
-                  {passengers.filter(p => p.firstName && p.lastName && p.email).length} of {totalGuests} guests added
-                </p>
-              </div>
-
               <button
-                type="button"
                 onClick={handleMultiRoomSubmit}
-                className="px-4 py-2 bg-gray-900 text-white rounded font-semibold hover:bg-gray-800 transition-all flex items-center gap-1.5 text-xs"
+                disabled={rooms.length !== numberOfRooms || rooms.some(r => r.assignedGuestIds.length === 0)}
+                className="px-4 py-2 bg-gray-900 text-white rounded font-semibold hover:bg-gray-800 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
               >
                 <Check className="w-3 h-3" />
-                <span>Complete Booking</span>
+                <span>Complete Multi-Room Booking</span>
               </button>
             </>
           ) : (
