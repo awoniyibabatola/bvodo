@@ -1053,13 +1053,14 @@ export default function FlightSearchPage() {
               </div>
 
               {/* Swap Button */}
-              <div className="lg:col-span-1 flex items-end">
+              <div className="hidden lg:flex lg:col-span-1 items-end justify-center">
                 <button
                   type="button"
                   onClick={swapLocations}
-                  className="w-full lg:w-auto p-2.5 md:p-3 bg-gray-100 border border-gray-300 rounded-lg"
+                  className="p-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+                  title="Swap origin and destination"
                 >
-                  <ArrowLeftRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />
+                  <ArrowLeftRight className="w-4 h-4 text-gray-600" />
                 </button>
               </div>
 
@@ -1089,7 +1090,7 @@ export default function FlightSearchPage() {
                     onChange={(e) => setDepartureDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-4 text-lg text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[48px]"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 md:py-4 text-base md:text-lg text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px] md:min-h-[48px]"
                   />
                 </div>
               </div>
@@ -1106,7 +1107,7 @@ export default function FlightSearchPage() {
                       onChange={(e) => setReturnDate(e.target.value)}
                       min={departureDate || new Date().toISOString().split('T')[0]}
                       required={tripType === 'roundtrip'}
-                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-4 text-lg text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[48px]"
+                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 md:py-4 text-base md:text-lg text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px] md:min-h-[48px]"
                     />
                   </div>
                 </div>
@@ -1356,13 +1357,7 @@ export default function FlightSearchPage() {
                     initialDisplayValue={fromDisplay}
                   />
 
-                  <button
-                    type="button"
-                    onClick={swapLocations}
-                    className="w-full p-2.5 bg-gray-100 border border-gray-300 rounded-lg"
-                  >
-                    <ArrowLeftRight className="w-4 h-4 text-gray-600 mx-auto" />
-                  </button>
+                  {/* Swap button hidden on mobile - not needed due to space constraints */}
 
                   <AirportAutocomplete
                     value={to}

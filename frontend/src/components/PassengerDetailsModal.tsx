@@ -1412,7 +1412,7 @@ export default function PassengerDetailsModal({
                               max={new Date().toISOString().split('T')[0]}
                               min={new Date(new Date().setFullYear(new Date().getFullYear() - 120)).toISOString().split('T')[0]}
                               title="Please select your date of birth. Must be at least 2 years old to travel alone."
-                              className="w-full px-4 py-4 border border-gray-300 rounded-lg text-lg text-gray-900 focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[48px]"
+                              className="w-full px-4 py-3 md:py-4 border border-gray-300 rounded-lg text-base md:text-lg text-gray-900 focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px] md:min-h-[48px]"
                               required={bookingType === 'flight'}
                             />
                             <p className="text-xs text-gray-500 mt-1.5">Min. 2 years old</p>
@@ -1525,7 +1525,7 @@ export default function PassengerDetailsModal({
                                   updatePassenger(currentStep, 'passportExpiry', e.target.value)
                                 }
                                 min={new Date().toISOString().split('T')[0]}
-                                className="w-full px-4 py-4 border border-gray-300 rounded-lg text-lg text-gray-900 focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[48px]"
+                                className="w-full px-4 py-3 md:py-4 border border-gray-300 rounded-lg text-base md:text-lg text-gray-900 focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px] md:min-h-[48px]"
                               />
                             </div>
                             <div>
