@@ -407,6 +407,8 @@ export default function FlightSearchPage() {
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const [draftBookings, setDraftBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
+  const [expandedFlights, setExpandedFlights] = useState<Set<string>>(new Set());
+  const [selectedFares, setSelectedFares] = useState<Map<string, any>>(new Map());
 
   // Close passenger selector when clicking outside
   useEffect(() => {
@@ -1550,19 +1552,48 @@ export default function FlightSearchPage() {
               </div>
             </div>
 
-            {flights.filter(f => {
-              // Filter by airline
-              if (selectedAirline !== 'all') {
-                const airlines = getAirlineCodes(f);
-                if (!airlines.includes(selectedAirline)) return false;
-              }
-              // Filter by cabin class
-              if (selectedCabinClass !== 'all') {
-                const cabinClass = f.cabinClass || f.cabin || 'ECONOMY';
-                if (cabinClass !== selectedCabinClass) return false;
-              }
-              return true;
-            }).map((flight, index) => {
+            {(() => {
+              // Group flights by route
+              const groupedFlights: { [key: string]: any[] } = {};
+
+              flights.forEach((flight) => {
+                // Apply filters
+                if (selectedAirline !== 'all') {
+                  const airlines = getAirlineCodes(flight);
+                  if (!airlines.includes(selectedAirline)) return;
+                }
+                if (selectedCabinClass !== 'all') {
+                  const cabinClass = flight.cabinClass || flight.cabin || 'ECONOMY';
+                  if (cabinClass !== selectedCabinClass) return;
+                }
+
+                const segments = getFlightSegments(flight);
+                if (segments.length === 0) return;
+
+                const firstSegment = segments[0];
+                const lastSegment = segments[segments.length - 1];
+                const departure = getSegmentDeparture(firstSegment);
+                const arrival = getSegmentArrival(lastSegment);
+                const depTime = new Date(departure.at);
+
+                // Group by route and time window (hourly)
+                const routeKey = `${departure.iataCode}-${arrival.iataCode}-${depTime.toDateString()}-${depTime.getHours()}-${segments.length}`;
+
+                if (!groupedFlights[routeKey]) {
+                  groupedFlights[routeKey] = [];
+                }
+                groupedFlights[routeKey].push(flight);
+              });
+
+              // Convert to array and sort each group by price
+              return Object.values(groupedFlights).map((flightGroup) => {
+                flightGroup.sort((a, b) => getFlightPrice(a).total - getFlightPrice(b).total);
+                return flightGroup;
+              });
+            })().map((flightGroup, groupIndex) => {
+              // Use the first (cheapest) flight for display
+              const flight = flightGroup[0];
+              const index = groupIndex;
               const segments = getFlightSegments(flight);
               const firstSegment = segments[0];
               const lastSegment = segments[segments.length - 1];
@@ -1810,7 +1841,7 @@ export default function FlightSearchPage() {
                       <div className="flex-shrink-0 lg:w-56 w-full">
                         <div className="p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
                           <div className="text-[10px] text-gray-500 mb-1 md:mb-2">
-                            Total Price
+                            {flightGroup.length > 1 ? 'From' : 'Total Price'}
                           </div>
                           <div className="text-lg md:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">
                             {getFlightPrice(flight).currency}{' '}
@@ -1823,12 +1854,31 @@ export default function FlightSearchPage() {
                             for {getTotalPassengers()} {getTotalPassengers() === 1 ? 'passenger' : 'passengers'}
                           </div>
 
+                          {/* Fare Options Toggle */}
+                          {flightGroup.length > 1 && (
+                            <button
+                              onClick={() => {
+                                const newExpanded = new Set(expandedFlights);
+                                const key = `group-${groupIndex}`;
+                                if (newExpanded.has(key)) {
+                                  newExpanded.delete(key);
+                                } else {
+                                  newExpanded.add(key);
+                                }
+                                setExpandedFlights(newExpanded);
+                              }}
+                              className="w-full mb-2 px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-2 hover:bg-gray-50 transition"
+                            >
+                              {expandedFlights.has(`group-${groupIndex}`) ? 'Hide' : 'Show'} {flightGroup.length} Fare Options
+                              <ArrowLeftRight className="w-3 h-3" />
+                            </button>
+                          )}
+
                           <button
                             onClick={() => {
-                              // Store flight data in sessionStorage to avoid URL length limits
-                              sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flight));
-                              // Navigate to details page
-                              window.location.href = `/dashboard/flights/${flight.id || index}`;
+                              const selectedFlight = selectedFares.get(`group-${groupIndex}`) || flight;
+                              sessionStorage.setItem(`flight_${selectedFlight.id || index}`, JSON.stringify(selectedFlight));
+                              window.location.href = `/dashboard/flights/${selectedFlight.id || index}`;
                             }}
                             className="w-full px-4 md:px-6 py-2.5 md:py-3 bg-gray-900 text-white rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2"
                           >
@@ -1838,6 +1888,108 @@ export default function FlightSearchPage() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Expandable Fare Options */}
+                    {expandedFlights.has(`group-${groupIndex}`) && flightGroup.length > 1 && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <div className="text-sm font-bold text-gray-900 mb-3">
+                          Select Your Fare ({flightGroup.length} options available)
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                          {flightGroup.map((fareOption: any, fareIndex: number) => {
+                            const farePrice = getFlightPrice(fareOption);
+                            const isSelected = selectedFares.get(`group-${groupIndex}`)?.id === fareOption.id;
+                            const fareBaggage = fareOption.outbound?.[0]?.baggage;
+
+                            return (
+                              <div
+                                key={fareIndex}
+                                onClick={() => {
+                                  const newSelected = new Map(selectedFares);
+                                  newSelected.set(`group-${groupIndex}`, fareOption);
+                                  setSelectedFares(newSelected);
+                                }}
+                                className={`p-3 border-2 rounded-lg cursor-pointer transition ${
+                                  isSelected
+                                    ? 'border-gray-900 bg-gray-50'
+                                    : 'border-gray-200 hover:border-gray-400'
+                                }`}
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      {fareOption.fareBrandName ? (
+                                        <span className="text-sm font-bold text-gray-900">
+                                          {fareOption.fareBrandName}
+                                        </span>
+                                      ) : (
+                                        <span className="text-sm font-bold text-gray-900">
+                                          Option {fareIndex + 1}
+                                        </span>
+                                      )}
+                                      {isSelected && (
+                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-900 text-white rounded-md">
+                                          <Check className="w-3 h-3" />
+                                          <span className="text-[10px] font-medium">Selected</span>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-2 text-[10px]">
+                                      {fareOption.isRefundable ? (
+                                        <div className="flex items-center gap-1 text-green-700">
+                                          <Check className="w-3 h-3" />
+                                          <span>Refundable</span>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-1 text-gray-500">
+                                          <X className="w-3 h-3" />
+                                          <span>Non-refundable</span>
+                                        </div>
+                                      )}
+                                      {fareOption.isChangeable ? (
+                                        <div className="flex items-center gap-1 text-blue-700">
+                                          <Check className="w-3 h-3" />
+                                          <span>Changeable</span>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-1 text-gray-500">
+                                          <X className="w-3 h-3" />
+                                          <span>No changes</span>
+                                        </div>
+                                      )}
+                                      {fareBaggage?.checked && fareBaggage.checked !== '0 bags' && (
+                                        <div className="flex items-center gap-1 text-gray-700">
+                                          <Luggage className="w-3 h-3" />
+                                          <span>{fareBaggage.checked}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div className="text-right">
+                                    <div className="text-lg font-bold text-gray-900">
+                                      {farePrice.currency} {farePrice.total.toLocaleString('en-US', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                      })}
+                                    </div>
+                                    {fareIndex > 0 && (
+                                      <div className="text-[10px] text-gray-500">
+                                        +{farePrice.currency} {(farePrice.total - getFlightPrice(flightGroup[0]).total).toLocaleString('en-US', {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
