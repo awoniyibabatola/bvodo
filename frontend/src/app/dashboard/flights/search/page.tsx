@@ -1059,10 +1059,10 @@ export default function FlightSearchPage() {
                 <button
                   type="button"
                   onClick={swapLocations}
-                  className="hidden lg:flex absolute left-1/2 -translate-x-1/2 bottom-3 z-10 p-1.5 bg-white border-2 border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-900 transition-all shadow-sm"
+                  className="hidden lg:flex absolute left-1/2 -translate-x-1/2 bottom-3 z-10 p-1.5 bg-white border-2 border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-900 transition-all shadow-sm group"
                   title="Swap origin and destination"
                 >
-                  <ArrowLeftRight className="w-3.5 h-3.5 text-gray-600" />
+                  <ArrowLeftRight className="w-3.5 h-3.5 text-gray-600 transition-transform duration-300 group-hover:rotate-180" />
                 </button>
 
                 {/* To */}
