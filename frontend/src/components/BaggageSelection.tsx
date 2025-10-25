@@ -49,6 +49,7 @@ export default function BaggageSelection({
 }: BaggageSelectionProps) {
   const [baggageServices, setBaggageServices] = useState<BaggageService[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedBaggage, setSelectedBaggage] = useState<Map<string, SelectedBaggage>>(new Map());
 
   useEffect(() => {
@@ -59,14 +60,23 @@ export default function BaggageSelection({
 
   const fetchBaggageServices = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch(getApiEndpoint(`flights/offers/${offerId}/services`));
       const data = await response.json();
-      if (data.success) {
+
+      if (data.success && data.data && data.data.length > 0) {
         setBaggageServices(data.data);
+        setError(null);
+      } else if (data.success && (!data.data || data.data.length === 0)) {
+        setBaggageServices([]);
+        setError('No additional baggage options available for this flight. Your ticket may already include baggage allowance.');
+      } else {
+        setError(data.message || 'Failed to load baggage options. Please try again.');
       }
     } catch (error) {
       console.error('Error fetching baggage services:', error);
+      setError('Unable to connect to the server. Please check your internet connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -137,6 +147,20 @@ export default function BaggageSelection({
             <div className="flex flex-col items-center justify-center py-12">
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mb-4" />
               <p className="text-gray-600">Loading baggage options...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 max-w-md mx-auto">
+                <Briefcase className="w-12 h-12 text-yellow-600 mx-auto mb-3" />
+                <p className="text-gray-900 font-semibold mb-2">Baggage Options Unavailable</p>
+                <p className="text-gray-600 text-sm">{error}</p>
+                <button
+                  onClick={onClose}
+                  className="mt-4 px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
+                >
+                  Continue Without Extra Baggage
+                </button>
+              </div>
             </div>
           ) : baggageServices.length === 0 ? (
             <div className="text-center py-12">

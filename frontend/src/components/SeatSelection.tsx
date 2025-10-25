@@ -63,6 +63,7 @@ export default function SeatSelection({
 }: SeatSelectionProps) {
   const [seatMaps, setSeatMaps] = useState<SeatMap[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<SelectedSeat[]>([]);
   const [currentPassengerIndex, setCurrentPassengerIndex] = useState(0);
   const [currentSegmentIndex, setCurrentSegmentIndex] = useState(0);
@@ -76,14 +77,23 @@ export default function SeatSelection({
 
   const fetchSeatMaps = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch(getApiEndpoint(`flights/offers/${offerId}/seat-maps`));
       const data = await response.json();
-      if (data.success) {
+
+      if (data.success && data.data && data.data.length > 0) {
         setSeatMaps(data.data);
+        setError(null);
+      } else if (data.success && (!data.data || data.data.length === 0)) {
+        setSeatMaps([]);
+        setError('No seat maps available for this flight. Seat selection may not be offered by the airline.');
+      } else {
+        setError(data.message || 'Failed to load seat maps. Please try again.');
       }
     } catch (error) {
       console.error('Error fetching seat maps:', error);
+      setError('Unable to connect to the server. Please check your internet connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -196,8 +206,23 @@ export default function SeatSelection({
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mb-4" />
               <p className="text-gray-600">Loading seat map...</p>
             </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 max-w-md mx-auto">
+                <Info className="w-12 h-12 text-yellow-600 mx-auto mb-3" />
+                <p className="text-gray-900 font-semibold mb-2">Seat Selection Unavailable</p>
+                <p className="text-gray-600 text-sm">{error}</p>
+                <button
+                  onClick={onClose}
+                  className="mt-4 px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
+                >
+                  Continue Without Seats
+                </button>
+              </div>
+            </div>
           ) : !currentSeatMap ? (
             <div className="text-center py-12">
+              <Info className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-600">No seat map available for this flight</p>
             </div>
           ) : (
