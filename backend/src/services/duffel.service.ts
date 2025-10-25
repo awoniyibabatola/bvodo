@@ -159,6 +159,28 @@ export class DuffelService implements IFlightProvider {
       );
       const offer = offerResponse.data;
 
+      // Check if offer has expired BEFORE attempting to create order
+      const expiresAt = new Date(offer.expires_at);
+      const now = new Date();
+
+      if (expiresAt <= now) {
+        const expiredMinutesAgo = Math.floor((now.getTime() - expiresAt.getTime()) / 60000);
+        logger.error(`[Duffel] Offer ${params.offerId} expired ${expiredMinutesAgo} minutes ago at ${offer.expires_at}`);
+        throw new Error(
+          `This flight offer has expired ${expiredMinutesAgo} minutes ago. ` +
+          `Flight offers are only valid for 5-15 minutes. ` +
+          `Please search for flights again to get fresh availability and pricing.`
+        );
+      }
+
+      const minutesUntilExpiry = Math.floor((expiresAt.getTime() - now.getTime()) / 60000);
+      logger.info(`[Duffel] Offer ${params.offerId} is valid for ${minutesUntilExpiry} more minutes (expires at ${offer.expires_at})`);
+
+      // Warn if offer will expire very soon
+      if (minutesUntilExpiry < 2) {
+        logger.warn(`[Duffel] WARNING: Offer expires in less than 2 minutes! This booking may fail.`);
+      }
+
       // Transform passengers to Duffel format, mapping to offer passenger IDs
       const duffelPassengers = this.transformPassengersToDuffel(params.passengers, offer.passengers);
 
@@ -206,7 +228,7 @@ export class DuffelService implements IFlightProvider {
         passengers: duffelPassengers,
         payments: [
           {
-            type: 'balance',
+            type: 'arc_bsp_cash', // Standard payment method that works in test/production
             amount: totalAmount.toFixed(2), // Include only valid services in payment amount
             currency: offer.total_currency,
           },

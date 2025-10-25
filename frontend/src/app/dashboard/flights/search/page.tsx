@@ -1721,6 +1721,39 @@ export default function FlightSearchPage() {
                           <Briefcase className="w-3 h-3" />
                           <span className="font-medium">{flight.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || 'Economy'}</span>
                         </div>
+
+                        {/* Baggage Allowance */}
+                        {(() => {
+                          const firstSegment = flight.outbound?.[0];
+                          const baggage = firstSegment?.baggage;
+
+                          if (baggage) {
+                            return (
+                              <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs text-gray-600 mt-2">
+                                {baggage.checked && baggage.checked !== '0 bags' && (
+                                  <div className="flex items-center gap-1">
+                                    <Luggage className="w-3 h-3 text-gray-700" />
+                                    <span className="font-medium">{baggage.checked}</span>
+                                  </div>
+                                )}
+                                {baggage.carryOn && baggage.carryOn !== '0 bags' && (
+                                  <div className="flex items-center gap-1">
+                                    <Briefcase className="w-3 h-3 text-gray-700" />
+                                    <span className="font-medium">{baggage.carryOn} carry-on</span>
+                                  </div>
+                                )}
+                                {(!baggage.checked || baggage.checked === '0 bags') &&
+                                 (!baggage.carryOn || baggage.carryOn === '0 bags') && (
+                                  <div className="flex items-center gap-1 text-yellow-600">
+                                    <Luggage className="w-3 h-3" />
+                                    <span className="font-medium">No baggage included</span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
 
                       {/* Price & CTA */}
