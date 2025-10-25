@@ -412,6 +412,7 @@ export default function FlightSearchPage() {
   const [selectedFares, setSelectedFares] = useState<Map<string, any>>(new Map());
   const [selectedOutboundFlight, setSelectedOutboundFlight] = useState<any>(null);
   const [showReturnFlightSelection, setShowReturnFlightSelection] = useState(false);
+  const [showTransitionNotification, setShowTransitionNotification] = useState(false);
 
   // Function to get full descriptive fare name
   const getFullFareName = (flight: any) => {
@@ -444,6 +445,33 @@ export default function FlightSearchPage() {
     }
 
     return cabinName;
+  };
+
+  // Function to get unique fare options (deduplicate based on price + features)
+  const getUniqueFares = (flightGroup: any[]) => {
+    return flightGroup.reduce((acc: any[], fareOption: any) => {
+      const farePrice = getFlightPrice(fareOption);
+      const fullFareName = getFullFareName(fareOption);
+      const fareBaggage = fareOption.outbound?.[0]?.baggage;
+
+      // Create a unique key for this fare combination
+      const fareKey = `${farePrice.total}-${fullFareName}-${fareOption.isRefundable}-${fareOption.isChangeable}-${fareBaggage?.checked || 'none'}-${fareBaggage?.carryOn || 'none'}`;
+
+      // Only add if this combination doesn't exist yet
+      const exists = acc.some(f => {
+        const fPrice = getFlightPrice(f);
+        const fName = getFullFareName(f);
+        const fBaggage = f.outbound?.[0]?.baggage;
+        const fKey = `${fPrice.total}-${fName}-${f.isRefundable}-${f.isChangeable}-${fBaggage?.checked || 'none'}-${fBaggage?.carryOn || 'none'}`;
+        return fKey === fareKey;
+      });
+
+      if (!exists) {
+        acc.push(fareOption);
+      }
+
+      return acc;
+    }, []);
   };
 
   // Helper function to create a unique key for outbound flight
@@ -854,10 +882,38 @@ export default function FlightSearchPage() {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
+        @keyframes slide-down {
+          from {
+            transform: translate(-50%, -100%);
+            opacity: 0;
+          }
+          to {
+            transform: translate(-50%, 0);
+            opacity: 1;
+          }
+        }
+        .animate-slide-down {
+          animation: slide-down 0.4s ease-out;
+        }
       `}</style>
       <div className="min-h-screen bg-gray-50">
         {/* Navigation */}
         <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
+
+        {/* Transition Notification Toast */}
+        {showTransitionNotification && (
+          <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-slide-down">
+            <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-4 rounded-lg shadow-2xl border-2 border-green-500 flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                <Check className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-sm">Outbound Flight Selected!</div>
+                <div className="text-xs text-gray-300 mt-0.5">Now select your return flight</div>
+              </div>
+            </div>
+          </div>
+        )}
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
@@ -1725,7 +1781,7 @@ export default function FlightSearchPage() {
                 <select
                   value={selectedCabinClass}
                   onChange={(e) => setSelectedCabinClass(e.target.value)}
-                  className="w-full sm:w-auto px-3 md:px-4 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
+                  className="w-full sm:w-auto px-3 md:px-4 py-1.5 md:py-2 text-sm border-2 border-gray-800 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
                 >
                   <option value="all">All Classes</option>
                   <option value="ECONOMY">Economy</option>
@@ -1738,7 +1794,7 @@ export default function FlightSearchPage() {
                 <select
                   value={selectedAirline}
                   onChange={(e) => setSelectedAirline(e.target.value)}
-                  className="w-full sm:w-auto px-3 md:px-4 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
+                  className="w-full sm:w-auto px-3 md:px-4 py-1.5 md:py-2 text-sm border-2 border-gray-800 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
                 >
                   <option value="all">All Airlines</option>
                   {[...new Set(flights.flatMap(f => {
@@ -2246,8 +2302,8 @@ export default function FlightSearchPage() {
                       </div>
                     )}
 
-                    {/* Fare Options - Always Visible */}
-                    {flightGroup.length > 1 && (
+                    {/* Fare Options - Only show if there are unique fares */}
+                    {getUniqueFares(flightGroup).length > 1 && (
                       <div className="mt-6 pt-5 border-t border-gray-200">
                         <div className="flex items-center justify-between mb-4">
                           <div className="text-sm font-semibold text-gray-900">
@@ -2267,7 +2323,7 @@ export default function FlightSearchPage() {
                               WebkitOverflowScrolling: 'touch',
                             }}
                           >
-                          {flightGroup.map((fareOption: any, fareIndex: number) => {
+                          {getUniqueFares(flightGroup).map((fareOption: any, fareIndex: number) => {
                             const farePrice = getFlightPrice(fareOption);
                             const isSelected = selectedFares.get(`group-${groupIndex}`)?.id === fareOption.id || (fareIndex === 0 && !selectedFares.has(`group-${groupIndex}`));
                             const fareBaggage = fareOption.outbound?.[0]?.baggage;
@@ -2385,6 +2441,8 @@ export default function FlightSearchPage() {
                               if (hasRoundTrip && !showReturnFlightSelection) {
                                 setSelectedOutboundFlight(selectedFlight);
                                 setShowReturnFlightSelection(true);
+                                setShowTransitionNotification(true);
+                                setTimeout(() => setShowTransitionNotification(false), 4000);
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                               } else {
                                 // For return selection or one-way, proceed to booking
@@ -2417,6 +2475,8 @@ export default function FlightSearchPage() {
                             if (hasRoundTrip && !showReturnFlightSelection) {
                               setSelectedOutboundFlight(flight);
                               setShowReturnFlightSelection(true);
+                              setShowTransitionNotification(true);
+                              setTimeout(() => setShowTransitionNotification(false), 4000);
                               window.scrollTo({ top: 0, behavior: 'smooth' });
                             } else {
                               // For return selection or one-way, proceed to booking
