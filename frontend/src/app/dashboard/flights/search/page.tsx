@@ -1758,19 +1758,7 @@ export default function FlightSearchPage() {
                           return null;
                         })()}
 
-                        {/* Flight Provider Info */}
-                        {flight.provider && (
-                          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                            <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-[10px] font-medium border border-blue-200">
-                              <AlertCircle className="w-3 h-3" />
-                              <span>
-                                {flight.provider === 'duffel'
-                                  ? 'Seat/baggage selection checked during booking'
-                                  : 'Limited service options'}
-                              </span>
-                            </div>
-                          </div>
-                        )}
+                        {/* Flight Provider Info - Removed misleading service availability badges */}
                       </div>
 
                       {/* Price & CTA */}
