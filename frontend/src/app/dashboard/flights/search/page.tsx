@@ -2106,7 +2106,7 @@ export default function FlightSearchPage() {
                                   <div className="flex items-center gap-2 md:gap-3">
                                     <div className="flex items-center gap-2 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 bg-gray-100 border border-gray-200 rounded-lg">
                                       <div className="flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                        <div className="w-1.5 h-1.5 rounded-full bg-gray-800 flex-shrink-0"></div>
                                         <Plane className="w-4 h-4 text-gray-700 rotate-180" />
                                       </div>
                                       <span className="text-xs md:text-sm font-bold text-gray-900">
