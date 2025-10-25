@@ -149,7 +149,7 @@ export default function AirportAutocomplete({
           }}
           placeholder={placeholder}
           required={required}
-          className="w-full pl-10 md:pl-12 pr-10 md:pr-12 py-2.5 md:py-3 text-sm border-2 border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all hover:border-gray-300"
+          className="w-full pl-10 md:pl-12 pr-10 md:pr-12 py-2.5 md:py-3 text-sm border border-gray-300 rounded-lg md:rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all hover:border-gray-300"
           autoComplete="off"
         />
 
