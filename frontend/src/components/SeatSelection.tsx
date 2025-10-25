@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Plane, Users, Check, Info, DollarSign } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface Seat {
   designator: string;
@@ -76,7 +77,7 @@ export default function SeatSelection({
   const fetchSeatMaps = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/flights/offers/${offerId}/seat-maps`);
+      const response = await fetch(getApiEndpoint(`flights/offers/${offerId}/seat-maps`));
       const data = await response.json();
       if (data.success) {
         setSeatMaps(data.data);

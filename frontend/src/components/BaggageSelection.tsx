@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Briefcase, Plus, Minus, Check, DollarSign, Weight } from 'lucide-react';
+import { getApiEndpoint } from '@/lib/api-config';
 
 interface BaggageService {
   id: string;
@@ -59,7 +60,7 @@ export default function BaggageSelection({
   const fetchBaggageServices = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/flights/offers/${offerId}/services`);
+      const response = await fetch(getApiEndpoint(`flights/offers/${offerId}/services`));
       const data = await response.json();
       if (data.success) {
         setBaggageServices(data.data);
