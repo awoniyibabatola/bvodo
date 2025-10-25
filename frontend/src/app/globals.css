@@ -153,27 +153,49 @@
       input[type="date"] {
         font-size: 16px !important;
         min-height: 48px !important;
-        padding-top: 12px !important;
-        padding-bottom: 12px !important;
-        padding-left: 2.75rem !important;
-        padding-right: 0.75rem !important;
-        line-height: 1.5 !important;
         background-color: #ffffff !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+      }
+
+      /* Remove default webkit padding from internal elements */
+      input[type="date"]::-webkit-datetime-edit {
+        padding: 0 !important;
+        margin-left: 2.5rem !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+      }
+
+      input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+        padding: 0 !important;
+      }
+
+      input[type="date"]::-webkit-datetime-edit-text {
+        padding: 0 !important;
         color: #111827 !important;
       }
 
-      /* Ensure calendar icon doesn't overlap on iOS */
+      input[type="date"]::-webkit-datetime-edit-month-field,
+      input[type="date"]::-webkit-datetime-edit-day-field,
+      input[type="date"]::-webkit-datetime-edit-year-field {
+        padding: 0 !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+      }
+
+      /* Position calendar icon properly */
       input[type="date"]::-webkit-calendar-picker-indicator {
-        background: transparent;
         position: absolute;
-        right: 0.75rem;
-        color: #9ca3af;
+        left: 0.75rem;
+        opacity: 0.6;
       }
 
       /* Target the date input value specifically on iOS */
       input[type="date"]::-webkit-date-and-time-value {
-        text-align: left;
-        margin-left: 0;
+        text-align: left !important;
+        min-height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
       }
     }
   }
