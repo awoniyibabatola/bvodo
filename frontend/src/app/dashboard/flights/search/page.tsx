@@ -1037,46 +1037,47 @@ export default function FlightSearchPage() {
 
             {/* Location and Date Inputs */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 mb-4 md:mb-6">
-              {/* From */}
-              <div className="lg:col-span-3">
-                <AirportAutocomplete
-                  value={from}
-                  onChange={(code, display) => {
-                    setFrom(code);
-                    setFromDisplay(display);
-                  }}
-                  placeholder="City or Airport"
-                  label="From"
-                  required
-                  initialDisplayValue={fromDisplay}
-                />
-              </div>
+              {/* From & To - with swap button */}
+              <div className="lg:col-span-7 grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 relative">
+                {/* From */}
+                <div>
+                  <AirportAutocomplete
+                    value={from}
+                    onChange={(code, display) => {
+                      setFrom(code);
+                      setFromDisplay(display);
+                    }}
+                    placeholder="City or Airport"
+                    label="From"
+                    required
+                    initialDisplayValue={fromDisplay}
+                  />
+                </div>
 
-              {/* Swap Button */}
-              <div className="hidden lg:flex lg:col-span-1 items-end justify-center">
+                {/* Swap Button - absolutely positioned between From and To */}
                 <button
                   type="button"
                   onClick={swapLocations}
-                  className="p-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="hidden lg:flex absolute left-1/2 -translate-x-1/2 bottom-3 z-10 p-1.5 bg-white border-2 border-gray-300 rounded-full hover:bg-gray-50 hover:border-gray-900 transition-all shadow-sm"
                   title="Swap origin and destination"
                 >
-                  <ArrowLeftRight className="w-4 h-4 text-gray-600" />
+                  <ArrowLeftRight className="w-3.5 h-3.5 text-gray-600" />
                 </button>
-              </div>
 
-              {/* To */}
-              <div className="lg:col-span-3">
-                <AirportAutocomplete
-                  value={to}
-                  onChange={(code, display) => {
-                    setTo(code);
-                    setToDisplay(display);
-                  }}
-                  placeholder="City or Airport"
-                  label="To"
-                  required
-                  initialDisplayValue={toDisplay}
-                />
+                {/* To */}
+                <div>
+                  <AirportAutocomplete
+                    value={to}
+                    onChange={(code, display) => {
+                      setTo(code);
+                      setToDisplay(display);
+                    }}
+                    placeholder="City or Airport"
+                    label="To"
+                    required
+                    initialDisplayValue={toDisplay}
+                  />
+                </div>
               </div>
 
               {/* Departure Date */}
@@ -1090,7 +1091,7 @@ export default function FlightSearchPage() {
                     onChange={(e) => setDepartureDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                   />
                 </div>
               </div>
@@ -1107,7 +1108,7 @@ export default function FlightSearchPage() {
                       onChange={(e) => setReturnDate(e.target.value)}
                       min={departureDate || new Date().toISOString().split('T')[0]}
                       required={tripType === 'roundtrip'}
-                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
+                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                     />
                   </div>
                 </div>
