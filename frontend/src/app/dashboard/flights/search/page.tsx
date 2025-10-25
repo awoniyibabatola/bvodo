@@ -1089,7 +1089,7 @@ export default function FlightSearchPage() {
                     onChange={(e) => setDepartureDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                   />
                 </div>
               </div>
@@ -1106,7 +1106,7 @@ export default function FlightSearchPage() {
                       onChange={(e) => setReturnDate(e.target.value)}
                       min={departureDate || new Date().toISOString().split('T')[0]}
                       required={tripType === 'roundtrip'}
-                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
+                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                     />
                   </div>
                 </div>
@@ -1122,7 +1122,7 @@ export default function FlightSearchPage() {
                     value={`${getTotalPassengers()} ${getTotalPassengers() === 1 ? 'Passenger' : 'Passengers'}`}
                     readOnly
                     onClick={() => setShowPassengerSelector(!showPassengerSelector)}
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm border border-gray-300 rounded-lg bg-white cursor-pointer"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base border border-gray-300 rounded-lg bg-white cursor-pointer min-h-[44px]"
                   />
 
                   {/* Passenger Selector Dropdown */}
@@ -1389,7 +1389,7 @@ export default function FlightSearchPage() {
                         onChange={(e) => setDepartureDate(e.target.value)}
                         min={new Date().toISOString().split('T')[0]}
                         required
-                        className="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
+                        className="w-full pl-10 pr-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                       />
                     </div>
                   </div>
@@ -1405,7 +1405,7 @@ export default function FlightSearchPage() {
                           onChange={(e) => setReturnDate(e.target.value)}
                           min={departureDate || new Date().toISOString().split('T')[0]}
                           required={tripType === 'roundtrip'}
-                          className="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
+                          className="w-full pl-10 pr-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                         />
                       </div>
                     </div>
@@ -1422,7 +1422,7 @@ export default function FlightSearchPage() {
                       value={`${getTotalPassengers()} ${getTotalPassengers() === 1 ? 'Passenger' : 'Passengers'}`}
                       readOnly
                       onClick={() => setShowPassengerSelector(!showPassengerSelector)}
-                      className="w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-white cursor-pointer"
+                      className="w-full pl-10 pr-3 py-3 text-base border border-gray-300 rounded-lg bg-white cursor-pointer min-h-[44px]"
                     />
                   </div>
                 </div>
