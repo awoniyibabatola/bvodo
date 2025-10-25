@@ -22,6 +22,8 @@ import {
   Check,
   X,
   AlertCircle,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import { getApiEndpoint } from '@/lib/api-config';
@@ -809,9 +811,19 @@ export default function FlightSearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
+    <>
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      <div className="min-h-screen bg-gray-50">
+        {/* Navigation */}
+        <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
@@ -1873,10 +1885,24 @@ export default function FlightSearchPage() {
                     {/* Fare Options - Always Visible */}
                     {flightGroup.length > 1 && (
                       <div className="mt-6 pt-5 border-t border-gray-200">
-                        <div className="text-sm font-semibold text-gray-900 mb-4">
-                          Choose your fare
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-sm font-semibold text-gray-900">
+                            Choose your fare
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <ChevronLeft className="w-4 h-4" />
+                            <span>Swipe to see more</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {/* Horizontal Sliding Carousel */}
+                        <div className="relative">
+                          <div
+                            className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
+                            style={{
+                              WebkitOverflowScrolling: 'touch',
+                            }}
+                          >
                           {flightGroup.map((fareOption: any, fareIndex: number) => {
                             const farePrice = getFlightPrice(fareOption);
                             const isSelected = selectedFares.get(`group-${groupIndex}`)?.id === fareOption.id || (fareIndex === 0 && !selectedFares.has(`group-${groupIndex}`));
@@ -1891,7 +1917,7 @@ export default function FlightSearchPage() {
                                   newSelected.set(`group-${groupIndex}`, fareOption);
                                   setSelectedFares(newSelected);
                                 }}
-                                className={`relative p-4 rounded-lg cursor-pointer transition-all duration-200 ${
+                                className={`relative p-5 rounded-lg cursor-pointer transition-all duration-200 flex-shrink-0 w-72 snap-start ${
                                   isSelected
                                     ? 'bg-gray-900 text-white shadow-lg ring-2 ring-gray-900'
                                     : 'bg-white border border-gray-200 hover:border-gray-400 hover:shadow-md'
@@ -1974,6 +2000,7 @@ export default function FlightSearchPage() {
                               </div>
                             );
                           })}
+                          </div>
                         </div>
 
                         {/* View Details Button */}
@@ -2017,6 +2044,7 @@ export default function FlightSearchPage() {
 
       {/* AI Chatbox */}
       <AIChatbox />
-    </div>
+      </div>
+    </>
   );
 }
