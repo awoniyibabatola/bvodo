@@ -673,6 +673,9 @@ export class DuffelService implements IFlightProvider {
     // Extract fare brand name from the first slice
     const fareBrandName = outbound.fare_brand_name;
 
+    // Extract cabin class from first segment's passenger info
+    const cabinClass = outbound.segments[0]?.passengers[0]?.cabin_class || 'economy';
+
     // Extract cabin class marketing name from first segment
     const cabinClassMarketing = outbound.segments[0]?.passengers[0]?.cabin_class_marketing_name;
 
@@ -710,7 +713,7 @@ export class DuffelService implements IFlightProvider {
 
       // Fare information
       fareBrandName,
-      cabinClass: order.cabin_class || 'economy',
+      cabinClass,
       cabinClassMarketing,
 
       // Fare flexibility
