@@ -15,7 +15,6 @@ import {
   Clock,
   DollarSign,
   Briefcase,
-  Luggage,
   Plus,
   Minus,
   Building2,
@@ -29,6 +28,7 @@ import AIChatbox from '@/components/AIChatbox';
 import { getApiEndpoint } from '@/lib/api-config';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
 import AirportAutocomplete from '@/components/AirportAutocomplete';
+import TravelClassSelector from '@/components/TravelClassSelector';
 
 // Airline names mapping
 const AIRLINE_NAMES: { [key: string]: string } = {
@@ -1235,28 +1235,11 @@ export default function FlightSearchPage() {
             {/* Travel Class */}
             <div className="mb-4 md:mb-6">
               <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Travel Class</label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-2">
-                {[
-                  { value: 'ECONOMY', label: 'Economy', icon: Luggage },
-                  { value: 'PREMIUM_ECONOMY', label: 'Premium Economy', icon: Briefcase },
-                  { value: 'BUSINESS', label: 'Business', icon: Briefcase },
-                  { value: 'FIRST', label: 'First Class', icon: Briefcase },
-                ].map((cls) => (
-                  <button
-                    key={cls.value}
-                    type="button"
-                    onClick={() => setTravelClass(cls.value)}
-                    className={`p-3 md:p-2 rounded-lg md:rounded font-medium border transition-all ${
-                      travelClass === cls.value
-                        ? 'border-gray-900 bg-gray-900 text-white'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-                    }`}
-                  >
-                    <cls.icon className="w-4 h-4 md:w-4 md:h-4 mx-auto mb-1 md:mb-0 md:inline md:mr-1.5" />
-                    <span className="text-xs md:text-xs block md:inline">{cls.label}</span>
-                  </button>
-                ))}
-              </div>
+              <TravelClassSelector
+                value={travelClass}
+                onChange={setTravelClass}
+                variant="desktop"
+              />
             </div>
 
             {/* Search Button */}
@@ -1428,28 +1411,11 @@ export default function FlightSearchPage() {
                 {/* Travel Class */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">Travel Class</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { value: 'ECONOMY', label: 'Economy', icon: Luggage },
-                      { value: 'PREMIUM_ECONOMY', label: 'Premium Economy', icon: Briefcase },
-                      { value: 'BUSINESS', label: 'Business', icon: Briefcase },
-                      { value: 'FIRST', label: 'First Class', icon: Briefcase },
-                    ].map((cls) => (
-                      <button
-                        key={cls.value}
-                        type="button"
-                        onClick={() => setTravelClass(cls.value)}
-                        className={`p-3 rounded-lg font-medium border transition-all ${
-                          travelClass === cls.value
-                            ? 'border-gray-900 bg-gray-900 text-white'
-                            : 'border-gray-300 bg-white text-gray-700'
-                        }`}
-                      >
-                        <cls.icon className="w-4 h-4 mx-auto mb-1" />
-                        <span className="text-xs">{cls.label}</span>
-                      </button>
-                    ))}
-                  </div>
+                  <TravelClassSelector
+                    value={travelClass}
+                    onChange={setTravelClass}
+                    variant="mobile"
+                  />
                 </div>
 
                 {/* Search Button */}
