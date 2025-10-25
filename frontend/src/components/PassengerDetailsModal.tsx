@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Users, Plus, Trash2, UserPlus, Check, CreditCard as CreditCardIcon, Plane, Shield, Lock, MapPin, Hotel, Calendar, Clock, Bed } from 'lucide-react';
+import { X, Users, Plus, Trash2, UserPlus, Check, CreditCard as CreditCardIcon, Plane, Shield, Lock, MapPin, Hotel, Calendar, Clock, Bed, ChevronDown, ChevronUp } from 'lucide-react';
 import CreditCard from './CreditCard';
 import { getApiEndpoint } from '@/lib/api-config';
 
@@ -136,6 +136,20 @@ export default function PassengerDetailsModal({
   const [showRoomCustomization, setShowRoomCustomization] = useState(false);
   const [selectedRoomForGuest, setSelectedRoomForGuest] = useState<number | null>(null);
   const [editingGuestIndex, setEditingGuestIndex] = useState<number | null>(null);
+
+  // Collapsible sections state
+  const [expandedSections, setExpandedSections] = useState({
+    personal: true,
+    address: false,
+    passport: false
+  });
+
+  const toggleSection = (section: 'personal' | 'address' | 'passport') => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   // Calculate actual total guests (can be more than initial numberOfTravelers if guests are added)
   const totalGuests = passengers.length;
@@ -1297,14 +1311,24 @@ export default function PassengerDetailsModal({
 
                     {/* Personal Information Section */}
                     <div className="bg-white rounded-lg border border-gray-200 p-5">
-                      <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-200">
+                      <button
+                        type="button"
+                        onClick={() => toggleSection('personal')}
+                        className="w-full flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-200 hover:opacity-70 transition-opacity"
+                      >
                         <div className="w-9 h-9 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
                           <Users className="w-4 h-4 text-white" />
                         </div>
-                        <h4 className="font-bold text-gray-900 text-sm">Personal Information</h4>
-                      </div>
+                        <h4 className="font-bold text-gray-900 text-sm flex-1 text-left">Personal Information</h4>
+                        {expandedSections.personal ? (
+                          <ChevronUp className="w-5 h-5 text-gray-600" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-600" />
+                        )}
+                      </button>
 
-                      <div className="space-y-4">
+                      {expandedSections.personal && (
+                        <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-3">
                           <div>
                             <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -1418,19 +1442,30 @@ export default function PassengerDetailsModal({
                             <p className="text-xs text-gray-500 mt-1.5">Min. 2 years old</p>
                           </div>
                         </div>
-                      </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Address Information */}
                     <div className="bg-white rounded-lg border border-gray-200 p-5">
-                      <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-200">
+                      <button
+                        type="button"
+                        onClick={() => toggleSection('address')}
+                        className="w-full flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-200 hover:opacity-70 transition-opacity"
+                      >
                         <div className="w-9 h-9 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
                           <MapPin className="w-4 h-4 text-white" />
                         </div>
-                        <h4 className="font-bold text-gray-900 text-sm">Address Information</h4>
-                      </div>
+                        <h4 className="font-bold text-gray-900 text-sm flex-1 text-left">Address Information</h4>
+                        {expandedSections.address ? (
+                          <ChevronUp className="w-5 h-5 text-gray-600" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-600" />
+                        )}
+                      </button>
 
-                      <div className="space-y-4">
+                      {expandedSections.address && (
+                        <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-semibold text-gray-900 mb-2">
                             Street Address
@@ -1477,20 +1512,31 @@ export default function PassengerDetailsModal({
                             </select>
                           </div>
                         </div>
-                      </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Passport Details (for flights) */}
                     {bookingType === 'flight' && (
                       <div className="bg-white rounded-lg border border-gray-200 p-5">
-                        <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-200">
+                        <button
+                          type="button"
+                          onClick={() => toggleSection('passport')}
+                          className="w-full flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-200 hover:opacity-70 transition-opacity"
+                        >
                           <div className="w-9 h-9 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
                             <Shield className="w-4 h-4 text-white" />
                           </div>
-                          <h4 className="font-bold text-gray-900 text-sm">Passport Information <span className="text-gray-500 font-normal text-xs">(Optional)</span></h4>
-                        </div>
+                          <h4 className="font-bold text-gray-900 text-sm flex-1 text-left">Passport Information <span className="text-gray-500 font-normal text-xs">(Optional)</span></h4>
+                          {expandedSections.passport ? (
+                            <ChevronUp className="w-5 h-5 text-gray-600" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5 text-gray-600" />
+                          )}
+                        </button>
 
-                        <div className="space-y-4">
+                        {expandedSections.passport && (
+                          <div className="space-y-4">
                           {/* Info Box */}
                           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                             <p className="text-sm text-gray-700">
@@ -1548,7 +1594,8 @@ export default function PassengerDetailsModal({
                               </select>
                             </div>
                           </div>
-                        </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
