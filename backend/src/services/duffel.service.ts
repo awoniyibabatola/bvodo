@@ -463,6 +463,28 @@ export class DuffelService implements IFlightProvider {
     const outbound = offer.slices[0];
     const inbound = offer.slices[1];
 
+    // Extract fare brand name from the first slice
+    const fareBrandName = outbound.fare_brand_name;
+
+    // Extract cabin class marketing name from first segment
+    const cabinClassMarketing = outbound.segments[0]?.passengers[0]?.cabin_class_marketing_name;
+
+    // Extract change penalty
+    const changePenalty = offer.conditions.change_before_departure?.penalty_amount
+      ? {
+          amount: parseFloat(offer.conditions.change_before_departure.penalty_amount),
+          currency: offer.conditions.change_before_departure.penalty_currency || offer.total_currency,
+        }
+      : undefined;
+
+    // Extract refund penalty
+    const refundPenalty = offer.conditions.refund_before_departure?.penalty_amount
+      ? {
+          amount: parseFloat(offer.conditions.refund_before_departure.penalty_amount),
+          currency: offer.conditions.refund_before_departure.penalty_currency || offer.total_currency,
+        }
+      : undefined;
+
     return {
       id: offer.id,
       provider: 'duffel',
@@ -482,6 +504,15 @@ export class DuffelService implements IFlightProvider {
       isRefundable: offer.conditions.refund_before_departure?.allowed || false,
       isChangeable: offer.conditions.change_before_departure?.allowed || false,
       lastTicketingDate: offer.payment_requirements.payment_required_by,
+
+      // Fare information
+      fareBrandName,
+      cabinClass: offer.cabin_class || 'economy',
+      cabinClassMarketing,
+
+      // Fare flexibility
+      changePenalty,
+      refundPenalty,
 
       numberOfBookableSeats: 9, // Duffel doesn't provide this, default to 9
 

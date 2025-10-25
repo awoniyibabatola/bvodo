@@ -89,6 +89,21 @@ export interface StandardizedFlightOffer {
   isChangeable: boolean;
   lastTicketingDate?: string;
 
+  // Fare information
+  fareBrandName?: string; // e.g., "Basic Economy", "Flex", "Premium Economy"
+  cabinClass: string; // e.g., "economy", "premium_economy", "business", "first"
+  cabinClassMarketing?: string; // e.g., "Economy Plus", "Main Cabin Extra"
+
+  // Fare flexibility
+  changePenalty?: {
+    amount: number;
+    currency: string;
+  };
+  refundPenalty?: {
+    amount: number;
+    currency: string;
+  };
+
   // Seats and availability
   numberOfBookableSeats: number;
 

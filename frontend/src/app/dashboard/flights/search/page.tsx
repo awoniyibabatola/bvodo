@@ -1719,11 +1719,56 @@ export default function FlightSearchPage() {
                           </div>
                         )}
 
-                        {/* Cabin Class */}
-                        <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs text-gray-600 mt-2 md:mt-3">
-                          <Briefcase className="w-3 h-3" />
-                          <span className="font-medium">{flight.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || 'Economy'}</span>
+                        {/* Cabin Class & Fare Brand */}
+                        <div className="flex items-center gap-2 md:gap-3 flex-wrap mt-2 md:mt-3">
+                          <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs text-gray-600">
+                            <Briefcase className="w-3 h-3" />
+                            <span className="font-medium">{flight.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || flight.cabinClass || 'Economy'}</span>
+                          </div>
+                          {flight.fareBrandName && (
+                            <div className="px-2 md:px-3 py-1 bg-blue-50 border border-blue-200 rounded-lg">
+                              <span className="text-[10px] md:text-xs font-bold text-blue-900">
+                                {flight.fareBrandName}
+                              </span>
+                            </div>
+                          )}
                         </div>
+
+                        {/* Fare Flexibility */}
+                        {(flight.isChangeable !== undefined || flight.isRefundable !== undefined) && (
+                          <div className="flex items-center gap-2 flex-wrap mt-2">
+                            {flight.isRefundable && (
+                              <div className="flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded-md">
+                                <Check className="w-3 h-3 text-green-600" />
+                                <span className="text-[10px] font-medium text-green-900">
+                                  Refundable
+                                  {flight.refundPenalty && ` (${flight.refundPenalty.currency} ${flight.refundPenalty.amount} fee)`}
+                                </span>
+                              </div>
+                            )}
+                            {!flight.isRefundable && flight.isRefundable !== undefined && (
+                              <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-md">
+                                <X className="w-3 h-3 text-gray-500" />
+                                <span className="text-[10px] font-medium text-gray-600">Non-refundable</span>
+                              </div>
+                            )}
+                            {flight.isChangeable && (
+                              <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 rounded-md">
+                                <Check className="w-3 h-3 text-blue-600" />
+                                <span className="text-[10px] font-medium text-blue-900">
+                                  Changeable
+                                  {flight.changePenalty && ` (${flight.changePenalty.currency} ${flight.changePenalty.amount} fee)`}
+                                </span>
+                              </div>
+                            )}
+                            {!flight.isChangeable && flight.isChangeable !== undefined && (
+                              <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-md">
+                                <X className="w-3 h-3 text-gray-500" />
+                                <span className="text-[10px] font-medium text-gray-600">No changes</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
 
                         {/* Baggage Allowance */}
                         {(() => {
