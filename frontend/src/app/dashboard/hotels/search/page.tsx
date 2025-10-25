@@ -722,7 +722,7 @@ export default function HotelSearchPage() {
                     onChange={(e) => setCheckInDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 md:py-4 text-base md:text-lg text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px] md:min-h-[48px]"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
                   />
                 </div>
               </div>
@@ -738,7 +738,7 @@ export default function HotelSearchPage() {
                     onChange={(e) => setCheckOutDate(e.target.value)}
                     min={checkInDate || new Date().toISOString().split('T')[0]}
                     required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 md:py-4 text-base md:text-lg text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px] md:min-h-[48px]"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
                   />
                 </div>
               </div>

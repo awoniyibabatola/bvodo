@@ -146,4 +146,15 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;  /* Chrome, Safari and Opera */
   }
+
+  /* iOS-specific date input fixes for mobile devices only */
+  @media (max-width: 768px) {
+    input[type="date"] {
+      font-size: 18px !important;
+      min-height: 52px !important;
+      padding-top: 14px !important;
+      padding-bottom: 14px !important;
+      line-height: 1.5 !important;
+    }
+  }
 }
