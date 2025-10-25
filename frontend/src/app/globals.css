@@ -154,7 +154,9 @@
       min-height: 52px !important;
       padding-top: 14px !important;
       padding-bottom: 14px !important;
+      padding-left: 3rem !important;
       line-height: 1.5 !important;
+      background-color: white !important;
     }
   }
 }
