@@ -917,14 +917,14 @@ export default function FlightSearchPage() {
             <div className="animate-fade-scale">
               <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md mx-4">
                 {/* Success Header */}
-                <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+                <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                      <Check className="w-7 h-7 text-green-600" />
+                      <Check className="w-7 h-7 text-gray-900" />
                     </div>
                     <div className="text-white">
                       <div className="font-bold text-lg">Outbound Flight Selected</div>
-                      <div className="text-sm text-green-100">Step 1 of 2 complete</div>
+                      <div className="text-sm text-gray-300">Step 1 of 2 complete</div>
                     </div>
                   </div>
                 </div>
@@ -934,16 +934,16 @@ export default function FlightSearchPage() {
                   <div className="flex items-center gap-4 mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center">
                           <Check className="w-4 h-4 text-white" />
                         </div>
                         <span className="text-sm font-medium text-gray-600">Outbound flight</span>
                       </div>
-                      <div className="w-full h-1 bg-green-500 rounded-full"></div>
+                      <div className="w-full h-1 bg-gray-900 rounded-full"></div>
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center">
+                        <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
                           <span className="text-white text-xs font-bold">2</span>
                         </div>
                         <span className="text-sm font-medium text-gray-900">Return flight</span>
@@ -959,7 +959,7 @@ export default function FlightSearchPage() {
 
                 {/* Progress Bar */}
                 <div className="h-1 bg-gray-100">
-                  <div className="h-full bg-green-500 animate-progress"></div>
+                  <div className="h-full bg-gray-900 animate-progress"></div>
                 </div>
               </div>
             </div>
@@ -2493,8 +2493,10 @@ export default function FlightSearchPage() {
                                 setSelectedOutboundFlight(selectedFlight);
                                 setShowReturnFlightSelection(true);
                                 setShowTransitionNotification(true);
-                                setTimeout(() => setShowTransitionNotification(false), 4000);
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                setTimeout(() => {
+                                  setShowTransitionNotification(false);
+                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }, 4000);
                               } else {
                                 // For return selection or one-way, proceed to booking
                                 sessionStorage.setItem(`flight_${selectedFlight.id || index}`, JSON.stringify(selectedFlight));
@@ -2527,8 +2529,10 @@ export default function FlightSearchPage() {
                               setSelectedOutboundFlight(flight);
                               setShowReturnFlightSelection(true);
                               setShowTransitionNotification(true);
-                              setTimeout(() => setShowTransitionNotification(false), 4000);
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                              setTimeout(() => {
+                                setShowTransitionNotification(false);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                              }, 4000);
                             } else {
                               // For return selection or one-way, proceed to booking
                               sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flight));
