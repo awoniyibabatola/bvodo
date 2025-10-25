@@ -1597,7 +1597,7 @@ export default function FlightSearchPage() {
                       </div>
                       <div className="w-16 h-0.5 bg-gray-300"></div>
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                        <div className="w-8 h-8 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold">
                           2
                         </div>
                         <span className="text-sm font-medium text-gray-900">Choose Return</span>
@@ -1635,9 +1635,9 @@ export default function FlightSearchPage() {
                     </div>
 
                     {/* Return Flight Selection Header */}
-                    <div className="bg-white border-2 border-blue-400 rounded-xl p-5">
+                    <div className="bg-white border-2 border-gray-800 rounded-xl p-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-gradient-to-r from-gray-800 to-gray-900 rounded-full flex items-center justify-center">
                           <Plane className="w-5 h-5 text-white -rotate-90" />
                         </div>
                         <div>
@@ -1658,7 +1658,7 @@ export default function FlightSearchPage() {
                     {/* Progress Steps */}
                     <div className="flex items-center justify-center gap-4 mb-6">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                        <div className="w-8 h-8 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold">
                           1
                         </div>
                         <span className="text-sm font-medium text-gray-900">Choose Outbound</span>
@@ -1673,9 +1673,9 @@ export default function FlightSearchPage() {
                     </div>
 
                     {/* Outbound Selection Header */}
-                    <div className="bg-white border-2 border-blue-400 rounded-xl p-5">
+                    <div className="bg-white border-2 border-gray-800 rounded-xl p-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-gradient-to-r from-gray-800 to-gray-900 rounded-full flex items-center justify-center">
                           <Plane className="w-5 h-5 text-white rotate-90" />
                         </div>
                         <div>
@@ -2048,7 +2048,7 @@ export default function FlightSearchPage() {
                         </div>
                       )}
                       {flight.isChangeable && (
-                        <div className="flex items-center gap-1.5 text-blue-700">
+                        <div className="flex items-center gap-1.5 text-gray-700">
                           <Check className="w-3.5 h-3.5" />
                           <span>Changeable</span>
                         </div>
@@ -2058,9 +2058,10 @@ export default function FlightSearchPage() {
                     {/* Return Flight Section - Only show in outbound selection mode */}
                     {flight.inbound && flight.inbound.length > 0 && !showReturnFlightSelection && (
                       <div className="mt-6 pt-5 border-t-2 border-dashed border-gray-300">
-                        <div className="mb-4 flex items-center gap-2">
-                          <div className="px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
-                            <span className="text-xs font-bold text-blue-900">Return Flight</span>
+                        <div className="mb-4 flex items-center justify-center gap-2">
+                          <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
+                            <Plane className="w-4 h-4 text-white -rotate-90" />
+                            <span className="text-sm font-bold text-white">Return Flight</span>
                           </div>
                         </div>
 
