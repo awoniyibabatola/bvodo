@@ -2096,33 +2096,6 @@ export default function FlightSearchPage() {
 
                           {/* Return Flight Details */}
                           <div className="flex-1 w-full">
-                            {/* Return Airline Name */}
-                            <div className="mb-3 md:mb-4">
-                              {(() => {
-                                const returnSegments = flight.inbound;
-                                const returnAirlines = [...new Set(returnSegments.map((seg: any) => getSegmentAirlineCode(seg)))] as string[];
-
-                                return (
-                                  <div className="flex items-center gap-2 md:gap-3">
-                                    <div className="flex items-center gap-2 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 bg-gray-100 border border-gray-200 rounded-lg">
-                                      <div className="flex items-center gap-1.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-gray-800 flex-shrink-0"></div>
-                                        <Plane className="w-4 h-4 text-gray-700 rotate-180" />
-                                      </div>
-                                      <span className="text-xs md:text-sm font-bold text-gray-900">
-                                        {returnAirlines.length > 0 ? returnAirlines.map((code: string) => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
-                                      </span>
-                                    </div>
-                                    {returnAirlines.length > 1 && (
-                                      <span className="text-[10px] md:text-xs font-semibold text-gray-900 bg-[#ADF802] px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg border border-[#ADF802]">
-                                        Multiple Airlines
-                                      </span>
-                                    )}
-                                  </div>
-                                );
-                              })()}
-                            </div>
-
                             {/* Return Route */}
                             {(() => {
                               const returnSegments = flight.inbound;
