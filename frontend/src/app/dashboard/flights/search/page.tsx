@@ -410,6 +410,8 @@ export default function FlightSearchPage() {
   const [draftBookings, setDraftBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [selectedFares, setSelectedFares] = useState<Map<string, any>>(new Map());
+  const [selectedOutboundFlight, setSelectedOutboundFlight] = useState<any>(null);
+  const [showReturnFlightSelection, setShowReturnFlightSelection] = useState(false);
 
   // Function to get full descriptive fare name
   const getFullFareName = (flight: any) => {
@@ -442,6 +444,38 @@ export default function FlightSearchPage() {
     }
 
     return cabinName;
+  };
+
+  // Helper function to create a unique key for outbound flight
+  const getOutboundKey = (flight: any) => {
+    if (!flight.outbound || flight.outbound.length === 0) return null;
+
+    const segments = flight.outbound;
+    const firstSegment = segments[0];
+    const lastSegment = segments[segments.length - 1];
+    const departure = getSegmentDeparture(firstSegment);
+    const arrival = getSegmentArrival(lastSegment);
+    const depTime = new Date(departure.at);
+
+    // Create key based on route, date/time, stops, and airlines
+    const airlines = segments.map((seg: any) => getSegmentAirlineCode(seg)).join('-');
+    return `${departure.iataCode}-${arrival.iataCode}-${depTime.toDateString()}-${depTime.getHours()}-${segments.length}-${airlines}`;
+  };
+
+  // Helper function to create a unique key for return flight
+  const getReturnKey = (flight: any) => {
+    if (!flight.inbound || flight.inbound.length === 0) return null;
+
+    const segments = flight.inbound;
+    const firstSegment = segments[0];
+    const lastSegment = segments[segments.length - 1];
+    const departure = getSegmentDeparture(firstSegment);
+    const arrival = getSegmentArrival(lastSegment);
+    const depTime = new Date(departure.at);
+
+    // Create key based on route, date/time, stops, and airlines
+    const airlines = segments.map((seg: any) => getSegmentAirlineCode(seg)).join('-');
+    return `${departure.iataCode}-${arrival.iataCode}-${depTime.toDateString()}-${depTime.getHours()}-${segments.length}-${airlines}`;
   };
 
   // Close passenger selector when clicking outside
@@ -1531,6 +1565,61 @@ export default function FlightSearchPage() {
         {/* Results */}
         {flights.length > 0 && (
           <div className="space-y-3 md:space-y-6">
+            {/* Step Indicator for Round-Trip */}
+            {(() => {
+              const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
+
+              if (hasRoundTrip && showReturnFlightSelection && selectedOutboundFlight) {
+                return (
+                  <div>
+                    <button
+                      onClick={() => {
+                        setShowReturnFlightSelection(false);
+                        setSelectedOutboundFlight(null);
+                      }}
+                      className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-3 transition-colors"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>Change outbound flight</span>
+                    </button>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                          2
+                        </div>
+                        <div>
+                          <h3 className="text-base font-bold text-gray-900">Choose your return flight</h3>
+                          <p className="text-sm text-gray-600 mt-0.5">
+                            Select a return flight that works for your schedule
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (hasRoundTrip && !showReturnFlightSelection) {
+                return (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        1
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-gray-900">Choose your outbound flight</h3>
+                        <p className="text-sm text-gray-600 mt-0.5">
+                          You'll select your return flight in the next step
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return null;
+            })()}
+
             {/* Results Header with Filter */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
               <div className="flex items-center gap-2">
@@ -1597,43 +1686,111 @@ export default function FlightSearchPage() {
             </div>
 
             {(() => {
-              // Group flights by route
-              const groupedFlights: { [key: string]: any[] } = {};
+              // Determine if this is a round-trip search
+              const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
 
-              flights.forEach((flight) => {
-                // Apply filters
-                if (selectedAirline !== 'all') {
-                  const airlines = getAirlineCodes(flight);
-                  if (!airlines.includes(selectedAirline)) return;
-                }
-                if (selectedCabinClass !== 'all') {
-                  const cabinClass = flight.cabinClass || flight.cabin || 'ECONOMY';
-                  if (cabinClass !== selectedCabinClass) return;
-                }
+              if (hasRoundTrip && !showReturnFlightSelection) {
+                // STEP 1: Group flights by OUTBOUND itinerary only
+                const outboundGroups: { [key: string]: any[] } = {};
 
-                const segments = getFlightSegments(flight);
-                if (segments.length === 0) return;
+                flights.forEach((flight) => {
+                  // Apply filters
+                  if (selectedAirline !== 'all') {
+                    const airlines = getAirlineCodes(flight);
+                    if (!airlines.includes(selectedAirline)) return;
+                  }
+                  if (selectedCabinClass !== 'all') {
+                    const cabinClass = flight.cabinClass || flight.cabin || 'ECONOMY';
+                    if (cabinClass !== selectedCabinClass) return;
+                  }
 
-                const firstSegment = segments[0];
-                const lastSegment = segments[segments.length - 1];
-                const departure = getSegmentDeparture(firstSegment);
-                const arrival = getSegmentArrival(lastSegment);
-                const depTime = new Date(departure.at);
+                  const outboundKey = getOutboundKey(flight);
+                  if (!outboundKey) return;
 
-                // Group by route and time window (hourly)
-                const routeKey = `${departure.iataCode}-${arrival.iataCode}-${depTime.toDateString()}-${depTime.getHours()}-${segments.length}`;
+                  if (!outboundGroups[outboundKey]) {
+                    outboundGroups[outboundKey] = [];
+                  }
+                  outboundGroups[outboundKey].push(flight);
+                });
 
-                if (!groupedFlights[routeKey]) {
-                  groupedFlights[routeKey] = [];
-                }
-                groupedFlights[routeKey].push(flight);
-              });
+                // Convert to array and sort each group by price
+                return Object.values(outboundGroups).map((flightGroup) => {
+                  flightGroup.sort((a, b) => getFlightPrice(a).total - getFlightPrice(b).total);
+                  return flightGroup;
+                });
+              } else if (hasRoundTrip && showReturnFlightSelection && selectedOutboundFlight) {
+                // STEP 2: Show RETURN flights for the selected outbound
+                const returnGroups: { [key: string]: any[] } = {};
 
-              // Convert to array and sort each group by price
-              return Object.values(groupedFlights).map((flightGroup) => {
-                flightGroup.sort((a, b) => getFlightPrice(a).total - getFlightPrice(b).total);
-                return flightGroup;
-              });
+                flights.forEach((flight) => {
+                  // Only show flights that match the selected outbound
+                  const outboundKey = getOutboundKey(flight);
+                  const selectedOutboundKey = getOutboundKey(selectedOutboundFlight);
+
+                  if (outboundKey !== selectedOutboundKey) return;
+
+                  // Apply filters
+                  if (selectedAirline !== 'all') {
+                    const airlines = getAirlineCodes(flight);
+                    if (!airlines.includes(selectedAirline)) return;
+                  }
+                  if (selectedCabinClass !== 'all') {
+                    const cabinClass = flight.cabinClass || flight.cabin || 'ECONOMY';
+                    if (cabinClass !== selectedCabinClass) return;
+                  }
+
+                  const returnKey = getReturnKey(flight);
+                  if (!returnKey) return;
+
+                  if (!returnGroups[returnKey]) {
+                    returnGroups[returnKey] = [];
+                  }
+                  returnGroups[returnKey].push(flight);
+                });
+
+                // Convert to array and sort each group by price
+                return Object.values(returnGroups).map((flightGroup) => {
+                  flightGroup.sort((a, b) => getFlightPrice(a).total - getFlightPrice(b).total);
+                  return flightGroup;
+                });
+              } else {
+                // ONE-WAY flights: Group by outbound route
+                const groupedFlights: { [key: string]: any[] } = {};
+
+                flights.forEach((flight) => {
+                  // Apply filters
+                  if (selectedAirline !== 'all') {
+                    const airlines = getAirlineCodes(flight);
+                    if (!airlines.includes(selectedAirline)) return;
+                  }
+                  if (selectedCabinClass !== 'all') {
+                    const cabinClass = flight.cabinClass || flight.cabin || 'ECONOMY';
+                    if (cabinClass !== selectedCabinClass) return;
+                  }
+
+                  const segments = getFlightSegments(flight);
+                  if (segments.length === 0) return;
+
+                  const firstSegment = segments[0];
+                  const lastSegment = segments[segments.length - 1];
+                  const departure = getSegmentDeparture(firstSegment);
+                  const arrival = getSegmentArrival(lastSegment);
+                  const depTime = new Date(departure.at);
+
+                  const routeKey = `${departure.iataCode}-${arrival.iataCode}-${depTime.toDateString()}-${depTime.getHours()}-${segments.length}`;
+
+                  if (!groupedFlights[routeKey]) {
+                    groupedFlights[routeKey] = [];
+                  }
+                  groupedFlights[routeKey].push(flight);
+                });
+
+                // Convert to array and sort each group by price
+                return Object.values(groupedFlights).map((flightGroup) => {
+                  flightGroup.sort((a, b) => getFlightPrice(a).total - getFlightPrice(b).total);
+                  return flightGroup;
+                });
+              }
             })().map((flightGroup, groupIndex) => {
               // Use the first (cheapest) flight for display
               const flight = flightGroup[0];
@@ -1659,228 +1816,388 @@ export default function FlightSearchPage() {
               const airlines = getAirlineCodes(flight);
               const airlineNames = airlines.join(', ');
 
+              // Get price
+              const price = getFlightPrice(flight);
+
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-lg overflow-hidden border border-gray-200"
+                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200"
                 >
-                  <div className="p-3 md:p-4 lg:p-5">
-                    <div className="flex flex-col lg:flex-row gap-3 md:gap-6 items-center">
-                      {/* Airline Info with Logo */}
-                      <div className="flex-shrink-0 text-center">
-                        <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden mb-1 md:mb-2">
+                  <div className="p-6">
+                    {/* Header: Airline Name + Price */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-14 h-14 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
                           <img
                             src={getAirlineLogo(getSegmentAirlineCode(firstSegment))}
                             alt={AIRLINE_NAMES[getSegmentAirlineCode(firstSegment)] || getSegmentAirlineCode(firstSegment)}
                             className="w-full h-full object-contain p-2"
                             onError={(e) => {
-                              // Fallback to plane icon if logo fails to load
                               e.currentTarget.style.display = 'none';
                               e.currentTarget.nextElementSibling?.classList.remove('hidden');
                             }}
                           />
-                          <Plane className="w-6 h-6 md:w-8 md:h-8 text-gray-600 hidden" />
+                          <Plane className="w-7 h-7 text-gray-400 hidden" />
                         </div>
-                        <div className="text-xs font-bold text-gray-900">{getSegmentAirlineCode(firstSegment)}</div>
-                        <div className="text-[10px] text-gray-500">{getSegmentNumber(firstSegment)}</div>
+                        <div>
+                          <h3 className="text-base font-bold text-gray-900">
+                            {airlines.length > 0 ? airlines.map(code => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {getSegmentAirlineCode(firstSegment)} {getSegmentNumber(firstSegment)}
+                            {airlines.length > 1 && <span className="ml-2 text-[#ADF802]">• Multiple airlines</span>}
+                          </p>
+                        </div>
                       </div>
-
-                      {/* Flight Details */}
-                      <div className="flex-1 w-full">
-                        {/* Airline Name - Prominent Header */}
-                        <div className="mb-3 md:mb-4">
-                          <div className="flex items-center gap-2 md:gap-3">
-                            <div className="flex items-center gap-2 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 bg-gray-100 border border-gray-200 rounded-lg">
-                              <div className="flex items-center gap-1.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
-                                <Plane className="w-4 h-4 text-gray-700" />
-                              </div>
-                              <span className="text-xs md:text-sm font-bold text-gray-900">
-                                {airlines.length > 0 ? airlines.map(code => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
-                              </span>
-                            </div>
-                            {airlines.length > 1 && (
-                              <span className="text-[10px] md:text-xs font-semibold text-gray-900 bg-[#ADF802] px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg border border-[#ADF802]">
-                                Multiple Airlines
-                              </span>
-                            )}
-                          </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-gray-900">
+                          {price.currency} {price.total.toLocaleString()}
                         </div>
-
-                        {/* Route */}
-                        <div className="flex items-center justify-between mb-2 md:mb-4">
-                          <div className="text-center flex-1">
-                            <div className="text-sm md:text-lg font-bold text-gray-900 mb-0.5 md:mb-1">
-                              {departureTime}
-                            </div>
-                            <div className="text-xs font-semibold text-gray-900">
-                              {departure.iataCode}
-                            </div>
-                            <div className="text-[10px] text-gray-500 mt-0.5">
-                              {AIRPORT_CITY_NAMES[departure.iataCode] || departure.iataCode}
-                            </div>
-                          </div>
-
-                          <div className="flex-1 px-2 md:px-6">
-                            <div className="relative">
-                              <div className="border-t-2 border-dashed border-gray-300"></div>
-                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-1.5 md:px-3">
-                                <Plane className="w-4 h-4 text-gray-600 rotate-90" />
-                              </div>
-                            </div>
-                            <div className="text-center mt-1 md:mt-2">
-                              <div className="text-[10px] font-medium text-gray-600">{duration}</div>
-                              <div className="text-[10px] text-gray-500">
-                                {stops === 0 ? 'Direct' : `${stops} ${stops === 1 ? 'stop' : 'stops'}`}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="text-center flex-1">
-                            <div className="text-sm md:text-lg font-bold text-gray-900 mb-0.5 md:mb-1">
-                              {arrivalTime}
-                            </div>
-                            <div className="text-xs font-semibold text-gray-900">
-                              {arrival.iataCode}
-                            </div>
-                            <div className="text-[10px] text-gray-500 mt-0.5">
-                              {AIRPORT_CITY_NAMES[arrival.iataCode] || arrival.iataCode}
-                            </div>
-                          </div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {(() => {
+                            const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
+                            return hasRoundTrip ? 'Total price' : 'per person';
+                          })()}
                         </div>
-
-                        {/* Layover Information */}
-                        {stops > 0 && (
-                          <div className="mt-2 md:mt-3 p-2 md:p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                            <div className="flex items-start gap-2 md:gap-3">
-                              <div className="p-1 md:p-1.5 bg-gray-200 rounded-md flex-shrink-0">
-                                <Clock className="w-3 h-3 text-gray-700" />
-                              </div>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-bold text-gray-900 mb-0.5 md:mb-1">
-                                  Layover{stops > 1 ? 's' : ''}: {stops} Stop{stops > 1 ? 's' : ''}
-                                </div>
-                                <div className="flex flex-wrap gap-1.5 md:gap-2">
-                                  {segments.slice(0, -1).map((segment: any, segIndex: number) => {
-                                    const nextSegment = segments[segIndex + 1];
-                                    const segArrival = getSegmentArrival(segment);
-                                    const nextSegDeparture = getSegmentDeparture(nextSegment);
-                                    const layoverStart = new Date(segArrival.at);
-                                    const layoverEnd = new Date(nextSegDeparture.at);
-                                    const layoverMinutes = Math.floor((layoverEnd.getTime() - layoverStart.getTime()) / 60000);
-                                    const layoverHours = Math.floor(layoverMinutes / 60);
-                                    const layoverMins = layoverMinutes % 60;
-
-                                    return (
-                                      <div key={segIndex} className="flex flex-col gap-0.5 px-2 md:px-2.5 py-1 md:py-1.5 bg-white border border-gray-200 rounded-md">
-                                        <div className="flex items-center gap-1 md:gap-1.5">
-                                          <MapPin className="w-2.5 h-2.5 text-gray-600" />
-                                          <span className="text-[10px] font-bold text-gray-900">
-                                            {segArrival.iataCode}
-                                          </span>
-                                          <span className="text-[10px] text-gray-700 font-medium">
-                                            {layoverHours > 0 && `${layoverHours}h `}{layoverMins}m
-                                          </span>
-                                        </div>
-                                        <div className="text-[9px] text-gray-600 pl-4 md:pl-5">
-                                          {AIRPORT_CITY_NAMES[segArrival.iataCode] || segArrival.iataCode}
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Cabin Class & Fare Brand */}
-                        <div className="flex items-center gap-2 md:gap-3 flex-wrap mt-2 md:mt-3">
-                          <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs text-gray-600">
-                            <Briefcase className="w-3 h-3" />
-                            <span className="font-medium">{flight.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || flight.cabinClass || 'Economy'}</span>
-                          </div>
-                          {flight.fareBrandName && (
-                            <div className="px-2 md:px-3 py-1 bg-blue-50 border border-blue-200 rounded-lg">
-                              <span className="text-[10px] md:text-xs font-bold text-blue-900">
-                                {flight.fareBrandName}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Fare Flexibility */}
-                        {(flight.isChangeable !== undefined || flight.isRefundable !== undefined) && (
-                          <div className="flex items-center gap-2 flex-wrap mt-2">
-                            {flight.isRefundable && (
-                              <div className="flex items-center gap-1 px-2 py-1 bg-green-50 border border-green-200 rounded-md">
-                                <Check className="w-3 h-3 text-green-600" />
-                                <span className="text-[10px] font-medium text-green-900">
-                                  Refundable
-                                  {flight.refundPenalty && ` (${flight.refundPenalty.currency} ${flight.refundPenalty.amount} fee)`}
-                                </span>
-                              </div>
-                            )}
-                            {!flight.isRefundable && flight.isRefundable !== undefined && (
-                              <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-md">
-                                <X className="w-3 h-3 text-gray-500" />
-                                <span className="text-[10px] font-medium text-gray-600">Non-refundable</span>
-                              </div>
-                            )}
-                            {flight.isChangeable && (
-                              <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 rounded-md">
-                                <Check className="w-3 h-3 text-blue-600" />
-                                <span className="text-[10px] font-medium text-blue-900">
-                                  Changeable
-                                  {flight.changePenalty && ` (${flight.changePenalty.currency} ${flight.changePenalty.amount} fee)`}
-                                </span>
-                              </div>
-                            )}
-                            {!flight.isChangeable && flight.isChangeable !== undefined && (
-                              <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded-md">
-                                <X className="w-3 h-3 text-gray-500" />
-                                <span className="text-[10px] font-medium text-gray-600">No changes</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Baggage Allowance */}
-                        {(() => {
-                          const firstSegment = flight.outbound?.[0];
-                          const baggage = firstSegment?.baggage;
-
-                          if (baggage) {
-                            return (
-                              <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs text-gray-600 mt-2">
-                                {baggage.checked && baggage.checked !== '0 bags' && (
-                                  <div className="flex items-center gap-1">
-                                    <Luggage className="w-3 h-3 text-gray-700" />
-                                    <span className="font-medium">{baggage.checked}</span>
-                                  </div>
-                                )}
-                                {baggage.carryOn && baggage.carryOn !== '0 bags' && (
-                                  <div className="flex items-center gap-1">
-                                    <Briefcase className="w-3 h-3 text-gray-700" />
-                                    <span className="font-medium">{baggage.carryOn} carry-on</span>
-                                  </div>
-                                )}
-                                {(!baggage.checked || baggage.checked === '0 bags') &&
-                                 (!baggage.carryOn || baggage.carryOn === '0 bags') && (
-                                  <div className="flex items-center gap-1 text-yellow-600">
-                                    <Luggage className="w-3 h-3" />
-                                    <span className="font-medium">No baggage included</span>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          }
-                          return null;
-                        })()}
-
-                        {/* Flight Provider Info - Removed misleading service availability badges */}
                       </div>
                     </div>
+
+                    {/* Flight Route */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="text-2xl font-bold text-gray-900">
+                            {departureTime}
+                          </div>
+                          <div className="text-sm font-semibold text-gray-600 mt-1">
+                            {departure.iataCode}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            {AIRPORT_CITY_NAMES[departure.iataCode] || departure.iataCode}
+                          </div>
+                        </div>
+
+                        <div className="flex-1 px-6">
+                          <div className="relative">
+                            <div className="border-t-2 border-gray-300"></div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-50 px-2">
+                              <Plane className="w-4 h-4 text-gray-400 rotate-90" />
+                            </div>
+                          </div>
+                          <div className="text-center mt-2">
+                            <div className="text-xs font-medium text-gray-600">{duration}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              {stops === 0 ? 'Direct' : `${stops} ${stops === 1 ? 'stop' : 'stops'}`}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex-1 text-right">
+                          <div className="text-2xl font-bold text-gray-900">
+                            {arrivalTime}
+                          </div>
+                          <div className="text-sm font-semibold text-gray-600 mt-1">
+                            {arrival.iataCode}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            {AIRPORT_CITY_NAMES[arrival.iataCode] || arrival.iataCode}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Layover Information */}
+                      {stops > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <Clock className="w-4 h-4" />
+                            <span className="font-medium">{stops} Stop{stops > 1 ? 's' : ''}:</span>
+                            <div className="flex items-center gap-2">
+                              {segments.slice(0, -1).map((segment: any, segIndex: number) => {
+                                const nextSegment = segments[segIndex + 1];
+                                const segArrival = getSegmentArrival(segment);
+                                const nextSegDeparture = getSegmentDeparture(nextSegment);
+                                const layoverStart = new Date(segArrival.at);
+                                const layoverEnd = new Date(nextSegDeparture.at);
+                                const layoverMinutes = Math.floor((layoverEnd.getTime() - layoverStart.getTime()) / 60000);
+                                const layoverHours = Math.floor(layoverMinutes / 60);
+                                const layoverMins = layoverMinutes % 60;
+
+                                return (
+                                  <span key={segIndex} className="text-gray-900 font-medium">
+                                    {segArrival.iataCode} ({layoverHours > 0 && `${layoverHours}h `}{layoverMins}m)
+                                    {segIndex < segments.length - 2 && <span className="mx-1 text-gray-400">•</span>}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Flight Details - Compact Row */}
+                    <div className="flex items-center gap-4 flex-wrap mt-4 text-xs text-gray-600">
+                      {/* Cabin Class */}
+                      <div className="flex items-center gap-1.5">
+                        <Briefcase className="w-3.5 h-3.5" />
+                        <span>{flight.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || flight.cabinClass || 'Economy'}</span>
+                      </div>
+
+                      {/* Baggage */}
+                      {(() => {
+                        const firstSegment = flight.outbound?.[0];
+                        const baggage = firstSegment?.baggage;
+
+                        if (baggage?.checked && baggage.checked !== '0 bags') {
+                          return (
+                            <div className="flex items-center gap-1.5">
+                              <Luggage className="w-3.5 h-3.5" />
+                              <span>{baggage.checked}</span>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+
+                      {/* Fare Brand */}
+                      {flight.fareBrandName && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-gray-900">{flight.fareBrandName}</span>
+                        </div>
+                      )}
+
+                      {/* Refundable/Changeable */}
+                      {flight.isRefundable && (
+                        <div className="flex items-center gap-1.5 text-green-700">
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Refundable</span>
+                        </div>
+                      )}
+                      {flight.isChangeable && (
+                        <div className="flex items-center gap-1.5 text-blue-700">
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Changeable</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Return Flight Section - Only show in outbound selection mode */}
+                    {flight.inbound && flight.inbound.length > 0 && !showReturnFlightSelection && (
+                      <div className="mt-6 pt-5 border-t-2 border-dashed border-gray-300">
+                        <div className="mb-4 flex items-center gap-2">
+                          <div className="px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                            <span className="text-xs font-bold text-blue-900">Return Flight</span>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col lg:flex-row gap-3 md:gap-6 items-center">
+                          {/* Return Flight Airline Info */}
+                          <div className="flex-shrink-0 text-center">
+                            {(() => {
+                              const returnSegments = flight.inbound;
+                              const firstReturnSegment = returnSegments[0];
+                              const returnAirlineCode = getSegmentAirlineCode(firstReturnSegment);
+
+                              return (
+                                <>
+                                  <div className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden mb-1 md:mb-2">
+                                    <img
+                                      src={getAirlineLogo(returnAirlineCode)}
+                                      alt={AIRLINE_NAMES[returnAirlineCode] || returnAirlineCode}
+                                      className="w-full h-full object-contain p-2"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                      }}
+                                    />
+                                    <Plane className="w-6 h-6 md:w-8 md:h-8 text-gray-600 hidden" />
+                                  </div>
+                                  <div className="text-xs font-bold text-gray-900">{returnAirlineCode}</div>
+                                  <div className="text-[10px] text-gray-500">{getSegmentNumber(firstReturnSegment)}</div>
+                                </>
+                              );
+                            })()}
+                          </div>
+
+                          {/* Return Flight Details */}
+                          <div className="flex-1 w-full">
+                            {/* Return Airline Name */}
+                            <div className="mb-3 md:mb-4">
+                              {(() => {
+                                const returnSegments = flight.inbound;
+                                const returnAirlines = [...new Set(returnSegments.map((seg: any) => getSegmentAirlineCode(seg)))] as string[];
+
+                                return (
+                                  <div className="flex items-center gap-2 md:gap-3">
+                                    <div className="flex items-center gap-2 md:gap-2.5 px-3 md:px-4 py-1.5 md:py-2 bg-gray-100 border border-gray-200 rounded-lg">
+                                      <div className="flex items-center gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                                        <Plane className="w-4 h-4 text-gray-700 rotate-180" />
+                                      </div>
+                                      <span className="text-xs md:text-sm font-bold text-gray-900">
+                                        {returnAirlines.length > 0 ? returnAirlines.map((code: string) => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
+                                      </span>
+                                    </div>
+                                    {returnAirlines.length > 1 && (
+                                      <span className="text-[10px] md:text-xs font-semibold text-gray-900 bg-[#ADF802] px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg border border-[#ADF802]">
+                                        Multiple Airlines
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })()}
+                            </div>
+
+                            {/* Return Route */}
+                            {(() => {
+                              const returnSegments = flight.inbound;
+                              const firstReturnSegment = returnSegments[0];
+                              const lastReturnSegment = returnSegments[returnSegments.length - 1];
+                              const returnDeparture = getSegmentDeparture(firstReturnSegment);
+                              const returnArrival = getSegmentArrival(lastReturnSegment);
+
+                              const returnDepartureTime = new Date(returnDeparture.at).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              });
+                              const returnArrivalTime = new Date(returnArrival.at).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              });
+
+                              // Calculate return duration
+                              let returnDuration = '';
+                              if (firstReturnSegment.duration) {
+                                returnDuration = firstReturnSegment.duration.replace('PT', '').toLowerCase();
+                              }
+                              const returnStops = returnSegments.length - 1;
+
+                              return (
+                                <>
+                                  <div className="flex items-center justify-between mb-2 md:mb-4">
+                                    <div className="text-center flex-1">
+                                      <div className="text-sm md:text-lg font-bold text-gray-900 mb-0.5 md:mb-1">
+                                        {returnDepartureTime}
+                                      </div>
+                                      <div className="text-xs font-semibold text-gray-900">
+                                        {returnDeparture.iataCode}
+                                      </div>
+                                      <div className="text-[10px] text-gray-500 mt-0.5">
+                                        {AIRPORT_CITY_NAMES[returnDeparture.iataCode] || returnDeparture.iataCode}
+                                      </div>
+                                    </div>
+
+                                    <div className="flex-1 px-2 md:px-6">
+                                      <div className="relative">
+                                        <div className="border-t-2 border-dashed border-gray-300"></div>
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-1.5 md:px-3">
+                                          <Plane className="w-4 h-4 text-gray-600 rotate-90" />
+                                        </div>
+                                      </div>
+                                      <div className="text-center mt-1 md:mt-2">
+                                        <div className="text-[10px] font-medium text-gray-600">{returnDuration}</div>
+                                        <div className="text-[10px] text-gray-500">
+                                          {returnStops === 0 ? 'Direct' : `${returnStops} ${returnStops === 1 ? 'stop' : 'stops'}`}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div className="text-center flex-1">
+                                      <div className="text-sm md:text-lg font-bold text-gray-900 mb-0.5 md:mb-1">
+                                        {returnArrivalTime}
+                                      </div>
+                                      <div className="text-xs font-semibold text-gray-900">
+                                        {returnArrival.iataCode}
+                                      </div>
+                                      <div className="text-[10px] text-gray-500 mt-0.5">
+                                        {AIRPORT_CITY_NAMES[returnArrival.iataCode] || returnArrival.iataCode}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Return Layover Information */}
+                                  {returnStops > 0 && (
+                                    <div className="mt-2 md:mt-3 p-2 md:p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                      <div className="flex items-start gap-2 md:gap-3">
+                                        <div className="p-1 md:p-1.5 bg-gray-200 rounded-md flex-shrink-0">
+                                          <Clock className="w-3 h-3 text-gray-700" />
+                                        </div>
+                                        <div className="flex-1">
+                                          <div className="text-[10px] font-bold text-gray-900 mb-0.5 md:mb-1">
+                                            Layover{returnStops > 1 ? 's' : ''}: {returnStops} Stop{returnStops > 1 ? 's' : ''}
+                                          </div>
+                                          <div className="flex flex-wrap gap-1.5 md:gap-2">
+                                            {returnSegments.slice(0, -1).map((segment: any, segIndex: number) => {
+                                              const nextSegment = returnSegments[segIndex + 1];
+                                              const segArrival = getSegmentArrival(segment);
+                                              const nextSegDeparture = getSegmentDeparture(nextSegment);
+                                              const layoverStart = new Date(segArrival.at);
+                                              const layoverEnd = new Date(nextSegDeparture.at);
+                                              const layoverMinutes = Math.floor((layoverEnd.getTime() - layoverStart.getTime()) / 60000);
+                                              const layoverHours = Math.floor(layoverMinutes / 60);
+                                              const layoverMins = layoverMinutes % 60;
+
+                                              return (
+                                                <div key={segIndex} className="flex flex-col gap-0.5 px-2 md:px-2.5 py-1 md:py-1.5 bg-white border border-gray-200 rounded-md">
+                                                  <div className="flex items-center gap-1 md:gap-1.5">
+                                                    <MapPin className="w-2.5 h-2.5 text-gray-600" />
+                                                    <span className="text-[10px] font-bold text-gray-900">
+                                                      {segArrival.iataCode}
+                                                    </span>
+                                                    <span className="text-[10px] text-gray-700 font-medium">
+                                                      {layoverHours > 0 && `${layoverHours}h `}{layoverMins}m
+                                                    </span>
+                                                  </div>
+                                                  <div className="text-[9px] text-gray-600 pl-4 md:pl-5">
+                                                    {AIRPORT_CITY_NAMES[segArrival.iataCode] || segArrival.iataCode}
+                                                  </div>
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Return Baggage Allowance */}
+                                  {(() => {
+                                    const returnBaggage = returnSegments[0]?.baggage;
+                                    if (returnBaggage) {
+                                      return (
+                                        <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs text-gray-600 mt-2 md:mt-3">
+                                          {returnBaggage.checked && returnBaggage.checked !== '0 bags' && (
+                                            <div className="flex items-center gap-1">
+                                              <Luggage className="w-3 h-3 text-gray-700" />
+                                              <span className="font-medium">{returnBaggage.checked}</span>
+                                            </div>
+                                          )}
+                                          {returnBaggage.carryOn && returnBaggage.carryOn !== '0 bags' && (
+                                            <div className="flex items-center gap-1">
+                                              <Briefcase className="w-3 h-3 text-gray-700" />
+                                              <span className="font-medium">{returnBaggage.carryOn} carry-on</span>
+                                            </div>
+                                          )}
+                                          {(!returnBaggage.checked || returnBaggage.checked === '0 bags') &&
+                                           (!returnBaggage.carryOn || returnBaggage.carryOn === '0 bags') && (
+                                            <div className="flex items-center gap-1 text-yellow-600">
+                                              <Luggage className="w-3 h-3" />
+                                              <span className="font-medium">No baggage included</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  })()}
+                                </>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Fare Options - Always Visible */}
                     {flightGroup.length > 1 && (
@@ -1908,6 +2225,7 @@ export default function FlightSearchPage() {
                             const isSelected = selectedFares.get(`group-${groupIndex}`)?.id === fareOption.id || (fareIndex === 0 && !selectedFares.has(`group-${groupIndex}`));
                             const fareBaggage = fareOption.outbound?.[0]?.baggage;
                             const fullFareName = getFullFareName(fareOption);
+                            const hasReturnFlight = fareOption.inbound && fareOption.inbound.length > 0;
 
                             return (
                               <div
@@ -1953,6 +2271,11 @@ export default function FlightSearchPage() {
                                       })} more
                                     </div>
                                   )}
+                                  {hasReturnFlight && (
+                                    <div className={`text-[10px] mt-1 ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                                      Round-trip pricing
+                                    </div>
+                                  )}
                                 </div>
 
                                 {/* Features */}
@@ -1980,12 +2303,13 @@ export default function FlightSearchPage() {
                                     </span>
                                   </div>
 
-                                  {/* Baggage */}
+                                  {/* Baggage - Outbound */}
                                   {fareBaggage?.checked && fareBaggage.checked !== '0 bags' ? (
                                     <div className="flex items-center gap-2 text-xs">
                                       <Luggage className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-gray-900'}`} />
                                       <span className={isSelected ? 'text-white' : 'text-gray-700'}>
                                         {fareBaggage.checked}
+                                        {hasReturnFlight && ' (each way)'}
                                       </span>
                                     </div>
                                   ) : (
@@ -2003,18 +2327,33 @@ export default function FlightSearchPage() {
                           </div>
                         </div>
 
-                        {/* View Details Button */}
+                        {/* Action Button */}
                         <div className="mt-4 flex justify-end">
                           <button
                             onClick={() => {
                               const selectedFlight = selectedFares.get(`group-${groupIndex}`) || flight;
-                              sessionStorage.setItem(`flight_${selectedFlight.id || index}`, JSON.stringify(selectedFlight));
-                              window.location.href = `/dashboard/flights/${selectedFlight.id || index}`;
+                              const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
+
+                              // If this is outbound selection step in round-trip
+                              if (hasRoundTrip && !showReturnFlightSelection) {
+                                setSelectedOutboundFlight(selectedFlight);
+                                setShowReturnFlightSelection(true);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                              } else {
+                                // For return selection or one-way, proceed to booking
+                                sessionStorage.setItem(`flight_${selectedFlight.id || index}`, JSON.stringify(selectedFlight));
+                                window.location.href = `/dashboard/flights/${selectedFlight.id || index}`;
+                              }
                             }}
                             className="px-6 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
                           >
-                            Continue
-                            <Plane className="w-4 h-4" />
+                            {(() => {
+                              const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
+                              if (hasRoundTrip && !showReturnFlightSelection) {
+                                return <>Choose Return Flight<ChevronRight className="w-4 h-4" /></>;
+                              }
+                              return <>Continue<Plane className="w-4 h-4" /></>;
+                            })()}
                           </button>
                         </div>
                       </div>
@@ -2025,13 +2364,28 @@ export default function FlightSearchPage() {
                       <div className="mt-4 flex justify-end">
                         <button
                           onClick={() => {
-                            sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flight));
-                            window.location.href = `/dashboard/flights/${flight.id || index}`;
+                            const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
+
+                            // If this is outbound selection step in round-trip
+                            if (hasRoundTrip && !showReturnFlightSelection) {
+                              setSelectedOutboundFlight(flight);
+                              setShowReturnFlightSelection(true);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            } else {
+                              // For return selection or one-way, proceed to booking
+                              sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flight));
+                              window.location.href = `/dashboard/flights/${flight.id || index}`;
+                            }
                           }}
                           className="px-6 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors inline-flex items-center justify-center gap-2"
                         >
-                          Select Flight
-                          <Plane className="w-4 h-4" />
+                          {(() => {
+                            const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
+                            if (hasRoundTrip && !showReturnFlightSelection) {
+                              return <>Choose Return Flight<ChevronRight className="w-4 h-4" /></>;
+                            }
+                            return <>Select Flight<Plane className="w-4 h-4" /></>;
+                          })()}
                         </button>
                       </div>
                     )}
