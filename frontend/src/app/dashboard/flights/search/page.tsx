@@ -15,6 +15,7 @@ import {
   Clock,
   DollarSign,
   Briefcase,
+  Luggage,
   Plus,
   Minus,
   Building2,
