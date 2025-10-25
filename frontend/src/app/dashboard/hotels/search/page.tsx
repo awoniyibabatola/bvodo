@@ -1533,13 +1533,15 @@ export default function HotelSearchPage() {
           ></div>
 
           {/* Modal Content - Bottom Sheet */}
-          <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl border border-gray-200 max-h-[90vh] overflow-y-auto animate-slide-up">
+          <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl border border-gray-200 max-h-[90vh] overflow-y-auto animate-slide-up shadow-2xl">
+            {/* Handle Bar */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between rounded-t-3xl z-10">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
-                <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
-              </div>
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
+              <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
               <button
                 onClick={() => setShowSearchForm(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition"
@@ -1549,23 +1551,23 @@ export default function HotelSearchPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSearch} className="p-3 space-y-3">
+            <form onSubmit={handleSearch} className="p-5 space-y-4">
               {/* Location */}
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Location</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Location</label>
                 <CityAutocomplete
                   value={address}
                   onChange={setAddress}
                   placeholder="City or address"
                   required
-                  className="py-2.5 text-sm border-2 hover:border-gray-300"
+                  className="py-3 text-base border hover:border-gray-400"
                 />
               </div>
 
               {/* Check-in and Check-out */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Check-in</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Check-in</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -1574,12 +1576,12 @@ export default function HotelSearchPage() {
                       onChange={(e) => setCheckInDate(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
                       required
-                      className="w-full pl-10 pr-3 py-4 text-lg text-gray-900 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[48px]"
+                      className="w-full pl-10 pr-2 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Check-out</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Check-out</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -1588,27 +1590,26 @@ export default function HotelSearchPage() {
                       onChange={(e) => setCheckOutDate(e.target.value)}
                       min={checkInDate || new Date().toISOString().split('T')[0]}
                       required
-                      className="w-full pl-10 pr-3 py-4 text-lg text-gray-900 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[48px]"
+                      className="w-full pl-10 pr-2 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Duration Display */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Duration</label>
-                <div className="flex items-center h-[42px] px-3 bg-gray-50 rounded-lg border-2 border-gray-200">
-                  <span className="text-xl font-bold text-gray-700">{calculateNights()}</span>
-                  <span className="ml-2 text-xs text-gray-600">
-                    {calculateNights() === 1 ? 'night' : 'nights'}
+              {/* Duration Display - Compact */}
+              {calculateNights() > 0 && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                  <Clock className="w-4 h-4 text-gray-600" />
+                  <span className="text-sm text-gray-700">
+                    <span className="font-semibold text-gray-900">{calculateNights()}</span> {calculateNights() === 1 ? 'night' : 'nights'}
                   </span>
                 </div>
-              </div>
+              )}
 
               {/* Adults and Rooms */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Adults</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Adults</label>
                   <div className="relative">
                     <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -1618,12 +1619,12 @@ export default function HotelSearchPage() {
                       min={1}
                       max={9}
                       required
-                      className="w-full pl-10 pr-3 py-3 text-base border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
+                      className="w-full pl-10 pr-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Rooms</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Rooms</label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -1633,7 +1634,7 @@ export default function HotelSearchPage() {
                       min={1}
                       max={9}
                       required
-                      className="w-full pl-10 pr-3 py-3 text-base border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
+                      className="w-full pl-10 pr-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                     />
                   </div>
                 </div>
@@ -1641,7 +1642,7 @@ export default function HotelSearchPage() {
 
               {/* Search Radius */}
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Search Radius (km)</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Search Radius</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
@@ -1650,7 +1651,7 @@ export default function HotelSearchPage() {
                     onChange={(e) => setRadius(Math.max(1, parseInt(e.target.value) || 5))}
                     min={1}
                     max={300}
-                    className="w-full pl-10 pr-3 py-3 text-base border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
+                    className="w-full pl-10 pr-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                   />
                 </div>
               </div>
@@ -1659,16 +1660,16 @@ export default function HotelSearchPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 text-sm bg-gray-900 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-4 text-base bg-gray-900 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors shadow-lg"
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Searching...
                   </>
                 ) : (
                   <>
-                    <Search className="w-4 h-4" />
+                    <Search className="w-5 h-5" />
                     Search Hotels
                   </>
                 )}

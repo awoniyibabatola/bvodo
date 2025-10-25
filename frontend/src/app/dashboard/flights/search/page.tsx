@@ -1296,37 +1296,39 @@ export default function FlightSearchPage() {
           <div className="fixed inset-0 z-50 md:hidden">
             {/* Backdrop */}
             <div
-              className="absolute inset-0 bg-black/50"
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setShowSearchForm(false)}
             ></div>
 
             {/* Modal */}
-            <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-lg border-t border-gray-300 max-h-[90vh] overflow-y-auto">
+            <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl border border-gray-200 max-h-[90vh] overflow-y-auto shadow-2xl">
+              {/* Handle Bar */}
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+              </div>
+
               {/* Header */}
-              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between rounded-t-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
-                  <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
-                </div>
+              <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between z-10">
+                <h2 className="text-lg font-bold text-gray-900">Modify Search</h2>
                 <button
                   onClick={() => setShowSearchForm(false)}
-                  className="p-2 rounded-full"
+                  className="p-2 hover:bg-gray-100 rounded-full transition"
                 >
-                  <Search className="w-5 h-5 text-gray-600 rotate-45" />
+                  <X className="w-5 h-5 text-gray-600" />
                 </button>
               </div>
 
               {/* Form Content */}
-              <form onSubmit={handleSearch} className="p-3">
+              <form onSubmit={handleSearch} className="p-5 space-y-4">
                 {/* Trip Type */}
-                <div className="flex gap-2 mb-3">
+                <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setTripType('roundtrip')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
+                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                       tripType === 'roundtrip'
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-white text-gray-700 border border-gray-200'
+                        ? 'bg-gray-900 text-white shadow-md'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     Round trip
@@ -1334,10 +1336,10 @@ export default function FlightSearchPage() {
                   <button
                     type="button"
                     onClick={() => setTripType('oneway')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
+                    className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                       tripType === 'oneway'
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-white text-gray-700 border border-gray-200'
+                        ? 'bg-gray-900 text-white shadow-md'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     One-way
@@ -1345,7 +1347,7 @@ export default function FlightSearchPage() {
                 </div>
 
                 {/* From/To */}
-                <div className="space-y-3 mb-4">
+                <div className="space-y-3">
                   <AirportAutocomplete
                     value={from}
                     onChange={(code, display) => {
@@ -1374,9 +1376,9 @@ export default function FlightSearchPage() {
                 </div>
 
                 {/* Dates */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1.5">Departure</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Departure</label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <input
@@ -1385,14 +1387,14 @@ export default function FlightSearchPage() {
                         onChange={(e) => setDepartureDate(e.target.value)}
                         min={new Date().toISOString().split('T')[0]}
                         required
-                        className="w-full pl-10 pr-3 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
+                        className="w-full pl-10 pr-2 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                       />
                     </div>
                   </div>
 
                   {tripType === 'roundtrip' && (
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1.5">Return</label>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Return</label>
                       <div className="relative">
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
@@ -1401,7 +1403,7 @@ export default function FlightSearchPage() {
                           onChange={(e) => setReturnDate(e.target.value)}
                           min={departureDate || new Date().toISOString().split('T')[0]}
                           required={tripType === 'roundtrip'}
-                          className="w-full pl-10 pr-3 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
+                          className="w-full pl-10 pr-2 py-3 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
                         />
                       </div>
                     </div>
@@ -1409,8 +1411,8 @@ export default function FlightSearchPage() {
                 </div>
 
                 {/* Passengers */}
-                <div className="mb-4">
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Passengers</label>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Passengers</label>
                   <div className="relative">
                     <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                     <input
@@ -1424,8 +1426,8 @@ export default function FlightSearchPage() {
                 </div>
 
                 {/* Travel Class */}
-                <div className="mb-4">
-                  <label className="block text-xs font-semibold text-gray-700 mb-2">Travel Class</label>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Travel Class</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { value: 'ECONOMY', label: 'Economy', icon: Luggage },
@@ -1454,16 +1456,16 @@ export default function FlightSearchPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 text-sm bg-gray-900 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full py-4 text-base bg-gray-900 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors shadow-lg"
                 >
                   {loading ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       Searching...
                     </>
                   ) : (
                     <>
-                      <Search className="w-4 h-4" />
+                      <Search className="w-5 h-5" />
                       Search Flights
                     </>
                   )}
