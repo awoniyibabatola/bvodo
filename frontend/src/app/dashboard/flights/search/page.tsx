@@ -1235,7 +1235,7 @@ export default function FlightSearchPage() {
             {/* Travel Class */}
             <div className="mb-4 md:mb-6">
               <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Travel Class</label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-2">
                 {[
                   { value: 'ECONOMY', label: 'Economy', icon: Luggage },
                   { value: 'PREMIUM_ECONOMY', label: 'Premium Economy', icon: Briefcase },
@@ -1246,14 +1246,14 @@ export default function FlightSearchPage() {
                     key={cls.value}
                     type="button"
                     onClick={() => setTravelClass(cls.value)}
-                    className={`p-3 md:p-4 rounded-lg font-medium border ${
+                    className={`p-3 md:p-2 rounded-lg md:rounded font-medium border transition-all ${
                       travelClass === cls.value
-                        ? 'border-gray-900 bg-gray-100 text-gray-900'
-                        : 'border-gray-300 bg-white text-gray-700'
+                        ? 'border-gray-900 bg-gray-900 text-white'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                     }`}
                   >
-                    <cls.icon className="w-4 h-4 md:w-5 md:h-5 mx-auto mb-1 md:mb-2" />
-                    <span className="text-xs md:text-sm">{cls.label}</span>
+                    <cls.icon className="w-4 h-4 md:w-4 md:h-4 mx-auto mb-1 md:mb-0 md:inline md:mr-1.5" />
+                    <span className="text-xs md:text-xs block md:inline">{cls.label}</span>
                   </button>
                 ))}
               </div>
@@ -1437,9 +1437,9 @@ export default function FlightSearchPage() {
                         key={cls.value}
                         type="button"
                         onClick={() => setTravelClass(cls.value)}
-                        className={`p-3 rounded-lg font-medium border ${
+                        className={`p-3 rounded-lg font-medium border transition-all ${
                           travelClass === cls.value
-                            ? 'border-gray-900 bg-gray-100 text-gray-900'
+                            ? 'border-gray-900 bg-gray-900 text-white'
                             : 'border-gray-300 bg-white text-gray-700'
                         }`}
                       >
