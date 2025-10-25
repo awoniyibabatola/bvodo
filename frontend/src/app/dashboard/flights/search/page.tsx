@@ -2004,16 +2004,17 @@ export default function FlightSearchPage() {
                         </div>
 
                         {/* View Details Button */}
-                        <div className="mt-4">
+                        <div className="mt-4 flex justify-end">
                           <button
                             onClick={() => {
                               const selectedFlight = selectedFares.get(`group-${groupIndex}`) || flight;
                               sessionStorage.setItem(`flight_${selectedFlight.id || index}`, JSON.stringify(selectedFlight));
                               window.location.href = `/dashboard/flights/${selectedFlight.id || index}`;
                             }}
-                            className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                            className="px-6 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
                           >
-                            Continue with {selectedFares.has(`group-${groupIndex}`) ? getFullFareName(selectedFares.get(`group-${groupIndex}`)) : getFullFareName(flight)}
+                            Continue
+                            <Plane className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -2021,15 +2022,15 @@ export default function FlightSearchPage() {
 
                     {/* Single Fare - Direct CTA */}
                     {flightGroup.length === 1 && (
-                      <div className="mt-4">
+                      <div className="mt-4 flex justify-end">
                         <button
                           onClick={() => {
                             sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flight));
                             window.location.href = `/dashboard/flights/${flight.id || index}`;
                           }}
-                          className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors inline-flex items-center justify-center gap-2"
+                          className="px-6 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors inline-flex items-center justify-center gap-2"
                         >
-                          View Details
+                          Select Flight
                           <Plane className="w-4 h-4" />
                         </button>
                       </div>
