@@ -2074,7 +2074,7 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Type naturally..."
                 disabled={isLoading}
-                className="flex-1 px-3 md:px-4 py-2.5 md:py-3 bg-white border border-gray-200 rounded-lg md:rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 text-sm disabled:opacity-50 placeholder:text-gray-400 text-gray-900"
+                className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 text-base disabled:opacity-50 placeholder:text-gray-400 text-gray-900 min-h-[44px]"
               />
               <button
                 onClick={() => handleSendMessage()}
