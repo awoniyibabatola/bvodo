@@ -407,8 +407,40 @@ export default function FlightSearchPage() {
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const [draftBookings, setDraftBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
-  const [expandedFlights, setExpandedFlights] = useState<Set<string>>(new Set());
   const [selectedFares, setSelectedFares] = useState<Map<string, any>>(new Map());
+
+  // Function to get full descriptive fare name
+  const getFullFareName = (flight: any) => {
+    const fareBrand = flight.fareBrandName || '';
+    const cabinClass = flight.cabinClass || flight.cabin || 'economy';
+
+    // Map cabin class to readable name
+    const cabinMap: any = {
+      'economy': 'Main Cabin',
+      'premium_economy': 'Premium Economy',
+      'business': 'Business Class',
+      'first': 'First Class',
+    };
+
+    const cabinName = cabinMap[cabinClass.toLowerCase()] || 'Main Cabin';
+
+    // If there's a fare brand, combine it with cabin
+    if (fareBrand) {
+      // Map common fare brand keywords to descriptive names
+      const lowerBrand = fareBrand.toLowerCase();
+      if (lowerBrand.includes('basic')) return `${cabinName} - Basic`;
+      if (lowerBrand.includes('standard')) return `${cabinName} - Standard`;
+      if (lowerBrand.includes('flex')) return `${cabinName} - Flexible`;
+      if (lowerBrand.includes('comfort')) return `${cabinName} - Comfort`;
+      if (lowerBrand.includes('premium') && !lowerBrand.includes('economy')) return `${cabinName} - Premium`;
+      if (lowerBrand.includes('plus')) return `${cabinName} - Plus`;
+
+      // If no keyword match, return brand + cabin
+      return `${cabinName} - ${fareBrand}`;
+    }
+
+    return cabinName;
+  };
 
   // Close passenger selector when clicking outside
   useEffect(() => {
@@ -1836,70 +1868,20 @@ export default function FlightSearchPage() {
 
                         {/* Flight Provider Info - Removed misleading service availability badges */}
                       </div>
-
-                      {/* Price & CTA */}
-                      <div className="flex-shrink-0 lg:w-56 w-full">
-                        <div className="p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                          <div className="text-[10px] text-gray-500 mb-1 md:mb-2">
-                            {flightGroup.length > 1 ? 'From' : 'Total Price'}
-                          </div>
-                          <div className="text-lg md:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">
-                            {getFlightPrice(flight).currency}{' '}
-                            {getFlightPrice(flight).total.toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </div>
-                          <div className="text-[10px] text-gray-500 mb-3 md:mb-4">
-                            for {getTotalPassengers()} {getTotalPassengers() === 1 ? 'passenger' : 'passengers'}
-                          </div>
-
-                          {/* Fare Options Toggle */}
-                          {flightGroup.length > 1 && (
-                            <button
-                              onClick={() => {
-                                const newExpanded = new Set(expandedFlights);
-                                const key = `group-${groupIndex}`;
-                                if (newExpanded.has(key)) {
-                                  newExpanded.delete(key);
-                                } else {
-                                  newExpanded.add(key);
-                                }
-                                setExpandedFlights(newExpanded);
-                              }}
-                              className="w-full mb-2 px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-2 hover:bg-gray-50 transition"
-                            >
-                              {expandedFlights.has(`group-${groupIndex}`) ? 'Hide' : 'Show'} {flightGroup.length} Fare Options
-                              <ArrowLeftRight className="w-3 h-3" />
-                            </button>
-                          )}
-
-                          <button
-                            onClick={() => {
-                              const selectedFlight = selectedFares.get(`group-${groupIndex}`) || flight;
-                              sessionStorage.setItem(`flight_${selectedFlight.id || index}`, JSON.stringify(selectedFlight));
-                              window.location.href = `/dashboard/flights/${selectedFlight.id || index}`;
-                            }}
-                            className="w-full px-4 md:px-6 py-2.5 md:py-3 bg-gray-900 text-white rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2"
-                          >
-                            View Details
-                            <Plane className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                          </button>
-                        </div>
-                      </div>
                     </div>
 
-                    {/* Expandable Fare Options */}
-                    {expandedFlights.has(`group-${groupIndex}`) && flightGroup.length > 1 && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <div className="text-sm font-bold text-gray-900 mb-3">
-                          Select Your Fare ({flightGroup.length} options available)
+                    {/* Fare Options - Always Visible */}
+                    {flightGroup.length > 1 && (
+                      <div className="mt-6 pt-5 border-t border-gray-200">
+                        <div className="text-sm font-semibold text-gray-900 mb-4">
+                          Choose your fare
                         </div>
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                           {flightGroup.map((fareOption: any, fareIndex: number) => {
                             const farePrice = getFlightPrice(fareOption);
-                            const isSelected = selectedFares.get(`group-${groupIndex}`)?.id === fareOption.id;
+                            const isSelected = selectedFares.get(`group-${groupIndex}`)?.id === fareOption.id || (fareIndex === 0 && !selectedFares.has(`group-${groupIndex}`));
                             const fareBaggage = fareOption.outbound?.[0]?.baggage;
+                            const fullFareName = getFullFareName(fareOption);
 
                             return (
                               <div
@@ -1909,85 +1891,120 @@ export default function FlightSearchPage() {
                                   newSelected.set(`group-${groupIndex}`, fareOption);
                                   setSelectedFares(newSelected);
                                 }}
-                                className={`p-3 border-2 rounded-lg cursor-pointer transition ${
+                                className={`relative p-4 rounded-lg cursor-pointer transition-all duration-200 ${
                                   isSelected
-                                    ? 'border-gray-900 bg-gray-50'
-                                    : 'border-gray-200 hover:border-gray-400'
+                                    ? 'bg-gray-900 text-white shadow-lg ring-2 ring-gray-900'
+                                    : 'bg-white border border-gray-200 hover:border-gray-400 hover:shadow-md'
                                 }`}
                               >
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      {fareOption.fareBrandName ? (
-                                        <span className="text-sm font-bold text-gray-900">
-                                          {fareOption.fareBrandName}
-                                        </span>
-                                      ) : (
-                                        <span className="text-sm font-bold text-gray-900">
-                                          Option {fareIndex + 1}
-                                        </span>
-                                      )}
-                                      {isSelected && (
-                                        <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-900 text-white rounded-md">
-                                          <Check className="w-3 h-3" />
-                                          <span className="text-[10px] font-medium">Selected</span>
-                                        </div>
-                                      )}
-                                    </div>
-
-                                    <div className="flex flex-wrap items-center gap-2 text-[10px]">
-                                      {fareOption.isRefundable ? (
-                                        <div className="flex items-center gap-1 text-green-700">
-                                          <Check className="w-3 h-3" />
-                                          <span>Refundable</span>
-                                        </div>
-                                      ) : (
-                                        <div className="flex items-center gap-1 text-gray-500">
-                                          <X className="w-3 h-3" />
-                                          <span>Non-refundable</span>
-                                        </div>
-                                      )}
-                                      {fareOption.isChangeable ? (
-                                        <div className="flex items-center gap-1 text-blue-700">
-                                          <Check className="w-3 h-3" />
-                                          <span>Changeable</span>
-                                        </div>
-                                      ) : (
-                                        <div className="flex items-center gap-1 text-gray-500">
-                                          <X className="w-3 h-3" />
-                                          <span>No changes</span>
-                                        </div>
-                                      )}
-                                      {fareBaggage?.checked && fareBaggage.checked !== '0 bags' && (
-                                        <div className="flex items-center gap-1 text-gray-700">
-                                          <Luggage className="w-3 h-3" />
-                                          <span>{fareBaggage.checked}</span>
-                                        </div>
-                                      )}
+                                {/* Selected Indicator */}
+                                {isSelected && (
+                                  <div className="absolute top-3 right-3">
+                                    <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                                      <Check className="w-3 h-3 text-gray-900" />
                                     </div>
                                   </div>
+                                )}
 
-                                  <div className="text-right">
-                                    <div className="text-lg font-bold text-gray-900">
-                                      {farePrice.currency} {farePrice.total.toLocaleString('en-US', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                      })}
+                                {/* Fare Name */}
+                                <div className={`text-sm font-bold mb-3 pr-8 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                  {fullFareName}
+                                </div>
+
+                                {/* Price */}
+                                <div className="mb-3">
+                                  <div className={`text-2xl font-bold ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                    {farePrice.currency} {farePrice.total.toLocaleString('en-US', {
+                                      minimumFractionDigits: 0,
+                                      maximumFractionDigits: 0,
+                                    })}
+                                  </div>
+                                  {fareIndex > 0 && (
+                                    <div className={`text-xs mt-1 ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                                      +{farePrice.currency} {(farePrice.total - getFlightPrice(flightGroup[0]).total).toLocaleString('en-US', {
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0,
+                                      })} more
                                     </div>
-                                    {fareIndex > 0 && (
-                                      <div className="text-[10px] text-gray-500">
-                                        +{farePrice.currency} {(farePrice.total - getFlightPrice(flightGroup[0]).total).toLocaleString('en-US', {
-                                          minimumFractionDigits: 2,
-                                          maximumFractionDigits: 2,
-                                        })}
-                                      </div>
+                                  )}
+                                </div>
+
+                                {/* Features */}
+                                <div className="space-y-2">
+                                  {/* Flexibility */}
+                                  <div className="flex items-center gap-2 text-xs">
+                                    {fareOption.isRefundable ? (
+                                      <Check className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-gray-900'}`} />
+                                    ) : (
+                                      <X className={`w-3.5 h-3.5 ${isSelected ? 'text-gray-400' : 'text-gray-300'}`} />
                                     )}
+                                    <span className={isSelected ? 'text-white' : 'text-gray-700'}>
+                                      {fareOption.isRefundable ? 'Refundable' : 'Non-refundable'}
+                                    </span>
                                   </div>
+
+                                  <div className="flex items-center gap-2 text-xs">
+                                    {fareOption.isChangeable ? (
+                                      <Check className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-gray-900'}`} />
+                                    ) : (
+                                      <X className={`w-3.5 h-3.5 ${isSelected ? 'text-gray-400' : 'text-gray-300'}`} />
+                                    )}
+                                    <span className={isSelected ? 'text-white' : 'text-gray-700'}>
+                                      {fareOption.isChangeable ? 'Changes allowed' : 'No changes'}
+                                    </span>
+                                  </div>
+
+                                  {/* Baggage */}
+                                  {fareBaggage?.checked && fareBaggage.checked !== '0 bags' ? (
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <Luggage className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-gray-900'}`} />
+                                      <span className={isSelected ? 'text-white' : 'text-gray-700'}>
+                                        {fareBaggage.checked}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <X className={`w-3.5 h-3.5 ${isSelected ? 'text-gray-400' : 'text-gray-300'}`} />
+                                      <span className={`${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                                        No checked bag
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             );
                           })}
                         </div>
+
+                        {/* View Details Button */}
+                        <div className="mt-5">
+                          <button
+                            onClick={() => {
+                              const selectedFlight = selectedFares.get(`group-${groupIndex}`) || flight;
+                              sessionStorage.setItem(`flight_${selectedFlight.id || index}`, JSON.stringify(selectedFlight));
+                              window.location.href = `/dashboard/flights/${selectedFlight.id || index}`;
+                            }}
+                            className="w-full px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors shadow-md"
+                          >
+                            Continue with {selectedFares.has(`group-${groupIndex}`) ? getFullFareName(selectedFares.get(`group-${groupIndex}`)) : getFullFareName(flight)}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Single Fare - Direct CTA */}
+                    {flightGroup.length === 1 && (
+                      <div className="mt-5">
+                        <button
+                          onClick={() => {
+                            sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flight));
+                            window.location.href = `/dashboard/flights/${flight.id || index}`;
+                          }}
+                          className="w-full px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors shadow-md inline-flex items-center justify-center gap-2"
+                        >
+                          View Details
+                          <Plane className="w-4 h-4" />
+                        </button>
                       </div>
                     )}
                   </div>
