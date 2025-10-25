@@ -222,13 +222,20 @@ export class DuffelService implements IFlightProvider {
         }
       }
 
+      // Determine payment type based on environment
+      // Test mode: use 'balance' (virtual credit)
+      // Production mode: use 'arc_bsp_cash' (real payment settlement)
+      const paymentType = env.DUFFEL_ENVIRONMENT === 'production' ? 'arc_bsp_cash' : 'balance';
+
+      logger.info(`[Duffel] Using payment type: ${paymentType} (environment: ${env.DUFFEL_ENVIRONMENT})`);
+
       // Build order create params with correct payment amount
       const orderParams: DuffelOrderCreateParams = {
         selected_offers: [params.offerId],
         passengers: duffelPassengers,
         payments: [
           {
-            type: 'arc_bsp_cash', // Standard payment method that works in test/production
+            type: paymentType,
             amount: totalAmount.toFixed(2), // Include only valid services in payment amount
             currency: offer.total_currency,
           },
