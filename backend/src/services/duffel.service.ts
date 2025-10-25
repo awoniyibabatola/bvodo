@@ -667,6 +667,31 @@ export class DuffelService implements IFlightProvider {
     params: CreateBookingParams
   ): BookingConfirmation {
     // Reconstruct the flight offer from order slices
+    const outbound = order.slices[0];
+    const inbound = order.slices[1];
+
+    // Extract fare brand name from the first slice
+    const fareBrandName = outbound.fare_brand_name;
+
+    // Extract cabin class marketing name from first segment
+    const cabinClassMarketing = outbound.segments[0]?.passengers[0]?.cabin_class_marketing_name;
+
+    // Extract change penalty
+    const changePenalty = order.conditions.change_before_departure?.penalty_amount
+      ? {
+          amount: parseFloat(order.conditions.change_before_departure.penalty_amount),
+          currency: order.conditions.change_before_departure.penalty_currency || order.total_currency,
+        }
+      : undefined;
+
+    // Extract refund penalty
+    const refundPenalty = order.conditions.refund_before_departure?.penalty_amount
+      ? {
+          amount: parseFloat(order.conditions.refund_before_departure.penalty_amount),
+          currency: order.conditions.refund_before_departure.penalty_currency || order.total_currency,
+        }
+      : undefined;
+
     const flights: StandardizedFlightOffer = {
       id: order.id,
       provider: 'duffel',
@@ -676,12 +701,22 @@ export class DuffelService implements IFlightProvider {
         taxes: parseFloat(order.tax_amount),
         currency: order.total_currency,
       },
-      outbound: this.transformDuffelSliceSegments(order.slices[0]),
-      inbound: order.slices[1] ? this.transformDuffelSliceSegments(order.slices[1]) : undefined,
+      outbound: this.transformDuffelSliceSegments(outbound),
+      inbound: inbound ? this.transformDuffelSliceSegments(inbound) : undefined,
       validatingAirline: order.owner.name,
       validatingAirlineCode: order.owner.iata_code,
       isRefundable: order.conditions.refund_before_departure?.allowed || false,
       isChangeable: order.conditions.change_before_departure?.allowed || false,
+
+      // Fare information
+      fareBrandName,
+      cabinClass: order.cabin_class || 'economy',
+      cabinClassMarketing,
+
+      // Fare flexibility
+      changePenalty,
+      refundPenalty,
+
       numberOfBookableSeats: 9,
       rawData: order,
     };
