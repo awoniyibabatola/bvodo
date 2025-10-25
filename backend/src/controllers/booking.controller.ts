@@ -583,16 +583,22 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
 
             // Send booking confirmation email
             try {
+              // Fetch full user details for email
+              const fullUser = await prisma.user.findUnique({
+                where: { id: user.userId },
+                select: { firstName: true, lastName: true },
+              });
+
               const firstSegment = bookingData?.outbound?.[0];
               const lastSegment = bookingData?.outbound?.[bookingData.outbound.length - 1];
 
-              if (firstSegment && passengerDetails) {
+              if (firstSegment && passengerDetails && fullUser) {
                 await emailService.sendBookingConfirmation({
                   bookingId: booking.id,
                   bookingReference: bookingReference,
                   pnr: duffelOrder.bookingReference,
                   travelerName: `${passengerDetails[0]?.firstName} ${passengerDetails[0]?.lastName}`,
-                  bookerName: `${user.firstName} ${user.lastName}`,
+                  bookerName: `${fullUser.firstName} ${fullUser.lastName}`,
                   bookerEmail: user.email,
                   flightDetails: {
                     airline: firstSegment.airline || 'N/A',
