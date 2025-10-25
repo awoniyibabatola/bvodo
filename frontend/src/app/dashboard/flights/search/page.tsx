@@ -1374,7 +1374,7 @@ export default function FlightSearchPage() {
                 </div>
 
                 {/* Dates */}
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1.5">Departure</label>
                     <div className="relative">
