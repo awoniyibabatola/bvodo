@@ -4,6 +4,7 @@ import {
   createCheckoutSession,
   handleWebhook,
   getPaymentStatus,
+  verifyPayment,
 } from '../controllers/payment.controller';
 
 const router = express.Router();
@@ -22,6 +23,13 @@ router.post('/checkout', authenticate, createCheckoutSession);
  * @note    This endpoint needs raw body, configured in server.ts
  */
 router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
+
+/**
+ * @route   POST /api/v1/payments/verify
+ * @desc    Manually verify and complete payment (for testing without webhooks)
+ * @access  Private
+ */
+router.post('/verify', authenticate, verifyPayment);
 
 /**
  * @route   GET /api/v1/payments/status/:bookingReference

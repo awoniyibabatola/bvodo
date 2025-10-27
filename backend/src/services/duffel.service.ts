@@ -106,8 +106,17 @@ export class DuffelService implements IFlightProvider {
         this.transformDuffelOfferToStandard(offer)
       );
 
-      // Step 4: Apply max results limit if specified
-      const maxResults = params.max || 50;
+      // Log cabin class distribution for debugging
+      const cabinClassCounts = new Map<string, number>();
+      standardizedOffers.forEach(offer => {
+        const count = cabinClassCounts.get(offer.cabinClass) || 0;
+        cabinClassCounts.set(offer.cabinClass, count + 1);
+      });
+      logger.info('[Duffel] Cabin class distribution:', Object.fromEntries(cabinClassCounts));
+
+      // Step 4: Apply max results limit if specified (Duffel returns up to 200 offers)
+      // Return all results by default to allow client-side filtering
+      const maxResults = params.max || 200;
       return standardizedOffers.slice(0, maxResults);
     } catch (error: any) {
       logger.error('[Duffel] Flight search error:', error.response?.data || error);
@@ -455,9 +464,9 @@ export class DuffelService implements IFlightProvider {
     return {
       slices,
       passengers,
-      cabin_class: params.travelClass
+      cabin_class: params.travelClass && cabinClassMap[params.travelClass]
         ? cabinClassMap[params.travelClass]
-        : 'economy',
+        : 'economy', // Default to economy
       max_connections: params.nonStop ? 0 : undefined,
     };
   }
@@ -471,6 +480,9 @@ export class DuffelService implements IFlightProvider {
 
     // Extract fare brand name from the first slice
     const fareBrandName = outbound.fare_brand_name;
+
+    // Extract cabin class from first segment (more reliable than offer.cabin_class)
+    const cabinClass = outbound.segments[0]?.passengers[0]?.cabin_class || offer.cabin_class || 'economy';
 
     // Extract cabin class marketing name from first segment
     const cabinClassMarketing = outbound.segments[0]?.passengers[0]?.cabin_class_marketing_name;
@@ -513,7 +525,7 @@ export class DuffelService implements IFlightProvider {
 
       // Fare information
       fareBrandName,
-      cabinClass: offer.cabin_class || 'economy',
+      cabinClass,
       cabinClassMarketing,
 
       // Fare flexibility
@@ -656,6 +668,25 @@ export class DuffelService implements IFlightProvider {
         logger.info(`[Duffel] Added passport for ${passenger.firstName}: expires ${passenger.passportExpiry}`);
       } else if (passenger.passportNumber) {
         logger.warn(`[Duffel] Skipping incomplete passport data for ${passenger.firstName} (passport info must include expiry date and country)`);
+      }
+
+      // Add frequent flyer number if provided
+      if (passenger.frequentFlyerNumber && passenger.frequentFlyerNumber.trim() !== '') {
+        // Extract airline code from frequent flyer number format (e.g., "AA123456" -> "AA")
+        // Or use a default approach if format varies
+        const ffNumber = passenger.frequentFlyerNumber.trim();
+
+        // Try to extract airline code (first 2-3 letters before numbers)
+        const airlineCodeMatch = ffNumber.match(/^([A-Z]{2,3})/);
+        const airlineCode = airlineCodeMatch ? airlineCodeMatch[1] : 'XX'; // Default to 'XX' if can't extract
+
+        duffelPassenger.loyalty_programme_accounts = [
+          {
+            airline_iata_code: airlineCode,
+            account_number: ffNumber,
+          },
+        ];
+        logger.info(`[Duffel] Added frequent flyer number for ${passenger.firstName}: ${airlineCode} - ${ffNumber}`);
       }
 
       logger.info('[Duffel] Transformed passenger:', JSON.stringify(duffelPassenger, null, 2));

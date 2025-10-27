@@ -140,6 +140,8 @@ interface Booking {
   taxesFees: number;
   currency: string;
   status: string;
+  paymentStatus?: string;
+  paymentMethod?: string;
   bookedAt: string;
   passengerDetails: PassengerDetail[];
   flightBookings?: FlightBooking[];
@@ -147,6 +149,7 @@ interface Booking {
   bookingData?: {
     seatsSelected?: SeatSelection[];
     baggageSelected?: BaggageSelection[];
+    paymentMethod?: string;
     [key: string]: any;
   };
   user: {
@@ -171,6 +174,8 @@ export default function BookingDetailPage() {
   const [approvalNotes, setApprovalNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
 
   useEffect(() => {
     // Get user data from localStorage
@@ -180,6 +185,131 @@ export default function BookingDetailPage() {
     }
 
     fetchBookingDetails();
+
+    // Check if returning from Stripe payment
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const sessionId = urlParams.get('session_id');
+
+    let pollInterval: NodeJS.Timeout | null = null;
+
+    if (paymentStatus === 'success' && sessionId) {
+      setIsVerifyingPayment(true);
+      setPaymentError('');
+
+      // Manually trigger payment verification (for local development without webhooks)
+      const verifyPaymentAsync = async () => {
+        try {
+          const token = localStorage.getItem('accessToken');
+          const response = await fetch(getApiEndpoint('payments/verify'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ sessionId }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Payment verification failed');
+          }
+        } catch (err: any) {
+          console.error('Error verifying payment:', err);
+          setPaymentError(err.message || 'Failed to verify payment. Please contact support.');
+          setIsVerifyingPayment(false);
+        }
+      };
+
+      verifyPaymentAsync();
+
+      // Poll for booking confirmation (webhook may take a few seconds)
+      let pollCount = 0;
+      const maxPolls = 20; // Poll for up to 40 seconds
+      pollInterval = setInterval(async () => {
+        pollCount++;
+
+        try {
+          const token = localStorage.getItem('accessToken');
+          const response = await fetch(getApiEndpoint(`bookings/${bookingId}`), {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            const currentBooking = result.data;
+
+            // If booking is confirmed OR payment is complete (approved), stop polling and update UI
+            // Payment complete means Stripe payment succeeded, Duffel booking may still be processing
+            const isPaymentComplete = currentBooking.paymentStatus === 'completed';
+            const isConfirmed = currentBooking.status === 'confirmed';
+            const isApproved = currentBooking.status === 'approved';
+
+            if (isConfirmed || (isPaymentComplete && isApproved)) {
+              setBooking(currentBooking);
+              if (pollInterval) clearInterval(pollInterval);
+              setIsVerifyingPayment(false);
+              setPaymentError('');
+
+              // Clean up URL
+              window.history.replaceState({}, '', window.location.pathname);
+
+              // If payment complete but not yet confirmed, show info message
+              if (!isConfirmed && isPaymentComplete) {
+                // Payment succeeded, booking is being confirmed
+                console.log('Payment completed successfully. Booking confirmation in progress...');
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Error polling booking status:', err);
+        }
+
+        // Stop polling after max attempts
+        if (pollCount >= maxPolls) {
+          if (pollInterval) clearInterval(pollInterval);
+
+          // Fetch final booking status
+          try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(getApiEndpoint(`bookings/${bookingId}`), {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (response.ok) {
+              const result = await response.json();
+              setBooking(result.data);
+            }
+          } catch (err) {
+            console.error('Error fetching final booking status:', err);
+          }
+
+          setIsVerifyingPayment(false);
+
+          // Clean up URL even if confirmation times out
+          window.history.replaceState({}, '', window.location.pathname);
+
+          // Show appropriate message based on booking status
+          if (booking) {
+            if (booking.status === 'confirmed') {
+              // All good, booking confirmed
+            } else if (booking.paymentStatus === 'completed' && booking.status === 'approved') {
+              // Payment succeeded but still processing
+              setPaymentError('Your payment was successful! Your booking is being confirmed and you will receive a confirmation email shortly.');
+            } else {
+              // Something went wrong
+              setPaymentError('Payment processing is taking longer than expected. Please refresh the page or contact support if the issue persists.');
+            }
+          }
+        }
+      }, 2000); // Poll every 2 seconds
+    }
+
+    // Cleanup function that always runs
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
   }, [bookingId]);
 
   const fetchBookingDetails = async () => {
@@ -347,6 +477,32 @@ export default function BookingDetailPage() {
     });
   };
 
+  const getPaymentMethodDisplay = () => {
+    // Check bookingData first, then booking level paymentMethod
+    const method = booking?.bookingData?.paymentMethod || booking?.paymentMethod;
+
+    if (method === 'card' || method === 'stripe') {
+      return {
+        short: 'Paid via Credit/Debit Card',
+        long: 'Credit/Debit Card (Stripe)',
+        icon: CreditCard,
+      };
+    } else if (method === 'credit' || method === 'balance') {
+      return {
+        short: 'Paid via Company Credits',
+        long: 'Company Travel Credits',
+        icon: CreditCard,
+      };
+    } else {
+      // Default fallback
+      return {
+        short: 'Paid via Company Credits',
+        long: 'Company Travel Credits',
+        icon: CreditCard,
+      };
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -385,76 +541,41 @@ export default function BookingDetailPage() {
 
   return (
     <>
-      <style jsx global>{`
-        @media print {
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }
-
-          body {
-            background: white !important;
-            margin: 0;
-            padding: 0;
-          }
-
-          .no-print {
-            display: none !important;
-          }
-
-          .print-only {
-            display: block !important;
-          }
-
-          .print-container {
-            max-width: 210mm !important;
-            margin: 0 auto !important;
-            padding: 20mm !important;
-            background: white !important;
-          }
-
-          .print-full-width {
-            max-width: 100% !important;
-          }
-
-          .page-break-before {
-            page-break-before: always;
-          }
-
-          .page-break-after {
-            page-break-after: always;
-          }
-
-          .avoid-break {
-            page-break-inside: avoid;
-          }
-
-          /* Hide sidebar on print, show invoice at top */
-          .print-hide-sidebar {
-            display: none !important;
-          }
-
-          .print-invoice {
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
-          }
-
-          /* Ensure gradients and colors print */
-          .print-preserve-bg {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-        }
-
-        .print-only {
-          display: none;
-        }
-      `}</style>
-
       <div className="min-h-screen bg-white p-4 md:p-6 print:bg-white print:p-0">
         <div className="max-w-6xl mx-auto print-full-width">
+
+        {/* Payment Verification Banner */}
+        {isVerifyingPayment && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+              <div>
+                <p className="font-semibold text-blue-900">Verifying Payment...</p>
+                <p className="text-sm text-blue-700">Please wait while we confirm your payment. This may take a few moments.</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Payment Error Banner */}
+        {paymentError && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-semibold text-red-900 mb-1">Payment Verification Issue</p>
+                <p className="text-sm text-red-700">{paymentError}</p>
+              </div>
+              <button
+                onClick={() => setPaymentError('')}
+                className="text-red-600 hover:text-red-800"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-6 no-print">
           <Link
@@ -1137,7 +1258,7 @@ export default function BookingDetailPage() {
                     <div className="flex justify-between items-center mb-2">
                       <div>
                         <p className="text-xs uppercase tracking-wider text-gray-700 font-semibold mb-1">Amount Due</p>
-                        <p className="text-xs text-gray-600">Paid via Company Credits</p>
+                        <p className="text-xs text-gray-600">{getPaymentMethodDisplay().short}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-xl font-bold text-gray-900">
@@ -1152,11 +1273,14 @@ export default function BookingDetailPage() {
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg">
                     <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
-                      <CreditCard className="w-5 h-5 text-white" />
+                      {(() => {
+                        const PaymentIcon = getPaymentMethodDisplay().icon;
+                        return <PaymentIcon className="w-5 h-5 text-white" />;
+                      })()}
                     </div>
                     <div className="flex-1">
                       <p className="text-xs text-gray-500 uppercase tracking-wider">Payment Method</p>
-                      <p className="font-semibold text-gray-900">Company Travel Credits</p>
+                      <p className="font-semibold text-gray-900">{getPaymentMethodDisplay().long}</p>
                     </div>
                     <CheckCircle className="w-5 h-5 text-gray-900" />
                   </div>

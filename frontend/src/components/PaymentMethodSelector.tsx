@@ -28,27 +28,27 @@ const paymentMethods: PaymentMethodOption[] = [
   {
     value: 'credit',
     label: 'Bvodo Credit',
-    description: 'Pay with your available credits',
+    description: 'Use company prepaid balance',
     icon: Wallet,
     colors: {
-      gradient: 'from-green-500 to-green-600',
-      iconBg: 'bg-green-50',
-      iconColor: 'text-green-600',
-      border: 'border-green-200',
-      hoverBorder: 'hover:border-green-300',
+      gradient: 'from-black to-gray-900',
+      iconBg: 'bg-gray-100',
+      iconColor: 'text-gray-700',
+      border: 'border-black',
+      hoverBorder: 'hover:border-gray-300',
     }
   },
   {
     value: 'card',
-    label: 'Credit Card',
-    description: 'Pay with Visa, Mastercard, or Amex',
+    label: 'Credit/Debit Card',
+    description: 'Pay with your personal card',
     icon: CreditCard,
     colors: {
-      gradient: 'from-blue-500 to-blue-600',
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
-      border: 'border-blue-200',
-      hoverBorder: 'hover:border-blue-300',
+      gradient: 'from-black to-gray-900',
+      iconBg: 'bg-gray-100',
+      iconColor: 'text-gray-700',
+      border: 'border-black',
+      hoverBorder: 'hover:border-gray-300',
     }
   },
 ];
@@ -72,11 +72,12 @@ export default function PaymentMethodSelector({
 
       {userCredits !== undefined && (
         <div className="text-sm text-gray-600 mb-3">
-          Available Credits: <span className="font-semibold">${userCredits.toFixed(2)}</span>
+          <div className="font-medium text-gray-700 mb-1">Company Bvodo Credits</div>
+          <div>Available Balance: <span className="font-semibold text-gray-900">${userCredits.toFixed(2)}</span></div>
           {bookingAmount !== undefined && (
-            <span className="ml-2">
-              • Booking Amount: <span className="font-semibold">${bookingAmount.toFixed(2)}</span>
-            </span>
+            <div className="mt-1">
+              Booking Amount: <span className="font-semibold text-gray-900">${bookingAmount.toFixed(2)}</span>
+            </div>
           )}
         </div>
       )}
@@ -95,7 +96,7 @@ export default function PaymentMethodSelector({
               disabled={isDisabled}
               className={`group relative overflow-hidden p-4 rounded-xl font-medium border-2 transition-all duration-300 ${
                 isDisabled
-                  ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-200'
+                  ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-300'
                   : isSelected
                     ? `${method.colors.border} bg-gradient-to-br ${method.colors.gradient} text-white shadow-lg scale-[1.02]`
                     : `border-gray-200 bg-white text-gray-700 ${method.colors.hoverBorder} hover:shadow-md hover:scale-[1.01]`
@@ -104,30 +105,46 @@ export default function PaymentMethodSelector({
               {/* Icon and Label */}
               <div className="flex items-center gap-3">
                 <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${
-                  isSelected
-                    ? 'bg-white/20 backdrop-blur-sm'
-                    : method.colors.iconBg
+                  isDisabled
+                    ? 'bg-gray-200'
+                    : isSelected
+                      ? 'bg-white/20 backdrop-blur-sm'
+                      : method.colors.iconBg
                 } transition-all duration-300`}>
                   <Icon
                     className={`w-5 h-5 ${
-                      isSelected ? 'text-white' : method.colors.iconColor
+                      isDisabled
+                        ? 'text-gray-400'
+                        : isSelected
+                          ? 'text-white'
+                          : method.colors.iconColor
                     } transition-all duration-300`}
                   />
                 </div>
 
                 <div className="text-left flex-1">
-                  <div className="text-sm font-semibold">
+                  <div className={`text-sm font-semibold ${
+                    isDisabled
+                      ? 'text-gray-400'
+                      : isSelected
+                        ? 'text-white'
+                        : 'text-gray-900'
+                  }`}>
                     {method.label}
                   </div>
                   <div className={`text-xs mt-0.5 ${
-                    isSelected ? 'text-white/90' : 'text-gray-500'
+                    isDisabled
+                      ? 'text-gray-400'
+                      : isSelected
+                        ? 'text-gray-300'
+                        : 'text-gray-500'
                   }`}>
                     {method.description}
                   </div>
                 </div>
 
                 {/* Selected Indicator */}
-                {isSelected && (
+                {isSelected && !isDisabled && (
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                 )}
               </div>

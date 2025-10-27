@@ -16,6 +16,182 @@ import emailService from '../services/email.service';
 import { stripeService } from '../services/stripe.service';
 
 /**
+ * Helper function to deduct credits based on user role
+ * Admins: deduct from organization credits
+ * Regular users: deduct from personal credit limit
+ */
+async function deductCredits(
+  tx: any,
+  userId: string,
+  organizationId: string,
+  bookingId: string,
+  amount: number,
+  currency: string,
+  description: string
+) {
+  // Get user to check role
+  const user = await tx.user.findUnique({
+    where: { id: userId },
+    select: { role: true, availableCredits: true },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const isAdmin = user.role === 'admin' || user.role === 'company_admin';
+
+  if (isAdmin) {
+    // Deduct from organization credits
+    const org = await tx.organization.findUnique({
+      where: { id: organizationId },
+      select: { availableCredits: true },
+    });
+
+    if (!org) {
+      throw new Error('Organization not found');
+    }
+
+    const orgBalance = parseFloat(org.availableCredits.toString());
+
+    if (orgBalance < amount) {
+      throw new Error('Insufficient organization credits');
+    }
+
+    await tx.organization.update({
+      where: { id: organizationId },
+      data: { availableCredits: orgBalance - amount },
+    });
+
+    await tx.creditTransaction.create({
+      data: {
+        organizationId,
+        userId,
+        bookingId,
+        transactionType: 'booking_charged',
+        amount,
+        currency,
+        balanceBefore: orgBalance,
+        balanceAfter: orgBalance - amount,
+        description: `${description} (from organization credits)`,
+        createdBy: userId,
+      },
+    });
+  } else {
+    // Deduct from personal credit limit
+    const userBalance = parseFloat(user.availableCredits.toString());
+
+    if (userBalance < amount) {
+      throw new Error('Insufficient personal credits');
+    }
+
+    await tx.user.update({
+      where: { id: userId },
+      data: { availableCredits: userBalance - amount },
+    });
+
+    await tx.creditTransaction.create({
+      data: {
+        organizationId,
+        userId,
+        bookingId,
+        transactionType: 'booking_charged',
+        amount,
+        currency,
+        balanceBefore: userBalance,
+        balanceAfter: userBalance - amount,
+        description: `${description} (from personal credits)`,
+        createdBy: userId,
+      },
+    });
+  }
+}
+
+/**
+ * Helper function to refund credits based on user role
+ * Admins: refund to organization credits
+ * Regular users: refund to personal credit limit
+ */
+async function refundCredits(
+  tx: any,
+  userId: string,
+  organizationId: string,
+  bookingId: string,
+  amount: number,
+  currency: string,
+  description: string
+) {
+  // Get user to check role
+  const user = await tx.user.findUnique({
+    where: { id: userId },
+    select: { role: true, availableCredits: true },
+  });
+
+  if (!user) {
+    return; // Silently fail if user not found
+  }
+
+  const isAdmin = user.role === 'admin' || user.role === 'company_admin';
+
+  if (isAdmin) {
+    // Refund to organization credits
+    const org = await tx.organization.findUnique({
+      where: { id: organizationId },
+      select: { availableCredits: true },
+    });
+
+    if (!org) {
+      return;
+    }
+
+    const orgBalance = parseFloat(org.availableCredits.toString());
+
+    await tx.organization.update({
+      where: { id: organizationId },
+      data: { availableCredits: orgBalance + amount },
+    });
+
+    await tx.creditTransaction.create({
+      data: {
+        organizationId,
+        userId,
+        bookingId,
+        transactionType: 'booking_refunded',
+        amount,
+        currency,
+        balanceBefore: orgBalance,
+        balanceAfter: orgBalance + amount,
+        description: `${description} (to organization credits)`,
+        createdBy: userId,
+      },
+    });
+  } else {
+    // Refund to personal credit limit
+    const userBalance = parseFloat(user.availableCredits.toString());
+
+    await tx.user.update({
+      where: { id: userId },
+      data: { availableCredits: userBalance + amount },
+    });
+
+    await tx.creditTransaction.create({
+      data: {
+        organizationId,
+        userId,
+        bookingId,
+        transactionType: 'booking_refunded',
+        amount,
+        currency,
+        balanceBefore: userBalance,
+        balanceAfter: userBalance + amount,
+        description: `${description} (to personal credits)`,
+        createdBy: userId,
+      },
+    });
+  }
+}
+
+/**
  * Parse ISO 8601 duration string to minutes
  * Example: "PT7H12M" -> 432 minutes (7*60 + 12)
  */
@@ -311,9 +487,12 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
     });
 
     // Check if booking requires approval
-    const requiresApproval =
+    // Card payments are auto-approved after Stripe payment (user pays with own money)
+    // Balance/credit payments require manual approval (using company money)
+    const requiresApproval = paymentMethod === 'credit' && (
       organization.requireApprovalAll ||
-      (totalPrice && parseFloat(totalPrice) >= parseFloat(organization.approvalThreshold.toString()));
+      (totalPrice && parseFloat(totalPrice) >= parseFloat(organization.approvalThreshold.toString()))
+    );
 
     // Generate unique booking reference
     const bookingReference = `BK${Date.now()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
@@ -352,6 +531,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
           bookingData: {
             ...bookingData,
             services: services || undefined,  // Store services in bookingData JSON
+            paymentMethod: paymentMethod || 'credit',  // Store payment method for display
           },
         },
       });
@@ -468,7 +648,8 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       // NOTE: Credits are NOT deducted here - only held/reserved until approval
       // When admin approves, credits will be deducted and Duffel order created
       // This validates user has sufficient credits but doesn't charge yet
-      if (totalPrice && parseFloat(totalPrice) > 0) {
+      // Only check credits if paying with Bvodo credit (not for card payments)
+      if (paymentMethod === 'credit' && totalPrice && parseFloat(totalPrice) > 0) {
         const bookingCost = parseFloat(totalPrice);
 
         // Get user's current credit balance
@@ -570,49 +751,22 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
         }
       }
 
-      // 1. Deduct credits from user ONLY if Duffel order succeeded (or non-Duffel booking)
+      // 1. Deduct credits ONLY if Duffel order succeeded (or non-Duffel booking)
+      // Uses helper function that handles admin vs regular user credit deduction
       try {
         const bookingCost = parseFloat(totalPrice || '0');
 
         if (bookingCost > 0) {
           await prisma.$transaction(async (tx) => {
-            // Get user's current credit balance
-            const bookingUser = await tx.user.findUnique({
-              where: { id: user.userId },
-              select: {
-                availableCredits: true,
-              },
-            });
-
-            if (!bookingUser) {
-              throw new Error('User not found');
-            }
-
-            const userBalance = parseFloat(bookingUser.availableCredits.toString());
-
-            // Deduct from user's available credits
-            await tx.user.update({
-              where: { id: user.userId },
-              data: {
-                availableCredits: userBalance - bookingCost,
-              },
-            });
-
-            // Create credit transaction for deduction
-            await tx.creditTransaction.create({
-              data: {
-                organizationId: user.organizationId,
-                userId: user.userId,
-                bookingId: booking.id,
-                transactionType: 'booking_charged',
-                amount: bookingCost,
-                currency: currency || 'USD',
-                balanceBefore: userBalance,
-                balanceAfter: userBalance - bookingCost,
-                description: `Booking auto-approved and charged: ${bookingReference}`,
-                createdBy: user.userId,
-              },
-            });
+            await deductCredits(
+              tx,
+              user.userId,
+              user.organizationId,
+              booking.id,
+              bookingCost,
+              currency || 'USD',
+              `Booking auto-approved and charged: ${bookingReference}`
+            );
           });
 
           logger.info(`[Auto-Approved] ✅ Credits deducted: ${bookingCost}`);
@@ -754,6 +908,62 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
     let checkoutUrl = null;
     if (paymentMethod === 'card' && completeBooking) {
       try {
+        // VALIDATE DUFFEL OFFER BEFORE PAYMENT - Prevent payment for expired/invalid offers
+        if (provider === 'duffel') {
+          const offerId = providerBookingReference || bookingData?.id;
+          if (!offerId) {
+            throw new Error('Duffel offer ID not found in booking data');
+          }
+
+          logger.info(`[Booking] Validating Duffel offer ${offerId} before payment`);
+
+          try {
+            // This will throw if offer is expired or invalid
+            await duffelService.getOfferDetails(offerId);
+            logger.info(`[Booking] ✅ Offer ${offerId} is valid, proceeding to payment`);
+          } catch (offerError: any) {
+            logger.error(`[Booking] ❌ Offer validation failed:`, offerError.message);
+
+            // Delete the booking since offer is invalid
+            await prisma.booking.delete({
+              where: { id: completeBooking.id }
+            });
+
+            res.status(400).json({
+              success: false,
+              message: offerError.message || 'This flight offer has expired. Please search for flights again to get fresh availability and pricing.',
+              error: 'OFFER_EXPIRED'
+            });
+            return;
+          }
+
+          // Validate passport expiry dates BEFORE payment
+          if (Array.isArray(passengerDetails)) {
+            const tripReturnDate = returnDate ? new Date(returnDate) : new Date(departureDate);
+            tripReturnDate.setDate(tripReturnDate.getDate() + 7); // Add buffer
+
+            for (const passenger of passengerDetails) {
+              if (passenger.passportExpiry && passenger.passportExpiry !== '') {
+                const expiryDate = new Date(passenger.passportExpiry);
+                if (expiryDate <= tripReturnDate) {
+                  // Delete the booking since passport is invalid
+                  await prisma.booking.delete({
+                    where: { id: completeBooking.id }
+                  });
+
+                  res.status(400).json({
+                    success: false,
+                    message: `Passport for ${passenger.firstName} ${passenger.lastName} expires ${passenger.passportExpiry}, which is too soon. Passport must be valid for at least 7 days after your return date. Please update passport details or leave blank if not required.`,
+                    error: 'PASSPORT_EXPIRY_INVALID'
+                  });
+                  return;
+                }
+              }
+            }
+            logger.info(`[Booking] ✅ All passport expiry dates validated`);
+          }
+        }
+
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
 
         const session = await stripeService.createCheckoutSession({
@@ -761,8 +971,8 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
           amount: parseFloat(completeBooking.totalPrice.toString()),
           currency: completeBooking.currency,
           customerEmail: completeBooking.user.email,
-          successUrl: `${frontendUrl}/dashboard/bookings/${completeBooking.bookingReference}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${frontendUrl}/dashboard/bookings/${completeBooking.bookingReference}?payment=cancelled`,
+          successUrl: `${frontendUrl}/dashboard/bookings/${completeBooking.id}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${frontendUrl}/dashboard/bookings/${completeBooking.id}?payment=cancelled`,
           metadata: {
             bookingId: completeBooking.id,
             userId: completeBooking.userId,
@@ -877,43 +1087,22 @@ export const cancelBooking = async (req: AuthRequest, res: Response): Promise<vo
         },
       });
 
-      // Release held credits back to the user who made the booking
+      // Release held credits back to the user who made the booking (handles admin vs regular user automatically)
       const heldTransaction = booking.creditTransactions.find(
         t => t.transactionType === 'credit_held'
       );
 
       if (heldTransaction) {
-        const bookingUser = await tx.user.findUnique({
-          where: { id: booking.userId },
-          select: { availableCredits: true },
-        });
-
-        if (bookingUser) {
-          const currentBalance = parseFloat(bookingUser.availableCredits.toString());
-          const refundAmount = parseFloat(heldTransaction.amount.toString());
-
-          await tx.creditTransaction.create({
-            data: {
-              organizationId: user.organizationId,
-              userId: booking.userId,
-              bookingId: id,
-              transactionType: 'credit_released',
-              amount: refundAmount,
-              currency: heldTransaction.currency,
-              balanceBefore: currentBalance,
-              balanceAfter: currentBalance + refundAmount,
-              description: `Credit released from cancelled booking ${booking.bookingReference}`,
-              createdBy: user.userId,
-            },
-          });
-
-          await tx.user.update({
-            where: { id: booking.userId },
-            data: {
-              availableCredits: currentBalance + refundAmount,
-            },
-          });
-        }
+        const refundAmount = parseFloat(heldTransaction.amount.toString());
+        await refundCredits(
+          tx,
+          booking.userId,
+          user.organizationId,
+          id,
+          refundAmount,
+          heldTransaction.currency,
+          `Credit released from cancelled booking ${booking.bookingReference}`
+        );
       }
 
       return updated;
@@ -1019,52 +1208,19 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
 
     // Process approval in transaction: deduct credits + create Duffel order
     const updatedBooking = await prisma.$transaction(async (tx) => {
-      // 1. Deduct credits from user
+      // 1. Deduct credits (handles admin vs regular user automatically)
       const bookingCost = parseFloat(booking.totalPrice.toString());
 
       if (bookingCost > 0) {
-        // Get user's current credit balance
-        const bookingUser = await tx.user.findUnique({
-          where: { id: booking.userId },
-          select: {
-            availableCredits: true,
-          },
-        });
-
-        if (!bookingUser) {
-          throw new Error('Booking user not found');
-        }
-
-        const userBalance = parseFloat(bookingUser.availableCredits.toString());
-
-        // Check if user still has sufficient credits
-        if (userBalance < bookingCost) {
-          throw new Error('Insufficient credits. User no longer has enough credits for this booking.');
-        }
-
-        // Deduct from user's available credits
-        await tx.user.update({
-          where: { id: booking.userId },
-          data: {
-            availableCredits: userBalance - bookingCost,
-          },
-        });
-
-        // Create credit transaction for deduction
-        await tx.creditTransaction.create({
-          data: {
-            organizationId: booking.organizationId,
-            userId: booking.userId,
-            bookingId: booking.id,
-            transactionType: 'booking_charged',
-            amount: bookingCost,
-            currency: booking.currency,
-            balanceBefore: userBalance,
-            balanceAfter: userBalance - bookingCost,
-            description: `Booking approved and charged: ${booking.bookingReference}`,
-            createdBy: user.userId,
-          },
-        });
+        await deductCredits(
+          tx,
+          booking.userId,
+          booking.organizationId,
+          booking.id,
+          bookingCost,
+          booking.currency,
+          `Booking approved and charged: ${booking.bookingReference}`
+        );
       }
 
       // 2. Update booking status to confirmed
@@ -1243,45 +1399,21 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
           logger.error(`[Approval] Stack trace:`, error.stack);
         }
 
-        // REFUND credits since Duffel failed
+        // REFUND credits since Duffel failed (handles admin vs regular user automatically)
         try {
           const bookingCost = parseFloat(booking.totalPrice.toString());
 
           await prisma.$transaction(async (tx) => {
-            const bookingUser = await tx.user.findUnique({
-              where: { id: booking.userId },
-              select: { availableCredits: true },
-            });
-
-            if (bookingUser) {
-              const currentBalance = parseFloat(bookingUser.availableCredits.toString());
-
-              // Refund credits
-              await tx.user.update({
-                where: { id: booking.userId },
-                data: {
-                  availableCredits: currentBalance + bookingCost,
-                },
-              });
-
-              // Create refund transaction
-              await tx.creditTransaction.create({
-                data: {
-                  organizationId: booking.organizationId,
-                  userId: booking.userId,
-                  bookingId: booking.id,
-                  transactionType: 'booking_refunded',
-                  amount: bookingCost,
-                  currency: booking.currency,
-                  balanceBefore: currentBalance,
-                  balanceAfter: currentBalance + bookingCost,
-                  description: `Refund: Duffel booking failed for ${booking.bookingReference}`,
-                  createdBy: user.userId,
-                },
-              });
-
-              logger.info(`[Approval] ✅ Credits refunded: ${bookingCost}`);
-            }
+            await refundCredits(
+              tx,
+              booking.userId,
+              booking.organizationId,
+              booking.id,
+              bookingCost,
+              booking.currency,
+              `Refund: Duffel booking failed for ${booking.bookingReference}`
+            );
+            logger.info(`[Approval] ✅ Credits refunded: ${bookingCost}`);
           });
 
           // Update booking status to failed
@@ -1395,37 +1527,16 @@ export const rejectBooking = async (req: AuthRequest, res: Response): Promise<vo
       );
 
       if (heldTransaction) {
-        const bookingUser = await tx.user.findUnique({
-          where: { id: booking.userId },
-          select: { availableCredits: true },
-        });
-
-        if (bookingUser) {
-          const currentBalance = parseFloat(bookingUser.availableCredits.toString());
-          const refundAmount = parseFloat(heldTransaction.amount.toString());
-
-          await tx.creditTransaction.create({
-            data: {
-              organizationId: user.organizationId,
-              userId: booking.userId,
-              bookingId: id,
-              transactionType: 'credit_released',
-              amount: refundAmount,
-              currency: heldTransaction.currency,
-              balanceBefore: currentBalance,
-              balanceAfter: currentBalance + refundAmount,
-              description: `Credit released from rejected booking ${booking.bookingReference}`,
-              createdBy: user.userId,
-            },
-          });
-
-          await tx.user.update({
-            where: { id: booking.userId },
-            data: {
-              availableCredits: currentBalance + refundAmount,
-            },
-          });
-        }
+        const refundAmount = parseFloat(heldTransaction.amount.toString());
+        await refundCredits(
+          tx,
+          booking.userId,
+          user.organizationId,
+          id,
+          refundAmount,
+          heldTransaction.currency,
+          `Credit released from rejected booking ${booking.bookingReference}`
+        );
       }
 
       return updated;

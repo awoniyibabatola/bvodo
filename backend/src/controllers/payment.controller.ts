@@ -3,6 +3,7 @@ import { stripeService } from '../services/stripe.service';
 import { prisma } from '../config/database';
 import { logger } from '../utils/logger';
 import { DuffelService } from '../services/duffel.service';
+import emailService from '../services/email.service';
 
 const duffelService = new DuffelService();
 
@@ -60,8 +61,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       amount: parseFloat(booking.totalPrice.toString()),
       currency: booking.currency,
       customerEmail: booking.user.email,
-      successUrl: `${frontendUrl}/dashboard/bookings/${bookingReference}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${frontendUrl}/dashboard/bookings/${bookingReference}?payment=cancelled`,
+      successUrl: `${frontendUrl}/dashboard/bookings/${booking.id}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${frontendUrl}/dashboard/bookings/${booking.id}?payment=cancelled`,
       metadata: {
         bookingId: booking.id,
         userId: booking.userId,
@@ -170,18 +171,25 @@ async function handleCheckoutSessionCompleted(session: any) {
       return;
     }
 
-    // Update booking payment status
+    // Update booking payment status and store payment method
+    // Card payments are auto-approved (user paid with own money)
     await prisma.booking.update({
       where: { id: bookingId },
       data: {
         paymentStatus: 'completed',
+        status: 'approved',  // Auto-approve card payments
+        approvedAt: new Date(),
+        bookingData: {
+          ...(booking.bookingData as any || {}),
+          paymentMethod: 'card',  // Store that this was paid via Stripe card
+        },
       },
     });
 
-    logger.info(`[Payment] ✅ Payment completed for booking ${booking.bookingReference}`);
+    logger.info(`[Payment] ✅ Payment completed and auto-approved for booking ${booking.bookingReference}`);
 
-    // If booking is approved and payment is complete, create Duffel order
-    if (booking.status === 'approved' && booking.provider === 'duffel') {
+    // Payment is complete and booking is now approved, create Duffel order
+    if (booking.provider === 'duffel') {
       try {
         logger.info(`[Payment] Creating Duffel order for approved booking ${booking.bookingReference}`);
 
@@ -211,32 +219,125 @@ async function handleCheckoutSessionCompleted(session: any) {
           services: services || undefined,
         });
 
-        // Update booking with Duffel order details
-        await prisma.booking.update({
-          where: { id: booking.id },
-          data: {
-            providerOrderId: duffelOrder.bookingReference,
-            providerConfirmationNumber: duffelOrder.bookingReference,
-            providerRawData: duffelOrder.rawData,
-            status: 'confirmed',
-            confirmedAt: new Date(),
-          },
-        });
+        logger.info(`[Payment] ✅ Duffel order created successfully: ${duffelOrder.bookingReference}`);
 
-        logger.info(`[Payment] ✅ Duffel order created: ${duffelOrder.bookingReference}`);
+        // CRITICAL: Update booking with Duffel order details IMMEDIATELY
+        // This must happen before any other operations that might fail
+        try {
+          await prisma.booking.update({
+            where: { id: booking.id },
+            data: {
+              providerOrderId: duffelOrder.bookingReference,
+              providerConfirmationNumber: duffelOrder.bookingReference,
+              providerRawData: duffelOrder.rawData,
+              status: 'confirmed',
+              confirmedAt: new Date(),
+            },
+          });
+          logger.info(`[Payment] ✅ Booking ${booking.bookingReference} marked as confirmed with PNR: ${duffelOrder.bookingReference}`);
+        } catch (updateError) {
+          logger.error(`[Payment] CRITICAL: Failed to update booking status after Duffel order created!`, updateError);
+          logger.error(`[Payment] PNR ${duffelOrder.bookingReference} exists but booking ${booking.bookingReference} not updated in DB!`);
+          // Don't throw - the booking exists in Duffel, we just failed to update our DB
+        }
+
+        // Send confirmation email after successful booking
+        try {
+          logger.info(`[Payment] Sending confirmation email for booking ${booking.bookingReference}`);
+
+          // Get updated booking with full details
+          const fullBooking = await prisma.booking.findUnique({
+            where: { id: booking.id },
+            include: {
+              user: {
+                select: {
+                  email: true,
+                  firstName: true,
+                  lastName: true
+                }
+              }
+            }
+          });
+
+          if (fullBooking) {
+            const bookingDataObj = fullBooking.bookingData as any;
+            const segments = bookingDataObj?.slices?.[0]?.segments || [];
+            const firstSegment = segments[0];
+            const lastSegment = segments[segments.length - 1];
+
+            await emailService.sendBookingConfirmation({
+              bookingId: fullBooking.id,
+              bookingReference: fullBooking.bookingReference,
+              pnr: duffelOrder.bookingReference,
+              travelerName: `${passengerDetails[0]?.firstName || 'Traveler'} ${passengerDetails[0]?.lastName || ''}`,
+              bookerName: `${fullBooking.user.firstName} ${fullBooking.user.lastName}`,
+              bookerEmail: fullBooking.user.email,
+              flightDetails: {
+                airline: firstSegment?.operatingCarrier?.name || firstSegment?.marketingCarrier?.name || 'N/A',
+                from: fullBooking.origin || firstSegment?.origin?.iataCode || 'N/A',
+                to: fullBooking.destination || lastSegment?.destination?.iataCode || 'N/A',
+                departureDate: new Date(fullBooking.departureDate).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                }),
+                departureTime: firstSegment?.departingAt ? new Date(firstSegment.departingAt).toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'N/A',
+                arrivalTime: lastSegment?.arrivingAt ? new Date(lastSegment.arrivingAt).toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'N/A',
+                flightNumber: firstSegment?.marketingCarrier?.iataCode && firstSegment?.marketingCarrierFlightNumber
+                  ? `${firstSegment.marketingCarrier.iataCode}${firstSegment.marketingCarrierFlightNumber}`
+                  : undefined,
+              },
+              passengerDetails: Array.isArray(passengerDetails) ? passengerDetails.map((p: any) => ({
+                firstName: p.firstName,
+                lastName: p.lastName,
+                email: p.email,
+              })) : [],
+              priceDetails: {
+                basePrice: Number(fullBooking.basePrice || 0),
+                taxes: Number(fullBooking.taxesFees || 0),
+                total: Number(fullBooking.totalPrice || 0),
+                currency: fullBooking.currency || 'USD',
+              },
+              seatsSelected: bookingDataObj?.seatsSelected || undefined,
+              baggageSelected: bookingDataObj?.baggageSelected || undefined,
+            });
+
+            logger.info(`[Payment] ✅ Confirmation email sent for ${booking.bookingReference}`);
+          }
+        } catch (emailError) {
+          logger.error('[Payment] Failed to send confirmation email:', emailError);
+          // Don't fail the booking if email fails
+        }
       } catch (duffelError: any) {
-        logger.error(`[Payment] Failed to create Duffel order:`, duffelError);
+        logger.error(`[Payment] ❌ Failed to create Duffel order for ${booking.bookingReference}:`, duffelError);
 
-        // Update booking status to failed
-        await prisma.booking.update({
-          where: { id: booking.id },
-          data: {
-            status: 'failed',
-            notes: `${booking.notes || ''}\n\n[System] Duffel order creation failed after payment: ${duffelError.message}`.trim(),
-          },
-        });
+        // IMPORTANT: Payment was successful, so booking stays as "approved"
+        // Admin must manually create the booking or issue refund
+        try {
+          await prisma.booking.update({
+            where: { id: booking.id },
+            data: {
+              // Keep current status (approved) and paymentStatus (completed)
+              notes: `${booking.notes || ''}\n\n⚠️ [URGENT - MANUAL REVIEW REQUIRED]\nPayment: COMPLETED ($${booking.totalPrice})\nDuffel Booking: FAILED - ${duffelError.message}\n\nACTION REQUIRED:\n1. Review Offer ID: ${booking.providerBookingReference}\n2. Either manually rebook OR initiate refund\n3. Contact customer about delay`.trim(),
+            },
+          });
+        } catch (noteError) {
+          logger.error(`[Payment] Failed to update booking notes:`, noteError);
+        }
 
-        // TODO: Send notification to admin about failed booking (payment received but flight not booked)
+        logger.error(`[Payment] ⚠️⚠️⚠️ CRITICAL: Payment collected but flight NOT booked for ${booking.bookingReference}`);
+        logger.error(`[Payment] Amount: ${booking.totalPrice} ${booking.currency}`);
+        logger.error(`[Payment] Customer: ${booking.user.email}`);
+
+        // TODO: Send URGENT email/SMS to admin
+        // TODO: Consider auto-refund if offer is expired
       }
     }
   } catch (error) {
@@ -295,6 +396,74 @@ async function handlePaymentFailed(paymentIntent: any) {
     logger.error('[Payment] Error handling payment failed:', error);
   }
 }
+
+/**
+ * Manually verify and complete payment (for testing without webhooks)
+ */
+export const verifyPayment = async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.body;
+    const user = (req as any).user;
+
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Session ID is required',
+      });
+    }
+
+    // Get session from Stripe
+    const session = await stripeService.getSession(sessionId);
+
+    if (!session.metadata?.bookingId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid session - no booking reference',
+      });
+    }
+
+    const bookingId = session.metadata.bookingId;
+
+    // Verify user has access to this booking
+    const booking = await prisma.booking.findFirst({
+      where: {
+        id: bookingId,
+        organizationId: user.organizationId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found',
+      });
+    }
+
+    // If payment is complete and status is 'paid', process it
+    if (session.payment_status === 'paid') {
+      await handleCheckoutSessionCompleted(session);
+
+      return res.json({
+        success: true,
+        message: 'Payment verified and booking confirmed',
+      });
+    }
+
+    return res.json({
+      success: false,
+      message: `Payment status: ${session.payment_status}`,
+    });
+  } catch (error: any) {
+    logger.error('[Payment] Failed to verify payment:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to verify payment',
+    });
+  }
+};
 
 /**
  * Get payment status for a booking

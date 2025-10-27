@@ -225,7 +225,7 @@ export default function SeatSelection({
                   onClick={onClose}
                   className="w-full px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
                 >
-                  Continue Without Seats
+                  Continue to Baggage
                 </button>
               </div>
             </div>
@@ -239,7 +239,7 @@ export default function SeatSelection({
                   onClick={onClose}
                   className="px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
                 >
-                  Continue
+                  Continue to Baggage
                 </button>
               </div>
             </div>
@@ -368,7 +368,7 @@ export default function SeatSelection({
                 onClick={onClose}
                 className="px-6 py-2 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-100 transition"
               >
-                Skip Seats
+                Skip Seat Selection
               </button>
 
               {currentPassengerIndex < passengers.length - 1 ? (
@@ -384,7 +384,7 @@ export default function SeatSelection({
                   className="px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition shadow-lg flex items-center gap-2"
                 >
                   <Check className="w-4 h-4" />
-                  Confirm Selection
+                  Confirm Seats
                 </button>
               )}
             </div>

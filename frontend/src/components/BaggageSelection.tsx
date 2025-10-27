@@ -167,7 +167,7 @@ export default function BaggageSelection({
                   onClick={onClose}
                   className="w-full px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
                 >
-                  Continue Without Extra Baggage
+                  Continue to Payment
                 </button>
               </div>
             </div>
@@ -189,7 +189,7 @@ export default function BaggageSelection({
                   onClick={onClose}
                   className="w-full px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
                 >
-                  Continue
+                  Continue to Payment
                 </button>
               </div>
             </div>
@@ -303,14 +303,14 @@ export default function BaggageSelection({
               onClick={onClose}
               className="px-6 py-2 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-100 transition"
             >
-              Skip Baggage
+              Skip Baggage Selection
             </button>
             <button
               onClick={handleConfirm}
               className="px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition shadow-lg flex items-center space-x-2"
             >
               <Check className="w-5 h-5" />
-              <span>Confirm Selection</span>
+              <span>Confirm Baggage</span>
             </button>
           </div>
         </div>

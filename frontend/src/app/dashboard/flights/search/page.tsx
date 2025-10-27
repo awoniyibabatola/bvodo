@@ -24,6 +24,10 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  Filter,
+  SlidersHorizontal,
+  Leaf,
+  ArrowUpDown,
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 import { getApiEndpoint } from '@/lib/api-config';
@@ -415,6 +419,14 @@ export default function FlightSearchPage() {
   const [showReturnFlightSelection, setShowReturnFlightSelection] = useState(false);
   const [showTransitionNotification, setShowTransitionNotification] = useState(false);
 
+  // Sidebar Filter States
+  const [filterStops, setFilterStops] = useState<number[]>([]);
+  const [filterPriceRange, setFilterPriceRange] = useState<[number, number]>([0, 10000]);
+  const [filterAirlines, setFilterAirlines] = useState<string[]>([]);
+  const [filterDepartureTime, setFilterDepartureTime] = useState<string[]>([]);
+  const [filterCO2, setFilterCO2] = useState<[number, number]>([0, 1000]);
+  const [sortBy, setSortBy] = useState<'price-asc' | 'price-desc' | 'duration' | 'departure' | 'co2'>('price-asc');
+
   // Function to get full descriptive fare name
   const getFullFareName = (flight: any) => {
     const fareBrand = flight.fareBrandName || '';
@@ -473,6 +485,41 @@ export default function FlightSearchPage() {
 
       return acc;
     }, []);
+  };
+
+  // Helper functions to access segment data (needed by key generators)
+  const getSegmentAirlineCode = (segment: any) => {
+    return segment.airlineCode || segment.carrierCode;
+  };
+
+  const getSegmentDeparture = (segment: any) => {
+    if (segment.departure?.time) {
+      // Duffel format
+      return {
+        at: segment.departure.time,
+        iataCode: segment.departure.airportCode,
+        terminal: segment.departure.terminal,
+      };
+    } else if (segment.departure?.at) {
+      // Amadeus format
+      return segment.departure;
+    }
+    return { at: '', iataCode: '', terminal: '' };
+  };
+
+  const getSegmentArrival = (segment: any) => {
+    if (segment.arrival?.time) {
+      // Duffel format
+      return {
+        at: segment.arrival.time,
+        iataCode: segment.arrival.airportCode,
+        terminal: segment.arrival.terminal,
+      };
+    } else if (segment.arrival?.at) {
+      // Amadeus format
+      return segment.arrival;
+    }
+    return { at: '', iataCode: '', terminal: '' };
   };
 
   // Helper function to create a unique key for outbound flight
@@ -807,42 +854,8 @@ export default function FlightSearchPage() {
     }
   };
 
-  const getSegmentAirlineCode = (segment: any) => {
-    return segment.airlineCode || segment.carrierCode;
-  };
-
   const getSegmentNumber = (segment: any) => {
     return segment.flightNumber || segment.number;
-  };
-
-  const getSegmentDeparture = (segment: any) => {
-    if (segment.departure?.time) {
-      // Duffel format
-      return {
-        at: segment.departure.time,
-        iataCode: segment.departure.airportCode,
-        terminal: segment.departure.terminal,
-      };
-    } else if (segment.departure?.at) {
-      // Amadeus format
-      return segment.departure;
-    }
-    return { at: '', iataCode: '', terminal: '' };
-  };
-
-  const getSegmentArrival = (segment: any) => {
-    if (segment.arrival?.time) {
-      // Duffel format
-      return {
-        at: segment.arrival.time,
-        iataCode: segment.arrival.airportCode,
-        terminal: segment.arrival.terminal,
-      };
-    } else if (segment.arrival?.at) {
-      // Amadeus format
-      return segment.arrival;
-    }
-    return { at: '', iataCode: '', terminal: '' };
   };
 
   const getFlightDuration = (flight: any) => {
@@ -873,41 +886,83 @@ export default function FlightSearchPage() {
     return { total: 0, currency: 'USD' };
   };
 
+  // Filter Helper Functions
+  const getNumberOfStops = (flight: any): number => {
+    const segments = getFlightSegments(flight);
+    return segments.length - 1;
+  };
+
+  const estimateCO2 = (flight: any): number => {
+    const duration = getFlightDuration(flight);
+    const hours = parseFloat(duration.replace('PT', '').replace('H', '.').replace('M', '')) || 0;
+    return Math.round(hours * 90);
+  };
+
+  const getDepartureTimeCategory = (flight: any): string => {
+    const segments = getFlightSegments(flight);
+    if (segments.length === 0) return 'unknown';
+    const departureTime = getSegmentDeparture(segments[0]).at;
+    const hour = new Date(departureTime).getHours();
+    if (hour >= 6 && hour < 12) return 'morning';
+    if (hour >= 12 && hour < 18) return 'afternoon';
+    if (hour >= 18 && hour < 24) return 'evening';
+    return 'night';
+  };
+
+  const sortFlights = (flightsToSort: any[]) => {
+    const sorted = [...flightsToSort];
+    switch (sortBy) {
+      case 'price-asc': return sorted.sort((a, b) => getFlightPrice(a).total - getFlightPrice(b).total);
+      case 'price-desc': return sorted.sort((a, b) => getFlightPrice(b).total - getFlightPrice(a).total);
+      case 'duration': return sorted.sort((a, b) => {
+        const aDur = getFlightDuration(a);
+        const bDur = getFlightDuration(b);
+        return aDur.localeCompare(bDur);
+      });
+      case 'departure': return sorted.sort((a, b) => {
+        const aSegs = getFlightSegments(a);
+        const bSegs = getFlightSegments(b);
+        return getSegmentDeparture(aSegs[0]).at.localeCompare(getSegmentDeparture(bSegs[0]).at);
+      });
+      case 'co2': return sorted.sort((a, b) => estimateCO2(a) - estimateCO2(b));
+      default: return sorted;
+    }
+  };
+
+  const filterFlights = (flightsToFilter: any[]) => {
+    return flightsToFilter.filter((flight) => {
+      if (filterStops.length > 0) {
+        const stops = getNumberOfStops(flight);
+        if (!filterStops.includes(stops)) return false;
+      }
+      const price = getFlightPrice(flight).total;
+      if (price < filterPriceRange[0] || price > filterPriceRange[1]) return false;
+      if (filterAirlines.length > 0) {
+        const flightAirlines = getAirlineCodes(flight);
+        const hasMatchingAirline = flightAirlines.some(code => filterAirlines.includes(code));
+        if (!hasMatchingAirline) return false;
+      }
+      if (filterDepartureTime.length > 0) {
+        const timeCategory = getDepartureTimeCategory(flight);
+        if (!filterDepartureTime.includes(timeCategory)) return false;
+      }
+      const co2 = estimateCO2(flight);
+      if (co2 < filterCO2[0] || co2 > filterCO2[1]) return false;
+      return true;
+    });
+  };
+
+  const clearAllFilters = () => {
+    setFilterStops([]);
+    setFilterPriceRange([0, 10000]);
+    setFilterAirlines([]);
+    setFilterDepartureTime([]);
+    setFilterCO2([0, 1000]);
+    setSortBy('price-asc');
+  };
+
   return (
     <>
-      <style jsx global>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        @keyframes fade-scale {
-          0% {
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        @keyframes progress-bar {
-          0% {
-            width: 0%;
-          }
-          100% {
-            width: 100%;
-          }
-        }
-        .animate-fade-scale {
-          animation: fade-scale 0.3s ease-out;
-        }
-        .animate-progress {
-          animation: progress-bar 4s linear;
-        }
-      `}</style>
       <div className="min-h-screen bg-gray-50">
         {/* Navigation */}
         <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
@@ -968,7 +1023,7 @@ export default function FlightSearchPage() {
         )}
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+      <div className="max-w-7xl lg:max-w-[1400px] xl:max-w-[1536px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
         {/* Search Type Toggle */}
         <div className="flex gap-2 mb-4">
           <div className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 text-white">
@@ -1765,70 +1820,131 @@ export default function FlightSearchPage() {
               return null;
             })()}
 
-            {/* Results Header with Filter */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
-                <h2 className="text-sm md:text-lg font-bold text-gray-900">
-                  Available Flights
-                  <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
-                    {flights.filter(f => {
-                      // Filter by airline
-                      if (selectedAirline !== 'all') {
-                        const airlines = getAirlineCodes(f);
-                        if (!airlines.includes(selectedAirline)) return false;
-                      }
-                      // Filter by cabin class
-                      if (selectedCabinClass !== 'all') {
-                        const cabinClass = f.cabinClass || f.cabin || 'ECONOMY';
-                        if (cabinClass !== selectedCabinClass) return false;
-                      }
-                      return true;
-                    }).length}
-                  </span>
-                </h2>
+            {/* Results Section with Sidebar */}
+            <div className="flex gap-4 lg:gap-6">
+              {/* Sidebar - Filters */}
+              <div className="hidden lg:block w-52 lg:w-56 flex-shrink-0">
+                <div className="bg-white rounded-lg border border-gray-200 p-4 sticky top-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                      <Filter className="w-4 h-4" />
+                      Filters
+                    </h3>
+                    <button onClick={clearAllFilters} className="text-xs text-gray-600 hover:text-gray-900 font-medium">
+                      Clear All
+                    </button>
+                  </div>
+
+                  {/* Sort By */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Sort By</label>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as any)}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
+                    >
+                      <option value="price-asc">Price: Low to High</option>
+                      <option value="price-desc">Price: High to Low</option>
+                      <option value="duration">Duration</option>
+                      <option value="departure">Departure Time</option>
+                      <option value="co2">CO2 Emissions</option>
+                    </select>
+                  </div>
+
+                  {/* Stops */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Stops</label>
+                    <div className="space-y-2">
+                      {[0, 1, 2].map(stopCount => (
+                        <label key={stopCount} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filterStops.includes(stopCount)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFilterStops([...filterStops, stopCount]);
+                              } else {
+                                setFilterStops(filterStops.filter(s => s !== stopCount));
+                              }
+                            }}
+                            className="w-4 h-4 rounded border-gray-300"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {stopCount === 0 ? 'Non-stop' : stopCount === 1 ? '1 Stop' : '2+ Stops'}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Airlines */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Airlines</label>
+                    <div className="max-h-48 overflow-y-auto scrollbar-hide space-y-2">
+                      {[...new Set(flights.flatMap(f => getAirlineCodes(f)))].sort().map(code => (
+                        <label key={code} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filterAirlines.includes(code)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFilterAirlines([...filterAirlines, code]);
+                              } else {
+                                setFilterAirlines(filterAirlines.filter(a => a !== code));
+                              }
+                            }}
+                            className="w-4 h-4 rounded border-gray-300"
+                          />
+                          <span className="text-sm text-gray-700">{AIRLINE_NAMES[code] || code}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Departure Time */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Departure Time</label>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'morning', label: 'Morning', icon: '🌅' },
+                        { value: 'afternoon', label: 'Afternoon', icon: '☀️' },
+                        { value: 'evening', label: 'Evening', icon: '🌇' },
+                        { value: 'night', label: 'Night', icon: '🌙' }
+                      ].map(time => (
+                        <label key={time.value} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filterDepartureTime.includes(time.value)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFilterDepartureTime([...filterDepartureTime, time.value]);
+                              } else {
+                                setFilterDepartureTime(filterDepartureTime.filter(t => t !== time.value));
+                              }
+                            }}
+                            className="w-4 h-4 rounded border-gray-300"
+                          />
+                          <span className="text-sm text-gray-700">{time.icon} {time.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Filters */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3">
-                <label className="text-xs font-semibold text-gray-700">Filter:</label>
-
-                {/* Cabin Class Filter */}
-                <select
-                  value={selectedCabinClass}
-                  onChange={(e) => setSelectedCabinClass(e.target.value)}
-                  className="w-full sm:w-auto px-3 md:px-4 py-1.5 md:py-2 text-sm border-2 border-gray-800 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
-                >
-                  <option value="all">All Classes</option>
-                  <option value="ECONOMY">Economy</option>
-                  <option value="PREMIUM_ECONOMY">Premium Economy</option>
-                  <option value="BUSINESS">Business</option>
-                  <option value="FIRST">First Class</option>
-                </select>
-
-                {/* Airline Filter */}
-                <select
-                  value={selectedAirline}
-                  onChange={(e) => setSelectedAirline(e.target.value)}
-                  className="w-full sm:w-auto px-3 md:px-4 py-1.5 md:py-2 text-sm border-2 border-gray-800 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none bg-white font-medium text-gray-900"
-                >
-                  <option value="all">All Airlines</option>
-                  {[...new Set(flights.flatMap(f => {
-                    // Handle both Duffel (outbound/inbound) and Amadeus (itineraries) formats
-                    if (f.outbound) {
-                      return [...f.outbound, ...(f.inbound || [])].map((seg: any) => seg.airlineCode);
-                    } else if (f.itineraries) {
-                      return f.itineraries[0].segments.map((seg: any) => seg.carrierCode);
-                    }
-                    return [];
-                  }))].sort().map(code => (
-                    <option key={code} value={code}>
-                      {AIRLINE_NAMES[code as string] || code} ({code})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+              {/* Flights List */}
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+                    <h2 className="text-sm md:text-lg font-bold text-gray-900">
+                      Available Flights
+                      <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
+                        {filterFlights(flights).length}
+                      </span>
+                    </h2>
+                  </div>
+                </div>
 
             {(() => {
               // Determine if this is a round-trip search
@@ -1838,17 +1954,10 @@ export default function FlightSearchPage() {
                 // STEP 1: Group flights by OUTBOUND itinerary only
                 const outboundGroups: { [key: string]: any[] } = {};
 
-                flights.forEach((flight) => {
-                  // Apply filters
-                  if (selectedAirline !== 'all') {
-                    const airlines = getAirlineCodes(flight);
-                    if (!airlines.includes(selectedAirline)) return;
-                  }
-                  if (selectedCabinClass !== 'all') {
-                    const cabinClass = flight.cabinClass || flight.cabin || 'ECONOMY';
-                    if (cabinClass !== selectedCabinClass) return;
-                  }
+                // Apply filters first
+                const filtered = filterFlights(flights);
 
+                filtered.forEach((flight) => {
                   const outboundKey = getOutboundKey(flight);
                   if (!outboundKey) return;
 
@@ -1858,31 +1967,23 @@ export default function FlightSearchPage() {
                   outboundGroups[outboundKey].push(flight);
                 });
 
-                // Convert to array and sort each group by price
+                // Convert to array and sort each group
                 return Object.values(outboundGroups).map((flightGroup) => {
-                  flightGroup.sort((a, b) => getFlightPrice(a).total - getFlightPrice(b).total);
-                  return flightGroup;
+                  return sortFlights(flightGroup);
                 });
               } else if (hasRoundTrip && showReturnFlightSelection && selectedOutboundFlight) {
                 // STEP 2: Show RETURN flights for the selected outbound
                 const returnGroups: { [key: string]: any[] } = {};
 
-                flights.forEach((flight) => {
+                // Apply filters first
+                const filtered = filterFlights(flights);
+
+                filtered.forEach((flight) => {
                   // Only show flights that match the selected outbound
                   const outboundKey = getOutboundKey(flight);
                   const selectedOutboundKey = getOutboundKey(selectedOutboundFlight);
 
                   if (outboundKey !== selectedOutboundKey) return;
-
-                  // Apply filters
-                  if (selectedAirline !== 'all') {
-                    const airlines = getAirlineCodes(flight);
-                    if (!airlines.includes(selectedAirline)) return;
-                  }
-                  if (selectedCabinClass !== 'all') {
-                    const cabinClass = flight.cabinClass || flight.cabin || 'ECONOMY';
-                    if (cabinClass !== selectedCabinClass) return;
-                  }
 
                   const returnKey = getReturnKey(flight);
                   if (!returnKey) return;
@@ -1893,26 +1994,18 @@ export default function FlightSearchPage() {
                   returnGroups[returnKey].push(flight);
                 });
 
-                // Convert to array and sort each group by price
+                // Convert to array and sort each group
                 return Object.values(returnGroups).map((flightGroup) => {
-                  flightGroup.sort((a, b) => getFlightPrice(a).total - getFlightPrice(b).total);
-                  return flightGroup;
+                  return sortFlights(flightGroup);
                 });
               } else {
                 // ONE-WAY flights: Group by outbound route
                 const groupedFlights: { [key: string]: any[] } = {};
 
-                flights.forEach((flight) => {
-                  // Apply filters
-                  if (selectedAirline !== 'all') {
-                    const airlines = getAirlineCodes(flight);
-                    if (!airlines.includes(selectedAirline)) return;
-                  }
-                  if (selectedCabinClass !== 'all') {
-                    const cabinClass = flight.cabinClass || flight.cabin || 'ECONOMY';
-                    if (cabinClass !== selectedCabinClass) return;
-                  }
+                // Apply filters first
+                const filtered = filterFlights(flights);
 
+                filtered.forEach((flight) => {
                   const segments = getFlightSegments(flight);
                   if (segments.length === 0) return;
 
@@ -1930,10 +2023,9 @@ export default function FlightSearchPage() {
                   groupedFlights[routeKey].push(flight);
                 });
 
-                // Convert to array and sort each group by price
+                // Convert to array and sort each group
                 return Object.values(groupedFlights).map((flightGroup) => {
-                  flightGroup.sort((a, b) => getFlightPrice(a).total - getFlightPrice(b).total);
-                  return flightGroup;
+                  return sortFlights(flightGroup);
                 });
               }
             })().map((flightGroup, groupIndex) => {
@@ -2521,6 +2613,8 @@ export default function FlightSearchPage() {
               );
             })}
           </div>
+              </div>
+            </div>
         )}
       </div>
 

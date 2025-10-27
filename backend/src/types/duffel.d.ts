@@ -187,6 +187,10 @@ export interface DuffelOrderPassenger {
     expires_on?: string; // YYYY-MM-DD
     issuing_country_code?: string;
   }>;
+  loyalty_programme_accounts?: Array<{
+    airline_iata_code: string;
+    account_number: string;
+  }>;
 }
 
 export interface DuffelPayment {

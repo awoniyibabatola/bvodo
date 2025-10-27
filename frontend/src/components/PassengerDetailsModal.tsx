@@ -37,6 +37,7 @@ interface PassengerDetail {
   dateOfBirth: string;
   gender?: string;
   type?: 'adult' | 'child' | 'infant_without_seat';  // Passenger type - required for flights
+  frequentFlyerNumber?: string;  // Frequent flyer/loyalty program number
   address?: string;
   city?: string;
   country?: string;
@@ -80,6 +81,7 @@ interface PassengerDetailsModalProps {
   bookingType: 'flight' | 'hotel';
   totalPrice?: number;
   currency?: string;
+  paymentMethod?: 'credit' | 'card';  // Payment method selection
 
   // Multi-room support (optional - backward compatible)
   numberOfRooms?: number;
@@ -113,6 +115,7 @@ export default function PassengerDetailsModal({
   bookingType,
   totalPrice = 0,
   currency = 'USD',
+  paymentMethod = 'credit',  // Default to credit for backward compatibility
   bookingDetails,
   // Multi-room props (optional)
   numberOfRooms = 1,
@@ -226,6 +229,7 @@ export default function PassengerDetailsModal({
       phone: '',
       dateOfBirth: '',
       gender: '',
+      frequentFlyerNumber: '',
       address: '',
       city: '',
       country: '',
@@ -456,6 +460,7 @@ export default function PassengerDetailsModal({
         phone: '',
         dateOfBirth: '',
         gender: '',
+        frequentFlyerNumber: '',
         address: '',
         city: '',
         country: '',
@@ -716,15 +721,17 @@ export default function PassengerDetailsModal({
                   <p className="text-xs text-gray-600">Please review your booking details and payment method</p>
                 </div>
 
-                {/* Credit Card Display */}
-                <div className="flex justify-center">
-                  <CreditCard
-                    organizationName={organizationName}
-                    availableBalance={availableCredits}
-                    size="small"
-                    className="w-[380px] h-[220px]"
-                  />
-                </div>
+                {/* Credit Card Display - Only show for Bvodo Credit payment */}
+                {paymentMethod === 'credit' && (
+                  <div className="flex justify-center">
+                    <CreditCard
+                      organizationName={organizationName}
+                      availableBalance={availableCredits}
+                      size="small"
+                      className="w-[380px] h-[220px]"
+                    />
+                  </div>
+                )}
 
                 {/* Booking Summary */}
                 <div className="bg-white rounded-lg p-4 border border-gray-200">
@@ -750,12 +757,14 @@ export default function PassengerDetailsModal({
                           ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded border border-gray-200">
-                        <span className="text-xs text-gray-700">Remaining Balance</span>
-                        <span className={`text-sm font-bold ${availableCredits - totalPrice >= 0 ? 'text-gray-900' : 'text-gray-900'}`}>
-                          ${(availableCredits - totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                      </div>
+                      {paymentMethod === 'credit' && (
+                        <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded border border-gray-200">
+                          <span className="text-xs text-gray-700">Remaining Balance</span>
+                          <span className={`text-sm font-bold ${availableCredits - totalPrice >= 0 ? 'text-gray-900' : 'text-gray-900'}`}>
+                            ${(availableCredits - totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -768,13 +777,15 @@ export default function PassengerDetailsModal({
                   <div className="flex-1">
                     <p className="text-xs text-gray-900 font-semibold mb-0.5">Secure Payment</p>
                     <p className="text-xs text-gray-600">
-                      Your booking will be charged to your organization's credit balance. All transactions are encrypted and secure.
+                      {paymentMethod === 'credit'
+                        ? 'Your booking will be charged to your organization\'s credit balance. All transactions are encrypted and secure.'
+                        : 'You will be redirected to Stripe to complete your payment securely. All transactions are encrypted and PCI compliant.'}
                     </p>
                   </div>
                 </div>
 
-                {/* Insufficient Credits Warning */}
-                {availableCredits < totalPrice && (
+                {/* Insufficient Credits Warning - Only for Bvodo Credit */}
+                {paymentMethod === 'credit' && availableCredits < totalPrice && (
                   <div className="flex items-start gap-3 p-3 bg-gray-50 border border-gray-300 rounded">
                     <div className="p-1 bg-white rounded border border-gray-300">
                       <X className="w-3 h-3 text-gray-700" />
@@ -1104,6 +1115,22 @@ export default function PassengerDetailsModal({
                                 />
                               </div>
                             </div>
+
+                            {bookingType === 'flight' && (
+                              <div>
+                                <label className="block text-xs font-semibold text-gray-700 mb-0.5">
+                                  Frequent Flyer Number <span className="text-gray-500 font-normal">(Optional)</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  value={currentPassenger.frequentFlyerNumber || ''}
+                                  onChange={(e) => updatePassenger(currentStep, 'frequentFlyerNumber', e.target.value)}
+                                  placeholder="e.g., AA123456789"
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white"
+                                />
+                                <p className="text-xs text-gray-500 mt-0.5">Airline loyalty program number</p>
+                              </div>
+                            )}
                           </div>
 
                           {/* Address Information - Compact */}
@@ -1442,6 +1469,22 @@ export default function PassengerDetailsModal({
                             <p className="text-xs text-gray-500 mt-1.5">Min. 2 years old</p>
                           </div>
                         </div>
+
+                        {bookingType === 'flight' && (
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Frequent Flyer Number <span className="text-gray-500 font-normal">(Optional)</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={currentPassenger.frequentFlyerNumber || ''}
+                              onChange={(e) => updatePassenger(currentStep, 'frequentFlyerNumber', e.target.value)}
+                              placeholder="e.g., AA123456789"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-2 focus:ring-gray-900 focus:border-gray-900 bg-white transition-all min-h-[44px]"
+                            />
+                            <p className="text-xs text-gray-500 mt-1.5">Enter your airline loyalty program number</p>
+                          </div>
+                        )}
                         </div>
                       )}
                     </div>
@@ -1625,11 +1668,11 @@ export default function PassengerDetailsModal({
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={availableCredits < totalPrice}
+                disabled={paymentMethod === 'credit' && availableCredits < totalPrice}
                 className="px-4 py-2 bg-gray-900 text-white rounded font-semibold hover:bg-gray-800 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
               >
                 <Check className="w-3 h-3" />
-                <span>Complete Booking</span>
+                <span>{paymentMethod === 'credit' ? 'Complete Booking' : 'Proceed to Payment'}</span>
               </button>
             </>
           ) : isMultiRoomMode ? (

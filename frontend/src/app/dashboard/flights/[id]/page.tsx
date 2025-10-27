@@ -145,7 +145,7 @@ export default function FlightDetailsPage() {
         const token = localStorage.getItem('accessToken');
         if (!token) return;
 
-        const response = await fetch(getApiEndpoint('dashboard/overview'), {
+        const response = await fetch(getApiEndpoint('dashboard/stats'), {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -153,7 +153,7 @@ export default function FlightDetailsPage() {
 
         if (response.ok) {
           const data = await response.json();
-          setUserCredits(data.data.organization?.creditBalance || 0);
+          setUserCredits(data.credits?.available || 0);
         }
       } catch (error) {
         console.error('Failed to fetch user credits:', error);
@@ -495,11 +495,26 @@ export default function FlightDetailsPage() {
         } else {
           // For credit payment, show success and go to booking details
           alert('Booking created successfully!');
-          router.push(`/dashboard/bookings/${result.data.bookingReference}`);
+          router.push(`/dashboard/bookings/${result.data.id}`);
         }
       } else {
         const error = await response.json();
-        alert(error.message || 'Failed to create booking');
+
+        // Handle specific error cases
+        if (error.error === 'OFFER_EXPIRED') {
+          alert(
+            `❌ This flight offer has expired!\n\n` +
+            `Flight offers are only valid for 5-15 minutes from the time of search. ` +
+            `This ensures you get the most accurate pricing and availability.\n\n` +
+            `You'll be redirected to search for fresh flights.`
+          );
+          // Redirect back to flight search after 2 seconds
+          setTimeout(() => {
+            router.push('/dashboard/flights/search');
+          }, 2000);
+        } else {
+          alert(error.message || 'Failed to create booking');
+        }
       }
     } catch (error) {
       console.error('Booking error:', error);
@@ -880,7 +895,7 @@ export default function FlightDetailsPage() {
                 onClick={handleContinueToBook}
                 className="w-full px-4 py-3 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
               >
-                Continue to Book
+                Proceed to Booking
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -899,6 +914,7 @@ export default function FlightDetailsPage() {
         bookingType="flight"
         totalPrice={parseFloat(getFlightPrice(flight).total.toString())}
         currency={getFlightPrice(flight).currency}
+        paymentMethod={paymentMethod}
         onSubmit={handlePassengerDetailsSubmit}
       />
 
