@@ -512,6 +512,19 @@ export default function FlightDetailsPage() {
           setTimeout(() => {
             router.push('/dashboard/flights/search');
           }, 2000);
+        } else if (error.error === 'STRIPE_CHECKOUT_FAILED') {
+          alert(
+            `❌ Payment Session Failed\n\n` +
+            `We couldn't create a payment session with Stripe.\n` +
+            `${error.details || ''}\n\n` +
+            `Please try again. If the problem persists, contact support.`
+          );
+        } else if (error.error === 'CHECKOUT_URL_MISSING') {
+          alert(
+            `❌ Payment Setup Failed\n\n` +
+            `Unable to set up payment for this booking.\n\n` +
+            `Please try again or contact support.`
+          );
         } else {
           alert(error.message || 'Failed to create booking');
         }

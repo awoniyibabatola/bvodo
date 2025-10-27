@@ -994,10 +994,39 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
 
         logger.info(`[Booking] Stripe checkout created for ${completeBooking.bookingReference}: ${session.id}`);
       } catch (stripeError: any) {
-        logger.error('[Booking] Failed to create Stripe checkout:', stripeError);
-        // Don't fail the booking, just log the error
-        // User can retry payment later via the payment page
+        logger.error('[Booking] ❌ CRITICAL: Failed to create Stripe checkout:', stripeError);
+
+        // Delete the booking since we can't process payment
+        await prisma.booking.delete({
+          where: { id: completeBooking.id }
+        });
+
+        // Return error to user
+        res.status(500).json({
+          success: false,
+          message: 'Failed to create payment session. Please try again or contact support if the issue persists.',
+          error: 'STRIPE_CHECKOUT_FAILED',
+          details: stripeError.message
+        });
+        return;
       }
+    }
+
+    // If card payment was selected but no checkout URL, something went wrong
+    if (paymentMethod === 'card' && !checkoutUrl) {
+      logger.error('[Booking] ❌ Card payment selected but no checkout URL generated');
+
+      // Delete the booking
+      await prisma.booking.delete({
+        where: { id: completeBooking.id }
+      });
+
+      res.status(500).json({
+        success: false,
+        message: 'Failed to create payment session. Please try again.',
+        error: 'CHECKOUT_URL_MISSING'
+      });
+      return;
     }
 
     res.status(201).json({
@@ -1005,7 +1034,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       message: requiresApproval
         ? 'Booking created and pending approval'
         : paymentMethod === 'card'
-          ? 'Booking created. Please complete payment to confirm.'
+          ? 'Booking created. Redirecting to payment...'
           : 'Booking created successfully',
       data: completeBooking,
       checkoutUrl, // Include checkout URL for card payments
