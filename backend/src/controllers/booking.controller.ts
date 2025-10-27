@@ -1013,7 +1013,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
     }
 
     // If card payment was selected but no checkout URL, something went wrong
-    if (paymentMethod === 'card' && !checkoutUrl) {
+    if (paymentMethod === 'card' && !checkoutUrl && completeBooking) {
       logger.error('[Booking] ❌ Card payment selected but no checkout URL generated');
 
       // Delete the booking
