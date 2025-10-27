@@ -510,6 +510,31 @@ export const completeBookingPayment = async (req: Request, res: Response) => {
       });
     }
 
+    // Validate offer is still available for Duffel bookings
+    if (booking.provider === 'duffel') {
+      try {
+        const bookingData = booking.bookingData as any;
+        const offerId = booking.providerBookingReference || bookingData?.id;
+
+        if (offerId) {
+          logger.info(`[Payment] Validating offer ${offerId} for booking ${booking.bookingReference}`);
+
+          // This will throw an error if offer is expired or invalid
+          await duffelService.getOfferDetails(offerId as string);
+
+          logger.info(`[Payment] ✅ Offer ${offerId} is still valid`);
+        }
+      } catch (offerError: any) {
+        logger.error(`[Payment] ❌ Offer validation failed:`, offerError);
+
+        return res.status(400).json({
+          success: false,
+          message: 'This flight offer is no longer available. Please search for a new flight.',
+          error: 'OFFER_EXPIRED',
+        });
+      }
+    }
+
     // CARD PAYMENT
     if (paymentMethod === 'card') {
       // Create Stripe checkout session

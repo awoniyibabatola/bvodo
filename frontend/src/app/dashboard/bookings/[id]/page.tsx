@@ -329,7 +329,9 @@ export default function BookingDetailPage() {
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
-            setUserCredits(parseFloat(data.data.availableCredits) || 0);
+            // Use organization credits (credit pool) instead of personal credits
+            const orgCredits = data.data.organization?.creditPool || data.data.availableCredits || 0;
+            setUserCredits(parseFloat(orgCredits.toString()) || 0);
           }
         }
       } catch (error) {
@@ -482,7 +484,17 @@ export default function BookingDetailPage() {
           }
         }
       } else {
-        alert(result.message || 'Failed to complete payment');
+        // Handle specific error types
+        if (result.error === 'OFFER_EXPIRED') {
+          setShowPaymentModal(false);
+          alert(
+            '❌ Flight No Longer Available\n\n' +
+            'This flight offer has expired and is no longer available for booking.\n\n' +
+            'Please search for a new flight with current availability.'
+          );
+        } else {
+          alert(result.message || 'Failed to complete payment');
+        }
       }
     } catch (error) {
       console.error('Payment error:', error);
@@ -651,22 +663,24 @@ export default function BookingDetailPage() {
 
         {/* Payment Required Banner */}
         {booking && (booking.paymentStatus === 'pending' || booking.paymentStatus === 'failed') && (
-          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-6 mb-6">
+          <div className="bg-gray-50 border border-gray-300 rounded-xl p-6 mb-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <AlertCircle className="w-6 h-6 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                <CreditCard className="w-5 h-5 text-white" />
+              </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-yellow-900 mb-2">
-                  ⚠️ Payment Required
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  Payment Required
                 </h3>
-                <p className="text-yellow-800 mb-4">
+                <p className="text-gray-700 mb-4 text-sm">
                   This booking is pending payment. Complete your payment to confirm this booking.
                 </p>
 
                 <button
                   onClick={() => setShowPaymentModal(true)}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2"
+                  className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2 text-sm"
                 >
-                  <CreditCard className="w-5 h-5" />
+                  <CreditCard className="w-4 h-4" />
                   Complete Payment
                 </button>
               </div>
@@ -1644,83 +1658,91 @@ export default function BookingDetailPage() {
         {/* Payment Modal */}
         {showPaymentModal && booking && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h2 className="text-2xl font-bold mb-4">Complete Payment</h2>
+            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-sm border border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Complete Payment</h2>
 
-              <div className="mb-6">
-                <p className="text-gray-600 mb-2">
-                  Booking: <span className="font-semibold">{booking.bookingReference}</span>
+              <div className="mb-6 bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p className="text-gray-600 text-xs mb-2">
+                  Booking Reference
                 </p>
-                <p className="text-gray-900 text-xl font-bold">
-                  Total: {booking.currency} {parseFloat(booking.totalPrice.toString()).toFixed(2)}
+                <p className="font-bold text-gray-900 mb-3">
+                  {booking.bookingReference}
                 </p>
+                <div className="pt-3 border-t border-gray-200">
+                  <p className="text-gray-600 text-xs mb-1">Total Amount</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {booking.currency} {parseFloat(booking.totalPrice.toString()).toFixed(2)}
+                  </p>
+                </div>
               </div>
 
               {/* Payment Method Selector */}
               <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <label className="block text-sm font-bold text-gray-900 mb-3">
                   Select Payment Method
                 </label>
 
                 {/* Bvodo Credits Option */}
                 <div
                   onClick={() => setSelectedPaymentMethod('credit')}
-                  className={`border-2 rounded-lg p-4 mb-3 cursor-pointer transition-all ${
+                  className={`border rounded-xl p-4 mb-3 cursor-pointer transition-all ${
                     selectedPaymentMethod === 'credit'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-gray-900 bg-gray-50'
+                      : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedPaymentMethod === 'credit' ? 'border-blue-500' : 'border-gray-300'
+                        selectedPaymentMethod === 'credit' ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
                       }`}>
                         {selectedPaymentMethod === 'credit' && (
-                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                          <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
                         )}
                       </div>
                       <div>
-                        <p className="font-semibold">Bvodo Credits</p>
-                        <p className="text-sm text-gray-600">
+                        <p className="font-bold text-gray-900">Bvodo Credits</p>
+                        <p className="text-xs text-gray-600">
                           Available: {booking.currency} {userCredits.toFixed(2)}
                         </p>
                       </div>
                     </div>
-                    <Shield className="w-5 h-5 text-blue-500" />
+                    <Shield className="w-5 h-5 text-gray-700" />
                   </div>
 
                   {userCredits < parseFloat(booking.totalPrice.toString()) && (
-                    <p className="text-xs text-red-600 mt-2">
-                      ⚠️ Insufficient credits. Please top up or select card payment.
-                    </p>
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <p className="text-xs text-red-600 font-medium">
+                        Insufficient credits. Please top up or select card payment.
+                      </p>
+                    </div>
                   )}
                 </div>
 
                 {/* Card Payment Option */}
                 <div
                   onClick={() => setSelectedPaymentMethod('card')}
-                  className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                  className={`border rounded-xl p-4 cursor-pointer transition-all ${
                     selectedPaymentMethod === 'card'
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-gray-900 bg-gray-50'
+                      : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedPaymentMethod === 'card' ? 'border-blue-500' : 'border-gray-300'
+                        selectedPaymentMethod === 'card' ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
                       }`}>
                         {selectedPaymentMethod === 'card' && (
-                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                          <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
                         )}
                       </div>
                       <div>
-                        <p className="font-semibold">Credit/Debit Card</p>
-                        <p className="text-sm text-gray-600">Secure payment via Stripe</p>
+                        <p className="font-bold text-gray-900">Credit/Debit Card</p>
+                        <p className="text-xs text-gray-600">Secure payment via Stripe</p>
                       </div>
                     </div>
-                    <CreditCard className="w-5 h-5 text-blue-500" />
+                    <CreditCard className="w-5 h-5 text-gray-700" />
                   </div>
                 </div>
               </div>
@@ -1730,7 +1752,7 @@ export default function BookingDetailPage() {
                 <button
                   onClick={() => setShowPaymentModal(false)}
                   disabled={isProcessingPayment}
-                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-50"
+                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 disabled:opacity-50 transition-colors"
                 >
                   Cancel
                 </button>
@@ -1740,7 +1762,7 @@ export default function BookingDetailPage() {
                     isProcessingPayment ||
                     (selectedPaymentMethod === 'credit' && userCredits < parseFloat(booking.totalPrice.toString()))
                   }
-                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 transition-colors"
                 >
                   {isProcessingPayment ? (
                     <>
