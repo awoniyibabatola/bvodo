@@ -322,15 +322,15 @@ export default function BookingDetailPage() {
         const token = localStorage.getItem('accessToken');
         if (!token) return;
 
-        const response = await fetch(getApiEndpoint('users/me'), {
+        const response = await fetch(getApiEndpoint('auth/profile'), {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
-            // Use organization credits (credit pool) instead of personal credits
-            const orgCredits = data.data.organization?.creditPool || data.data.availableCredits || 0;
+            // Use organization availableCredits from the profile endpoint
+            const orgCredits = data.data.organization?.availableCredits || 0;
             setUserCredits(parseFloat(orgCredits.toString()) || 0);
           }
         }
