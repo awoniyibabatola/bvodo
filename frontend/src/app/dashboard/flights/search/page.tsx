@@ -2556,7 +2556,12 @@ export default function FlightSearchPage() {
                                 }, 4000);
                               } else {
                                 // For return selection or one-way, proceed to booking
-                                sessionStorage.setItem(`flight_${selectedFlight.id || index}`, JSON.stringify(selectedFlight));
+                                // Add timestamp for 10-minute expiry tracking
+                                const flightWithTimestamp = {
+                                  ...selectedFlight,
+                                  _savedAt: new Date().toISOString()
+                                };
+                                sessionStorage.setItem(`flight_${selectedFlight.id || index}`, JSON.stringify(flightWithTimestamp));
                                 window.location.href = `/dashboard/flights/${selectedFlight.id || index}`;
                               }
                             }}
@@ -2592,7 +2597,12 @@ export default function FlightSearchPage() {
                               }, 4000);
                             } else {
                               // For return selection or one-way, proceed to booking
-                              sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flight));
+                              // Add timestamp for 10-minute expiry tracking
+                              const flightWithTimestamp = {
+                                ...flight,
+                                _savedAt: new Date().toISOString()
+                              };
+                              sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flightWithTimestamp));
                               window.location.href = `/dashboard/flights/${flight.id || index}`;
                             }
                           }}

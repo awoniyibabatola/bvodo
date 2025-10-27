@@ -101,6 +101,9 @@ export default function FlightDetailsPage() {
 
   const [flight, setFlight] = useState<any>(null);
   const [expandedSegments, setExpandedSegments] = useState<{ [key: number]: boolean }>({});
+  const [isOfferExpired, setIsOfferExpired] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [isValidating, setIsValidating] = useState(true);
 
   // Multi-step booking modal state
   const [showPassengerModal, setShowPassengerModal] = useState(false);
@@ -127,6 +130,34 @@ export default function FlightDetailsPage() {
       try {
         const parsedFlight = JSON.parse(cachedFlightData);
         setFlight(parsedFlight);
+
+        // Check if offer has expired (10 minutes)
+        const savedAt = parsedFlight._savedAt ? new Date(parsedFlight._savedAt) : null;
+        const now = new Date();
+        const EXPIRY_MINUTES = 10;
+
+        if (savedAt) {
+          const minutesElapsed = (now.getTime() - savedAt.getTime()) / (1000 * 60);
+
+          if (minutesElapsed >= EXPIRY_MINUTES) {
+            // Offer has expired
+            setIsOfferExpired(true);
+            setTimeRemaining(0);
+            setIsValidating(false);
+          } else {
+            // Offer still valid, calculate remaining time
+            const remaining = Math.floor((EXPIRY_MINUTES * 60) - ((now.getTime() - savedAt.getTime()) / 1000));
+            setTimeRemaining(remaining);
+
+            // Validate offer with backend
+            validateOffer(parsedFlight.id);
+          }
+        } else {
+          // No timestamp, assume expired
+          setIsOfferExpired(true);
+          setTimeRemaining(0);
+          setIsValidating(false);
+        }
       } catch (error) {
         console.error('Failed to parse flight data from sessionStorage:', error);
         router.push('/dashboard/flights/search');
@@ -137,6 +168,45 @@ export default function FlightDetailsPage() {
       router.push('/dashboard/flights/search');
     }
   }, [flightId, router]);
+
+  // Countdown timer
+  useEffect(() => {
+    if (timeRemaining === null || timeRemaining <= 0 || isOfferExpired) return;
+
+    const timer = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev === null || prev <= 1) {
+          setIsOfferExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeRemaining, isOfferExpired]);
+
+  // Validate offer with backend
+  const validateOffer = async (offerId: string) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(getApiEndpoint(`flights/offers/${offerId}`), {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      if (!response.ok) {
+        // Offer no longer available
+        setIsOfferExpired(true);
+        setTimeRemaining(0);
+      }
+    } catch (error) {
+      console.error('Offer validation failed:', error);
+      setIsOfferExpired(true);
+      setTimeRemaining(0);
+    } finally {
+      setIsValidating(false);
+    }
+  };
 
   // Fetch user's credit balance
   useEffect(() => {
@@ -563,6 +633,43 @@ export default function FlightDetailsPage() {
         </div>
       </div>
 
+      {/* Offer Expiry Timer or Expired Banner */}
+      {timeRemaining !== null && !isOfferExpired && (
+        <div className="bg-blue-50 border-b border-blue-200">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-blue-700" />
+                <span className="text-sm font-semibold text-blue-900">
+                  This offer expires in: {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
+                </span>
+              </div>
+              <span className="text-xs text-blue-700">Complete your booking soon!</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isOfferExpired && (
+        <div className="bg-red-50 border-b border-red-200">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-4">
+            <div className="text-center">
+              <h2 className="text-lg font-bold text-red-900 mb-2">Flight Offer Expired</h2>
+              <p className="text-sm text-red-700 mb-4">
+                This flight offer has expired after 10 minutes. Prices and availability may have changed.
+              </p>
+              <Link
+                href="/dashboard/flights/search"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Search for New Flights
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -906,10 +1013,15 @@ export default function FlightDetailsPage() {
 
               <button
                 onClick={handleContinueToBook}
-                className="w-full px-4 py-3 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                disabled={isOfferExpired || isValidating}
+                className={`w-full px-4 py-3 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
+                  isOfferExpired || isValidating
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-900 text-white hover:bg-gray-800'
+                }`}
               >
-                Proceed to Booking
-                <ArrowRight className="w-4 h-4" />
+                {isValidating ? 'Validating Offer...' : isOfferExpired ? 'Offer Expired' : 'Proceed to Booking'}
+                {!isValidating && !isOfferExpired && <ArrowRight className="w-4 h-4" />}
               </button>
             </div>
           </div>
