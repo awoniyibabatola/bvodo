@@ -191,132 +191,227 @@ async function handleCheckoutSessionCompleted(session: any) {
     // Payment is complete and booking is now approved, create Duffel order
     if (booking.provider === 'duffel') {
       try {
-        logger.info(`[Payment] Creating Duffel order for approved booking ${booking.bookingReference}`);
-
         const bookingData = booking.bookingData as any;
-        const offerId = booking.providerBookingReference || bookingData?.id;
-        const passengerDetails = booking.passengerDetails as any;
-        const services = bookingData?.services as any;
 
-        if (!offerId) {
-          throw new Error('Offer ID not found in booking');
-        }
+        // FLIGHT BOOKING
+        if (booking.bookingType === 'flight') {
+          logger.info(`[Payment] Creating Duffel flight order for approved booking ${booking.bookingReference}`);
 
-        // Validate offer is still valid
-        await duffelService.getOfferDetails(offerId as string);
+          const offerId = booking.providerBookingReference || bookingData?.id;
+          const passengerDetails = booking.passengerDetails as any;
+          const services = bookingData?.services as any;
 
-        // Extract contact info
-        const firstPassenger = Array.isArray(passengerDetails) ? passengerDetails[0] : null;
-        const contactEmail = firstPassenger?.email || booking.user.email;
-        const contactPhone = firstPassenger?.phone || '';
+          if (!offerId) {
+            throw new Error('Offer ID not found in booking');
+          }
 
-        // Create Duffel order using 'balance' payment type (prepaid from Stripe payment)
-        const duffelOrder = await duffelService.createBooking({
-          offerId: offerId as string,
-          passengers: passengerDetails || [],
-          contactEmail,
-          contactPhone,
-          services: services || undefined,
-        });
+          // Validate offer is still valid
+          await duffelService.getOfferDetails(offerId as string);
 
-        logger.info(`[Payment] ✅ Duffel order created successfully: ${duffelOrder.bookingReference}`);
+          // Extract contact info
+          const firstPassenger = Array.isArray(passengerDetails) ? passengerDetails[0] : null;
+          const contactEmail = firstPassenger?.email || booking.user.email;
+          const contactPhone = firstPassenger?.phone || '';
 
-        // CRITICAL: Update booking with Duffel order details IMMEDIATELY
-        // This must happen before any other operations that might fail
-        try {
-          await prisma.booking.update({
-            where: { id: booking.id },
-            data: {
-              providerOrderId: duffelOrder.bookingReference,
-              providerConfirmationNumber: duffelOrder.bookingReference,
-              providerRawData: duffelOrder.rawData,
-              status: 'confirmed',
-              confirmedAt: new Date(),
-            },
+          // Create Duffel order using 'balance' payment type (prepaid from Stripe payment)
+          const duffelOrder = await duffelService.createBooking({
+            offerId: offerId as string,
+            passengers: passengerDetails || [],
+            contactEmail,
+            contactPhone,
+            services: services || undefined,
           });
-          logger.info(`[Payment] ✅ Booking ${booking.bookingReference} marked as confirmed with PNR: ${duffelOrder.bookingReference}`);
-        } catch (updateError) {
-          logger.error(`[Payment] CRITICAL: Failed to update booking status after Duffel order created!`, updateError);
-          logger.error(`[Payment] PNR ${duffelOrder.bookingReference} exists but booking ${booking.bookingReference} not updated in DB!`);
-          // Don't throw - the booking exists in Duffel, we just failed to update our DB
-        }
 
-        // Send confirmation email after successful booking
-        try {
-          logger.info(`[Payment] Sending confirmation email for booking ${booking.bookingReference}`);
+          logger.info(`[Payment] ✅ Duffel flight order created successfully: ${duffelOrder.bookingReference}`);
 
-          // Get updated booking with full details
-          const fullBooking = await prisma.booking.findUnique({
-            where: { id: booking.id },
-            include: {
-              user: {
-                select: {
-                  email: true,
-                  firstName: true,
-                  lastName: true
+          // CRITICAL: Update booking with Duffel order details IMMEDIATELY
+          try {
+            await prisma.booking.update({
+              where: { id: booking.id },
+              data: {
+                providerOrderId: duffelOrder.bookingReference,
+                providerConfirmationNumber: duffelOrder.bookingReference,
+                providerRawData: duffelOrder.rawData,
+                status: 'confirmed',
+                confirmedAt: new Date(),
+              },
+            });
+            logger.info(`[Payment] ✅ Booking ${booking.bookingReference} marked as confirmed with PNR: ${duffelOrder.bookingReference}`);
+          } catch (updateError) {
+            logger.error(`[Payment] CRITICAL: Failed to update booking status after Duffel order created!`, updateError);
+            logger.error(`[Payment] PNR ${duffelOrder.bookingReference} exists but booking ${booking.bookingReference} not updated in DB!`);
+            // Don't throw - the booking exists in Duffel, we just failed to update our DB
+          }
+
+          // Send confirmation email after successful booking
+          try {
+            logger.info(`[Payment] Sending flight confirmation email for booking ${booking.bookingReference}`);
+
+            // Get updated booking with full details
+            const fullBooking = await prisma.booking.findUnique({
+              where: { id: booking.id },
+              include: {
+                user: {
+                  select: {
+                    email: true,
+                    firstName: true,
+                    lastName: true
+                  }
                 }
               }
-            }
-          });
-
-          if (fullBooking) {
-            const bookingDataObj = fullBooking.bookingData as any;
-            const segments = bookingDataObj?.slices?.[0]?.segments || [];
-            const firstSegment = segments[0];
-            const lastSegment = segments[segments.length - 1];
-
-            await emailService.sendBookingConfirmation({
-              bookingId: fullBooking.id,
-              bookingReference: fullBooking.bookingReference,
-              pnr: duffelOrder.bookingReference,
-              travelerName: `${passengerDetails[0]?.firstName || 'Traveler'} ${passengerDetails[0]?.lastName || ''}`,
-              bookerName: `${fullBooking.user.firstName} ${fullBooking.user.lastName}`,
-              bookerEmail: fullBooking.user.email,
-              flightDetails: {
-                airline: firstSegment?.operatingCarrier?.name || firstSegment?.marketingCarrier?.name || 'N/A',
-                from: fullBooking.origin || firstSegment?.origin?.iataCode || 'N/A',
-                to: fullBooking.destination || lastSegment?.destination?.iataCode || 'N/A',
-                departureDate: new Date(fullBooking.departureDate).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                }),
-                departureTime: firstSegment?.departingAt ? new Date(firstSegment.departingAt).toLocaleTimeString('en-US', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                }) : 'N/A',
-                arrivalTime: lastSegment?.arrivingAt ? new Date(lastSegment.arrivingAt).toLocaleTimeString('en-US', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                }) : 'N/A',
-                flightNumber: firstSegment?.marketingCarrier?.iataCode && firstSegment?.marketingCarrierFlightNumber
-                  ? `${firstSegment.marketingCarrier.iataCode}${firstSegment.marketingCarrierFlightNumber}`
-                  : undefined,
-              },
-              passengerDetails: Array.isArray(passengerDetails) ? passengerDetails.map((p: any) => ({
-                firstName: p.firstName,
-                lastName: p.lastName,
-                email: p.email,
-              })) : [],
-              priceDetails: {
-                basePrice: Number(fullBooking.basePrice || 0),
-                taxes: Number(fullBooking.taxesFees || 0),
-                total: Number(fullBooking.totalPrice || 0),
-                currency: fullBooking.currency || 'USD',
-              },
-              seatsSelected: bookingDataObj?.seatsSelected || undefined,
-              baggageSelected: bookingDataObj?.baggageSelected || undefined,
             });
 
-            logger.info(`[Payment] ✅ Confirmation email sent for ${booking.bookingReference}`);
+            if (fullBooking) {
+              const bookingDataObj = fullBooking.bookingData as any;
+              const segments = bookingDataObj?.slices?.[0]?.segments || [];
+              const firstSegment = segments[0];
+              const lastSegment = segments[segments.length - 1];
+
+              await emailService.sendBookingConfirmation({
+                bookingId: fullBooking.id,
+                bookingReference: fullBooking.bookingReference,
+                pnr: duffelOrder.bookingReference,
+                travelerName: `${passengerDetails[0]?.firstName || 'Traveler'} ${passengerDetails[0]?.lastName || ''}`,
+                bookerName: `${fullBooking.user.firstName} ${fullBooking.user.lastName}`,
+                bookerEmail: fullBooking.user.email,
+                flightDetails: {
+                  airline: firstSegment?.operatingCarrier?.name || firstSegment?.marketingCarrier?.name || 'N/A',
+                  from: fullBooking.origin || firstSegment?.origin?.iataCode || 'N/A',
+                  to: fullBooking.destination || lastSegment?.destination?.iataCode || 'N/A',
+                  departureDate: new Date(fullBooking.departureDate).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  }),
+                  departureTime: firstSegment?.departingAt ? new Date(firstSegment.departingAt).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : 'N/A',
+                  arrivalTime: lastSegment?.arrivingAt ? new Date(lastSegment.arrivingAt).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : 'N/A',
+                  flightNumber: firstSegment?.marketingCarrier?.iataCode && firstSegment?.marketingCarrierFlightNumber
+                    ? `${firstSegment.marketingCarrier.iataCode}${firstSegment.marketingCarrierFlightNumber}`
+                    : undefined,
+                },
+                passengerDetails: Array.isArray(passengerDetails) ? passengerDetails.map((p: any) => ({
+                  firstName: p.firstName,
+                  lastName: p.lastName,
+                  email: p.email,
+                })) : [],
+                priceDetails: {
+                  basePrice: Number(fullBooking.basePrice || 0),
+                  taxes: Number(fullBooking.taxesFees || 0),
+                  total: Number(fullBooking.totalPrice || 0),
+                  currency: fullBooking.currency || 'USD',
+                },
+                seatsSelected: bookingDataObj?.seatsSelected || undefined,
+                baggageSelected: bookingDataObj?.baggageSelected || undefined,
+              });
+
+              logger.info(`[Payment] ✅ Flight confirmation email sent for ${booking.bookingReference}`);
+            }
+          } catch (emailError) {
+            logger.error('[Payment] Failed to send confirmation email:', emailError);
+            // Don't fail the booking if email fails
           }
-        } catch (emailError) {
-          logger.error('[Payment] Failed to send confirmation email:', emailError);
-          // Don't fail the booking if email fails
+        }
+        // HOTEL BOOKING
+        else if (booking.bookingType === 'hotel') {
+          logger.info(`[Payment] Creating Duffel Stays hotel booking for approved booking ${booking.bookingReference}`);
+
+          const { duffelStaysService } = await import('../services/duffel-stays.service');
+
+          // Get stored quote ID and other hotel data
+          const quoteId = bookingData?.quoteId;
+          const rateId = bookingData?.rateId;
+
+          if (!quoteId && !rateId) {
+            throw new Error('Quote ID or Rate ID not found in booking data');
+          }
+
+          // Get hotel booking details from database
+          const hotelBooking = await prisma.hotelBooking.findFirst({
+            where: { bookingId: booking.id },
+            include: {
+              rooms: {
+                include: {
+                  guests: true,
+                },
+              },
+            },
+          });
+
+          if (!hotelBooking) {
+            throw new Error('Hotel booking details not found');
+          }
+
+          // Step 1: Create or refresh quote if needed
+          let finalQuoteId = quoteId;
+          if (!quoteId && rateId) {
+            logger.info(`[Payment] Creating quote from rate ${rateId}`);
+            const quote = await duffelStaysService.createQuote(rateId);
+            finalQuoteId = quote.id;
+          }
+
+          // Step 2: Format guest details for Duffel Stays
+          const duffelGuests = hotelBooking.rooms.flatMap((room: any) =>
+            room.guests.map((guest: any) => ({
+              given_name: guest.firstName,
+              family_name: guest.lastName,
+              born_on: guest.dateOfBirth,
+            }))
+          );
+
+          // Step 3: Extract contact info
+          const firstGuest = hotelBooking.rooms[0]?.guests[0];
+          const contactEmail = firstGuest?.email || booking.user.email;
+          const contactPhone = firstGuest?.phone || '';
+
+          // Step 4: Create Duffel Stays booking
+          const duffelHotelBooking = await duffelStaysService.createBooking({
+            quote_id: finalQuoteId,
+            email: contactEmail,
+            phone_number: contactPhone,
+            guests: duffelGuests,
+            accommodation_special_requests: hotelBooking.specialRequests || undefined,
+          });
+
+          logger.info(`[Payment] ✅ Duffel Stays hotel booking created successfully: ${duffelHotelBooking.id}`);
+
+          // CRITICAL: Update booking with Duffel Stays booking details IMMEDIATELY
+          try {
+            await prisma.booking.update({
+              where: { id: booking.id },
+              data: {
+                providerOrderId: duffelHotelBooking.id,
+                providerConfirmationNumber: duffelHotelBooking.confirmation_number || duffelHotelBooking.id,
+                providerRawData: JSON.parse(JSON.stringify(duffelHotelBooking)),
+                status: 'confirmed',
+                confirmedAt: new Date(),
+              },
+            });
+            logger.info(`[Payment] ✅ Booking ${booking.bookingReference} marked as confirmed with confirmation: ${duffelHotelBooking.confirmation_number || duffelHotelBooking.id}`);
+          } catch (updateError) {
+            logger.error(`[Payment] CRITICAL: Failed to update booking status after Duffel hotel booking created!`, updateError);
+            logger.error(`[Payment] Confirmation ${duffelHotelBooking.id} exists but booking ${booking.bookingReference} not updated in DB!`);
+            // Don't throw - the booking exists in Duffel, we just failed to update our DB
+          }
+
+          // Send confirmation email after successful booking
+          try {
+            logger.info(`[Payment] Sending hotel confirmation email for booking ${booking.bookingReference}`);
+            // TODO: Implement hotel-specific email template
+            logger.info(`[Payment] Hotel confirmation email not yet implemented`);
+          } catch (emailError) {
+            logger.error('[Payment] Failed to send hotel confirmation email:', emailError);
+            // Don't fail the booking if email fails
+          }
         }
       } catch (duffelError: any) {
-        logger.error(`[Payment] ❌ Failed to create Duffel order for ${booking.bookingReference}:`, duffelError);
+        logger.error(`[Payment] ❌ Failed to create Duffel booking for ${booking.bookingReference}:`, duffelError);
 
         // IMPORTANT: Payment was successful, so booking stays as "approved"
         // Admin must manually create the booking or issue refund
@@ -325,14 +420,14 @@ async function handleCheckoutSessionCompleted(session: any) {
             where: { id: booking.id },
             data: {
               // Keep current status (approved) and paymentStatus (completed)
-              notes: `${booking.notes || ''}\n\n⚠️ [URGENT - MANUAL REVIEW REQUIRED]\nPayment: COMPLETED ($${booking.totalPrice})\nDuffel Booking: FAILED - ${duffelError.message}\n\nACTION REQUIRED:\n1. Review Offer ID: ${booking.providerBookingReference}\n2. Either manually rebook OR initiate refund\n3. Contact customer about delay`.trim(),
+              notes: `${booking.notes || ''}\n\n⚠️ [URGENT - MANUAL REVIEW REQUIRED]\nPayment: COMPLETED ($${booking.totalPrice})\nDuffel Booking: FAILED - ${duffelError.message}\n\nACTION REQUIRED:\n1. Review ${booking.bookingType === 'flight' ? 'Offer ID' : 'Quote/Rate ID'}: ${booking.providerBookingReference}\n2. Either manually rebook OR initiate refund\n3. Contact customer about delay`.trim(),
             },
           });
         } catch (noteError) {
           logger.error(`[Payment] Failed to update booking notes:`, noteError);
         }
 
-        logger.error(`[Payment] ⚠️⚠️⚠️ CRITICAL: Payment collected but flight NOT booked for ${booking.bookingReference}`);
+        logger.error(`[Payment] ⚠️⚠️⚠️ CRITICAL: Payment collected but ${booking.bookingType} NOT booked for ${booking.bookingReference}`);
         logger.error(`[Payment] Amount: ${booking.totalPrice} ${booking.currency}`);
         logger.error(`[Payment] Customer: ${booking.user.email}`);
 
@@ -674,43 +769,119 @@ export const completeBookingPayment = async (req: Request, res: Response) => {
         if (booking.provider === 'duffel') {
           try {
             const bookingData = booking.bookingData as any;
-            const offerId = booking.providerBookingReference || bookingData?.id;
-            const passengerDetails = booking.passengerDetails as any;
-            const services = bookingData?.services as any;
 
-            if (!offerId) {
-              throw new Error('Offer ID not found in booking');
+            // FLIGHT BOOKING
+            if (booking.bookingType === 'flight') {
+              const offerId = booking.providerBookingReference || bookingData?.id;
+              const passengerDetails = booking.passengerDetails as any;
+              const services = bookingData?.services as any;
+
+              if (!offerId) {
+                throw new Error('Offer ID not found in booking');
+              }
+
+              // Extract contact info
+              const firstPassenger = Array.isArray(passengerDetails) ? passengerDetails[0] : null;
+              const contactEmail = firstPassenger?.email || booking.user.email;
+              const contactPhone = firstPassenger?.phone || '';
+
+              // Create Duffel order using 'balance' payment type
+              const duffelOrder = await duffelService.createBooking({
+                offerId: offerId as string,
+                passengers: passengerDetails || [],
+                contactEmail,
+                contactPhone,
+                services: services || undefined,
+              });
+
+              logger.info(`[Payment] ✅ Duffel flight order created for ${booking.bookingReference}: ${duffelOrder.bookingReference}`);
+
+              // Update booking with Duffel order details
+              await prisma.booking.update({
+                where: { id: booking.id },
+                data: {
+                  providerOrderId: duffelOrder.bookingReference,
+                  providerConfirmationNumber: duffelOrder.bookingReference,
+                  providerRawData: duffelOrder.rawData,
+                  status: 'confirmed',
+                  confirmedAt: new Date(),
+                },
+              });
             }
+            // HOTEL BOOKING
+            else if (booking.bookingType === 'hotel') {
+              const { duffelStaysService } = await import('../services/duffel-stays.service');
 
-            // Extract contact info
-            const firstPassenger = Array.isArray(passengerDetails) ? passengerDetails[0] : null;
-            const contactEmail = firstPassenger?.email || booking.user.email;
-            const contactPhone = firstPassenger?.phone || '';
+              const quoteId = bookingData?.quoteId;
+              const rateId = bookingData?.rateId;
 
-            // Create Duffel order using 'balance' payment type
-            const duffelOrder = await duffelService.createBooking({
-              offerId: offerId as string,
-              passengers: passengerDetails || [],
-              contactEmail,
-              contactPhone,
-              services: services || undefined,
-            });
+              if (!quoteId && !rateId) {
+                throw new Error('Quote ID or Rate ID not found in booking data');
+              }
 
-            logger.info(`[Payment] ✅ Duffel order created for ${booking.bookingReference}: ${duffelOrder.bookingReference}`);
+              // Get hotel booking details from database
+              const hotelBooking = await prisma.hotelBooking.findFirst({
+                where: { bookingId: booking.id },
+                include: {
+                  rooms: {
+                    include: {
+                      guests: true,
+                    },
+                  },
+                },
+              });
 
-            // Update booking with Duffel order details
-            await prisma.booking.update({
-              where: { id: booking.id },
-              data: {
-                providerOrderId: duffelOrder.bookingReference,
-                providerConfirmationNumber: duffelOrder.bookingReference,
-                providerRawData: duffelOrder.rawData,
-                status: 'confirmed',
-                confirmedAt: new Date(),
-              },
-            });
+              if (!hotelBooking) {
+                throw new Error('Hotel booking details not found');
+              }
+
+              // Step 1: Create or refresh quote if needed
+              let finalQuoteId = quoteId;
+              if (!quoteId && rateId) {
+                logger.info(`[Payment] Creating quote from rate ${rateId}`);
+                const quote = await duffelStaysService.createQuote(rateId);
+                finalQuoteId = quote.id;
+              }
+
+              // Step 2: Format guest details for Duffel Stays
+              const duffelGuests = hotelBooking.rooms.flatMap((room: any) =>
+                room.guests.map((guest: any) => ({
+                  given_name: guest.firstName,
+                  family_name: guest.lastName,
+                  born_on: guest.dateOfBirth,
+                }))
+              );
+
+              // Step 3: Extract contact info
+              const firstGuest = hotelBooking.rooms[0]?.guests[0];
+              const contactEmail = firstGuest?.email || booking.user.email;
+              const contactPhone = firstGuest?.phone || '';
+
+              // Step 4: Create Duffel Stays booking
+              const duffelHotelBooking = await duffelStaysService.createBooking({
+                quote_id: finalQuoteId,
+                email: contactEmail,
+                phone_number: contactPhone,
+                guests: duffelGuests,
+                accommodation_special_requests: hotelBooking.specialRequests || undefined,
+              });
+
+              logger.info(`[Payment] ✅ Duffel Stays hotel booking created for ${booking.bookingReference}: ${duffelHotelBooking.id}`);
+
+              // Update booking with Duffel Stays booking details
+              await prisma.booking.update({
+                where: { id: booking.id },
+                data: {
+                  providerOrderId: duffelHotelBooking.id,
+                  providerConfirmationNumber: duffelHotelBooking.confirmation_number || duffelHotelBooking.id,
+                  providerRawData: JSON.parse(JSON.stringify(duffelHotelBooking)),
+                  status: 'confirmed',
+                  confirmedAt: new Date(),
+                },
+              });
+            }
           } catch (duffelError: any) {
-            logger.error(`[Payment] Failed to create Duffel order:`, duffelError);
+            logger.error(`[Payment] Failed to create Duffel booking:`, duffelError);
             // Don't fail the response - admin can manually create booking
           }
         }
