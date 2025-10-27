@@ -466,6 +466,228 @@ export const verifyPayment = async (req: Request, res: Response) => {
 };
 
 /**
+ * Complete payment for pending booking (card or balance)
+ */
+export const completeBookingPayment = async (req: Request, res: Response) => {
+  try {
+    const { bookingId, paymentMethod } = req.body;
+    const user = (req as any).user;
+
+    if (!bookingId || !paymentMethod) {
+      return res.status(400).json({
+        success: false,
+        message: 'Booking ID and payment method are required',
+      });
+    }
+
+    // Get booking
+    const booking = await prisma.booking.findFirst({
+      where: {
+        id: bookingId,
+        userId: user.id,
+        organizationId: user.organizationId,
+        paymentStatus: { in: ['pending', 'failed'] }, // Allow pending or failed
+      },
+      include: {
+        user: true,
+        organization: true,
+      },
+    });
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Booking not found or already paid',
+      });
+    }
+
+    // Check if booking status allows payment
+    const allowedStatuses = ['pending', 'pending_approval'];
+    if (!allowedStatuses.includes(booking.status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot complete payment for booking with status: ${booking.status}`,
+      });
+    }
+
+    // CARD PAYMENT
+    if (paymentMethod === 'card') {
+      // Create Stripe checkout session
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+
+      const session = await stripeService.createCheckoutSession({
+        bookingReference: booking.bookingReference,
+        amount: parseFloat(booking.totalPrice.toString()),
+        currency: booking.currency,
+        customerEmail: booking.user.email,
+        successUrl: `${frontendUrl}/dashboard/bookings/${booking.id}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${frontendUrl}/dashboard/bookings/${booking.id}?payment=cancelled`,
+        metadata: {
+          bookingId: booking.id,
+          userId: booking.userId,
+          organizationId: booking.organizationId,
+        },
+      });
+
+      // Update booking
+      await prisma.booking.update({
+        where: { id: booking.id },
+        data: {
+          checkoutSessionId: session.id,
+          paymentStatus: 'pending',
+          bookingData: {
+            ...(booking.bookingData as any || {}),
+            paymentMethod: 'card',
+          },
+        },
+      });
+
+      logger.info(`[Payment] Stripe checkout created for ${booking.bookingReference}: ${session.id}`);
+
+      return res.json({
+        success: true,
+        paymentMethod: 'card',
+        checkoutUrl: session.url,
+      });
+    }
+
+    // BALANCE PAYMENT (Bvodo Credits)
+    if (paymentMethod === 'credit') {
+      // Check if user has sufficient credits
+      const userCredits = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { availableCredits: true },
+      });
+
+      if (!userCredits || parseFloat(userCredits.availableCredits.toString()) < parseFloat(booking.totalPrice.toString())) {
+        return res.status(400).json({
+          success: false,
+          message: 'Insufficient credits. Please top up your account or pay with card.',
+        });
+      }
+
+      // Check if approval is required
+      const organization = booking.organization;
+      const requiresApproval =
+        organization.requireApprovalAll ||
+        parseFloat(booking.totalPrice.toString()) >= parseFloat(organization.approvalThreshold.toString());
+
+      if (requiresApproval) {
+        // Update to pending_approval
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: {
+            status: 'pending_approval',
+            paymentStatus: 'pending',
+            bookingData: {
+              ...(booking.bookingData as any || {}),
+              paymentMethod: 'credit',
+            },
+          },
+        });
+
+        logger.info(`[Payment] Booking ${booking.bookingReference} updated to pending_approval for credit payment`);
+
+        return res.json({
+          success: true,
+          paymentMethod: 'credit',
+          requiresApproval: true,
+          message: 'Booking updated to Bvodo Credits payment. Approval required before confirmation.',
+        });
+      } else {
+        // Auto-approve and deduct credits
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            availableCredits: {
+              decrement: parseFloat(booking.totalPrice.toString()),
+            },
+          },
+        });
+
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: {
+            status: 'approved',
+            paymentStatus: 'completed',
+            approvedAt: new Date(),
+            bookingData: {
+              ...(booking.bookingData as any || {}),
+              paymentMethod: 'credit',
+            },
+          },
+        });
+
+        logger.info(`[Payment] Booking ${booking.bookingReference} auto-approved with credit payment`);
+
+        // For Duffel bookings, create the order
+        if (booking.provider === 'duffel') {
+          try {
+            const bookingData = booking.bookingData as any;
+            const offerId = booking.providerBookingReference || bookingData?.id;
+            const passengerDetails = booking.passengerDetails as any;
+            const services = bookingData?.services as any;
+
+            if (!offerId) {
+              throw new Error('Offer ID not found in booking');
+            }
+
+            // Extract contact info
+            const firstPassenger = Array.isArray(passengerDetails) ? passengerDetails[0] : null;
+            const contactEmail = firstPassenger?.email || booking.user.email;
+            const contactPhone = firstPassenger?.phone || '';
+
+            // Create Duffel order using 'balance' payment type
+            const duffelOrder = await duffelService.createBooking({
+              offerId: offerId as string,
+              passengers: passengerDetails || [],
+              contactEmail,
+              contactPhone,
+              services: services || undefined,
+            });
+
+            logger.info(`[Payment] ✅ Duffel order created for ${booking.bookingReference}: ${duffelOrder.bookingReference}`);
+
+            // Update booking with Duffel order details
+            await prisma.booking.update({
+              where: { id: booking.id },
+              data: {
+                providerOrderId: duffelOrder.bookingReference,
+                providerConfirmationNumber: duffelOrder.bookingReference,
+                providerRawData: duffelOrder.rawData,
+                status: 'confirmed',
+                confirmedAt: new Date(),
+              },
+            });
+          } catch (duffelError: any) {
+            logger.error(`[Payment] Failed to create Duffel order:`, duffelError);
+            // Don't fail the response - admin can manually create booking
+          }
+        }
+
+        return res.json({
+          success: true,
+          paymentMethod: 'credit',
+          requiresApproval: false,
+          message: 'Payment completed with Bvodo Credits!',
+        });
+      }
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid payment method. Must be "card" or "credit"',
+    });
+  } catch (error: any) {
+    logger.error('[Payment] Error completing booking payment:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to complete payment',
+    });
+  }
+};
+
+/**
  * Get payment status for a booking
  */
 export const getPaymentStatus = async (req: Request, res: Response) => {

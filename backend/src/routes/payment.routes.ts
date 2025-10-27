@@ -5,6 +5,7 @@ import {
   handleWebhook,
   getPaymentStatus,
   verifyPayment,
+  completeBookingPayment,
 } from '../controllers/payment.controller';
 
 const router = express.Router();
@@ -15,6 +16,13 @@ const router = express.Router();
  * @access  Private
  */
 router.post('/checkout', authenticate, createCheckoutSession);
+
+/**
+ * @route   POST /api/v1/payments/complete
+ * @desc    Complete payment for pending booking (card or balance)
+ * @access  Private
+ */
+router.post('/complete', authenticate, completeBookingPayment);
 
 /**
  * @route   POST /api/v1/payments/webhook

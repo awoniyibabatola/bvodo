@@ -176,6 +176,10 @@ export default function BookingDetailPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'credit' | 'card'>('credit');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [userCredits, setUserCredits] = useState(0);
 
   useEffect(() => {
     // Get user data from localStorage
@@ -312,6 +316,30 @@ export default function BookingDetailPage() {
     };
   }, [bookingId]);
 
+  useEffect(() => {
+    const fetchUserCredits = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        const response = await fetch(getApiEndpoint('users/me'), {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setUserCredits(parseFloat(data.data.availableCredits) || 0);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user credits:', error);
+      }
+    };
+
+    fetchUserCredits();
+  }, []);
+
   const fetchBookingDetails = async () => {
     try {
       setLoading(true);
@@ -416,6 +444,51 @@ export default function BookingDetailPage() {
       alert('An error occurred while rejecting the booking');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleCompletePayment = async () => {
+    setIsProcessingPayment(true);
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(getApiEndpoint('payments/complete'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          bookingId: booking?.id,
+          paymentMethod: selectedPaymentMethod,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // If card payment, redirect to Stripe
+        if (result.paymentMethod === 'card' && result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+        } else if (result.paymentMethod === 'credit') {
+          // Refresh booking data
+          fetchBookingDetails();
+          setShowPaymentModal(false);
+
+          if (result.requiresApproval) {
+            alert('✅ Payment method updated to Bvodo Credits!\n\nYour booking now requires approval from your manager.');
+          } else {
+            alert('✅ Payment completed with Bvodo Credits!');
+          }
+        }
+      } else {
+        alert(result.message || 'Failed to complete payment');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      alert('Failed to complete payment. Please try again.');
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -572,6 +645,31 @@ export default function BookingDetailPage() {
               >
                 <XCircle className="w-5 h-5" />
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Payment Required Banner */}
+        {booking && (booking.paymentStatus === 'pending' || booking.paymentStatus === 'failed') && (
+          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-6 mb-6">
+            <div className="flex items-start gap-4">
+              <AlertCircle className="w-6 h-6 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-yellow-900 mb-2">
+                  ⚠️ Payment Required
+                </h3>
+                <p className="text-yellow-800 mb-4">
+                  This booking is pending payment. Complete your payment to confirm this booking.
+                </p>
+
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors inline-flex items-center gap-2"
+                >
+                  <CreditCard className="w-5 h-5" />
+                  Complete Payment
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -1538,6 +1636,123 @@ export default function BookingDetailPage() {
                     </div>
                   </>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Payment Modal */}
+        {showPaymentModal && booking && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-6">
+              <h2 className="text-2xl font-bold mb-4">Complete Payment</h2>
+
+              <div className="mb-6">
+                <p className="text-gray-600 mb-2">
+                  Booking: <span className="font-semibold">{booking.bookingReference}</span>
+                </p>
+                <p className="text-gray-900 text-xl font-bold">
+                  Total: {booking.currency} {parseFloat(booking.totalPrice.toString()).toFixed(2)}
+                </p>
+              </div>
+
+              {/* Payment Method Selector */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Select Payment Method
+                </label>
+
+                {/* Bvodo Credits Option */}
+                <div
+                  onClick={() => setSelectedPaymentMethod('credit')}
+                  className={`border-2 rounded-lg p-4 mb-3 cursor-pointer transition-all ${
+                    selectedPaymentMethod === 'credit'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        selectedPaymentMethod === 'credit' ? 'border-blue-500' : 'border-gray-300'
+                      }`}>
+                        {selectedPaymentMethod === 'credit' && (
+                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold">Bvodo Credits</p>
+                        <p className="text-sm text-gray-600">
+                          Available: {booking.currency} {userCredits.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                    <Shield className="w-5 h-5 text-blue-500" />
+                  </div>
+
+                  {userCredits < parseFloat(booking.totalPrice.toString()) && (
+                    <p className="text-xs text-red-600 mt-2">
+                      ⚠️ Insufficient credits. Please top up or select card payment.
+                    </p>
+                  )}
+                </div>
+
+                {/* Card Payment Option */}
+                <div
+                  onClick={() => setSelectedPaymentMethod('card')}
+                  className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                    selectedPaymentMethod === 'card'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        selectedPaymentMethod === 'card' ? 'border-blue-500' : 'border-gray-300'
+                      }`}>
+                        {selectedPaymentMethod === 'card' && (
+                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold">Credit/Debit Card</p>
+                        <p className="text-sm text-gray-600">Secure payment via Stripe</p>
+                      </div>
+                    </div>
+                    <CreditCard className="w-5 h-5 text-blue-500" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  disabled={isProcessingPayment}
+                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCompletePayment}
+                  disabled={
+                    isProcessingPayment ||
+                    (selectedPaymentMethod === 'credit' && userCredits < parseFloat(booking.totalPrice.toString()))
+                  }
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                >
+                  {isProcessingPayment ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      {selectedPaymentMethod === 'card' ? 'Pay with Card' : 'Pay with Credits'}
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
