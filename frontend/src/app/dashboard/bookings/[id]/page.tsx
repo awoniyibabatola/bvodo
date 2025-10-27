@@ -692,17 +692,16 @@ export default function BookingDetailPage() {
         <div className="mb-6 no-print">
           <Link
             href="/dashboard/bookings"
-            className="inline-flex items-center gap-1.5 text-gray-600 hover:text-black mb-4 text-xs transition-colors"
-            style={{ fontWeight: 400 }}
+            className="inline-flex items-center gap-2 text-gray-900 hover:text-gray-700 mb-6 text-sm font-semibold transition-colors"
           >
-            <ArrowLeft className="w-3 h-3" />
-            Back
+            <ArrowLeft className="w-4 h-4" />
+            Back to Bookings
           </Link>
 
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
-              <h1 className="text-xl text-black mb-1" style={{ fontWeight: 300 }}>Booking Details</h1>
-              <p className="text-xs text-gray-500" style={{ fontWeight: 300 }}>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Booking Details</h1>
+              <p className="text-sm text-gray-600">
                 {booking.confirmationNumber}
               </p>
             </div>
@@ -711,17 +710,16 @@ export default function BookingDetailPage() {
             {booking.status === 'confirmed' && (
               <Link
                 href={`/dashboard/bookings/confirmed?booking=${booking.id}`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#C6F432] text-black text-xs hover:bg-[#9DD702] transition-colors rounded-lg"
-                style={{ fontWeight: 500 }}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#C6F432] text-black text-sm font-bold hover:bg-[#9DD702] transition-colors rounded-lg"
               >
                 View Confirmation
               </Link>
             )}
 
-            <div className="flex flex-wrap items-center gap-2 no-print" style={{ fontWeight: 400 }}>
-              <div className={`flex items-center gap-1.5 px-3 py-1.5 text-xs border rounded-lg ${getStatusColor(booking.status)}`}>
+            <div className="flex flex-wrap items-center gap-3 no-print">
+              <div className={`flex items-center gap-2 px-4 py-2 text-sm border rounded-lg font-semibold ${getStatusColor(booking.status)}`}>
                 {getStatusIcon(booking.status)}
-                <span className="capitalize" style={{ fontWeight: 500 }}>{booking.status.replace('_', ' ')}</span>
+                <span className="capitalize">{booking.status.replace('_', ' ')}</span>
               </div>
 
               {/* Approval Buttons - Only shown for admin/manager/company_admin when status is pending_approval */}
@@ -732,7 +730,7 @@ export default function BookingDetailPage() {
                       setApprovalAction('approve');
                       setShowApprovalModal(true);
                     }}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm font-semibold"
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span className="hidden md:inline">Approve</span>
@@ -742,7 +740,7 @@ export default function BookingDetailPage() {
                       setApprovalAction('reject');
                       setShowApprovalModal(true);
                     }}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition text-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition text-sm font-semibold"
                   >
                     <XCircle className="w-4 h-4" />
                     <span className="hidden md:inline">Reject</span>
@@ -752,7 +750,7 @@ export default function BookingDetailPage() {
 
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg hover:border-gray-900 hover:bg-gray-50 transition font-semibold text-gray-900"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:border-gray-900 hover:bg-gray-50 transition font-semibold text-gray-900"
               >
                 <Download className="w-4 h-4" />
                 <span>Download Invoice</span>
