@@ -421,6 +421,7 @@ export const getProfile = async (req: Request, res: Response) => {
           role: user.role,
           avatarUrl: user.avatarUrl,
           department: user.department,
+          availableCredits: user.availableCredits.toString(),
         },
         organization: {
           id: user.organization.id,

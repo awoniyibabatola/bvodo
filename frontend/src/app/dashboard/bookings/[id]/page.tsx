@@ -180,6 +180,7 @@ export default function BookingDetailPage() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'credit' | 'card'>('credit');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [userCredits, setUserCredits] = useState(0);
+  const [currentUserRole, setCurrentUserRole] = useState<string>('');
 
   useEffect(() => {
     // Get user data from localStorage
@@ -329,9 +330,19 @@ export default function BookingDetailPage() {
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
-            // Use organization availableCredits from the profile endpoint
-            const orgCredits = data.data.organization?.availableCredits || 0;
-            setUserCredits(parseFloat(orgCredits.toString()) || 0);
+            const userRole = data.data.user?.role || '';
+            setCurrentUserRole(userRole);
+
+            // Check if user is admin or company_admin
+            const isAdmin = userRole === 'admin' || userRole === 'company_admin';
+
+            // Admins/Company Admins use organization credits (company pool)
+            // Everyone else (traveler, employee, staff, manager) uses personal credits
+            const credits = isAdmin
+              ? data.data.organization?.availableCredits
+              : data.data.user?.availableCredits;
+
+            setUserCredits(parseFloat(credits || '0'));
           }
         }
       } catch (error) {
@@ -1701,7 +1712,10 @@ export default function BookingDetailPage() {
                       <div>
                         <p className="font-bold text-gray-900">Bvodo Credits</p>
                         <p className="text-xs text-gray-600">
-                          Available: {booking.currency} {userCredits.toFixed(2)}
+                          {currentUserRole === 'admin' || currentUserRole === 'company_admin'
+                            ? `Company Pool: ${booking.currency} ${userCredits.toFixed(2)}`
+                            : `Personal Balance: ${booking.currency} ${userCredits.toFixed(2)}`
+                          }
                         </p>
                       </div>
                     </div>
