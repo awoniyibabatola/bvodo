@@ -503,6 +503,13 @@ export default function BookingDetailPage() {
             'This flight offer has expired and is no longer available for booking.\n\n' +
             'Please search for a new flight with current availability.'
           );
+        } else if (result.error === 'MISSING_PASSENGER_DETAILS' || result.error === 'INCOMPLETE_PASSENGER_DETAILS') {
+          setShowPaymentModal(false);
+          alert(
+            '❌ Passenger Information Missing\n\n' +
+            result.message + '\n\n' +
+            'This booking cannot be completed. Please search for a new flight and ensure all passenger details are provided.'
+          );
         } else {
           alert(result.message || 'Failed to complete payment');
         }

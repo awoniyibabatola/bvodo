@@ -510,6 +510,31 @@ export const completeBookingPayment = async (req: Request, res: Response) => {
       });
     }
 
+    // Validate passenger details exist
+    const passengerDetails = booking.passengerDetails as any;
+    if (!passengerDetails || (Array.isArray(passengerDetails) && passengerDetails.length === 0)) {
+      return res.status(400).json({
+        success: false,
+        message: 'This booking is missing passenger details. Please create a new booking with complete passenger information.',
+        error: 'MISSING_PASSENGER_DETAILS',
+      });
+    }
+
+    // Validate required passenger fields
+    if (Array.isArray(passengerDetails)) {
+      const missingFields = passengerDetails.some((p: any) =>
+        !p.firstName || !p.lastName || !p.dateOfBirth || !p.email
+      );
+
+      if (missingFields) {
+        return res.status(400).json({
+          success: false,
+          message: 'Passenger details are incomplete. Required: firstName, lastName, dateOfBirth, email. Please create a new booking.',
+          error: 'INCOMPLETE_PASSENGER_DETAILS',
+        });
+      }
+    }
+
     // Validate offer is still available for Duffel bookings
     if (booking.provider === 'duffel') {
       try {
