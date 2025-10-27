@@ -50,7 +50,7 @@ export default function HotelDetailsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const hotelId = params.id as string;
+  const searchResultId = params.id as string; // NOTE: Changed from hotelId to searchResultId for Duffel Stays
   const checkInDate = searchParams.get('checkIn') || '';
   const checkOutDate = searchParams.get('checkOut') || '';
   const adults = parseInt(searchParams.get('adults') || '1');
@@ -93,7 +93,7 @@ export default function HotelDetailsPage() {
     if (checkInDate && checkOutDate) {
       fetchHotelOffers();
     }
-  }, [hotelId, checkInDate, checkOutDate, adults, rooms]);
+  }, [searchResultId, checkInDate, checkOutDate, adults, rooms]);
 
   // Debug: Log hotel address data
   useEffect(() => {
@@ -210,8 +210,8 @@ export default function HotelDetailsPage() {
       setLoading(true);
       setError('');
 
-      console.log('=== Hotel Details Debug ===');
-      console.log('hotelId:', hotelId);
+      console.log('=== Hotel Details Debug (Duffel Stays) ===');
+      console.log('searchResultId:', searchResultId);
       console.log('checkInDate:', checkInDate);
       console.log('checkOutDate:', checkOutDate);
       console.log('adults:', adults);
@@ -222,17 +222,10 @@ export default function HotelDetailsPage() {
         throw new Error('Missing required date parameters. Please search for hotels first.');
       }
 
-      const params = new URLSearchParams({
-        checkInDate,
-        checkOutDate,
-        adults: adults.toString(),
-        roomQuantity: rooms.toString(),
-        currency: 'USD',
-      });
-
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || getApiEndpoint('').replace('/api/v1/', '');
-      const fullUrl = `${apiUrl}/api/v1/hotels/${hotelId}/offers?${params}`;
-      console.log('Fetching hotel offers from:', fullUrl);
+      // Duffel Stays: Use new endpoint GET /hotels/rates/{searchResultId}
+      // This endpoint doesn't need query params because rates were already fetched during search
+      const fullUrl = `${getApiEndpoint('hotels/rates')}/${searchResultId}`;
+      console.log('Fetching hotel rates from Duffel Stays:', fullUrl);
       const response = await fetch(fullUrl);
 
       // Check if response is OK before parsing
@@ -258,17 +251,82 @@ export default function HotelDetailsPage() {
       const data = await response.json();
 
       if (data.success) {
-        console.log('Hotel offers data:', data.data);
-        console.log('Sample offer:', data.data.offers?.[0]);
-        console.log('BoardType in offer:', data.data.offers?.[0]?.boardType);
-        console.log('Full offer keys:', Object.keys(data.data.offers?.[0] || {}));
-        console.log('Room data:', data.data.offers?.[0]?.room);
-        console.log('Room description:', data.data.offers?.[0]?.room?.description);
-        console.log('Policies data:', data.data.offers?.[0]?.policies);
-        console.log('Policies keys:', Object.keys(data.data.offers?.[0]?.policies || {}));
-        console.log('RateFamilyEstimated:', data.data.offers?.[0]?.rateFamilyEstimated);
-        console.log('RoomInformation:', data.data.offers?.[0]?.roomInformation);
-        setHotelOffers(data.data);
+        // Transform Duffel Stays accommodation data to match UI expectations
+        const accommodation = data.data;
+
+        console.log('Duffel Stays accommodation data:', accommodation);
+
+        // Convert Duffel Stays structure to legacy format for UI compatibility
+        // Duffel: { id, name, rooms: [{ id, name, rates: [...] }] }
+        // Expected: { hotel: {...}, offers: [...] }
+
+        const transformedData = {
+          hotel: {
+            hotelId: searchResultId,
+            name: accommodation.name || 'Hotel',
+            description: accommodation.description || '',
+            rating: accommodation.rating || 0,
+            media: accommodation.photos?.map((photo: any) => ({
+              uri: photo.url,
+              url: photo.url,
+            })) || [],
+            amenities: accommodation.amenities?.map((amenity: any) =>
+              amenity.description || amenity.type
+            ) || [],
+            address: {
+              lines: [
+                accommodation.address?.line_one,
+                accommodation.address?.line_two
+              ].filter(Boolean),
+              cityName: accommodation.address?.city_name || '',
+              postalCode: accommodation.address?.postal_code || '',
+              countryCode: accommodation.address?.country_code || '',
+            },
+            location: accommodation.location,
+          },
+          // Convert rooms -> offers (flatten all rates from all rooms)
+          offers: accommodation.rooms?.flatMap((room: any) =>
+            room.rates?.map((rate: any) => ({
+              id: rate.id,
+              rateId: rate.id, // Store rate ID for quote creation
+              price: {
+                base: rate.base_amount,
+                total: rate.total_amount,
+                currency: rate.total_currency,
+                taxes: rate.tax_amount,
+              },
+              room: {
+                type: room.name,
+                typeEstimated: {
+                  category: room.name,
+                  beds: room.bed_count || 1,
+                  bedType: room.bed_type || 'Unknown',
+                },
+                description: {
+                  text: room.description || rate.room?.description || '',
+                },
+              },
+              // Duffel cancellation timeline is more detailed than Amadeus
+              policies: {
+                cancellation: {
+                  type: rate.cancellation_timeline?.timeline?.[0]?.refund_amount === rate.total_amount
+                    ? 'FULL_REFUND'
+                    : rate.cancellation_timeline?.timeline?.[rate.cancellation_timeline.timeline.length - 1]?.refund_amount === '0.00'
+                    ? 'NON_REFUNDABLE'
+                    : 'PARTIAL_REFUND',
+                  timeline: rate.cancellation_timeline?.timeline || [],
+                },
+              },
+              // Store full Duffel rate for quote creation
+              _duffelRate: rate,
+            }))
+          ) || [],
+        };
+
+        console.log('Transformed hotel data:', transformedData);
+        console.log('Sample transformed offer:', transformedData.offers?.[0]);
+
+        setHotelOffers(transformedData);
       } else {
         setError(data.message || 'Failed to load hotel offers');
       }

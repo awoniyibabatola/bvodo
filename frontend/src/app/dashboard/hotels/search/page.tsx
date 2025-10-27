@@ -41,6 +41,54 @@ import {
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 
+/**
+ * Adapter function to transform Duffel Stays API response to match UI expectations
+ *
+ * Duffel Stays returns:
+ * {
+ *   searchResultId: string,
+ *   accommodation: { id, name, photos, amenities, location, address, rating, rooms },
+ *   cheapestRate: { id, total_amount, total_currency }
+ * }
+ *
+ * UI expects:
+ * {
+ *   hotel: { hotelId, name, media, amenities, distance, rating },
+ *   price: string
+ * }
+ */
+const adaptDuffelStaysData = (duffelData: any) => {
+  return {
+    searchResultId: duffelData.searchResultId, // NEW: Store for navigation
+    hotel: {
+      hotelId: duffelData.searchResultId, // Use searchResultId as hotelId for navigation
+      name: duffelData.accommodation?.name || 'Hotel',
+      description: duffelData.accommodation?.description || '',
+      rating: duffelData.accommodation?.rating || 0,
+      media: duffelData.accommodation?.photos?.map((photo: any) => ({
+        uri: photo.url,
+        url: photo.url,
+      })) || [],
+      amenities: duffelData.accommodation?.amenities?.map((amenity: any) =>
+        amenity.description || amenity.type
+      ) || [],
+      address: {
+        cityName: duffelData.accommodation?.address?.city_name || '',
+        countryCode: duffelData.accommodation?.address?.country_code || '',
+      },
+      location: duffelData.accommodation?.location,
+      // Distance calculation - from coordinates if available
+      distance: duffelData.accommodation?.location?.geographic_coordinates ? {
+        value: 0, // Will be calculated if needed
+        unit: 'KM'
+      } : undefined,
+    },
+    price: duffelData.cheapestRate?.total_amount || '0',
+    currency: duffelData.cheapestRate?.total_currency || 'USD',
+    rating: duffelData.accommodation?.rating || 0, // For top-level filtering
+  };
+};
+
 export default function HotelSearchPage() {
   const searchParams = useSearchParams();
   const [user, setUser] = useState({
@@ -149,33 +197,34 @@ export default function HotelSearchPage() {
       console.log('[Hotels Search] API response:', data);
 
       if (data.success) {
-        let filteredHotels = data.data;
-        console.log('[Hotels Search] Before filtering:', filteredHotels.length, 'hotels');
+        // Adapt Duffel Stays data to UI format
+        let adaptedHotels = data.data.map(adaptDuffelStaysData);
+        console.log('[Hotels Search] Before filtering:', adaptedHotels.length, 'hotels');
 
         // Check if we got fewer hotels than requested (means no more available)
-        setHasMore(filteredHotels.length >= 20);
+        setHasMore(adaptedHotels.length >= 20);
 
         // Debug: Check first hotel structure
-        if (filteredHotels.length > 0) {
-          console.log('[Hotels Search] Sample hotel data:', filteredHotels[0]);
+        if (adaptedHotels.length > 0) {
+          console.log('[Hotels Search] Sample adapted hotel data:', adaptedHotels[0]);
         }
 
         // Apply filters - but don't filter by rating when coming from AI chat
         // The AI already filtered results, so we just show what it found
         if (minRatingFilter > 0 && !searchParams.get('fromAI')) {
-          filteredHotels = filteredHotels.filter((hotel: any) => {
+          adaptedHotels = adaptedHotels.filter((hotel: any) => {
             const hotelRating = parseFloat(hotel.rating) || 0;
             return hotelRating >= minRatingFilter;
           });
-          console.log('[Hotels Search] After rating filter:', filteredHotels.length, 'hotels');
+          console.log('[Hotels Search] After rating filter:', adaptedHotels.length, 'hotels');
         }
         if (maxPriceFilter > 0 && !searchParams.get('fromAI')) {
-          filteredHotels = filteredHotels.filter((hotel: any) => parseFloat(hotel.price) <= maxPriceFilter);
-          console.log('[Hotels Search] After price filter:', filteredHotels.length, 'hotels');
+          adaptedHotels = adaptedHotels.filter((hotel: any) => parseFloat(hotel.price) <= maxPriceFilter);
+          console.log('[Hotels Search] After price filter:', adaptedHotels.length, 'hotels');
         }
 
-        console.log('[Hotels Search] Setting hotels state with', filteredHotels.length, 'hotels');
-        setHotels(filteredHotels);
+        console.log('[Hotels Search] Setting hotels state with', adaptedHotels.length, 'hotels');
+        setHotels(adaptedHotels);
       } else {
         setError(data.message || 'Failed to search hotels');
       }
@@ -289,8 +338,10 @@ export default function HotelSearchPage() {
       const data = await response.json();
 
       if (data.success) {
-        setHotels(data.data);
-        setHasMore(data.data.length >= 20);
+        // Adapt Duffel Stays data to UI format
+        const adaptedHotels = data.data.map(adaptDuffelStaysData);
+        setHotels(adaptedHotels);
+        setHasMore(adaptedHotels.length >= 20);
 
         // Scroll to results
         setTimeout(() => {
@@ -348,8 +399,10 @@ export default function HotelSearchPage() {
       const data = await response.json();
 
       if (data.success) {
-        setHotels(data.data);
-        setHasMore(data.data.length >= 20);
+        // Adapt Duffel Stays data to UI format
+        const adaptedHotels = data.data.map(adaptDuffelStaysData);
+        setHotels(adaptedHotels);
+        setHasMore(adaptedHotels.length >= 20);
       } else {
         setError(data.message || 'Failed to search hotels');
       }
