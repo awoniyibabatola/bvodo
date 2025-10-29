@@ -2,15 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { MapPin, X, Search } from 'lucide-react';
-import { getApiEndpoint } from '@/lib/api-config';
-
-interface Location {
-  iataCode: string;
-  name: string;
-  cityName?: string;
-  countryName?: string;
-  type: string;
-}
+import { searchCities } from '@/utils/cityMapping';
 
 interface CityAutocompleteProps {
   value: string;
@@ -27,20 +19,11 @@ export default function CityAutocomplete({
   className = '',
   required = false,
 }: CityAutocompleteProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [displayValue, setDisplayValue] = useState(value);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestions, setSuggestions] = useState<Location[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<Array<{ name: string; code: string }>>([]);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
-
-  // Update display value when prop value changes
-  useEffect(() => {
-    setDisplayValue(value);
-  }, [value]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -53,78 +36,34 @@ export default function CityAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Search for locations via API
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    if (searchQuery.trim().length < 2) {
-      setSuggestions([]);
-      return;
-    }
-
-    setLoading(true);
-
-    searchTimeoutRef.current = setTimeout(async () => {
-      try {
-        const response = await fetch(
-          `${getApiEndpoint('flights/locations')}?keyword=${encodeURIComponent(searchQuery)}&provider=duffel`
-        );
-        const data = await response.json();
-
-        if (data.success) {
-          // Filter to only show cities, not airports (hotels are in cities, not airports)
-          const cities = (data.data || []).filter((loc: Location) => loc.type === 'CITY');
-          setSuggestions(cities);
-        } else {
-          setSuggestions([]);
-        }
-      } catch (error) {
-        console.error('Error searching locations:', error);
-        setSuggestions([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
-
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchQuery]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    setDisplayValue(val);
-    setShowSuggestions(true);
+    const inputValue = e.target.value;
+    onChange(inputValue);
 
-    if (!val) {
-      onChange('');
+    if (inputValue.length >= 1) {
+      const results = searchCities(inputValue);
+      setSuggestions(results);
+      setShowSuggestions(true);
+      setHighlightedIndex(-1);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
     }
   };
 
-  const handleSelectCity = (location: Location) => {
-    const display = location.type === 'CITY'
-      ? `${location.name}, ${location.countryName}`
-      : `${location.cityName || location.name}`;
-
-    setDisplayValue(display);
-    setSearchQuery('');
+  const handleSelectCity = (cityName: string) => {
+    onChange(cityName);
     setShowSuggestions(false);
-    onChange(display);
+    setSuggestions([]);
     setHighlightedIndex(-1);
   };
 
   const handleClear = () => {
-    setSearchQuery('');
-    setDisplayValue('');
     onChange('');
     setSuggestions([]);
     setShowSuggestions(false);
     setHighlightedIndex(-1);
+    inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -144,7 +83,7 @@ export default function CityAutocomplete({
       case 'Enter':
         e.preventDefault();
         if (highlightedIndex >= 0 && highlightedIndex < suggestions.length) {
-          handleSelectCity(suggestions[highlightedIndex]);
+          handleSelectCity(suggestions[highlightedIndex].name);
         }
         break;
       case 'Escape':
@@ -161,11 +100,13 @@ export default function CityAutocomplete({
         <input
           ref={inputRef}
           type="text"
-          value={displayValue}
+          value={value}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => {
-            if (searchQuery || displayValue) {
+            if (value.length >= 1) {
+              const results = searchCities(value);
+              setSuggestions(results);
               setShowSuggestions(true);
             }
           }}
@@ -175,7 +116,7 @@ export default function CityAutocomplete({
           autoComplete="off"
         />
 
-        {displayValue && !loading && (
+        {value && (
           <button
             type="button"
             onClick={handleClear}
@@ -184,22 +125,16 @@ export default function CityAutocomplete({
             <X className="w-4 h-4 text-gray-400" />
           </button>
         )}
-
-        {loading && (
-          <div className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2">
-            <div className="w-4 h-4 border-2 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        )}
       </div>
 
       {/* Show suggestions when available */}
       {showSuggestions && suggestions.length > 0 && (
         <div className="absolute z-50 w-full mt-1 md:mt-2 bg-white border border-gray-200 rounded-lg md:rounded-xl shadow-sm max-h-60 md:max-h-80 overflow-y-auto">
-          {suggestions.map((location, index) => (
+          {suggestions.map((city, index) => (
             <button
-              key={`${location.iataCode}-${index}`}
+              key={`${city.code}-${index}`}
               type="button"
-              onClick={() => handleSelectCity(location)}
+              onClick={() => handleSelectCity(city.name)}
               className={`w-full px-3 md:px-4 py-2 md:py-2.5 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 focus:bg-gray-50 focus:outline-none ${
                 index === highlightedIndex ? 'bg-gray-50' : ''
               }`}
@@ -209,19 +144,13 @@ export default function CityAutocomplete({
                   <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-gray-900 truncate normal-case">
-                    {location.name}
-                  </div>
-                  <div className="text-[10px] text-gray-600 truncate normal-case">
-                    {location.cityName && location.cityName !== location.name && (
-                      <span>{location.cityName}, </span>
-                    )}
-                    {location.countryName}
+                  <div className="text-xs md:text-sm text-gray-900 truncate normal-case">
+                    {city.name}
                   </div>
                 </div>
                 <div className="flex-shrink-0">
                   <span className="inline-block px-1.5 py-0.5 md:px-2 md:py-0.5 bg-gray-100 text-gray-700 text-[10px] font-mono rounded normal-case">
-                    {location.iataCode}
+                    {city.code}
                   </span>
                 </div>
               </div>
@@ -231,11 +160,11 @@ export default function CityAutocomplete({
       )}
 
       {/* Show message when no suggestions but user is typing */}
-      {showSuggestions && !loading && searchQuery.length >= 2 && suggestions.length === 0 && (
+      {showSuggestions && value.length >= 2 && suggestions.length === 0 && (
         <div className="absolute z-50 w-full mt-1 md:mt-2 bg-white border border-gray-200 rounded-lg md:rounded-xl shadow-sm p-4 text-center">
           <Search className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-          <p className="text-sm text-gray-500">No locations found</p>
-          <p className="text-xs text-gray-400 mt-1">Try searching for a city or address</p>
+          <p className="text-sm text-gray-500">No cities found</p>
+          <p className="text-xs text-gray-400 mt-1">Try searching for a different city</p>
         </div>
       )}
     </div>
