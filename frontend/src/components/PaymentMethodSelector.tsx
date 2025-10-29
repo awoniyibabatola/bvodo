@@ -22,6 +22,7 @@ interface PaymentMethodSelectorProps {
   userCredits?: number;
   bookingAmount?: number;
   className?: string;
+  userRole?: string; // User role to determine credit label (admin/company_admin vs traveler)
 }
 
 const paymentMethods: PaymentMethodOption[] = [
@@ -59,10 +60,15 @@ export default function PaymentMethodSelector({
   userCredits,
   bookingAmount,
   className = '',
+  userRole = 'traveler',
 }: PaymentMethodSelectorProps) {
   const hasInsufficientCredits = userCredits !== undefined &&
                                   bookingAmount !== undefined &&
                                   userCredits < bookingAmount;
+
+  // Determine credit label based on user role
+  const isAdminRole = userRole === 'admin' || userRole === 'company_admin' || userRole === 'super_admin';
+  const creditLabel = isAdminRole ? 'Company Bvodo Credits' : 'My Bvodo Credits';
 
   return (
     <div className={`space-y-2 ${className}`}>
@@ -72,7 +78,7 @@ export default function PaymentMethodSelector({
 
       {userCredits !== undefined && (
         <div className="text-sm text-gray-600 mb-3">
-          <div className="font-medium text-gray-700 mb-1">Company Bvodo Credits</div>
+          <div className="font-medium text-gray-700 mb-1">{creditLabel}</div>
           <div>Available Balance: <span className="font-semibold text-gray-900">${userCredits.toFixed(2)}</span></div>
           {bookingAmount !== undefined && (
             <div className="mt-1">
