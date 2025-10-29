@@ -469,7 +469,7 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-3 md:space-y-4">
               {(dashboardStats?.recentBookings && dashboardStats.recentBookings.length > 0 ? dashboardStats.recentBookings : [
-                { id: '', type: 'Flight', route: 'No bookings yet', traveler: 'Start booking', date: 'Today', status: 'Pending', amount: '$0' },
+                { id: '', type: 'Flight', route: 'No bookings yet', traveler: 'Start booking', date: 'Today', status: 'Pending', amount: '$0', image: null },
               ]).map((booking, index) => {
                 // Determine the link based on booking id
                 const isValidBooking = booking.route !== 'No bookings yet';
