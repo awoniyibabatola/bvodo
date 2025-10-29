@@ -74,7 +74,9 @@ export default function CityAutocomplete({
         const data = await response.json();
 
         if (data.success) {
-          setSuggestions(data.data || []);
+          // Filter to only show cities, not airports (hotels are in cities, not airports)
+          const cities = (data.data || []).filter((loc: Location) => loc.type === 'CITY');
+          setSuggestions(cities);
         } else {
           setSuggestions([]);
         }
