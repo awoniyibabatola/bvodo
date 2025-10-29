@@ -22,6 +22,7 @@ import PassengerDetailsModal from '@/components/PassengerDetailsModal';
 import SeatSelection from '@/components/SeatSelection';
 import BaggageSelection from '@/components/BaggageSelection';
 import PaymentMethodSelector from '@/components/PaymentMethodSelector';
+import BookingSuccessModal from '@/components/BookingSuccessModal';
 import { getApiEndpoint } from '@/lib/api-config';
 
 // Airline names mapping
@@ -121,6 +122,10 @@ export default function FlightDetailsPage() {
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'card'>('credit');
   const [userCredits, setUserCredits] = useState<number>(0);
   const [userRole, setUserRole] = useState<string>('traveler');
+
+  // Success modal state
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [bookingResult, setBookingResult] = useState<any>(null);
 
   useEffect(() => {
     // Try to get flight data from sessionStorage first
@@ -573,9 +578,9 @@ export default function FlightDetailsPage() {
           return;
         }
 
-        // For credit payment, show success and go to booking details
-        alert('Booking created successfully!');
-        router.push(`/dashboard/bookings/${result.data.id}`);
+        // For credit payment, show success modal
+        setBookingResult(result.data);
+        setShowSuccessModal(true);
       } else {
         const error = await response.json();
 
@@ -1087,6 +1092,31 @@ export default function FlightDetailsPage() {
           onConfirm={handleBaggageSelectionConfirm}
         />
       )}
+
+      {/* Success Modal with Cross-sell */}
+      <BookingSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.push('/dashboard/bookings');
+        }}
+        bookingDetails={{
+          confirmationNumber: bookingResult?.confirmationNumber,
+          flightNumber: flight?.slices?.[0]?.segments?.[0]?.operating_carrier_flight_number ||
+                        flight?.slices?.[0]?.segments?.[0]?.flight_number,
+          airline: AIRLINE_NAMES[flight?.slices?.[0]?.segments?.[0]?.operating_carrier?.iata_code ||
+                                  flight?.slices?.[0]?.segments?.[0]?.carrier_code] ||
+                   flight?.slices?.[0]?.segments?.[0]?.operating_carrier?.iata_code ||
+                   flight?.slices?.[0]?.segments?.[0]?.carrier_code,
+        }}
+        bookingType="flight"
+        tripDetails={{
+          destination: AIRPORT_NAMES[flight?.slices?.[0]?.destination?.iata_code]?.city ||
+                      flight?.slices?.[0]?.destination?.iata_code,
+          checkInDate: flight?.slices?.[0]?.segments?.[0]?.departing_at?.split('T')[0],
+          checkOutDate: flight?.slices?.[flight?.slices?.length - 1]?.segments?.[0]?.departing_at?.split('T')[0],
+        }}
+      />
     </div>
   );
 }

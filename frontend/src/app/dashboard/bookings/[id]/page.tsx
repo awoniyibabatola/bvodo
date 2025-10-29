@@ -31,7 +31,6 @@ import {
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
 import BusinessFooter from '@/components/BusinessFooter';
-import CrossSellCard from '@/components/CrossSellCard';
 
 interface FlightBooking {
   id: string;
@@ -2430,26 +2429,6 @@ export default function BookingDetailPage() {
               </div>
             </div>
           </div>
-        )}
-
-        {/* Cross-sell: Suggest complementary booking */}
-        {booking && (
-          booking.status === 'confirmed' ||
-          booking.status === 'completed' ||
-          booking.status === 'approved' ||
-          booking.status === 'awaiting_confirmation' ||
-          booking.status === 'pending_approval' ||
-          booking.paymentStatus === 'completed'
-        ) && (
-          <CrossSellCard
-            bookingType={booking.bookingType}
-            destination={isHotelBooking ? hotelBooking?.city : flightBooking?.arrivalAirport}
-            checkInDate={isHotelBooking ? hotelBooking?.checkInDate : flightBooking?.departureTime}
-            checkOutDate={isHotelBooking ? hotelBooking?.checkOutDate : flightBooking?.arrivalTime}
-            departureAirport={flightBooking?.departureAirport}
-            arrivalAirport={flightBooking?.arrivalAirport}
-            city={hotelBooking?.city}
-          />
         )}
         </div>
 

@@ -2042,6 +2042,12 @@ export default function HotelDetailsPage() {
           numberOfRooms: bookingResult?.numberOfRooms || rooms,
           hotelName: hotel?.name,
         }}
+        bookingType="hotel"
+        tripDetails={{
+          destination: city || hotel?.address?.cityName || hotel?.name,
+          checkInDate: searchCheckIn,
+          checkOutDate: searchCheckOut,
+        }}
       />
 
       {/* Business Information Footer */}
