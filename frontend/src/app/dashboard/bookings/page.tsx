@@ -47,6 +47,7 @@ interface Booking {
   currency: string;
   status: string;
   bookedAt: string;
+  providerConfirmationNumber?: string;
   user: {
     firstName: string;
     lastName: string;
@@ -150,9 +151,12 @@ export default function BookingsPage() {
   };
 
   const getStatusColor = (status: string) => {
-    // Confirmed/approved get lemon, others remain grayscale
+    // Confirmed/approved get lemon, cancelled gets red, others remain grayscale
     if (status === 'confirmed' || status === 'approved') {
       return 'bg-[#ADF802] text-gray-900 border-[#ADF802]';
+    }
+    if (status === 'cancelled') {
+      return 'bg-red-500 text-white border-red-500';
     }
     return 'bg-gray-50 text-gray-700 border-gray-200';
   };
@@ -236,6 +240,65 @@ export default function BookingsPage() {
             )}
           </h1>
           <p className="text-xs text-gray-600">View and manage all your travel bookings</p>
+        </div>
+
+        {/* Booking Type Tabs */}
+        <div className="mb-6 border-b border-gray-200">
+          <div className="flex gap-1">
+            <button
+              onClick={() => setFilters({ ...filters, bookingType: '' })}
+              className={`px-6 py-3 text-sm font-semibold transition-all border-b-2 ${
+                filters.bookingType === ''
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>All Bookings</span>
+                {filters.bookingType === '' && bookings.length > 0 && (
+                  <span className="px-2 py-0.5 bg-gray-900 text-white text-xs rounded-full">
+                    {bookings.length}
+                  </span>
+                )}
+              </div>
+            </button>
+            <button
+              onClick={() => setFilters({ ...filters, bookingType: 'flight' })}
+              className={`px-6 py-3 text-sm font-semibold transition-all border-b-2 ${
+                filters.bookingType === 'flight'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Plane className="w-4 h-4" />
+                <span>Flights</span>
+                {filters.bookingType === 'flight' && bookings.filter(b => b.bookingType === 'flight').length > 0 && (
+                  <span className="px-2 py-0.5 bg-gray-900 text-white text-xs rounded-full">
+                    {bookings.filter(b => b.bookingType === 'flight').length}
+                  </span>
+                )}
+              </div>
+            </button>
+            <button
+              onClick={() => setFilters({ ...filters, bookingType: 'hotel' })}
+              className={`px-6 py-3 text-sm font-semibold transition-all border-b-2 ${
+                filters.bookingType === 'hotel'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Hotel className="w-4 h-4" />
+                <span>Hotels</span>
+                {filters.bookingType === 'hotel' && bookings.filter(b => b.bookingType === 'hotel').length > 0 && (
+                  <span className="px-2 py-0.5 bg-gray-900 text-white text-xs rounded-full">
+                    {bookings.filter(b => b.bookingType === 'hotel').length}
+                  </span>
+                )}
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* View Toggle */}
@@ -385,6 +448,11 @@ export default function BookingsPage() {
                               <h3 className="text-sm font-bold text-gray-900">
                                 {booking.bookingReference}
                               </h3>
+                              {booking.providerConfirmationNumber && (
+                                <span className="text-[10px] text-gray-600 font-medium">
+                                  {booking.bookingType === 'hotel' ? 'Ref:' : 'PNR:'} {booking.providerConfirmationNumber}
+                                </span>
+                              )}
                               <span
                                 className={`text-[10px] font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1 border ${getStatusColor(
                                   booking.status

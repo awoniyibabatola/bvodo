@@ -386,6 +386,14 @@ export default function BookingDetailPage() {
     fetchUserCredits();
   }, []);
 
+  // Set default active tab based on booking type
+  useEffect(() => {
+    if (booking) {
+      const isFlightBooking = booking.bookingType === 'flight';
+      setActiveTab(isFlightBooking ? 'flight' : 'hotel');
+    }
+  }, [booking]);
+
   const fetchBookingDetails = async () => {
     try {
       setLoading(true);
@@ -739,13 +747,6 @@ export default function BookingDetailPage() {
   const flightBooking = booking.flightBookings?.[0];
   const isFlightBooking = booking.bookingType === 'flight';
   const isHotelBooking = booking.bookingType === 'hotel';
-
-  // Set default active tab based on booking type
-  useEffect(() => {
-    if (booking) {
-      setActiveTab(isFlightBooking ? 'flight' : 'hotel');
-    }
-  }, [booking, isFlightBooking]);
 
   return (
     <>
