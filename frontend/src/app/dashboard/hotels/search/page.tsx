@@ -38,6 +38,7 @@ import {
   Map,
   Maximize2,
   Minimize2,
+  ChevronRight,
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 
