@@ -120,6 +120,8 @@ export default function DashboardPage() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Dashboard stats received:', data);
+        console.log('Recent bookings:', data.recentBookings);
         setDashboardStats(data);
       } else {
         console.error('Failed to fetch dashboard stats');
@@ -511,29 +513,32 @@ export default function DashboardPage() {
                     {booking.type === 'Flight' && (
                       <div className="flex items-center gap-1.5 flex-shrink-0">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
-                          {booking.airlineCode ? (
-                            <>
-                              <img
-                                src={getAirlineLogo(booking.airlineCode)}
-                                alt={booking.airline || 'Airline'}
-                                className="w-full h-full object-contain p-2"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                  if (fallback) fallback.classList.remove('hidden');
-                                }}
-                              />
-                              <div className="hidden w-full h-full flex items-center justify-center bg-gray-900">
-                                <Plane className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                              </div>
-                            </>
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-900">
-                              <Plane className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                            </div>
-                          )}
-                        </div>
+                        {booking.airlineCode ? (
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
+                            <img
+                              src={getAirlineLogo(booking.airlineCode)}
+                              alt={booking.airline || 'Airline'}
+                              className="w-full h-full object-contain p-2"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const parent = e.currentTarget.parentElement;
+                                if (parent) {
+                                  parent.classList.add('bg-gray-900');
+                                  parent.classList.remove('bg-gray-50');
+                                  const fallbackIcon = parent.querySelector('.fallback-icon');
+                                  if (fallbackIcon) {
+                                    (fallbackIcon as HTMLElement).classList.remove('hidden');
+                                  }
+                                }
+                              }}
+                            />
+                            <Plane className="fallback-icon hidden w-5 h-5 md:w-6 md:h-6 text-white" />
+                          </div>
+                        ) : (
+                          <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-900 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
+                            <Plane className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                          </div>
+                        )}
                       </div>
                     )}
 
