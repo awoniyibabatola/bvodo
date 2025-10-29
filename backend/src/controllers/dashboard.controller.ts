@@ -225,6 +225,8 @@ export class DashboardController {
           status: displayStatus,
           amount: `$${parseFloat(booking.totalPrice?.toString() || '0').toFixed(0)}`,
           image: booking.bookingType === 'hotel' && hotelBooking ? hotelBooking.photoUrl : null,
+          airlineCode: booking.bookingType === 'flight' && flightBooking ? flightBooking.airlineCode : null,
+          airline: booking.bookingType === 'flight' && flightBooking ? flightBooking.airline : null,
         };
       });
 

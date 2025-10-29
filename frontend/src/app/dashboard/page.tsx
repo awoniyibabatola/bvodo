@@ -54,11 +54,18 @@ interface DashboardStats {
     status: string;
     amount: string;
     image: string | null;
+    airlineCode?: string | null;
+    airline?: string | null;
   }>;
   organization: {
     name: string;
   };
 }
+
+// Helper function to get airline logo URL
+const getAirlineLogo = (code: string) => {
+  return `https://images.kiwi.com/airlines/64/${code}.png`;
+};
 
 export default function DashboardPage() {
   const [user, setUser] = useState({
@@ -469,7 +476,7 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-3 md:space-y-4">
               {(dashboardStats?.recentBookings && dashboardStats.recentBookings.length > 0 ? dashboardStats.recentBookings : [
-                { id: '', type: 'Flight', route: 'No bookings yet', traveler: 'Start booking', date: 'Today', status: 'Pending', amount: '$0', image: null },
+                { id: '', type: 'Flight', route: 'No bookings yet', traveler: 'Start booking', date: 'Today', status: 'Pending', amount: '$0', image: null, airlineCode: null, airline: null },
               ]).map((booking, index) => {
                 // Determine the link based on booking id
                 const isValidBooking = booking.route !== 'No bookings yet';
@@ -500,12 +507,32 @@ export default function DashboardPage() {
                       </div>
                     )}
 
-                    {/* Flight Icon */}
+                    {/* Flight Icon/Logo */}
                     {booking.type === 'Flight' && (
                       <div className="flex items-center gap-1.5 flex-shrink-0">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
-                        <div className="p-2 md:p-2.5 lg:p-3 bg-gray-900 rounded-xl md:rounded-2xl">
-                          <Plane className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
+                          {booking.airlineCode ? (
+                            <>
+                              <img
+                                src={getAirlineLogo(booking.airlineCode)}
+                                alt={booking.airline || 'Airline'}
+                                className="w-full h-full object-contain p-2"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.classList.remove('hidden');
+                                }}
+                              />
+                              <div className="hidden w-full h-full flex items-center justify-center bg-gray-900">
+                                <Plane className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                              </div>
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-900">
+                              <Plane className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
