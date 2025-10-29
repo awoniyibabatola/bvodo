@@ -659,7 +659,7 @@ export default function HotelSearchPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
-      <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
+      <UnifiedNavBar showBackButton={false} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
 
       {/* Main Content */}
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
@@ -909,11 +909,13 @@ export default function HotelSearchPage() {
               <Clock className="w-4 h-4 text-gray-700" />
               <h2 className="text-sm font-semibold text-gray-900">Recently Viewed</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* MOBILE: Horizontal scroll | DESKTOP: Grid */}
+            <div className="overflow-x-auto md:overflow-x-visible pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
+              <div className="flex md:grid md:grid-cols-2 gap-4 min-w-max md:min-w-0">
               {viewedHotels.map((hotel, index) => (
                 <div
                   key={hotel.id}
-                  className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300"
+                  className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 w-[280px] md:w-auto flex-shrink-0"
                 >
                   {/* Remove button */}
                   <button
@@ -989,6 +991,7 @@ export default function HotelSearchPage() {
                   </Link>
                 </div>
               ))}
+              </div>
             </div>
           </div>
         )}
@@ -1001,7 +1004,9 @@ export default function HotelSearchPage() {
               <TrendingUp className="w-4 h-4 text-gray-600" />
               <h2 className="text-sm font-semibold text-gray-900">Popular Destinations</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* MOBILE: Horizontal scroll | DESKTOP: Grid */}
+            <div className="overflow-x-auto md:overflow-x-visible pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
+              <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 min-w-max md:min-w-0">
               {popularDestinations.map((destination, index) => {
                 const cardIndex = 100 + index; // Offset to avoid conflict with pastBookings indices
                 return (
@@ -1009,7 +1014,7 @@ export default function HotelSearchPage() {
                     key={index}
                     onClick={() => handleQuickSearch(destination.city, cardIndex)}
                     disabled={loadingCardIndex === cardIndex}
-                    className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed w-[240px] md:w-auto flex-shrink-0"
                   >
                     {loadingCardIndex === cardIndex && (
                       <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
@@ -1043,6 +1048,7 @@ export default function HotelSearchPage() {
                 </button>
                 );
               })}
+              </div>
             </div>
           </div>
         )}

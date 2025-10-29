@@ -1005,7 +1005,7 @@ export default function FlightSearchPage() {
     <>
       <div className="min-h-screen bg-gray-50">
         {/* Navigation */}
-        <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
+        <UnifiedNavBar showBackButton={false} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
 
         {/* Transition Notification */}
         {showTransitionNotification && (
