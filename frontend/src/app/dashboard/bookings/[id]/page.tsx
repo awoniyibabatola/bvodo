@@ -30,6 +30,7 @@ import {
   Ticket,
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
+import BusinessFooter from '@/components/BusinessFooter';
 
 interface FlightBooking {
   id: string;
@@ -122,6 +123,17 @@ interface BaggageSelection {
   totalPrice: number;
 }
 
+interface CreditTransaction {
+  id: string;
+  transactionType: string;
+  amount: number;
+  currency: string;
+  balanceBefore: number;
+  balanceAfter: number;
+  description: string;
+  createdAt: string;
+}
+
 interface Booking {
   id: string;
   bookingReference: string;
@@ -138,14 +150,25 @@ interface Booking {
   totalPrice: number;
   basePrice: number;
   taxesFees: number;
+  taxes?: number;
+  fees?: number;
+  dueAtAccommodation?: number;
   currency: string;
   status: string;
   paymentStatus?: string;
   paymentMethod?: string;
   bookedAt: string;
+  approvedAt?: string;
+  confirmedAt?: string;
+  cancelledAt?: string;
   passengerDetails: PassengerDetail[];
   flightBookings?: FlightBooking[];
   hotelBookings?: HotelBooking[];
+  creditTransactions?: CreditTransaction[];
+  cancellationTimeline?: any[];
+  supplier?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
   bookingData?: {
     seatsSelected?: SeatSelection[];
     baggageSelected?: BaggageSelection[];
@@ -181,6 +204,13 @@ export default function BookingDetailPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [userCredits, setUserCredits] = useState(0);
   const [currentUserRole, setCurrentUserRole] = useState<string>('');
+
+  // Cancellation states
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
+  const [cancellationPreview, setCancellationPreview] = useState<any>(null);
+  const [loadingCancellationPreview, setLoadingCancellationPreview] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
 
   useEffect(() => {
     // Get user data from localStorage
@@ -245,7 +275,7 @@ export default function BookingDetailPage() {
             const currentBooking = result.data;
 
             // If booking is confirmed OR payment is complete (approved), stop polling and update UI
-            // Payment complete means Stripe payment succeeded, Duffel booking may still be processing
+            // Payment complete means Stripe payment succeeded, backend booking may still be processing
             const isPaymentComplete = currentBooking.paymentStatus === 'completed';
             const isConfirmed = currentBooking.status === 'confirmed';
             const isApproved = currentBooking.status === 'approved';
@@ -522,12 +552,77 @@ export default function BookingDetailPage() {
     }
   };
 
+  const fetchCancellationPreview = async () => {
+    if (!booking) return;
+
+    setLoadingCancellationPreview(true);
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(getApiEndpoint(`bookings/${booking.id}/cancellation-preview`), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setCancellationPreview(result.data);
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to fetch cancellation preview: ${errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error fetching cancellation preview:', error);
+      alert('Failed to fetch cancellation preview. Please try again.');
+    } finally {
+      setLoadingCancellationPreview(false);
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    if (!booking || !cancellationReason.trim()) {
+      alert('Please provide a cancellation reason');
+      return;
+    }
+
+    try {
+      setIsCancelling(true);
+      const token = localStorage.getItem('accessToken');
+
+      const response = await fetch(getApiEndpoint(`bookings/${booking.id}/cancel`), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ cancellationReason }),
+      });
+
+      if (response.ok) {
+        alert('Booking cancelled successfully!');
+        setShowCancellationModal(false);
+        setCancellationReason('');
+        fetchBookingDetails(); // Refresh booking details
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to cancel booking: ${errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      alert('An error occurred while cancelling the booking');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   const canApprove = () => {
     return (
       user &&
       (user.role === 'admin' || user.role === 'manager' || user.role === 'company_admin') &&
       booking?.status === 'pending_approval'
     );
+  };
+
+  const canCancel = () => {
+    return booking && ['confirmed', 'pending', 'approved', 'awaiting_confirmation', 'pending_approval'].includes(booking.status);
   };
 
   const getStatusIcon = (status: string) => {
@@ -710,37 +805,67 @@ export default function BookingDetailPage() {
         <div className="mb-6 no-print">
           <Link
             href="/dashboard/bookings"
-            className="inline-flex items-center gap-2 text-gray-900 hover:text-gray-700 mb-6 text-sm font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-gray-900 hover:text-gray-700 mb-6 text-sm font-medium transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Bookings
           </Link>
 
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Booking Details</h1>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            {/* Title and Confirmation Number */}
+            <div className="mb-5">
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">Booking Details</h1>
               <p className="text-sm text-gray-600">
-                {booking.confirmationNumber}
+                Confirmation: {booking.confirmationNumber}
               </p>
             </div>
 
-            {/* View Confirmation Button - Moved to top */}
-            {booking.status === 'confirmed' && (
-              <Link
-                href={`/dashboard/bookings/confirmed?booking=${booking.id}`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#C6F432] text-black text-sm font-bold hover:bg-[#9DD702] transition-colors rounded-lg"
-              >
-                View Confirmation
-              </Link>
-            )}
-
-            <div className="flex flex-wrap items-center gap-3 no-print">
-              <div className={`flex items-center gap-2 px-4 py-2 text-sm border rounded-lg font-semibold ${getStatusColor(booking.status)}`}>
+            {/* Status Tags */}
+            <div className="flex flex-wrap items-center gap-2 mb-5 pb-5 border-b border-gray-200">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 border border-gray-300 rounded-lg text-sm font-medium">
                 {getStatusIcon(booking.status)}
                 <span className="capitalize">{booking.status.replace('_', ' ')}</span>
               </div>
 
-              {/* Approval Buttons - Only shown for admin/manager/company_admin when status is pending_approval */}
+              {booking.bookingType && (
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                  {booking.bookingType === 'flight' ? (
+                    <Plane className="w-3.5 h-3.5 text-gray-700" />
+                  ) : (
+                    <Hotel className="w-3.5 h-3.5 text-gray-700" />
+                  )}
+                  <span className="text-gray-700 capitalize">{booking.bookingType}</span>
+                </div>
+              )}
+
+              {booking.paymentStatus && (
+                <div className="inline-flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700">
+                  Payment: <span className="font-medium ml-1 capitalize">{booking.paymentStatus.replace('_', ' ')}</span>
+                </div>
+              )}
+
+              {booking.isGroupBooking && (
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                  <Users className="w-3.5 h-3.5 text-gray-700" />
+                  <span className="text-gray-700">Group Booking</span>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* View Confirmation Button */}
+              {booking.status === 'confirmed' && (
+                <Link
+                  href={`/dashboard/bookings/confirmed?booking=${booking.id}`}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-colors rounded-lg"
+                >
+                  <FileText className="w-4 h-4" />
+                  View Confirmation
+                </Link>
+              )}
+
+              {/* Approval Buttons */}
               {canApprove() && (
                 <>
                   <button
@@ -748,30 +873,44 @@ export default function BookingDetailPage() {
                       setApprovalAction('approve');
                       setShowApprovalModal(true);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm font-semibold"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm font-semibold"
                   >
                     <CheckCircle className="w-4 h-4" />
-                    <span className="hidden md:inline">Approve</span>
+                    Approve Booking
                   </button>
                   <button
                     onClick={() => {
                       setApprovalAction('reject');
                       setShowApprovalModal(true);
                     }}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition text-sm font-semibold"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm font-semibold"
                   >
                     <XCircle className="w-4 h-4" />
-                    <span className="hidden md:inline">Reject</span>
+                    Reject Booking
                   </button>
                 </>
               )}
 
+              {/* Cancel Booking Button */}
+              {canCancel() && (
+                <button
+                  onClick={() => {
+                    setShowCancellationModal(true);
+                    fetchCancellationPreview();
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm font-semibold"
+                >
+                  <XCircle className="w-4 h-4" />
+                  Cancel Booking
+                </button>
+              )}
+
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:border-gray-900 hover:bg-gray-50 transition font-semibold text-gray-900"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-900 hover:text-white transition text-sm font-semibold"
               >
                 <Download className="w-4 h-4" />
-                <span>Download Invoice</span>
+                Download Invoice
               </button>
             </div>
           </div>
@@ -1258,6 +1397,351 @@ export default function BookingDetailPage() {
                 </div>
               </div>
             </div>
+
+            {/* Cancellation Policy - For Hotels */}
+            {isHotelBooking && booking.cancellationTimeline && Array.isArray(booking.cancellationTimeline) && booking.cancellationTimeline.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-5 h-5 text-gray-900" />
+                    <h2 className="text-base font-bold text-gray-900">Cancellation Policy</h2>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-gray-900 mb-1">Important Information</p>
+                        <p className="text-sm text-gray-700">
+                          Review the cancellation deadlines below. Refund amounts decrease as the check-in date approaches.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {booking.cancellationTimeline.map((entry: any, index: number) => {
+                      const deadline = new Date(entry.before);
+                      const refundAmount = parseFloat(entry.refund_amount || '0');
+                      const refundPercentage = Math.round((refundAmount / parseFloat(booking.totalPrice.toString())) * 100);
+                      const isPastDeadline = new Date() > deadline;
+
+                      return (
+                        <div key={index} className={`border rounded-lg p-4 ${isPastDeadline ? 'bg-gray-50 border-gray-200 opacity-60' : 'bg-white border-gray-300'}`}>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Calendar className="w-4 h-4 text-gray-600" />
+                                <p className="font-semibold text-gray-900">
+                                  {isPastDeadline ? 'Expired: ' : 'Cancel before '}
+                                  {formatDate(entry.before)}
+                                </p>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                {formatTime(entry.before)} local time
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-gray-900">
+                                {entry.currency} {refundAmount.toFixed(2)}
+                              </p>
+                              <p className="text-sm text-gray-600">{refundPercentage}% refund</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {booking.cancellationTimeline.every((entry: any) => new Date() > new Date(entry.before)) && (
+                    <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <XCircle className="w-5 h-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-gray-900 mb-1">Non-Refundable</p>
+                          <p className="text-sm text-gray-700">
+                            All cancellation deadlines have passed. This booking is now non-refundable.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Timeline/Activity History */}
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-gray-900" />
+                  <h2 className="text-base font-bold text-gray-900">Booking Timeline</h2>
+                </div>
+                <p className="text-gray-600 text-xs mt-1">Complete activity history and transaction log</p>
+              </div>
+
+              <div className="p-6">
+                <div className="space-y-4">
+                  {/* Booking Created */}
+                  <div className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-5 h-5 text-white" />
+                      </div>
+                      {((booking.creditTransactions && booking.creditTransactions.length > 0) || booking.approvedAt || booking.confirmedAt || booking.cancelledAt) && (
+                        <div className="w-0.5 h-full bg-gray-200 mt-2"></div>
+                      )}
+                    </div>
+                    <div className="flex-1 pb-6">
+                      <p className="font-semibold text-gray-900">Booking Created</p>
+                      <p className="text-sm text-gray-600">{formatDate(booking.bookedAt)} at {formatTime(booking.bookedAt)}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {booking.bookingType === 'flight' ? 'Flight' : 'Hotel'} booking initiated by {booking.user.firstName} {booking.user.lastName}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Credit Transactions */}
+                  {booking.creditTransactions && booking.creditTransactions.map((transaction, index) => {
+                      const isLast = index === booking.creditTransactions!.length - 1;
+                      const hasMoreEvents = booking.approvedAt || booking.confirmedAt || booking.cancelledAt;
+                      const showConnector = !isLast || hasMoreEvents;
+                      const isDebit = transaction.transactionType.includes('charged') || transaction.transactionType.includes('held');
+                      const isRefund = transaction.transactionType.includes('refund');
+                      const Icon = isDebit ? DollarSign : isRefund ? DollarSign : CheckCircle;
+
+                      return (
+                        <div key={transaction.id} className="flex gap-4">
+                          <div className="flex flex-col items-center">
+                            <div className="w-10 h-10 bg-gray-100 border border-gray-300 rounded-full flex items-center justify-center">
+                              <Icon className="w-5 h-5 text-gray-700" />
+                            </div>
+                            {showConnector && (
+                              <div className="w-0.5 h-full bg-gray-200 mt-2"></div>
+                            )}
+                          </div>
+                          <div className={`flex-1 ${showConnector ? 'pb-6' : ''}`}>
+                            <p className="font-semibold text-gray-900 capitalize">
+                              {transaction.transactionType.replace(/_/g, ' ')}
+                            </p>
+                            <p className="text-sm text-gray-600">{formatDate(transaction.createdAt)} at {formatTime(transaction.createdAt)}</p>
+                            <p className="text-xs text-gray-500 mt-1">{transaction.description}</p>
+                            <div className="mt-2 flex items-center gap-4">
+                              <div className="text-sm font-semibold text-gray-900">
+                                {isDebit ? '-' : '+'}{transaction.currency} {parseFloat(transaction.amount.toString()).toFixed(2)}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                Balance: {transaction.currency} {parseFloat(transaction.balanceAfter.toString()).toFixed(2)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Approved */}
+                    {booking.approvedAt && (
+                      <div className="flex gap-4">
+                        <div className="flex flex-col items-center">
+                          <div className="w-10 h-10 bg-gray-100 border border-gray-300 rounded-full flex items-center justify-center">
+                            <CheckCircle className="w-5 h-5 text-gray-700" />
+                          </div>
+                          {booking.confirmedAt && (
+                            <div className="w-0.5 h-full bg-gray-200 mt-2"></div>
+                          )}
+                        </div>
+                        <div className={`flex-1 ${booking.confirmedAt ? 'pb-6' : ''}`}>
+                          <p className="font-semibold text-gray-900">Booking Approved</p>
+                          <p className="text-sm text-gray-600">{formatDate(booking.approvedAt)} at {formatTime(booking.approvedAt)}</p>
+                          <p className="text-xs text-gray-500 mt-1">Approved by manager/admin</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Confirmed */}
+                    {booking.confirmedAt && (
+                      <div className="flex gap-4">
+                        <div className="flex flex-col items-center">
+                          <div className="w-10 h-10 bg-gray-100 border border-gray-300 rounded-full flex items-center justify-center">
+                            <CheckCircle className="w-5 h-5 text-gray-700" />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">Booking Confirmed</p>
+                          <p className="text-sm text-gray-600">{formatDate(booking.confirmedAt)} at {formatTime(booking.confirmedAt)}</p>
+                          <p className="text-xs text-gray-500 mt-1">Your booking is confirmed and ready</p>
+                          {booking.providerConfirmationNumber && (
+                            <p className="text-xs font-mono text-gray-700 mt-1 bg-gray-100 inline-block px-2 py-1 rounded">
+                              Confirmation: {booking.providerConfirmationNumber}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Cancelled */}
+                    {booking.cancelledAt && (
+                      <div className="flex gap-4">
+                        <div className="flex flex-col items-center">
+                          <div className="w-10 h-10 bg-gray-100 border border-gray-300 rounded-full flex items-center justify-center">
+                            <XCircle className="w-5 h-5 text-gray-700" />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">Booking Cancelled</p>
+                          <p className="text-sm text-gray-600">{formatDate(booking.cancelledAt)} at {formatTime(booking.cancelledAt)}</p>
+                          <p className="text-xs text-gray-500 mt-1">This booking has been cancelled</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+            {/* Terms and Conditions of Booking */}
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-5 h-5 text-gray-900" />
+                  <h2 className="text-base font-bold text-gray-900">Terms and Conditions of Booking</h2>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                {/* Cancellation Policy Statement */}
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 mb-2">Cancellation Policy</h3>
+                  {booking.cancellationTimeline && Array.isArray(booking.cancellationTimeline) && booking.cancellationTimeline.length > 0 ? (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <p className="text-sm text-gray-700">
+                        This booking has a flexible cancellation policy. You can cancel your booking and receive a refund based on the cancellation timeline shown above. The refund amount decreases as the {isHotelBooking ? 'check-in' : 'departure'} date approaches.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <XCircle className="w-5 h-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-gray-900 mb-1">Non-Refundable</p>
+                          <p className="text-sm text-gray-700">
+                            You have chosen a non-refundable rate. If you cancel this booking, you will not receive any refund.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Booking Agreement */}
+                <div className="pt-4 border-t border-gray-200">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3">Terms and Conditions</h3>
+                  <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <Info className="w-5 h-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm text-gray-800 space-y-2">
+                        <p>
+                          By completing this booking, you confirm that you agree to{' '}
+                          <a
+                            href="/terms"
+                            className="font-semibold underline hover:text-gray-900"
+                          >
+                            Bvodo's Terms and Conditions
+                          </a>
+                          {isHotelBooking && (
+                            <>
+                              {' '}and the accommodation's terms and conditions
+                            </>
+                          )}
+                          {isFlightBooking && (
+                            <>
+                              {' '}and the airline's fare rules and conditions of carriage
+                            </>
+                          )}.
+                        </p>
+                        <p>
+                          To find out how Bvodo uses your personal data, please see our{' '}
+                          <a
+                            href="/privacy-policy"
+                            className="font-semibold underline hover:text-gray-900"
+                          >
+                            Privacy Policy
+                          </a>.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Important Information */}
+                <div className="pt-4 border-t border-gray-200">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3">Important Information</h3>
+                  <div className="space-y-3 text-sm text-gray-700">
+                    {isFlightBooking && (
+                      <>
+                        <div className="flex items-start gap-2">
+                          <span className="text-gray-900 font-semibold mt-0.5">•</span>
+                          <p>All passengers must present valid identification and travel documents (passport, visa, etc.) at check-in.</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-gray-900 font-semibold mt-0.5">•</span>
+                          <p>Flight times are subject to change. Please check with the airline 24 hours before departure.</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-gray-900 font-semibold mt-0.5">•</span>
+                          <p>Baggage allowances are determined by the airline and may vary by route and fare class.</p>
+                        </div>
+                      </>
+                    )}
+                    {isHotelBooking && (
+                      <>
+                        <div className="flex items-start gap-2">
+                          <span className="text-gray-900 font-semibold mt-0.5">•</span>
+                          <p>A valid credit card and government-issued photo ID are required at check-in for incidental charges.</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-gray-900 font-semibold mt-0.5">•</span>
+                          <p>The hotel reserves the right to pre-authorize your credit card prior to arrival.</p>
+                        </div>
+                        {booking.dueAtAccommodation && parseFloat(booking.dueAtAccommodation.toString()) > 0 && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-amber-600 font-semibold mt-0.5">•</span>
+                            <p className="text-amber-800">
+                              <strong>Additional payment required:</strong> {booking.currency} {parseFloat(booking.dueAtAccommodation.toString()).toFixed(2)} is due at the hotel upon check-in or check-out.
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    <div className="flex items-start gap-2">
+                      <span className="text-gray-900 font-semibold mt-0.5">•</span>
+                      <p>All prices shown are final and include applicable taxes and service fees.</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-gray-900 font-semibold mt-0.5">•</span>
+                      <p>This booking is made through Bvodo Corporate Travels.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Support */}
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-700">
+                      <strong className="text-gray-900">Need help?</strong> Contact our support team at{' '}
+                      <a href="mailto:support@bvodo.com" className="text-gray-900 hover:text-gray-700 font-semibold underline">
+                        support@bvodo.com
+                      </a>
+                      {' '}or call{' '}
+                      <a href="tel:+18259456087" className="text-gray-900 hover:text-gray-700 font-semibold">
+                        +1 (825) 945-6087
+                      </a>.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
@@ -1449,16 +1933,26 @@ export default function BookingDetailPage() {
                   </div>
                 </div>
 
-                {/* PNR */}
+                {/* PNR / Accommodation Reference */}
                 {booking.providerConfirmationNumber && (
                   <div className="flex items-start gap-3 pb-5 border-b border-gray-100">
                     <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Plane className="w-4 h-4 text-gray-700" />
+                      {isFlightBooking ? (
+                        <Plane className="w-4 h-4 text-gray-700" />
+                      ) : (
+                        <Hotel className="w-4 h-4 text-gray-700" />
+                      )}
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5" style={{ fontWeight: 500 }}>PNR (Airline Confirmation)</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-wider mb-1.5" style={{ fontWeight: 500 }}>
+                        {isFlightBooking ? 'PNR (Airline Confirmation)' : 'Accommodation Reference'}
+                      </p>
                       <p className="text-lg font-bold text-gray-900 tracking-wider">{booking.providerConfirmationNumber}</p>
-                      <p className="text-xs text-gray-500 mt-1.5" style={{ fontWeight: 400 }}>Use this to check in online 24 hours before departure</p>
+                      <p className="text-xs text-gray-500 mt-1.5" style={{ fontWeight: 400 }}>
+                        {isFlightBooking
+                          ? 'Use this to check in online 24 hours before departure'
+                          : 'Use this reference for hotel check-in'}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -1798,7 +2292,148 @@ export default function BookingDetailPage() {
             </div>
           </div>
         )}
+
+        {/* Cancellation Modal */}
+        {showCancellationModal && booking && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-lg w-full shadow-sm border border-gray-200">
+              {/* Header */}
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-gray-900">Cancel Booking</h2>
+                  <button
+                    onClick={() => {
+                      setShowCancellationModal(false);
+                      setCancellationReason('');
+                      setCancellationPreview(null);
+                    }}
+                    disabled={isCancelling}
+                    className="text-gray-600 hover:text-gray-900 transition"
+                  >
+                    <XCircle className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-6 space-y-4">
+                {/* Booking Info */}
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-gray-600 text-xs mb-2">Booking Reference</p>
+                  <p className="font-bold text-gray-900 mb-3">{booking.bookingReference}</p>
+                  <div className="pt-3 border-t border-gray-200">
+                    <p className="text-gray-600 text-xs mb-1">Booking Amount</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {booking.currency} {parseFloat(booking.totalPrice.toString()).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Refund Preview */}
+                {loadingCancellationPreview ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-8 h-8 text-gray-900 animate-spin" />
+                  </div>
+                ) : cancellationPreview ? (
+                  <div className="bg-gray-100 border border-gray-300 rounded-xl p-4">
+                    <div className="flex items-start gap-3">
+                      <Info className="w-5 h-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 mb-1">
+                          {cancellationPreview.isNonRefundable ? 'Non-Refundable' : 'Refund Preview'}
+                        </p>
+                        {cancellationPreview.isNonRefundable ? (
+                          <p className="text-sm text-gray-700">
+                            {cancellationPreview.isPastDeadline
+                              ? 'All cancellation deadlines have passed. This booking is non-refundable.'
+                              : cancellationPreview.message || 'This booking is non-refundable.'}
+                          </p>
+                        ) : (
+                          <>
+                            <p className="text-2xl font-bold text-gray-900 my-2">
+                              {cancellationPreview.refundCurrency} {cancellationPreview.refundAmount.toFixed(2)}
+                            </p>
+                            <p className="text-sm text-gray-700">
+                              You will receive a {cancellationPreview.refundPercentage}% refund
+                              {cancellationPreview.deadline && (
+                                <> if you cancel before {formatDate(cancellationPreview.deadline)}</>
+                              )}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Warning */}
+                <div className="bg-gray-100 border border-gray-300 rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-gray-700 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-gray-900 mb-1">Warning</p>
+                      <p className="text-sm text-gray-700">
+                        This action cannot be undone. Once cancelled, you will not be able to reactivate this booking.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cancellation Reason */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Cancellation Reason <span className="text-gray-900">*</span>
+                  </label>
+                  <textarea
+                    value={cancellationReason}
+                    onChange={(e) => setCancellationReason(e.target.value)}
+                    placeholder="Please provide a reason for cancelling this booking..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+                    rows={3}
+                    required
+                    disabled={isCancelling}
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      setShowCancellationModal(false);
+                      setCancellationReason('');
+                      setCancellationPreview(null);
+                    }}
+                    disabled={isCancelling}
+                    className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  >
+                    Keep Booking
+                  </button>
+                  <button
+                    onClick={handleCancelBooking}
+                    disabled={isCancelling || !cancellationReason.trim()}
+                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 transition-colors"
+                  >
+                    {isCancelling ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Cancelling...
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-5 h-5" />
+                        Confirm Cancellation
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         </div>
+
+        {/* Footer */}
+        <BusinessFooter />
       </div>
     </>
   );
