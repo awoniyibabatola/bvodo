@@ -342,7 +342,7 @@ export default function BookingsPage() {
 
         {/* Filters and Search */}
         <div className="bg-white rounded p-4 mb-4 border border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {/* Search */}
             <div className="md:col-span-2">
               <div className="relative">
@@ -372,20 +372,6 @@ export default function BookingsPage() {
                 <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
                 <option value="rejected">Rejected</option>
-              </select>
-            </div>
-
-            {/* Type Filter */}
-            <div>
-              <select
-                value={filters.bookingType}
-                onChange={(e) => setFilters({ ...filters, bookingType: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
-              >
-                <option value="">All Types</option>
-                <option value="flight">Flights</option>
-                <option value="hotel">Hotels</option>
-                <option value="package">Packages</option>
               </select>
             </div>
           </div>

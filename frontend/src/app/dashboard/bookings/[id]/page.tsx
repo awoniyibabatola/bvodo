@@ -212,9 +212,6 @@ export default function BookingDetailPage() {
   const [cancellationReason, setCancellationReason] = useState('');
   const [isCancelling, setIsCancelling] = useState(false);
 
-  // Tab state for booking details
-  const [activeTab, setActiveTab] = useState<'flight' | 'hotel'>('flight');
-
   useEffect(() => {
     // Get user data from localStorage
     const userData = localStorage.getItem('user');
@@ -385,14 +382,6 @@ export default function BookingDetailPage() {
 
     fetchUserCredits();
   }, []);
-
-  // Set default active tab based on booking type
-  useEffect(() => {
-    if (booking) {
-      const isFlightBooking = booking.bookingType === 'flight';
-      setActiveTab(isFlightBooking ? 'flight' : 'hotel');
-    }
-  }, [booking]);
 
   const fetchBookingDetails = async () => {
     try {
@@ -927,42 +916,6 @@ export default function BookingDetailPage() {
           </div>
         </div>
 
-        {/* Tabs - Only show if booking has both flight and hotel data */}
-        {((isFlightBooking && flightBooking) || (isHotelBooking && hotelDetails)) && (
-          <div className="bg-white border-b border-gray-200 no-print mb-6">
-            <div className="flex gap-1">
-              <button
-                onClick={() => setActiveTab('flight')}
-                className={`px-6 py-3 text-sm font-semibold transition-all border-b-2 ${
-                  activeTab === 'flight'
-                    ? 'border-gray-900 text-gray-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Plane className="w-4 h-4" />
-                  <span>Flight Details</span>
-                  {isFlightBooking && <span className="ml-2 px-2 py-0.5 bg-gray-900 text-white text-xs rounded-full">Active</span>}
-                </div>
-              </button>
-              <button
-                onClick={() => setActiveTab('hotel')}
-                className={`px-6 py-3 text-sm font-semibold transition-all border-b-2 ${
-                  activeTab === 'hotel'
-                    ? 'border-gray-900 text-gray-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Hotel className="w-4 h-4" />
-                  <span>Hotel Details</span>
-                  {isHotelBooking && <span className="ml-2 px-2 py-0.5 bg-gray-900 text-white text-xs rounded-full">Active</span>}
-                </div>
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Print-only Company Header */}
         <div className="print-only mb-8 pb-6 border-b-2 border-gray-300">
           <div className="flex items-center justify-between">
@@ -993,7 +946,7 @@ export default function BookingDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6 print-hide-sidebar">
             {/* Flight Overview */}
-            {activeTab === 'flight' && isFlightBooking && flightBooking && (
+            {isFlightBooking && flightBooking && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
                 <div className="px-6 py-6 border-b border-gray-200">
                   <div className="flex items-center gap-4 mb-4">
@@ -1076,7 +1029,7 @@ export default function BookingDetailPage() {
             )}
 
             {/* Seat Assignments - Display if available */}
-            {activeTab === 'flight' && isFlightBooking && booking.bookingData?.seatsSelected && booking.bookingData.seatsSelected.length > 0 && (
+            {isFlightBooking && booking.bookingData?.seatsSelected && booking.bookingData.seatsSelected.length > 0 && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">
@@ -1113,7 +1066,7 @@ export default function BookingDetailPage() {
             )}
 
             {/* Baggage Selections - Display if available */}
-            {activeTab === 'flight' && isFlightBooking && booking.bookingData?.baggageSelected && booking.bookingData.baggageSelected.length > 0 && (
+            {isFlightBooking && booking.bookingData?.baggageSelected && booking.bookingData.baggageSelected.length > 0 && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">
@@ -1155,7 +1108,7 @@ export default function BookingDetailPage() {
             )}
 
             {/* Hotel Overview with Image */}
-            {activeTab === 'hotel' && isHotelBooking && hotelDetails && (
+            {isHotelBooking && hotelDetails && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
                 {/* Hotel Image */}
                 <div className="relative h-64">
@@ -1445,30 +1398,8 @@ export default function BookingDetailPage() {
               </div>
             </div>
 
-            {/* Empty state for Flight tab when no flight data */}
-            {activeTab === 'flight' && !isFlightBooking && (
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 p-12">
-                <div className="text-center">
-                  <Plane className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Flight Details</h3>
-                  <p className="text-gray-600">This is a hotel booking. No flight information available.</p>
-                </div>
-              </div>
-            )}
-
-            {/* Empty state for Hotel tab when no hotel data */}
-            {activeTab === 'hotel' && !isHotelBooking && (
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200 p-12">
-                <div className="text-center">
-                  <Hotel className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Hotel Details</h3>
-                  <p className="text-gray-600">This is a flight booking. No hotel information available.</p>
-                </div>
-              </div>
-            )}
-
             {/* Cancellation Policy - For Hotels */}
-            {activeTab === 'hotel' && isHotelBooking && booking.cancellationTimeline && Array.isArray(booking.cancellationTimeline) && booking.cancellationTimeline.length > 0 && (
+            {isHotelBooking && booking.cancellationTimeline && Array.isArray(booking.cancellationTimeline) && booking.cancellationTimeline.length > 0 && (
               <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-200">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <div className="flex items-center gap-3">
