@@ -1744,13 +1744,13 @@ export default function AIChatbox({ initialMessage, forceOpen = false }: AIChatb
       {!isOpen && !forceOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 group"
+          className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 group"
         >
           <div className="absolute inset-0 bg-gray-900 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition"></div>
-          <div className="relative flex items-center gap-2 md:gap-3 px-4 md:px-6 py-3 md:py-4 bg-gray-900 rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
-            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-[#ADF802]" />
-            <span className="text-white font-semibold text-sm md:text-base">Chat with AI</span>
-            <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-white" />
+          <div className="relative flex items-center gap-1.5 md:gap-3 px-3 py-2.5 md:px-6 md:py-4 bg-gray-900 rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-105">
+            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-[#ADF802] flex-shrink-0" />
+            <span className="text-white font-semibold text-xs md:text-base whitespace-nowrap">AI Chat</span>
+            <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
           </div>
         </button>
       )}
