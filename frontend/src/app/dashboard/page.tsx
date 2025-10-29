@@ -164,32 +164,32 @@ export default function DashboardPage() {
           {/* Book Flight */}
           <Link
             href="/dashboard/flights/search"
-            className="group relative bg-white border-2 border-gray-900 rounded-xl p-5 hover:bg-gray-900 transition-all duration-200 overflow-hidden"
+            className="group relative bg-white border-2 border-gray-900 rounded-xl p-5 md:p-5 hover:bg-gray-900 transition-all duration-200 overflow-hidden shadow-md hover:shadow-lg active:scale-[0.98]"
           >
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-900 group-hover:bg-white rounded-lg transition-colors">
-                  <Plane className="w-5 h-5 text-white group-hover:text-gray-900 transition-colors" />
+                <div className="p-2.5 md:p-2 bg-gray-900 group-hover:bg-white rounded-lg transition-colors">
+                  <Plane className="w-6 h-6 md:w-5 md:h-5 text-white group-hover:text-gray-900 transition-colors" />
                 </div>
-                <span className="text-sm font-bold text-gray-900 group-hover:text-white transition-colors">Book Flight</span>
+                <span className="text-base md:text-sm font-bold text-gray-900 group-hover:text-white transition-colors">Book Flight</span>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              <ChevronRight className="w-6 h-6 md:w-5 md:h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
             </div>
           </Link>
 
           {/* Book Hotel */}
           <Link
             href="/dashboard/hotels/search"
-            className="group relative bg-white border-2 border-gray-700 rounded-xl p-5 hover:bg-gray-700 transition-all duration-200 overflow-hidden"
+            className="group relative bg-white border-2 border-gray-700 rounded-xl p-5 md:p-5 hover:bg-gray-700 transition-all duration-200 overflow-hidden shadow-md hover:shadow-lg active:scale-[0.98]"
           >
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-700 group-hover:bg-white rounded-lg transition-colors">
-                  <Hotel className="w-5 h-5 text-white group-hover:text-gray-700 transition-colors" />
+                <div className="p-2.5 md:p-2 bg-gray-700 group-hover:bg-white rounded-lg transition-colors">
+                  <Hotel className="w-6 h-6 md:w-5 md:h-5 text-white group-hover:text-gray-700 transition-colors" />
                 </div>
-                <span className="text-sm font-bold text-gray-700 group-hover:text-white transition-colors">Book Hotel</span>
+                <span className="text-base md:text-sm font-bold text-gray-700 group-hover:text-white transition-colors">Book Hotel</span>
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              <ChevronRight className="w-6 h-6 md:w-5 md:h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
             </div>
           </Link>
         </div>
