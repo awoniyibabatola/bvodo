@@ -1134,7 +1134,8 @@ export default function AnalyticsPage() {
                           </span>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
