@@ -636,25 +636,21 @@ export default function HotelSearchPage() {
           </button>
         )}
 
-        {/* Recently Viewed Hotels */}
+        {/* Recent Bookings */}
         {!hotels.length && (
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-1.5 h-6 bg-gray-900 rounded-full"></div>
-                <div>
-                  <h2 className="text-base font-bold text-gray-900">Recently Viewed Hotels</h2>
-                  <p className="text-xs text-gray-600">Quick access to your recent searches</p>
-                </div>
-              </div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+              <History className="w-4 h-4 text-gray-700" />
+              <h2 className="text-sm font-semibold text-gray-900">Recent Bookings</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {pastBookings.map((booking, index) => (
                 <button
                   key={index}
                   onClick={() => handleQuickSearch(booking.city, index)}
                   disabled={loadingCardIndex === index}
-                  className="group relative bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-gray-900 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loadingCardIndex === index && (
                     <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
@@ -696,20 +692,13 @@ export default function HotelSearchPage() {
           </div>
         )}
 
-        {/* Hotels with Special Deals */}
+        {/* Popular Destinations */}
         {!hotels.length && (
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-1.5 h-6 bg-gray-900 rounded-full"></div>
-                <div>
-                  <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                    Hotels with Special Deals
-                    <Sparkles className="w-4 h-4 text-gray-700" />
-                  </h2>
-                  <p className="text-xs text-gray-600">Best rates and exclusive offers</p>
-                </div>
-              </div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+              <TrendingUp className="w-4 h-4 text-gray-600" />
+              <h2 className="text-sm font-semibold text-gray-900">Popular Destinations</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {popularDestinations.map((destination, index) => {
