@@ -1055,7 +1055,7 @@ export default function FlightSearchPage() {
         )}
 
       {/* Main Content */}
-      <div className="max-w-7xl lg:max-w-[1400px] xl:max-w-[1536px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
         {/* Search Type Toggle */}
         <div className="flex gap-2 mb-4">
           <div className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 text-white">
