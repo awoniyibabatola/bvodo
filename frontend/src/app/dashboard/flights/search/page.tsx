@@ -1095,10 +1095,16 @@ export default function FlightSearchPage() {
         {!flights.length && (
           <button
             onClick={() => setShowSearchForm(true)}
-            className="md:hidden w-full mb-6 py-4 px-6 bg-gray-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl active:scale-[0.98] transition-all hover:bg-gray-800"
+            className="md:hidden relative w-full mb-6 py-5 px-6 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white rounded-2xl font-bold flex items-center justify-between gap-3 shadow-xl hover:shadow-2xl active:scale-[0.97] transition-all duration-300 overflow-hidden group"
           >
-            <Search className="w-5 h-5" />
-            <span className="text-base">Start Your Flight Search</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#ADF802]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative flex items-center gap-3">
+              <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                <Search className="w-5 h-5" />
+              </div>
+              <span className="text-base">Start Your Flight Search</span>
+            </div>
+            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative" />
           </button>
         )}
 
