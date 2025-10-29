@@ -400,7 +400,7 @@ export default function HotelSearchPage() {
 
       if (data.success) {
         // Adapt Duffel Stays data to UI format
-        const adaptedHotels = data.data.map(adaptDuffelStaysData);
+        const adaptedHotels = data.data.map(adaptHotelData);
         setHotels(adaptedHotels);
         setHasMore(adaptedHotels.length >= 20);
       } else {
@@ -440,9 +440,11 @@ export default function HotelSearchPage() {
       const data = await response.json();
 
       if (data.success) {
-        setHotels(data.data);
+        // Adapt Duffel Stays data to UI format
+        const adaptedHotels = data.data.map(adaptHotelData);
+        setHotels(adaptedHotels);
         setCurrentLimit(newLimit);
-        setHasMore(data.data.length >= newLimit);
+        setHasMore(adaptedHotels.length >= newLimit);
       } else {
         setError(data.message || 'Failed to load more hotels');
       }
