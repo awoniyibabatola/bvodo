@@ -1342,7 +1342,7 @@ export default function FlightSearchPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 md:py-4 text-sm md:text-base bg-gray-900 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 md:py-4 text-base md:text-base bg-gray-900 text-white rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl active:scale-[0.98] transition-all hover:bg-gray-800"
             >
               {loading ? (
                 <>
@@ -1518,7 +1518,7 @@ export default function FlightSearchPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 text-base bg-gray-900 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors shadow-lg"
+                  className="w-full py-4 text-base bg-gray-900 text-white rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
                 >
                   {loading ? (
                     <>
