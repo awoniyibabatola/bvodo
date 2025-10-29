@@ -661,7 +661,7 @@ export default function HotelSearchPage() {
       <UnifiedNavBar showBackButton={true} backButtonHref="/dashboard" backButtonLabel="Back to Dashboard" user={user} />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
         {/* Search Type Toggle */}
         <div className="flex gap-2 mb-4">
           <Link
@@ -1257,7 +1257,7 @@ export default function HotelSearchPage() {
               >
                 <div className="flex flex-col lg:flex-row">
                   {/* Hotel Image */}
-                  <div className="lg:w-80 h-48 md:h-64 lg:h-auto relative overflow-hidden">
+                  <div className="lg:w-72 h-48 md:h-64 lg:h-auto relative overflow-hidden flex-shrink-0">
                     <img
                       src={hotel.hotel?.media && hotel.hotel.media.length > 0
                         ? (hotel.hotel.media[0].uri || hotel.hotel.media[0].url)
@@ -1563,7 +1563,7 @@ export default function HotelSearchPage() {
 
             {/* Grid View */}
             {viewMode === 'grid' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                 {filteredHotels.map((hotel, index) => (
                   <div
                     key={index}
