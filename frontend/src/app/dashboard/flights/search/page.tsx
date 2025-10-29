@@ -1570,7 +1570,32 @@ export default function FlightSearchPage() {
                             Pending Approval
                           </span>
                         </div>
-                        <Plane className="w-4 h-4 text-gray-500" />
+                        {booking.bookingData?.outbound?.[0]?.airline?.iata_code ? (
+                          <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
+                            <img
+                              src={getAirlineLogo(booking.bookingData.outbound[0].airline.iata_code)}
+                              alt={booking.bookingData.outbound[0].airline.name || 'Airline'}
+                              className="w-full h-full object-contain p-1.5"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const parent = e.currentTarget.parentElement;
+                                if (parent) {
+                                  parent.classList.add('bg-gray-900');
+                                  parent.classList.remove('bg-gray-50', 'border-gray-200');
+                                  const fallbackIcon = parent.querySelector('.fallback-icon');
+                                  if (fallbackIcon) {
+                                    (fallbackIcon as HTMLElement).classList.remove('hidden');
+                                  }
+                                }
+                              }}
+                            />
+                            <Plane className="fallback-icon hidden w-5 h-5 text-white" />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Plane className="w-5 h-5 text-white" />
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-2">
                         {/* Passenger Name */}
@@ -1650,7 +1675,32 @@ export default function FlightSearchPage() {
                             Confirmed
                           </span>
                         </div>
-                        <Plane className="w-4 h-4 text-gray-500" />
+                        {booking.bookingData?.outbound?.[0]?.airline?.iata_code ? (
+                          <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
+                            <img
+                              src={getAirlineLogo(booking.bookingData.outbound[0].airline.iata_code)}
+                              alt={booking.bookingData.outbound[0].airline.name || 'Airline'}
+                              className="w-full h-full object-contain p-1.5"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const parent = e.currentTarget.parentElement;
+                                if (parent) {
+                                  parent.classList.add('bg-gray-900');
+                                  parent.classList.remove('bg-gray-50', 'border-gray-200');
+                                  const fallbackIcon = parent.querySelector('.fallback-icon');
+                                  if (fallbackIcon) {
+                                    (fallbackIcon as HTMLElement).classList.remove('hidden');
+                                  }
+                                }
+                              }}
+                            />
+                            <Plane className="fallback-icon hidden w-5 h-5 text-white" />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Plane className="w-5 h-5 text-white" />
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-2">
                         {/* Passenger Name */}
