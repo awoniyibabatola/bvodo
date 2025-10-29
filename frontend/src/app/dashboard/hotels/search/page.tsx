@@ -400,7 +400,7 @@ export default function HotelSearchPage() {
 
       if (data.success) {
         // Adapt Duffel Stays data to UI format
-        const adaptedHotels = data.data.map(adaptHotelData);
+        const adaptedHotels = data.data.map(adaptDuffelStaysData);
         setHotels(adaptedHotels);
         setHasMore(adaptedHotels.length >= 20);
       } else {
@@ -441,7 +441,7 @@ export default function HotelSearchPage() {
 
       if (data.success) {
         // Adapt Duffel Stays data to UI format
-        const adaptedHotels = data.data.map(adaptHotelData);
+        const adaptedHotels = data.data.map(adaptDuffelStaysData);
         setHotels(adaptedHotels);
         setCurrentLimit(newLimit);
         setHasMore(adaptedHotels.length >= newLimit);
