@@ -1083,12 +1083,12 @@ export default function FlightSearchPage() {
           </Link>
         </div>
 
-        {/* Page Header */}
+        {/* Page Header - SIMPLIFIED FOR MOBILE */}
         <div className="mb-4 md:mb-6 lg:mb-8">
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
+          <h1 className="text-2xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
             Search Flights
           </h1>
-          <p className="text-xs md:text-sm text-gray-600">Find the best flight deals for your next trip</p>
+          <p className="text-sm md:text-sm text-gray-600 hidden md:block">Find the best flight deals for your next trip</p>
         </div>
 
         {/* Mobile Search Button - Shows on mobile when no results yet */}
@@ -2157,7 +2157,7 @@ export default function FlightSearchPage() {
                   key={index}
                   className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200"
                 >
-                  <div className="p-6">
+                  <div className="p-4 md:p-6">
                     {/* Header: Airline Name + Price */}
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-3">
@@ -2239,9 +2239,9 @@ export default function FlightSearchPage() {
                         </div>
                       </div>
 
-                      {/* Layover Information */}
+                      {/* Layover Information - HIDDEN ON MOBILE */}
                       {stops > 0 && (
-                        <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="mt-3 pt-3 border-t border-gray-200 hidden md:block">
                           <div className="flex items-center gap-2 text-xs text-gray-600">
                             <Clock className="w-4 h-4" />
                             <span className="font-medium">{stops} Stop{stops > 1 ? 's' : ''}:</span>
@@ -2293,22 +2293,22 @@ export default function FlightSearchPage() {
                         return null;
                       })()}
 
-                      {/* Fare Brand */}
+                      {/* Fare Brand - HIDDEN ON MOBILE */}
                       {flight.fareBrandName && (
-                        <div className="flex items-center gap-1.5">
+                        <div className="hidden md:flex items-center gap-1.5">
                           <span className="font-semibold text-gray-900">{flight.fareBrandName}</span>
                         </div>
                       )}
 
-                      {/* Refundable/Changeable */}
+                      {/* Refundable/Changeable - HIDDEN ON MOBILE */}
                       {flight.isRefundable && (
-                        <div className="flex items-center gap-1.5 text-green-700">
+                        <div className="hidden md:flex items-center gap-1.5 text-green-700">
                           <Check className="w-3.5 h-3.5" />
                           <span>Refundable</span>
                         </div>
                       )}
                       {flight.isChangeable && (
-                        <div className="flex items-center gap-1.5 text-gray-700">
+                        <div className="hidden md:flex items-center gap-1.5 text-gray-700">
                           <Check className="w-3.5 h-3.5" />
                           <span>Changeable</span>
                         </div>

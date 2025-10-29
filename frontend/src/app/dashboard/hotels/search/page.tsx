@@ -682,12 +682,12 @@ export default function HotelSearchPage() {
           </div>
         </div>
 
-        {/* Page Header */}
+        {/* Page Header - SIMPLIFIED FOR MOBILE */}
         <div className="mb-4 md:mb-6">
-          <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
+          <h1 className="text-2xl md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
             Search Hotels
           </h1>
-          <p className="text-xs text-gray-600">Find the perfect accommodation for your business trip</p>
+          <p className="text-sm md:text-xs text-gray-600 hidden md:block">Find the perfect accommodation for your business trip</p>
         </div>
 
         {/* Search Form - Desktop only, always hidden on mobile */}
@@ -1297,7 +1297,7 @@ export default function HotelSearchPage() {
                   </div>
 
                   {/* Hotel Info */}
-                  <div className="flex-1 p-3 md:p-4 lg:p-5">
+                  <div className="flex-1 p-4 md:p-4 lg:p-5">
                     <div className="mb-3 md:mb-5">
                       <div className="flex items-center gap-2 mb-2 md:mb-3">
                         <div className="w-1.5 h-1.5 rounded-full bg-gray-700 flex-shrink-0"></div>
@@ -1312,9 +1312,9 @@ export default function HotelSearchPage() {
                         </div>
                       </div>
 
-                      {/* Hotel Description */}
+                      {/* Hotel Description - HIDDEN ON MOBILE */}
                       {hotel.hotel?.description && (
-                        <p className="text-[10px] md:text-xs text-gray-600 line-clamp-2 mb-3 md:mb-4 leading-relaxed">
+                        <p className="hidden md:block text-[10px] md:text-xs text-gray-600 line-clamp-2 mb-3 md:mb-4 leading-relaxed">
                           {hotel.hotel.description}
                         </p>
                       )}
@@ -1349,9 +1349,9 @@ export default function HotelSearchPage() {
                       )}
                     </div>
 
-                    {/* Top Amenities */}
+                    {/* Top Amenities - HIDDEN ON MOBILE */}
                     {hotel.hotel?.amenities && hotel.hotel.amenities.length > 0 && (
-                      <div className="mb-3 md:mb-4">
+                      <div className="mb-3 md:mb-4 hidden md:block">
                         <div className="text-[10px] font-semibold text-gray-700 mb-1.5 md:mb-2">Popular Facilities</div>
                         <div className="flex flex-wrap gap-1.5 md:gap-2">
                           {hotel.hotel.amenities.slice(0, 6).map((amenity: any, idx: number) => {
@@ -1388,7 +1388,7 @@ export default function HotelSearchPage() {
                           Highly Rated
                         </div>
                       )}
-                      <div className="flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-gray-100 border border-gray-200 rounded text-[10px] font-semibold text-gray-700">
+                      <div className="hidden md:flex items-center gap-1 px-2 md:px-2.5 py-0.5 md:py-1 bg-gray-100 border border-gray-200 rounded text-[10px] font-semibold text-gray-700">
                         <Building2 className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         Business Travel
                       </div>
