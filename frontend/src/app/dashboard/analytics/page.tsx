@@ -33,6 +33,45 @@ import {
 } from 'recharts';
 import { getApiEndpoint } from '@/lib/api-config';
 
+// Airport and City names mapping
+const AIRPORT_NAMES: { [key: string]: { airport: string; city: string } } = {
+  'JFK': { airport: 'John F. Kennedy International Airport', city: 'New York' },
+  'LAX': { airport: 'Los Angeles International Airport', city: 'Los Angeles' },
+  'LHR': { airport: 'London Heathrow Airport', city: 'London' },
+  'CDG': { airport: 'Charles de Gaulle Airport', city: 'Paris' },
+  'DXB': { airport: 'Dubai International Airport', city: 'Dubai' },
+  'SIN': { airport: 'Singapore Changi Airport', city: 'Singapore' },
+  'HND': { airport: 'Tokyo Haneda Airport', city: 'Tokyo' },
+  'NRT': { airport: 'Narita International Airport', city: 'Tokyo' },
+  'ORD': { airport: 'O\'Hare International Airport', city: 'Chicago' },
+  'ATL': { airport: 'Hartsfield-Jackson Atlanta International Airport', city: 'Atlanta' },
+  'DFW': { airport: 'Dallas/Fort Worth International Airport', city: 'Dallas' },
+  'DEN': { airport: 'Denver International Airport', city: 'Denver' },
+  'SFO': { airport: 'San Francisco International Airport', city: 'San Francisco' },
+  'SEA': { airport: 'Seattle-Tacoma International Airport', city: 'Seattle' },
+  'LAS': { airport: 'Harry Reid International Airport', city: 'Las Vegas' },
+  'MCO': { airport: 'Orlando International Airport', city: 'Orlando' },
+  'MIA': { airport: 'Miami International Airport', city: 'Miami' },
+  'BOS': { airport: 'Logan International Airport', city: 'Boston' },
+  'EWR': { airport: 'Newark Liberty International Airport', city: 'Newark' },
+  'FRA': { airport: 'Frankfurt Airport', city: 'Frankfurt' },
+  'AMS': { airport: 'Amsterdam Airport Schiphol', city: 'Amsterdam' },
+  'MAD': { airport: 'Adolfo Suárez Madrid-Barajas Airport', city: 'Madrid' },
+  'BCN': { airport: 'Barcelona-El Prat Airport', city: 'Barcelona' },
+  'FCO': { airport: 'Leonardo da Vinci-Fiumicino Airport', city: 'Rome' },
+  'IST': { airport: 'Istanbul Airport', city: 'Istanbul' },
+  'SYD': { airport: 'Sydney Kingsford Smith Airport', city: 'Sydney' },
+  'MEL': { airport: 'Melbourne Airport', city: 'Melbourne' },
+  'HKG': { airport: 'Hong Kong International Airport', city: 'Hong Kong' },
+  'ICN': { airport: 'Incheon International Airport', city: 'Seoul' },
+  'PEK': { airport: 'Beijing Capital International Airport', city: 'Beijing' },
+  'PVG': { airport: 'Shanghai Pudong International Airport', city: 'Shanghai' },
+  'YYZ': { airport: 'Toronto Pearson International Airport', city: 'Toronto' },
+  'YVR': { airport: 'Vancouver International Airport', city: 'Vancouver' },
+  'LOS': { airport: 'Murtala Muhammed International Airport', city: 'Lagos' },
+  'ABV': { airport: 'Nnamdi Azikiwe International Airport', city: 'Abuja' },
+};
+
 interface Booking {
   id: string;
   bookingReference: string;
@@ -226,8 +265,15 @@ export default function AnalyticsPage() {
 
     bookings.forEach(booking => {
       if (booking.status === 'confirmed' || booking.status === 'completed') {
-        const count = destStats.get(booking.destination) || 0;
-        destStats.set(booking.destination, count + 1);
+        // Convert IATA code to city name if it's a 3-letter code
+        let cityName = booking.destination;
+        if (booking.destination && booking.destination.length === 3 && booking.destination === booking.destination.toUpperCase()) {
+          // It's likely an IATA code, convert to city name
+          cityName = AIRPORT_NAMES[booking.destination]?.city || booking.destination;
+        }
+
+        const count = destStats.get(cityName) || 0;
+        destStats.set(cityName, count + 1);
       }
     });
 
