@@ -1095,10 +1095,10 @@ export default function FlightSearchPage() {
         {!flights.length && (
           <button
             onClick={() => setShowSearchForm(true)}
-            className="md:hidden w-full mb-6 py-3 px-4 bg-white text-gray-700 rounded-lg font-medium border border-gray-200 flex items-center justify-center gap-2"
+            className="md:hidden w-full mb-6 py-4 px-6 bg-gray-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl active:scale-[0.98] transition-all hover:bg-gray-800"
           >
-            <Search className="w-4 h-4" />
-            <span className="text-sm">Start Your Flight Search</span>
+            <Search className="w-5 h-5" />
+            <span className="text-base">Start Your Flight Search</span>
           </button>
         )}
 
