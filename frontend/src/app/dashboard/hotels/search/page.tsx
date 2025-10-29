@@ -618,23 +618,150 @@ export default function HotelSearchPage() {
         </div>
 
         {/* Page Header */}
-        <div className="mb-4 md:mb-6 lg:mb-8">
-          <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
             Search Hotels
           </h1>
-          <p className="text-xs text-gray-600">Find the perfect accommodation for your business trip</p>
+          <p className="text-sm text-gray-600">Find the perfect accommodation for your business trip</p>
         </div>
 
-        {/* Mobile Search Button - Shows on mobile when no results yet */}
-        {!hotels.length && (
-          <button
-            onClick={() => setShowSearchForm(true)}
-            className="md:hidden w-full mb-6 py-3 px-4 bg-white text-gray-700 rounded-lg font-medium border border-gray-200 flex items-center justify-center gap-2"
-          >
-            <Search className="w-4 h-4" />
-            <span className="text-sm">Start Your Hotel Search</span>
-          </button>
-        )}
+        {/* Search Form - Now at the top */}
+        <div className="relative mb-8">
+          <form onSubmit={handleSearch} className="relative bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
+            {/* Location and Dates */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-5">
+              {/* Address/City */}
+              <div className="lg:col-span-3">
+                <label className="block text-xs font-semibold text-gray-700 mb-2">Location</label>
+                <CityAutocomplete
+                  value={address}
+                  onChange={setAddress}
+                  placeholder="City or address"
+                  required
+                  className="py-3 text-sm border hover:border-gray-300"
+                />
+                <p className="text-xs text-gray-500 mt-1">City name or detailed address</p>
+              </div>
+
+              {/* Check-in Date */}
+              <div className="lg:col-span-3">
+                <label className="block text-xs font-semibold text-gray-700 mb-2">Check-in</label>
+                <div className="relative">
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="date"
+                    value={checkInDate}
+                    onChange={(e) => setCheckInDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    required
+                    className="w-full pl-12 pr-4 py-3 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
+                  />
+                </div>
+              </div>
+
+              {/* Check-out Date */}
+              <div className="lg:col-span-3">
+                <label className="block text-xs font-semibold text-gray-700 mb-2">Check-out</label>
+                <div className="relative">
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="date"
+                    value={checkOutDate}
+                    onChange={(e) => setCheckOutDate(e.target.value)}
+                    min={checkInDate || new Date().toISOString().split('T')[0]}
+                    required
+                    className="w-full pl-12 pr-4 py-3 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
+                  />
+                </div>
+              </div>
+
+              {/* Nights Display */}
+              <div className="lg:col-span-3">
+                <label className="block text-xs font-semibold text-gray-700 mb-2">Duration</label>
+                <div className="flex items-center h-[50px] px-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <span className="text-xl font-bold text-gray-900">{calculateNights()}</span>
+                  <span className="ml-2 text-xs text-gray-600">
+                    {calculateNights() === 1 ? 'night' : 'nights'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Guests and Rooms */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+              {/* Adults */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-2">Adults</label>
+                <div className="relative">
+                  <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="number"
+                    value={adults}
+                    onChange={(e) => setAdults(Math.max(1, parseInt(e.target.value) || 1))}
+                    min={1}
+                    max={9}
+                    required
+                    className="w-full pl-12 pr-4 py-3 text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
+                  />
+                </div>
+              </div>
+
+              {/* Rooms */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-2">Rooms</label>
+                <div className="relative">
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="number"
+                    value={roomQuantity}
+                    onChange={(e) => setRoomQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    min={1}
+                    max={9}
+                    required
+                    className="w-full pl-12 pr-4 py-3 text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
+                  />
+                </div>
+              </div>
+
+              {/* Search Radius */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-2">
+                  Radius (km)
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="number"
+                    value={radius}
+                    onChange={(e) => setRadius(Math.max(1, parseInt(e.target.value) || 5))}
+                    min={1}
+                    max={300}
+                    className="w-full pl-12 pr-4 py-3 text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Search Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 text-sm bg-gray-900 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:bg-gray-800 transition"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Searching...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4" />
+                  Search Hotels
+                </>
+              )}
+            </button>
+          </form>
+        </div>
 
         {/* Recent Bookings */}
         {!hotels.length && (
@@ -745,144 +872,6 @@ export default function HotelSearchPage() {
             </div>
           </div>
         )}
-
-        {/* Search Form - Desktop only, always hidden on mobile */}
-        <div className="hidden md:block relative mb-6 md:mb-8">
-          <form onSubmit={handleSearch} className="relative bg-white rounded-lg p-3 md:p-4 lg:p-5 border border-gray-200">
-            {/* Location and Dates */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 mb-4 md:mb-6">
-              {/* Address/City */}
-              <div className="lg:col-span-3">
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Location</label>
-                <CityAutocomplete
-                  value={address}
-                  onChange={setAddress}
-                  placeholder="City or address"
-                  required
-                  className="py-2.5 md:py-3 text-sm border hover:border-gray-300"
-                />
-                <p className="text-[10px] text-gray-500 mt-1">City name or detailed address</p>
-              </div>
-
-              {/* Check-in Date */}
-              <div className="lg:col-span-3">
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Check-in</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="date"
-                    value={checkInDate}
-                    onChange={(e) => setCheckInDate(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                    required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
-                  />
-                </div>
-              </div>
-
-              {/* Check-out Date */}
-              <div className="lg:col-span-3">
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Check-out</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="date"
-                    value={checkOutDate}
-                    onChange={(e) => setCheckOutDate(e.target.value)}
-                    min={checkInDate || new Date().toISOString().split('T')[0]}
-                    required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
-                  />
-                </div>
-              </div>
-
-              {/* Nights Display */}
-              <div className="lg:col-span-3">
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Duration</label>
-                <div className="flex items-center h-[42px] md:h-[50px] px-3 md:px-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <span className="text-lg md:text-xl font-bold text-gray-900">{calculateNights()}</span>
-                  <span className="ml-2 text-xs text-gray-600">
-                    {calculateNights() === 1 ? 'night' : 'nights'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Guests and Rooms */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
-              {/* Adults */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Adults</label>
-                <div className="relative">
-                  <Users className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="number"
-                    value={adults}
-                    onChange={(e) => setAdults(Math.max(1, parseInt(e.target.value) || 1))}
-                    min={1}
-                    max={9}
-                    required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
-                  />
-                </div>
-              </div>
-
-              {/* Rooms */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Rooms</label>
-                <div className="relative">
-                  <Building2 className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="number"
-                    value={roomQuantity}
-                    onChange={(e) => setRoomQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                    min={1}
-                    max={9}
-                    required
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
-                  />
-                </div>
-              </div>
-
-              {/* Search Radius */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">
-                  Radius (km)
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="number"
-                    value={radius}
-                    onChange={(e) => setRadius(Math.max(1, parseInt(e.target.value) || 5))}
-                    min={1}
-                    max={300}
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Search Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 md:py-4 text-sm bg-gray-900 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Searching...
-                </>
-              ) : (
-                <>
-                  <Search className="w-4 h-4" />
-                  Search Hotels
-                </>
-              )}
-            </button>
-          </form>
-        </div>
 
         {/* Error Message */}
         {error && (
