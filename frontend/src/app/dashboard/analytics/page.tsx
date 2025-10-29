@@ -981,7 +981,7 @@ export default function AnalyticsPage() {
               <div className="w-1 h-6 bg-gray-900 rounded-full"></div>
               <div>
                 <h3 className="text-base md:text-lg font-bold text-gray-900">Top Travelers</h3>
-                <p className="text-xs text-gray-600">Most active users</p>
+                <p className="text-xs text-gray-600">Most active users by bookings</p>
               </div>
             </div>
 
@@ -991,52 +991,83 @@ export default function AnalyticsPage() {
                 <p className="text-gray-600 text-sm">No traveler data available</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                <div className="h-[400px] md:h-[500px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={topTravelers} layout="horizontal">
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis
-                        type="number"
-                        stroke="#6b7280"
-                        style={{ fontSize: '12px' }}
-                      />
-                      <YAxis
-                        type="category"
-                        dataKey="name"
-                        stroke="#6b7280"
-                        style={{ fontSize: '11px' }}
-                        width={100}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#fff',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px',
-                          fontSize: '12px'
-                        }}
-                        formatter={(value: number, name: string) => {
-                          if (name === 'spend') {
-                            return [`$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, 'Total Spend'];
-                          }
-                          return [value, 'Bookings'];
-                        }}
-                      />
-                      <Legend
-                        wrapperStyle={{ fontSize: '12px' }}
-                      />
-                      <Bar
-                        dataKey="bookings"
-                        fill="#1f2937"
-                        radius={[0, 8, 8, 0]}
-                        name="Bookings"
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
+              <div className="space-y-6">
+                {/* Visual Bar Chart with Avatars */}
+                <div className="p-4 md:p-6 bg-gray-50 rounded-xl">
+                  <div className="flex items-end justify-between gap-2 md:gap-4 h-[300px] md:h-[400px]">
+                    {topTravelers.map((traveler, index) => {
+                      const maxBookings = topTravelers[0].bookings;
+                      const heightPercent = (traveler.bookings / maxBookings) * 100;
+                      const initials = traveler.name.split(' ').map(n => n.charAt(0)).join('').toUpperCase();
+
+                      // Color variations for top 3
+                      const colors = [
+                        'bg-gradient-to-t from-gray-900 to-gray-700', // 1st place
+                        'bg-gradient-to-t from-gray-800 to-gray-600', // 2nd place
+                        'bg-gradient-to-t from-gray-700 to-gray-500', // 3rd place
+                      ];
+                      const barColor = index < 3 ? colors[index] : 'bg-gradient-to-t from-gray-600 to-gray-400';
+
+                      return (
+                        <div key={index} className="flex-1 flex flex-col items-center gap-2 min-w-0">
+                          {/* Avatar at top */}
+                          <div className="relative group cursor-pointer">
+                            <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                              index === 0 ? 'bg-[#ADF802] border-2 border-gray-900' :
+                              index === 1 ? 'bg-gray-300 border-2 border-gray-600' :
+                              index === 2 ? 'bg-amber-200 border-2 border-amber-600' :
+                              'bg-gray-900 border-2 border-gray-700'
+                            }`}>
+                              <span className={`text-xs md:text-sm font-bold ${
+                                index === 0 || index === 1 || index === 2 ? 'text-gray-900' : 'text-white'
+                              }`}>
+                                {initials}
+                              </span>
+                            </div>
+                            {/* Rank badge */}
+                            <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                              index === 0 ? 'bg-gray-900 text-[#ADF802]' :
+                              index === 1 ? 'bg-gray-600 text-white' :
+                              index === 2 ? 'bg-amber-600 text-white' :
+                              'bg-gray-700 text-white'
+                            }`}>
+                              {index + 1}
+                            </div>
+                            {/* Tooltip on hover */}
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                              {traveler.name}
+                              <div className="text-gray-300 text-[10px] mt-0.5">
+                                ${traveler.spend.toLocaleString('en-US', { maximumFractionDigits: 0 })} spent
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bar */}
+                          <div className="relative w-full flex flex-col items-center flex-1">
+                            <div
+                              className={`w-full ${barColor} rounded-t-lg transition-all duration-500 hover:opacity-80 cursor-pointer flex items-end justify-center pb-2`}
+                              style={{ height: `${heightPercent}%` }}
+                            >
+                              <span className="text-white font-bold text-xs md:text-sm">
+                                {traveler.bookings}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Name label */}
+                          <div className="text-center min-w-0 w-full">
+                            <p className="text-xs md:text-sm font-medium text-gray-900 truncate px-1">
+                              {traveler.name.split(' ')[0]}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* Table view for more details */}
-                <div className="mt-6 overflow-x-auto">
+                {/* Detailed Table */}
+                <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
@@ -1044,34 +1075,61 @@ export default function AnalyticsPage() {
                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Traveler</th>
                         <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Bookings</th>
                         <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Total Spend</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase hidden md:table-cell">Avg per Booking</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {topTravelers.map((traveler, index) => (
-                        <tr key={index} className="hover:bg-gray-50 transition">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-900 text-white font-bold text-sm">
-                              {index + 1}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4 text-gray-400" />
-                              <span className="font-medium text-gray-900 text-sm">{traveler.name}</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-lg text-sm font-semibold text-gray-900">
-                              {traveler.bookings}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <span className="font-bold text-gray-900 text-sm">
-                              ${traveler.spend.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
+                      {topTravelers.map((traveler, index) => {
+                        const initials = traveler.name.split(' ').map(n => n.charAt(0)).join('').toUpperCase();
+                        const avgPerBooking = traveler.bookings > 0 ? traveler.spend / traveler.bookings : 0;
+
+                        return (
+                          <tr key={index} className="hover:bg-gray-50 transition">
+                            <td className="px-4 py-3">
+                              <div className={`flex items-center justify-center w-8 h-8 rounded-lg font-bold text-sm ${
+                                index === 0 ? 'bg-[#ADF802] text-gray-900' :
+                                index === 1 ? 'bg-gray-300 text-gray-900' :
+                                index === 2 ? 'bg-amber-200 text-gray-900' :
+                                'bg-gray-900 text-white'
+                              }`}>
+                                {index + 1}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                  index === 0 ? 'bg-[#ADF802]' :
+                                  index === 1 ? 'bg-gray-300' :
+                                  index === 2 ? 'bg-amber-200' :
+                                  'bg-gray-900'
+                                }`}>
+                                  <span className={`text-xs font-bold ${
+                                    index === 0 || index === 1 || index === 2 ? 'text-gray-900' : 'text-white'
+                                  }`}>
+                                    {initials}
+                                  </span>
+                                </div>
+                                <span className="font-medium text-gray-900 text-sm">{traveler.name}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-lg text-sm font-semibold text-gray-900">
+                                {traveler.bookings}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className="font-bold text-gray-900 text-sm">
+                                ${traveler.spend.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-center hidden md:table-cell">
+                              <span className="text-sm text-gray-600">
+                                ${avgPerBooking.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
