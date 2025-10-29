@@ -55,11 +55,11 @@ export default function UnifiedNavBar({
       baseLinks.push({ label: 'Approvals', href: '/dashboard/approvals', key: 'approvals' });
     }
 
-    // Add Users and Reports for admin and company_admin
+    // Add Users and Analytics for admin and company_admin
     if (user.role === 'admin' || user.role === 'company_admin') {
       baseLinks.push(
         { label: 'Users', href: '/dashboard/users', key: 'users' },
-        { label: 'Reports', href: '/dashboard/reports', key: 'reports' }
+        { label: 'Analytics', href: '/dashboard/analytics', key: 'analytics' }
       );
     }
 
