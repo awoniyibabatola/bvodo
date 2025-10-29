@@ -37,6 +37,14 @@ import {
   Shield,
   Award,
   Zap,
+  Briefcase,
+  DollarSign,
+  Wind,
+  Bath,
+  Tv,
+  Phone,
+  Droplet,
+  PartyPopper,
 } from 'lucide-react';
 import { getCityCode } from '@/utils/cityMapping';
 import { getApiEndpoint } from '@/lib/api-config';
@@ -44,6 +52,9 @@ import CityAutocomplete from '@/components/CityAutocomplete';
 import AIChatbox from '@/components/AIChatbox';
 import PassengerDetailsModal from '@/components/PassengerDetailsModal';
 import BookingSuccessModal from '@/components/BookingSuccessModal';
+import PaymentSummaryModal from '@/components/PaymentSummaryModal';
+import PaymentMethodSelector from '@/components/PaymentMethodSelector';
+import BusinessFooter from '@/components/BusinessFooter';
 
 export default function HotelDetailsPage() {
   const params = useParams();
@@ -55,24 +66,43 @@ export default function HotelDetailsPage() {
   const checkOutDate = searchParams.get('checkOut') || '';
   const adults = parseInt(searchParams.get('adults') || '1');
   const rooms = parseInt(searchParams.get('rooms') || '1');
+  const city = searchParams.get('city') || '';
+
+  // Build back URL with search parameters preserved
+  const backToSearchUrl = `/dashboard/hotels/search?${new URLSearchParams({
+    ...(city && { city }),
+    ...(checkInDate && { checkIn: checkInDate }),
+    ...(checkOutDate && { checkOut: checkOutDate }),
+    ...(adults && { adults: adults.toString() }),
+    ...(rooms && { rooms: rooms.toString() }),
+  }).toString()}`;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [hotelOffers, setHotelOffers] = useState<any>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [sortBy, setSortBy] = useState<'price-low' | 'price-high' | 'recommended'>('recommended');
-  const [filterCancellation, setFilterCancellation] = useState(false);
+  const [policyFilter, setPolicyFilter] = useState<'all' | 'refundable' | 'non-refundable'>('all'); // Policy filter
   const [showAllPhotos, setShowAllPhotos] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [expandedRooms, setExpandedRooms] = useState<Set<number>>(new Set()); // All rooms collapsed by default
+  const [expandedRooms, setExpandedRooms] = useState<Set<number>>(new Set()); // Will be populated with all rooms on mount
+  const [groupByPolicy, setGroupByPolicy] = useState(true); // Group by refundable/non-refundable
+  const [roomImageIndices, setRoomImageIndices] = useState<{ [key: number]: number }>({}); // Track current image for each room
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(true); // About this property collapse state
 
   // Group booking modal state
+  const [showPaymentSummary, setShowPaymentSummary] = useState(false);
   const [showPassengerModal, setShowPassengerModal] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<any>(null);
 
   // Success modal state
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [bookingResult, setBookingResult] = useState<any>(null);
+
+  // Payment method selection
+  const [paymentMethod, setPaymentMethod] = useState<'credit' | 'card'>('credit');
+  const [userCredits, setUserCredits] = useState<number>(0);
+  const [userRole, setUserRole] = useState<string>('traveler');
 
   // Search form state
   const [searchLocation, setSearchLocation] = useState('');
@@ -95,6 +125,15 @@ export default function HotelDetailsPage() {
     }
   }, [searchResultId, checkInDate, checkOutDate, adults, rooms]);
 
+  // Expand all rooms by default when offers are loaded
+  useEffect(() => {
+    if (hotelOffers?.offers && hotelOffers.offers.length > 0) {
+      // Expand all rooms by default
+      const allIndices = new Set<number>(hotelOffers.offers.map((_: any, idx: number) => idx));
+      setExpandedRooms(allIndices);
+    }
+  }, [hotelOffers?.offers]);
+
   // Debug: Log hotel address data
   useEffect(() => {
     if (hotelOffers?.hotel?.address) {
@@ -104,6 +143,38 @@ export default function HotelDetailsPage() {
       console.log('Country code:', hotelOffers.hotel.address.countryCode);
     }
   }, [hotelOffers]);
+
+  // Fetch user credits and role (uses dashboard/stats endpoint which returns correct credits based on role)
+  useEffect(() => {
+    const fetchUserCredits = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        // Get user role from localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const parsedUser = JSON.parse(userData);
+          setUserRole(parsedUser.role || 'traveler');
+        }
+
+        const response = await fetch(getApiEndpoint('dashboard/stats'), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserCredits(data.credits?.available || 0);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user credits:', error);
+      }
+    };
+
+    fetchUserCredits();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +194,11 @@ export default function HotelDetailsPage() {
 
   const handleReserveRoom = (offer: any) => {
     setSelectedOffer(offer);
+    setShowPaymentSummary(true);
+  };
+
+  const handleContinueToGuestDetails = () => {
+    setShowPaymentSummary(false);
     setShowPassengerModal(true);
   };
 
@@ -140,11 +216,47 @@ export default function HotelDetailsPage() {
         return;
       }
 
+      // STEP 1: Create quote from rate ID BEFORE booking
+      // This validates rate availability and locks pricing
+      console.log('Creating quote for rate:', selectedOffer.id);
+      let quoteId: string | null = null;
+      try {
+        const quoteResponse = await fetch(getApiEndpoint(`hotels/quotes`), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            rateId: selectedOffer.id,
+          }),
+        });
+
+        if (!quoteResponse.ok) {
+          const quoteError = await quoteResponse.json();
+          throw new Error(quoteError.message || 'Failed to create quote. Rate may have expired.');
+        }
+
+        const quoteData = await quoteResponse.json();
+        quoteId = quoteData.data.id;
+        console.log('✅ Quote created:', quoteId);
+      } catch (quoteError: any) {
+        console.error('Quote creation failed:', quoteError);
+        alert(quoteError.message || 'This hotel room is no longer available. Please search again for fresh availability.');
+        return;
+      }
+
+      // STEP 2: Create booking with quoteId
       const bookingData = {
         bookingType: 'hotel',
         isGroupBooking,
         numberOfTravelers: passengers.length,
         groupName: isGroupBooking ? groupName : undefined,
+
+        // Provider details - CRITICAL for Duffel Stays booking creation
+        provider: 'duffel',
+        providerName: 'Duffel Stays',
+        providerBookingReference: selectedOffer.id, // Rate ID for Duffel Stays
 
         // Trip details
         destination: hotel.address?.cityName || hotel.name,
@@ -158,6 +270,19 @@ export default function HotelDetailsPage() {
         taxesFees: parseFloat(selectedOffer.price.total) - parseFloat(selectedOffer.price.base),
         totalPrice: parseFloat(selectedOffer.price.total),
         currency: selectedOffer.price.currency,
+
+        // Payment method
+        paymentMethod,
+
+        // Instant confirmation flag (for hotels, most are instant but check if available in offer)
+        isInstantConfirmation: selectedOffer?.instantConfirmation !== false, // Default true unless explicitly false
+
+        // Store selected offer data for webhook processing
+        bookingData: {
+          selectedOffer: selectedOffer,
+          rateId: selectedOffer.id, // Store rate ID in bookingData for webhook access
+          quoteId: quoteId, // 🔥 CRITICAL FIX: Store quoteId for webhook to use
+        },
 
         // Hotel specific details
         hotelDetails: {
@@ -192,6 +317,16 @@ export default function HotelDetailsPage() {
 
       if (response.ok) {
         const result = await response.json();
+
+        // Check if there's a checkout URL (indicates card payment via Stripe)
+        if (result.checkoutUrl) {
+          // Redirect to Stripe checkout
+          console.log('Redirecting to Stripe:', result.checkoutUrl);
+          window.location.href = result.checkoutUrl;
+          return;
+        }
+
+        // For credit payments, show success modal
         setShowPassengerModal(false);
         setBookingResult(result.data);
         setShowSuccessModal(true);
@@ -222,10 +357,53 @@ export default function HotelDetailsPage() {
         throw new Error('Missing required date parameters. Please search for hotels first.');
       }
 
-      // Duffel Stays: Use new endpoint GET /hotels/rates/{searchResultId}
-      // This endpoint doesn't need query params because rates were already fetched during search
+      // STRATEGY: Always try to fetch from API first if we have a valid search result ID (starts with 'srr_')
+      // This ensures we get ALL room types with their photos and details, not just the cheapest rate
+      const hasValidSearchResultId = searchResultId && searchResultId.startsWith('srr_');
+
+      if (hasValidSearchResultId) {
+        console.log('✅ Valid search result ID detected, fetching all rooms from API');
+        // Proceed to API fetch below
+      } else {
+        // FALLBACK: Check if we have hotel data in sessionStorage
+        // This is used when we don't have a valid search result ID (Duffel test environment limitation)
+        const storedHotelData = sessionStorage.getItem('selectedHotelData');
+        if (storedHotelData) {
+          try {
+            const hotelData = JSON.parse(storedHotelData);
+            console.log('⚠️ Using stored hotel data from search results (Duffel test environment)');
+            console.log('Hotel data:', hotelData);
+
+            // Transform to expected format for detail page
+            setHotelOffers({
+              hotel: hotelData.hotel,
+              offers: hotelData.offers || [],
+              price: hotelData.price,
+              checkInDate: hotelData.checkInDate,
+              checkOutDate: hotelData.checkOutDate,
+              rooms: hotelData.rooms,
+              guests: hotelData.guests,
+              // Add note explaining test environment limitation
+              note: 'You are viewing the best available rate. In production, all room types with detailed photos and descriptions will be displayed.',
+            });
+
+            setLoading(false);
+            return; // Exit early, no need to fetch from API
+          } catch (parseError) {
+            console.warn('Failed to parse stored hotel data, falling back to API fetch');
+          }
+        }
+      }
+
+      // FETCH FROM API: Get all room types with photos and details from Duffel Stays
+      // Skip API call if we know it will fail (using accommodation ID instead of search result ID)
+      if (searchResultId.startsWith('acc_')) {
+        console.warn('⚠️ Cannot fetch rates with accommodation ID. Duffel requires search result IDs.');
+        throw new Error('Hotel details are only available immediately after searching. Please return to search and try again.');
+      }
+
       const fullUrl = `${getApiEndpoint('hotels/rates')}/${searchResultId}`;
-      console.log('Fetching hotel rates from Duffel Stays:', fullUrl);
+      console.log('Fetching all room types and rates from Duffel Stays:', fullUrl);
       const response = await fetch(fullUrl);
 
       // Check if response is OK before parsing
@@ -251,80 +429,19 @@ export default function HotelDetailsPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Transform Duffel Stays accommodation data to match UI expectations
-        const accommodation = data.data;
+        // Backend already returns properly transformed data with hotel and offers
+        // No need to transform again - just use it directly!
+        const transformedData = data.data;
 
-        console.log('Duffel Stays accommodation data:', accommodation);
+        console.log('Hotel data from backend:', transformedData);
+        console.log('Number of offers:', transformedData.offers?.length || 0);
+        console.log('Sample offer structure:', transformedData.offers?.[0]);
 
-        // Convert Duffel Stays structure to legacy format for UI compatibility
-        // Duffel: { id, name, rooms: [{ id, name, rates: [...] }] }
-        // Expected: { hotel: {...}, offers: [...] }
-
-        const transformedData = {
-          hotel: {
-            hotelId: searchResultId,
-            name: accommodation.name || 'Hotel',
-            description: accommodation.description || '',
-            rating: accommodation.rating || 0,
-            media: accommodation.photos?.map((photo: any) => ({
-              uri: photo.url,
-              url: photo.url,
-            })) || [],
-            amenities: accommodation.amenities?.map((amenity: any) =>
-              amenity.description || amenity.type
-            ) || [],
-            address: {
-              lines: [
-                accommodation.address?.line_one,
-                accommodation.address?.line_two
-              ].filter(Boolean),
-              cityName: accommodation.address?.city_name || '',
-              postalCode: accommodation.address?.postal_code || '',
-              countryCode: accommodation.address?.country_code || '',
-            },
-            location: accommodation.location,
-          },
-          // Convert rooms -> offers (flatten all rates from all rooms)
-          offers: accommodation.rooms?.flatMap((room: any) =>
-            room.rates?.map((rate: any) => ({
-              id: rate.id,
-              rateId: rate.id, // Store rate ID for quote creation
-              price: {
-                base: rate.base_amount,
-                total: rate.total_amount,
-                currency: rate.total_currency,
-                taxes: rate.tax_amount,
-              },
-              room: {
-                type: room.name,
-                typeEstimated: {
-                  category: room.name,
-                  beds: room.bed_count || 1,
-                  bedType: room.bed_type || 'Unknown',
-                },
-                description: {
-                  text: room.description || rate.room?.description || '',
-                },
-              },
-              // Duffel cancellation timeline is more detailed than Amadeus
-              policies: {
-                cancellation: {
-                  type: rate.cancellation_timeline?.timeline?.[0]?.refund_amount === rate.total_amount
-                    ? 'FULL_REFUND'
-                    : rate.cancellation_timeline?.timeline?.[rate.cancellation_timeline.timeline.length - 1]?.refund_amount === '0.00'
-                    ? 'NON_REFUNDABLE'
-                    : 'PARTIAL_REFUND',
-                  timeline: rate.cancellation_timeline?.timeline || [],
-                },
-              },
-              // Store full Duffel rate for quote creation
-              _duffelRate: rate,
-            }))
-          ) || [],
-        };
-
-        console.log('Transformed hotel data:', transformedData);
-        console.log('Sample transformed offer:', transformedData.offers?.[0]);
+        // Log the room type structure for debugging
+        if (transformedData.offers && transformedData.offers.length > 0) {
+          console.log('First offer room type:', transformedData.offers[0].room?.typeEstimated?.category);
+          console.log('First offer room bed:', transformedData.offers[0].room?.typeEstimated?.bedType);
+        }
 
         setHotelOffers(transformedData);
       } else {
@@ -347,27 +464,141 @@ export default function HotelDetailsPage() {
   };
 
   const getAmenityIcon = (amenityCode: string) => {
-    const amenityMap: { [key: string]: any } = {
+    const code = amenityCode.toUpperCase();
+
+    const amenityMap: { [key: string]: any} = {
+      // WiFi & Internet
       WIFI: Wifi,
+      WI_FI: Wifi,
+      WIRELESS_INTERNET: Wifi,
+      FREE_WIFI: Wifi,
+      INTERNET: Wifi,
+
+      // Dining
       RESTAURANT: Utensils,
-      PARKING: Car,
-      FITNESS: Dumbbell,
-      POOL: Waves,
+      DINING: Utensils,
       BREAKFAST: Coffee,
+      FREE_BREAKFAST: Coffee,
+      ROOM_SERVICE: Coffee,
+      BAR: Coffee,
+      MINIBAR: Coffee,
+      KITCHEN: Utensils,
+      KITCHENETTE: Utensils,
+
+      // Parking
+      PARKING: Car,
+      FREE_PARKING: Car,
+      VALET_PARKING: Car,
+      CAR_PARK: Car,
+      GARAGE: Car,
+
+      // Fitness & Recreation
+      FITNESS: Dumbbell,
+      FITNESS_CENTER: Dumbbell,
+      FITNESS_CENTRE: Dumbbell,
+      GYM: Dumbbell,
+      POOL: Waves,
+      SWIMMING_POOL: Waves,
+      OUTDOOR_POOL: Waves,
+      INDOOR_POOL: Waves,
+      SPA: Waves,
+      SAUNA: Waves,
+      HOT_TUB: Waves,
+      JACUZZI: Waves,
+
+      // Business
+      BUSINESS_CENTER: Briefcase,
+      BUSINESS_CENTRE: Briefcase,
+      MEETING_ROOMS: Briefcase,
+      CONFERENCE_ROOM: Briefcase,
+      WORK_DESK: Briefcase,
+
+      // Services
+      CONCIERGE: PartyPopper,
+      '24_HOUR_FRONT_DESK': Clock,
+      FRONT_DESK: Clock,
+      RECEPTION: Clock,
+      LAUNDRY: Droplet,
+      DRY_CLEANING: Droplet,
+      IRONING: Droplet,
+
+      // Room Features
+      AIR_CONDITIONING: Wind,
+      HEATING: Wind,
+      TV: Tv,
+      CABLE_TV: Tv,
+      SATELLITE_TV: Tv,
+      FLAT_SCREEN_TV: Tv,
+      TELEPHONE: Phone,
+      SAFE: Shield,
+      MINI_BAR: Coffee,
+      BALCONY: Building2,
+      TERRACE: Building2,
+
+      // Bathroom
+      PRIVATE_BATHROOM: Bath,
+      SHOWER: Droplet,
+      BATHTUB: Bath,
+      HAIRDRYER: Droplet,
+      TOILETRIES: Droplet,
+
+      // Accessibility
+      ACCESSIBLE: Shield,
+      WHEELCHAIR_ACCESSIBLE: Shield,
+      ACCESSIBILITY_MOBILITY: Shield,
+      ELEVATOR: Building2,
+      LIFT: Building2,
+
+      // Payment & Extras
+      CASH_MACHINE: DollarSign,
+      ATM: DollarSign,
+      CURRENCY_EXCHANGE: DollarSign,
+
+      // Pets
+      PETS_ALLOWED: Star,
+      PET_FRIENDLY: Star,
+
+      // Misc
+      LOUNGE: Users,
+      LIBRARY: Building2,
+      GARDEN: Building2,
+      SMOKING_AREA: Building2,
     };
-    return amenityMap[amenityCode] || Coffee;
+
+    // Direct match
+    if (amenityMap[code]) {
+      return amenityMap[code];
+    }
+
+    // Fuzzy matching for partial matches
+    if (code.includes('WIFI') || code.includes('INTERNET')) return Wifi;
+    if (code.includes('POOL') || code.includes('SWIM')) return Waves;
+    if (code.includes('GYM') || code.includes('FITNESS')) return Dumbbell;
+    if (code.includes('PARKING') || code.includes('GARAGE')) return Car;
+    if (code.includes('BREAKFAST') || code.includes('DINING') || code.includes('RESTAURANT')) return Utensils;
+    if (code.includes('BUSINESS') || code.includes('MEETING') || code.includes('CONFERENCE')) return Briefcase;
+    if (code.includes('CONCIERGE') || code.includes('DESK')) return PartyPopper;
+    if (code.includes('ACCESSIBLE') || code.includes('WHEELCHAIR') || code.includes('MOBILITY')) return Shield;
+    if (code.includes('SPA') || code.includes('SAUNA') || code.includes('JACUZZI')) return Waves;
+    if (code.includes('LAUNDRY') || code.includes('CLEANING')) return Droplet;
+    if (code.includes('TV') || code.includes('TELEVISION')) return Tv;
+    if (code.includes('AIR_COND') || code.includes('HEATING')) return Wind;
+    if (code.includes('BAR') || code.includes('COFFEE')) return Coffee;
+
+    // Default fallback
+    return Building2;
   };
 
   // Get placeholder image for hotels without photos
-  const getPlaceholderImage = () => {
+  const getPlaceholderImage = (id: string) => {
     const images = [
       'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1200&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1549294413-26f195200c16?w=1200&auto=format&fit=crop',
     ];
-    // Use hotelId to consistently get the same image for this hotel
-    const hash = hotelId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    // Use id to consistently get the same image for this hotel
+    const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return images[hash % images.length];
   };
 
@@ -389,7 +620,7 @@ export default function HotelDetailsPage() {
           <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
             <div className="flex items-center gap-4 h-16">
               <Link
-                href="/dashboard/hotels/search"
+                href={backToSearchUrl}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -399,9 +630,25 @@ export default function HotelDetailsPage() {
           </div>
         </div>
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-            <p className="text-gray-700">{error}</p>
-            <p className="text-sm text-gray-600 mt-2">Please try another hotel or different dates.</p>
+          <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
+            <div className="max-w-md mx-auto">
+              <Info className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Hotel Details Temporarily Unavailable</h2>
+              <p className="text-gray-700 mb-4">{error}</p>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-700">
+                  <strong>Why is this happening?</strong> Detailed rates for this hotel are currently not available.
+                  This may occur when hotel search results are older than a few minutes.
+                </p>
+              </div>
+              <Link
+                href="/dashboard/hotels/search"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Return to Search
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -415,7 +662,7 @@ export default function HotelDetailsPage() {
           <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
             <div className="flex items-center gap-4 h-16">
               <Link
-                href="/dashboard/hotels/search"
+                href={backToSearchUrl}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -436,12 +683,25 @@ export default function HotelDetailsPage() {
   const hotel = hotelOffers.hotel;
   let offers = hotelOffers.offers || [];
 
-  // Filter offers
-  if (filterCancellation) {
-    offers = offers.filter((offer: any) =>
-      offer.policies?.cancellation?.type === 'FULL_REFUND'
-    );
+  // Filter offers by policy
+  if (policyFilter === 'refundable') {
+    offers = offers.filter((offer: any) => {
+      const cancellationType = offer.policies?.cancellation?.type;
+      return cancellationType === 'FULL_REFUND' ||
+             (offer.policies?.cancellation?.timeline &&
+              offer.policies.cancellation.timeline.length > 0);
+    });
+  } else if (policyFilter === 'non-refundable') {
+    offers = offers.filter((offer: any) => {
+      const cancellationType = offer.policies?.cancellation?.type;
+      return !cancellationType ||
+             cancellationType === 'NON_REFUNDABLE' ||
+             (cancellationType !== 'FULL_REFUND' &&
+              (!offer.policies?.cancellation?.timeline ||
+               offer.policies.cancellation.timeline.length === 0));
+    });
   }
+  // 'all' means no filtering
 
   // Sort offers
   offers = [...offers].sort((a: any, b: any) => {
@@ -459,10 +719,28 @@ export default function HotelDetailsPage() {
     }
   });
 
+  // Group offers by cancellation policy if enabled
+  const groupedOffers = groupByPolicy ? {
+    refundable: offers.filter((offer: any) => {
+      const cancellationType = offer.policies?.cancellation?.type;
+      return cancellationType === 'FULL_REFUND' ||
+             (offer.policies?.cancellation?.timeline &&
+              offer.policies.cancellation.timeline.length > 0);
+    }),
+    nonRefundable: offers.filter((offer: any) => {
+      const cancellationType = offer.policies?.cancellation?.type;
+      return !cancellationType ||
+             cancellationType === 'NON_REFUNDABLE' ||
+             (cancellationType !== 'FULL_REFUND' &&
+              (!offer.policies?.cancellation?.timeline ||
+               offer.policies.cancellation.timeline.length === 0));
+    })
+  } : { all: offers };
+
   // Get hotel images or fallback to placeholders
   const hotelImages = hotel.media && hotel.media.length > 0
     ? hotel.media.map((m: any) => m.uri || m.url)
-    : [getPlaceholderImage()];
+    : [getPlaceholderImage(searchResultId)];
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % hotelImages.length);
@@ -484,6 +762,20 @@ export default function HotelDetailsPage() {
     });
   };
 
+  const nextRoomImage = (roomIndex: number, imageCount: number) => {
+    setRoomImageIndices(prev => ({
+      ...prev,
+      [roomIndex]: ((prev[roomIndex] || 0) + 1) % imageCount
+    }));
+  };
+
+  const previousRoomImage = (roomIndex: number, imageCount: number) => {
+    setRoomImageIndices(prev => ({
+      ...prev,
+      [roomIndex]: ((prev[roomIndex] || 0) - 1 + imageCount) % imageCount
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Floating Header */}
@@ -491,7 +783,7 @@ export default function HotelDetailsPage() {
         <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link
-              href="/dashboard/hotels/search"
+              href={backToSearchUrl}
               className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors group"
             >
               <div className="p-2 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors">
@@ -672,7 +964,7 @@ export default function HotelDetailsPage() {
 
                 <button
                   onClick={() => {
-                    router.push(`/dashboard/hotels/${hotelId}?checkIn=${searchCheckIn}&checkOut=${searchCheckOut}&adults=${searchAdults}&rooms=${searchRooms}`);
+                    router.push(`/dashboard/hotels/${searchResultId}?checkIn=${searchCheckIn}&checkOut=${searchCheckOut}&adults=${searchAdults}&rooms=${searchRooms}`);
                   }}
                   className="px-4 py-1.5 bg-gray-900 text-white rounded font-semibold hover:bg-gray-800 transition-colors flex items-center gap-1 text-xs"
                 >
@@ -814,9 +1106,40 @@ export default function HotelDetailsPage() {
             <div>
               <div className="p-2 bg-gray-50 rounded border border-gray-200 h-full">
                 <p className="text-xs font-semibold text-gray-900 mb-1">About this property</p>
-                <p className="text-gray-700 leading-relaxed text-xs">
-                  {hotel.description || `${hotel.name || 'This hotel'} offers quality accommodations and amenities for your stay. Contact the hotel directly for more detailed information about the property.`}
-                </p>
+                <div className="text-gray-700 leading-relaxed text-xs">
+                  {(() => {
+                    const description = hotel.description || `${hotel.name || 'This hotel'} offers quality accommodations and amenities for your stay. Contact the hotel directly for more detailed information about the property.`;
+                    const shouldTruncate = description.length > 150;
+
+                    if (!shouldTruncate) {
+                      return <p>{description}</p>;
+                    }
+
+                    return (
+                      <>
+                        <p>
+                          {isDescriptionExpanded ? description : `${description.substring(0, 150)}...`}
+                        </p>
+                        <button
+                          onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                          className="text-gray-900 hover:text-gray-700 font-semibold mt-1 inline-flex items-center gap-1 text-[10px]"
+                        >
+                          {isDescriptionExpanded ? (
+                            <>
+                              See less
+                              <ChevronDown className="w-3 h-3 rotate-180" />
+                            </>
+                          ) : (
+                            <>
+                              See more
+                              <ChevronDown className="w-3 h-3" />
+                            </>
+                          )}
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           </div>
@@ -872,6 +1195,40 @@ export default function HotelDetailsPage() {
 
             {/* Filters and Sort */}
             <div className="flex flex-wrap items-center gap-2">
+              {/* Policy Filter Dropdown */}
+              <div className="relative">
+                <div className="flex items-center gap-1 bg-white px-3 py-1.5 rounded border border-gray-200 hover:border-gray-300 transition-all">
+                  <Shield className="w-3 h-3 text-gray-600" />
+                  <select
+                    value={policyFilter}
+                    onChange={(e) => setPolicyFilter(e.target.value as any)}
+                    className="text-[10px] font-semibold text-gray-700 border-none focus:outline-none bg-transparent cursor-pointer pr-1"
+                  >
+                    <option value="all">All Rooms</option>
+                    <option value="refundable">Free Cancellation Only</option>
+                    <option value="non-refundable">Non-Refundable Only</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Group by Policy Toggle */}
+              <button
+                onClick={() => setGroupByPolicy(!groupByPolicy)}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded border transition-all font-semibold text-[10px] ${
+                  groupByPolicy
+                    ? 'bg-gray-900 text-white border-gray-900'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <Grid3x3 className="w-3 h-3" />
+                <span>Group by Policy</span>
+                {groupByPolicy && (
+                  <div className="ml-1">
+                    <Check className="w-2.5 h-2.5" />
+                  </div>
+                )}
+              </button>
+
               {/* Sort Dropdown */}
               <div className="relative">
                 <div className="flex items-center gap-1 bg-white px-3 py-1.5 rounded border border-gray-200 hover:border-gray-300 transition-all">
@@ -887,24 +1244,6 @@ export default function HotelDetailsPage() {
                   </select>
                 </div>
               </div>
-
-              {/* Free Cancellation Filter */}
-              <button
-                onClick={() => setFilterCancellation(!filterCancellation)}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded border transition-all font-semibold text-[10px] ${
-                  filterCancellation
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <Shield className="w-3 h-3" />
-                <span>Free Cancellation</span>
-                {filterCancellation && (
-                  <div className="ml-1">
-                    <Check className="w-2.5 h-2.5" />
-                  </div>
-                )}
-              </button>
             </div>
           </div>
 
@@ -922,80 +1261,259 @@ export default function HotelDetailsPage() {
           )}
 
           {offers.length > 0 ? (
-            <div className="grid grid-cols-1 gap-3">
-              {offers.map((offer: any, index: number) => {
-                const isExpanded = expandedRooms.has(index);
+            <div className="space-y-6">
+              {/* Render grouped offers */}
+              {Object.entries(groupedOffers).map(([groupKey, groupOffers]) => {
+                if (!groupOffers || (groupOffers as any[]).length === 0) return null;
+
+                const isRefundable = groupKey === 'refundable';
+                const isNonRefundable = groupKey === 'nonRefundable';
+
                 return (
+                  <div key={groupKey} className="space-y-3">
+                    {/* Group Header */}
+                    {groupByPolicy && (
+                      <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
+                        {isRefundable && (
+                          <>
+                            <Shield className="w-4 h-4 text-green-600" />
+                            <h3 className="text-sm font-bold text-gray-900">
+                              Free Cancellation Available
+                            </h3>
+                            <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs font-semibold">
+                              {(groupOffers as any[]).length} option{(groupOffers as any[]).length !== 1 ? 's' : ''}
+                            </span>
+                          </>
+                        )}
+                        {isNonRefundable && (
+                          <>
+                            <X className="w-4 h-4 text-gray-500" />
+                            <h3 className="text-sm font-bold text-gray-900">
+                              Non-Refundable Rates
+                            </h3>
+                            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-semibold">
+                              {(groupOffers as any[]).length} option{(groupOffers as any[]).length !== 1 ? 's' : ''}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Rooms in this group */}
+                    <div className="grid grid-cols-1 gap-3">
+                      {(groupOffers as any[]).map((offer: any, index: number) => {
+                        // Calculate global index for expanded state
+                        const globalIndex = offers.findIndex((o: any) => o.id === offer.id);
+                        const isExpanded = expandedRooms.has(globalIndex);
+                        return (
                 <div
                   key={index}
                   className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 transition-all"
                 >
                   {/* Collapsible Header - Always Visible */}
                   <button
-                    onClick={() => toggleRoomExpansion(index)}
-                    className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
+                    onClick={() => toggleRoomExpansion(globalIndex)}
+                    className="w-full p-3 sm:p-4 hover:bg-gray-50 transition-colors text-left"
                   >
-                    <div className="flex-1 flex items-center gap-3">
-                      {/* Room Icon/Type */}
-                      <div className="flex items-center gap-2">
-                        <Bed className="w-4 h-4 text-gray-600" />
-                        <div>
-                          <h3 className="text-sm font-bold text-gray-900 capitalize">
-                            {offer.room?.typeEstimated?.category
-                              ? `${offer.room.typeEstimated.category.toLowerCase().replace(/_/g, ' ')} ${offer.room.typeEstimated.bedType ? offer.room.typeEstimated.bedType.toLowerCase() : ''}`
-                              : 'Room'}
-                          </h3>
-                          {offer.room?.typeEstimated && (
-                            <p className="text-[10px] text-gray-600">
-                              {offer.room.typeEstimated.beds} {offer.room.typeEstimated.bedType}
-                            </p>
-                          )}
+                    {/* Mobile Layout */}
+                    <div className="flex flex-col gap-2 sm:hidden">
+                      {/* Top Row: Title and Price */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-2 flex-1 min-w-0">
+                          <Bed className="w-4 h-4 text-gray-600 flex-shrink-0 mt-0.5" />
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-xs font-bold text-gray-900 capitalize line-clamp-2">
+                              {offer.room?.typeEstimated?.category
+                                ? `${offer.room.typeEstimated.category.toLowerCase().replace(/_/g, ' ')} ${offer.room.typeEstimated.bedType ? offer.room.typeEstimated.bedType.toLowerCase() : ''}`
+                                : 'Room'}
+                            </h3>
+                            {offer.room?.typeEstimated && (
+                              <p className="text-[10px] text-gray-600 mt-0.5">
+                                {offer.room.typeEstimated.beds} {offer.room.typeEstimated.bedType}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="text-right">
+                            <div className="text-base font-bold text-gray-900">
+                              ${parseFloat(offer.price.total).toLocaleString('en-US', {
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              })}
+                            </div>
+                          </div>
+                          <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                         </div>
                       </div>
 
-                      {/* Quick badges */}
-                      <div className="hidden md:flex items-center gap-2">
-                        {offer.policies?.cancellation?.type === 'FULL_REFUND' && (
-                          <div className="px-2 py-0.5 bg-green-600 text-white rounded text-[10px]">
-                            Free Cancel
-                          </div>
-                        )}
-                        {offer.guests && (
-                          <div className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[10px]">
-                            Up to {offer.guests.adults} adults
+                      {/* Bottom Row: Badges */}
+                      <div className="flex items-center gap-1.5 flex-wrap pl-6">
+                        {/* Cancellation Policy Badge */}
+                        {(() => {
+                          const cancellationType = offer.policies?.cancellation?.type;
+                          const hasTimeline = offer.policies?.cancellation?.timeline &&
+                                              offer.policies.cancellation.timeline.length > 0;
+                          const isRefundable = cancellationType === 'FULL_REFUND' || hasTimeline;
+
+                          if (isRefundable) {
+                            return (
+                              <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-green-600 text-white rounded text-[9px] font-semibold">
+                                <Check className="w-2.5 h-2.5" />
+                                <span>Free Cancel</span>
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-gray-600 text-white rounded text-[9px] font-semibold">
+                                <X className="w-2.5 h-2.5" />
+                                <span>Non-Refund</span>
+                              </div>
+                            );
+                          }
+                        })()}
+
+                        {/* Available rooms count */}
+                        {offer.quantityAvailable !== undefined && offer.quantityAvailable > 0 && offer.quantityAvailable <= 5 && (
+                          <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-orange-50 text-orange-700 border border-orange-200 rounded text-[9px] font-semibold">
+                            <Clock className="w-2.5 h-2.5" />
+                            <span>{offer.quantityAvailable} left</span>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {/* Price and Expand Icon */}
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900">
-                          ${parseFloat(offer.price.total).toLocaleString('en-US', {
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0,
-                          })}
+                    {/* Desktop Layout */}
+                    <div className="hidden sm:flex items-center justify-between gap-3">
+                      <div className="flex-1 flex items-center gap-3">
+                        {/* Room Icon/Type */}
+                        <div className="flex items-center gap-2">
+                          <Bed className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                          <div>
+                            <h3 className="text-sm font-bold text-gray-900 capitalize">
+                              {offer.room?.typeEstimated?.category
+                                ? `${offer.room.typeEstimated.category.toLowerCase().replace(/_/g, ' ')} ${offer.room.typeEstimated.bedType ? offer.room.typeEstimated.bedType.toLowerCase() : ''}`
+                                : 'Room'}
+                            </h3>
+                            {offer.room?.typeEstimated && (
+                              <p className="text-[10px] text-gray-600">
+                                {offer.room.typeEstimated.beds} {offer.room.typeEstimated.bedType}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-gray-600">
-                          for {calculateNights()} {calculateNights() === 1 ? 'night' : 'nights'}
+
+                        {/* Quick badges */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {/* Cancellation Policy Badge */}
+                          {(() => {
+                            const cancellationType = offer.policies?.cancellation?.type;
+                            const hasTimeline = offer.policies?.cancellation?.timeline &&
+                                                offer.policies.cancellation.timeline.length > 0;
+                            const isRefundable = cancellationType === 'FULL_REFUND' || hasTimeline;
+
+                            if (isRefundable) {
+                              return (
+                                <div className="flex items-center gap-1 px-2 py-0.5 bg-green-600 text-white rounded text-[10px] font-semibold">
+                                  <Check className="w-3 h-3" />
+                                  <span>Refundable</span>
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-600 text-white rounded text-[10px] font-semibold">
+                                  <X className="w-3 h-3" />
+                                  <span>Non-Refundable</span>
+                                </div>
+                              );
+                            }
+                          })()}
+
+                          {/* Available rooms count */}
+                          {offer.quantityAvailable !== undefined && offer.quantityAvailable > 0 && (
+                            <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[10px] font-semibold">
+                              <Clock className="w-3 h-3" />
+                              <span>
+                                {offer.quantityAvailable === 1
+                                  ? 'Only 1 left'
+                                  : offer.quantityAvailable <= 3
+                                    ? `Only ${offer.quantityAvailable} left`
+                                    : `${offer.quantityAvailable} available`
+                                }
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Guest capacity */}
+                          {offer.guests && (
+                            <div className="flex px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[10px]">
+                              Up to {offer.guests.adults} adults
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+
+                      {/* Price and Expand Icon */}
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-gray-900">
+                            ${parseFloat(offer.price.total).toLocaleString('en-US', {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            })}
+                          </div>
+                          <div className="text-[10px] text-gray-600">
+                            for {calculateNights()} {calculateNights() === 1 ? 'night' : 'nights'}
+                          </div>
+                        </div>
+                        <ChevronDown className={`w-5 h-5 text-gray-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                      </div>
                     </div>
                   </button>
 
                   {/* Collapsible Content */}
                   {isExpanded && (
                   <div className="flex flex-col lg:flex-row border-t border-gray-200">
-                    {/* Room Image */}
+                    {/* Room Image Gallery */}
                     {offer.room?.media && offer.room.media.length > 0 && (
-                      <div className="lg:w-64 h-48 lg:h-auto relative overflow-hidden">
+                      <div className="lg:w-64 h-44 sm:h-52 lg:h-auto relative overflow-hidden group">
                         <img
-                          src={offer.room.media[0].uri || offer.room.media[0].url}
-                          alt="Room"
+                          src={offer.room.media[roomImageIndices[globalIndex] || 0].uri || offer.room.media[roomImageIndices[globalIndex] || 0].url}
+                          alt={`Room - Photo ${(roomImageIndices[globalIndex] || 0) + 1}`}
                           className="absolute inset-0 w-full h-full object-cover"
                         />
+
+                        {/* Image Navigation - Only show if more than 1 photo */}
+                        {offer.room.media.length > 1 && (
+                          <>
+                            {/* Previous Button - Always visible on mobile */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                previousRoomImage(globalIndex, offer.room.media.length);
+                              }}
+                              className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
+                            >
+                              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </button>
+
+                            {/* Next Button - Always visible on mobile */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                nextRoomImage(globalIndex, offer.room.media.length);
+                              }}
+                              className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
+                            >
+                              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </button>
+
+                            {/* Image Counter */}
+                            <div className="absolute bottom-2 right-2 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-black/70 text-white rounded text-[9px] sm:text-[10px] font-semibold">
+                              {(roomImageIndices[globalIndex] || 0) + 1} / {offer.room.media.length}
+                            </div>
+                          </>
+                        )}
 
                         {/* Badges Overlay */}
                         <div className="absolute top-2 left-2 right-2 flex items-start justify-between">
@@ -1019,13 +1537,6 @@ export default function HotelDetailsPage() {
                     <div className="flex-1 flex flex-col lg:flex-row">
                       {/* Left: Room Info */}
                       <div className="flex-1 p-3 lg:p-4">
-                        {/* Room Title */}
-                        <h3 className="text-sm md:text-base font-bold text-gray-900 mb-2 capitalize">
-                          {offer.room?.typeEstimated?.category
-                            ? `${offer.room.typeEstimated.category.toLowerCase().replace(/_/g, ' ')} ${offer.room.typeEstimated.bedType ? offer.room.typeEstimated.bedType.toLowerCase() : ''} Room`
-                            : 'Room'}
-                        </h3>
-
                         {/* Room Description */}
                         {offer.room?.description?.text && (
                           <p className="text-xs text-gray-600 mb-3 leading-relaxed">
@@ -1034,13 +1545,13 @@ export default function HotelDetailsPage() {
                         )}
 
                         {/* Room Features */}
-                        <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                           {offer.room?.typeEstimated && (
-                            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200">
-                              <Bed className="w-4 h-4 text-gray-600" />
-                              <div>
+                            <div className="flex items-center gap-2 p-2 sm:p-2.5 bg-gray-50 rounded border border-gray-200">
+                              <Bed className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                              <div className="min-w-0">
                                 <div className="text-[10px] text-gray-600">Bed Type</div>
-                                <div className="text-xs font-semibold text-gray-900">
+                                <div className="text-xs font-semibold text-gray-900 truncate">
                                   {offer.room.typeEstimated.beds} {offer.room.typeEstimated.bedType}
                                 </div>
                               </div>
@@ -1048,11 +1559,11 @@ export default function HotelDetailsPage() {
                           )}
 
                           {offer.guests && (
-                            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200">
-                              <Users className="w-4 h-4 text-gray-600" />
-                              <div>
+                            <div className="flex items-center gap-2 p-2 sm:p-2.5 bg-gray-50 rounded border border-gray-200">
+                              <Users className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                              <div className="min-w-0">
                                 <div className="text-[10px] text-gray-600">Capacity</div>
-                                <div className="text-xs font-semibold text-gray-900">
+                                <div className="text-xs font-semibold text-gray-900 truncate">
                                   Up to {offer.guests.adults} adults
                                 </div>
                               </div>
@@ -1064,34 +1575,50 @@ export default function HotelDetailsPage() {
                         {offer.room?.description?.facilities && offer.room.description.facilities.length > 0 && (
                           <div className="mb-3">
                             <h4 className="text-xs font-semibold text-gray-900 mb-2">Room Features</h4>
-                            <div className="flex flex-wrap gap-1">
-                              {offer.room.description.facilities.map((facility: string, idx: number) => {
+                            <div className="flex flex-wrap gap-1.5">
+                              {offer.room.description.facilities.slice(0, 8).map((facility: string, idx: number) => {
                                 const Icon = getAmenityIcon(facility);
                                 return (
-                                  <div key={idx} className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded text-[10px] text-gray-700">
-                                    <Icon className="w-3 h-3 text-gray-600" />
-                                    <span className="capitalize">{facility.toLowerCase().replace(/_/g, ' ')}</span>
+                                  <div key={idx} className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded text-[9px] sm:text-[10px] text-gray-700">
+                                    <Icon className="w-3 h-3 text-gray-600 flex-shrink-0" />
+                                    <span className="capitalize whitespace-nowrap">{facility.toLowerCase().replace(/_/g, ' ')}</span>
                                   </div>
                                 );
                               })}
+                              {offer.room.description.facilities.length > 8 && (
+                                <div className="flex items-center px-2 py-1 bg-gray-100 border border-gray-200 rounded text-[9px] sm:text-[10px] text-gray-600 font-medium">
+                                  +{offer.room.description.facilities.length - 8} more
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
 
                         {/* Policies */}
                         <div className="flex flex-wrap gap-2">
-                          {offer.policies?.cancellation && (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded text-[10px] text-gray-700">
-                              <Shield className="w-3 h-3 text-gray-600" />
-                              <span>
-                                {offer.policies.cancellation.type === 'FULL_REFUND'
-                                  ? 'Free cancellation'
-                                  : offer.policies.cancellation.type === 'NON_REFUNDABLE'
-                                  ? 'Non-refundable'
-                                  : 'Cancellation available'}
-                              </span>
-                            </div>
-                          )}
+                          {/* Cancellation Policy - Color coded */}
+                          {(() => {
+                            const cancellationType = offer.policies?.cancellation?.type;
+                            const hasTimeline = offer.policies?.cancellation?.timeline &&
+                                                offer.policies.cancellation.timeline.length > 0;
+                            const isRefundable = cancellationType === 'FULL_REFUND' || hasTimeline;
+
+                            if (isRefundable) {
+                              return (
+                                <div className="flex items-center gap-1 px-3 py-1.5 bg-green-50 border border-green-200 rounded text-[10px] font-semibold text-green-700">
+                                  <Shield className="w-3 h-3 text-green-600" />
+                                  <span>Free Cancellation</span>
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 border border-gray-300 rounded text-[10px] font-semibold text-gray-700">
+                                  <X className="w-3 h-3 text-gray-600" />
+                                  <span>Non-Refundable</span>
+                                </div>
+                              );
+                            }
+                          })()}
                           {(() => {
                             // Parse description for breakfast/meal keywords
                             const description = (offer.room?.description?.text || '').toLowerCase();
@@ -1145,6 +1672,24 @@ export default function HotelDetailsPage() {
                             <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-200 rounded text-[10px] text-gray-700">
                               <CreditCard className="w-3 h-3 text-gray-600" />
                               <span className="capitalize">{offer.policies.paymentType.toLowerCase()}</span>
+                            </div>
+                          )}
+                          {/* Availability badge */}
+                          {offer.quantityAvailable !== undefined && offer.quantityAvailable > 0 && (
+                            <div className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold ${
+                              offer.quantityAvailable <= 3
+                                ? 'bg-orange-50 border border-orange-200 text-orange-700'
+                                : 'bg-blue-50 border border-blue-200 text-blue-700'
+                            }`}>
+                              <Clock className="w-3 h-3" />
+                              <span>
+                                {offer.quantityAvailable === 1
+                                  ? 'Only 1 room left!'
+                                  : offer.quantityAvailable <= 3
+                                    ? `Only ${offer.quantityAvailable} rooms left!`
+                                    : `${offer.quantityAvailable} rooms available`
+                                }
+                              </span>
                             </div>
                           )}
                         </div>
@@ -1212,6 +1757,10 @@ export default function HotelDetailsPage() {
                   </div>
                   )}
                 </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -1274,6 +1823,35 @@ export default function HotelDetailsPage() {
       {/* AI Chatbox */}
       <AIChatbox />
 
+      {/* Payment Summary Modal */}
+      <PaymentSummaryModal
+        isOpen={showPaymentSummary}
+        onClose={() => setShowPaymentSummary(false)}
+        onContinue={handleContinueToGuestDetails}
+        selectedOffer={selectedOffer}
+        hotelName={hotelOffers?.hotel?.name || ''}
+        roomType={selectedOffer?.room?.type || selectedOffer?.room?.name || 'Room'}
+        checkInDate={checkInDate}
+        checkOutDate={checkOutDate}
+        numberOfNights={(() => {
+          if (checkInDate && checkOutDate) {
+            const checkIn = new Date(checkInDate);
+            const checkOut = new Date(checkOutDate);
+            const diffTime = Math.abs(checkOut.getTime() - checkIn.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+          }
+          return 1;
+        })()}
+        adults={adults}
+        rooms={rooms}
+        currency={selectedOffer?.price?.currency || 'USD'}
+        paymentMethod={paymentMethod}
+        onPaymentMethodChange={setPaymentMethod}
+        userCredits={userCredits}
+        userRole={userRole}
+      />
+
       {/* Passenger Details Modal */}
       <PassengerDetailsModal
         isOpen={showPassengerModal}
@@ -1283,6 +1861,7 @@ export default function HotelDetailsPage() {
         onSubmit={handlePassengerDetailsSubmit}
         totalPrice={selectedOffer ? parseFloat(selectedOffer.price.total) * rooms : 0}
         currency={selectedOffer?.price.currency || 'USD'}
+        paymentMethod={paymentMethod}
         numberOfRooms={rooms}
         availableOffers={hotelOffers?.offers || []}
         onMultiRoomSubmit={async (multiRoomData) => {
@@ -1297,14 +1876,67 @@ export default function HotelDetailsPage() {
 
             const hotel = hotelOffers.hotel;
 
-            // Collect all passengers from all rooms
+            // STEP 1: Create quote from first room's rate ID BEFORE booking
+            // For multi-room bookings, we use the first room's rate to create the quote
+            const primaryRateId = multiRoomData.rooms[0]?.offerId;
+            console.log('Creating quote for multi-room booking, primary rate:', primaryRateId);
+            let quoteId: string | null = null;
+            try {
+              const quoteResponse = await fetch(getApiEndpoint(`hotels/quotes`), {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  rateId: primaryRateId,
+                }),
+              });
+
+              if (!quoteResponse.ok) {
+                const quoteError = await quoteResponse.json();
+                throw new Error(quoteError.message || 'Failed to create quote. Rates may have expired.');
+              }
+
+              const quoteData = await quoteResponse.json();
+              quoteId = quoteData.data.id;
+              console.log('✅ Multi-room quote created:', quoteId);
+            } catch (quoteError: any) {
+              console.error('Multi-room quote creation failed:', quoteError);
+              alert(quoteError.message || 'These hotel rooms are no longer available. Please search again for fresh availability.');
+              return;
+            }
+
+            // STEP 2: Collect all passengers from all rooms
             const allPassengers = multiRoomData.rooms.flatMap(room => room.guests);
 
+            // STEP 3: Create booking with quoteId
             const bookingData = {
               bookingType: 'hotel',
               isGroupBooking: multiRoomData.isGroupBooking,
               numberOfTravelers: multiRoomData.totalGuests,
               groupName: multiRoomData.groupName,
+
+              // Provider details - CRITICAL for Duffel Stays booking creation
+              provider: 'duffel',
+              providerName: 'Duffel Stays',
+              providerBookingReference: multiRoomData.rooms[0]?.offerId, // Rate ID from first room
+
+              // Payment method
+              paymentMethod,
+
+              // Instant confirmation flag (for hotels)
+              isInstantConfirmation: multiRoomData.rooms[0]?.offerDetails?.instantConfirmation !== false,
+
+              // Store selected offer data for webhook processing
+              bookingData: {
+                rooms: multiRoomData.rooms.map(room => ({
+                  ...room.offerDetails,
+                  rateId: room.offerId,
+                })),
+                rateId: multiRoomData.rooms[0]?.offerId, // Primary rate ID
+                quoteId: quoteId, // 🔥 CRITICAL FIX: Store quoteId for webhook to use
+              },
 
               // Trip details
               destination: hotel.address?.cityName || hotel.name,
@@ -1362,6 +1994,16 @@ export default function HotelDetailsPage() {
 
             if (response.ok) {
               const result = await response.json();
+
+              // Check if there's a checkout URL (indicates card payment via Stripe)
+              if (result.checkoutUrl) {
+                // Redirect to Stripe checkout
+                console.log('Redirecting to Stripe:', result.checkoutUrl);
+                window.location.href = result.checkoutUrl;
+                return;
+              }
+
+              // For credit payments, show success modal
               setShowPassengerModal(false);
               setBookingResult({
                 ...result.data,
@@ -1401,6 +2043,9 @@ export default function HotelDetailsPage() {
           hotelName: hotel?.name,
         }}
       />
+
+      {/* Business Information Footer */}
+      <BusinessFooter />
     </div>
   );
 }
