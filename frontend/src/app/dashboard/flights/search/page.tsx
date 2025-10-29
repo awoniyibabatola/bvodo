@@ -1578,11 +1578,11 @@ export default function FlightSearchPage() {
                             Pending Approval
                           </span>
                         </div>
-                        {booking.bookingData?.outbound?.[0]?.airline?.iata_code ? (
+                        {booking.flightBookings?.[0]?.airlineCode ? (
                           <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
                             <img
-                              src={getAirlineLogo(booking.bookingData.outbound[0].airline.iata_code)}
-                              alt={booking.bookingData.outbound[0].airline.name || 'Airline'}
+                              src={getAirlineLogo(booking.flightBookings[0].airlineCode)}
+                              alt={booking.flightBookings[0].airline || 'Airline'}
                               className="w-full h-full object-contain p-1.5"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
@@ -1683,11 +1683,11 @@ export default function FlightSearchPage() {
                             Confirmed
                           </span>
                         </div>
-                        {booking.bookingData?.outbound?.[0]?.airline?.iata_code ? (
+                        {booking.flightBookings?.[0]?.airlineCode ? (
                           <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
                             <img
-                              src={getAirlineLogo(booking.bookingData.outbound[0].airline.iata_code)}
-                              alt={booking.bookingData.outbound[0].airline.name || 'Airline'}
+                              src={getAirlineLogo(booking.flightBookings[0].airlineCode)}
+                              alt={booking.flightBookings[0].airline || 'Airline'}
                               className="w-full h-full object-contain p-1.5"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
