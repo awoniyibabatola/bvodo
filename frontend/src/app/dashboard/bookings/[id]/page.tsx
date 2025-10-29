@@ -2433,7 +2433,11 @@ export default function BookingDetailPage() {
         )}
 
         {/* Cross-sell: Suggest complementary booking */}
-        {booking && (booking.status === 'confirmed' || booking.status === 'completed') && (
+        {booking && (
+          booking.status === 'confirmed' ||
+          booking.status === 'completed' ||
+          booking.paymentStatus === 'completed'
+        ) && (
           <CrossSellCard
             bookingType={booking.bookingType}
             destination={isHotelBooking ? hotelBooking?.city : flightBooking?.arrivalAirport}
