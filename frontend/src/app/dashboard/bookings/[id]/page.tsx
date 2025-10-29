@@ -2436,6 +2436,9 @@ export default function BookingDetailPage() {
         {booking && (
           booking.status === 'confirmed' ||
           booking.status === 'completed' ||
+          booking.status === 'approved' ||
+          booking.status === 'awaiting_confirmation' ||
+          booking.status === 'pending_approval' ||
           booking.paymentStatus === 'completed'
         ) && (
           <CrossSellCard
