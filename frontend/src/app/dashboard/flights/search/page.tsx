@@ -603,6 +603,10 @@ export default function FlightSearchPage() {
         console.log('✅ Confirmed bookings response:', recentData);
         if (recentData.success) {
           console.log('✅ Setting recent bookings:', recentData.data?.length || 0, 'items');
+          if (recentData.data?.[0]) {
+            console.log('🔍 First booking structure:', recentData.data[0]);
+            console.log('✈️ Airline data:', recentData.data[0].bookingData?.outbound?.[0]?.airline);
+          }
           setRecentBookings(recentData.data || []);
         }
 
@@ -628,6 +632,10 @@ export default function FlightSearchPage() {
         ];
 
         console.log('✅ Combined draft bookings:', combined.length, 'items');
+        if (combined[0]) {
+          console.log('🔍 First draft booking structure:', combined[0]);
+          console.log('✈️ Draft airline data:', combined[0].bookingData?.outbound?.[0]?.airline);
+        }
         // Sort by createdAt and take top 5
         combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setDraftBookings(combined.slice(0, 5));
