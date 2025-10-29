@@ -4,6 +4,7 @@ import { logger } from '../utils/logger';
 import {
   DuffelStaysSearchParams,
   DuffelStaysSearchResult,
+  DuffelStaysSearchResponse,
   DuffelStaysAccommodation,
   DuffelStaysQuote,
   DuffelStaysQuoteParams,
@@ -102,16 +103,53 @@ export class DuffelStaysService {
         searchParams.negotiated_rate_codes = params.negotiatedRateCodes;
       }
 
-      const response = await this.client.post<DuffelStaysApiListResponse<DuffelStaysSearchResult>>(
+      logger.info('====== DUFFEL STAYS REQUEST ======');
+      logger.info(`Endpoint: /stays/search`);
+      logger.info(`Request Params: ${JSON.stringify(searchParams, null, 2)}`);
+      logger.info('==================================');
+
+      const response = await this.client.post<DuffelStaysSearchResponse>(
         '/stays/search',
         { data: searchParams }
       );
 
-      const searchResults = response.data.data;
-
-      logger.info(`Found ${searchResults.length} accommodations`, {
-        count: searchResults.length,
+      logger.info('====== DUFFEL STAYS RESPONSE ======');
+      logger.info(`Status: ${response.status}`);
+      logger.info(`Response Data: ${JSON.stringify(response.data, null, 2).substring(0, 1500)}`);
+      logger.info(`Response structure check:`, {
+        hasData: !!response.data,
+        hasDataData: !!response.data?.data,
+        hasResults: !!response.data?.data?.results,
+        dataKeys: response.data ? Object.keys(response.data) : [],
+        dataDataKeys: response.data?.data ? Object.keys(response.data.data) : [],
       });
+
+      // Log first result structure in detail
+      if (response.data?.data?.results?.length > 0) {
+        const firstResult = response.data.data.results[0];
+        logger.info('=== FIRST RESULT STRUCTURE ===');
+        logger.info('Keys:', Object.keys(firstResult));
+        logger.info('Has id:', !!firstResult.id);
+        logger.info('id value:', firstResult.id);
+        logger.info('Full first result:', JSON.stringify(firstResult, null, 2));
+      }
+
+      logger.info('===================================');
+
+      // Duffel returns results in data.data.results array
+      const searchResults = response.data.data?.results;
+
+      logger.info(`Found ${searchResults?.length || 0} accommodations`, {
+        count: searchResults?.length || 0,
+      });
+
+      // CRITICAL DEBUG: Check if first result has ID before returning
+      if (searchResults && searchResults.length > 0) {
+        const firstResult = searchResults[0];
+        logger.info('🔍 SERVICE RETURN CHECK - First result ID:', firstResult.id);
+        logger.info('🔍 SERVICE RETURN CHECK - ID exists:', 'id' in firstResult);
+        logger.info('🔍 SERVICE RETURN CHECK - All keys:', Object.keys(firstResult));
+      }
 
       return searchResults;
     } catch (error) {
@@ -130,11 +168,13 @@ export class DuffelStaysService {
     try {
       logger.info('Fetching rates for search result', { searchResultId });
 
-      const response = await this.client.get<DuffelStaysApiResponse<DuffelStaysAccommodation>>(
-        `/stays/search_results/${searchResultId}/rates`
+      // Correct endpoint: POST /stays/search_results/{id}/actions/fetch_all_rates
+      const response = await this.client.post<DuffelStaysApiResponse<{ accommodation: DuffelStaysAccommodation }>>(
+        `/stays/search_results/${searchResultId}/actions/fetch_all_rates`,
+        {} // Empty body for POST request
       );
 
-      const accommodation = response.data.data;
+      const accommodation = response.data.data.accommodation;
 
       logger.info('Rates fetched successfully', {
         accommodationId: accommodation.id,
@@ -143,8 +183,39 @@ export class DuffelStaysService {
       });
 
       return accommodation;
-    } catch (error) {
-      logger.error('Error fetching rates:', error);
+    } catch (error: any) {
+      logger.error('====== ERROR FETCHING RATES ======');
+      logger.error('Search Result ID:', searchResultId);
+
+      if (error.response) {
+        logger.error('Duffel API Error Response:');
+        logger.error('Status:', error.response.status);
+        logger.error('Status Text:', error.response.statusText);
+        logger.error('Headers:', JSON.stringify(error.response.headers, null, 2));
+        logger.error('Data:', JSON.stringify(error.response.data, null, 2));
+
+        // Log specific Duffel error details if available
+        if (error.response.data?.errors) {
+          logger.error('Duffel Error Details:');
+          error.response.data.errors.forEach((err: any, index: number) => {
+            logger.error(`Error ${index + 1}:`, {
+              type: err.type,
+              title: err.title,
+              detail: err.detail,
+              code: err.code,
+            });
+          });
+        }
+      } else if (error.request) {
+        logger.error('No response received from Duffel API');
+        logger.error('Request details:', error.request);
+      } else {
+        logger.error('Error setting up request:', error.message);
+      }
+
+      logger.error('Full error object:', error);
+      logger.error('================================');
+
       throw this.createServiceError('Failed to fetch rates for accommodation', error);
     }
   }
@@ -293,25 +364,25 @@ export class DuffelStaysService {
    */
   async cancelBooking(bookingId: string): Promise<DuffelStaysCancellation> {
     try {
-      logger.info('Cancelling booking', { bookingId });
+      logger.info('[Duffel Stays] Cancelling booking', { bookingId });
 
+      // Use the correct Duffel Stays cancellation endpoint
       const response = await this.client.post<DuffelStaysApiResponse<DuffelStaysCancellation>>(
-        `/stays/bookings/${bookingId}/cancellations`,
+        `/stays/bookings/${bookingId}/actions/cancel`,
         {}
       );
 
       const cancellation = response.data.data;
 
-      logger.info('Booking cancelled successfully', {
-        cancellationId: cancellation.id,
-        refundAmount: cancellation.refund_amount,
-        refundCurrency: cancellation.refund_currency,
+      logger.info('[Duffel Stays] ✅ Booking cancelled successfully', {
+        bookingId: cancellation.id,
+        cancelledAt: cancellation.cancelled_at,
       });
 
       return cancellation;
     } catch (error) {
-      logger.error('Error cancelling booking:', error);
-      throw this.createServiceError('Failed to cancel booking', error);
+      logger.error('[Duffel Stays] ❌ Error cancelling booking:', error);
+      throw this.createServiceError('Failed to cancel booking with Duffel Stays', error);
     }
   }
 

@@ -88,6 +88,7 @@ export interface StandardizedFlightOffer {
   isRefundable: boolean;
   isChangeable: boolean;
   lastTicketingDate?: string;
+  expiresAt?: string; // ISO 8601 timestamp when this offer expires
 
   // Fare information
   fareBrandName?: string; // e.g., "Basic Economy", "Flex", "Premium Economy"

@@ -98,6 +98,8 @@ export class DashboardController {
       let totalCreditUsed: number;
       let totalCreditHeld: number;
       let creditUsagePercentage: number;
+      let thisMonthSpending: number = 0;
+      let totalTransactions: number = 0;
 
       if (isAdminRole) {
         // For admins: show organization credits
@@ -115,6 +117,20 @@ export class DashboardController {
           .filter(t => t.transactionType === 'credit_held')
           .reduce((acc, t) => acc + parseFloat(t.amount.toString()), 0);
 
+        // Calculate this month's spending
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        thisMonthSpending = creditTransactions
+          .filter(t =>
+            t.transactionType === 'credit_deducted' &&
+            t.createdAt >= firstDayOfMonth
+          )
+          .reduce((acc, t) => acc + parseFloat(t.amount.toString()), 0);
+
+        totalTransactions = creditTransactions
+          .filter(t => t.transactionType === 'credit_deducted')
+          .length;
+
         availableCredits = parseFloat(organization.availableCredits.toString());
         totalCredit = parseFloat(organization.totalCredits.toString());
 
@@ -127,6 +143,21 @@ export class DashboardController {
         totalCredit = parseFloat(currentUser.creditLimit.toString());
         totalCreditUsed = totalCredit - availableCredits;
         totalCreditHeld = 0; // We can track this if needed
+
+        // Calculate this month's spending for personal bookings
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthlyBookings = bookings.filter(b =>
+          b.createdAt >= firstDayOfMonth &&
+          (b.status === 'confirmed' || b.status === 'completed')
+        );
+        thisMonthSpending = monthlyBookings.reduce((acc, b) =>
+          acc + parseFloat(b.totalPrice?.toString() || '0'), 0
+        );
+
+        totalTransactions = bookings.filter(b =>
+          b.status === 'confirmed' || b.status === 'completed'
+        ).length;
 
         creditUsagePercentage = totalCredit > 0
           ? Math.round((totalCreditUsed / totalCredit) * 100)
@@ -193,6 +224,7 @@ export class DashboardController {
           }),
           status: displayStatus,
           amount: `$${parseFloat(booking.totalPrice?.toString() || '0').toFixed(0)}`,
+          image: booking.bookingType === 'hotel' && hotelBooking ? hotelBooking.photoUrl : null,
         };
       });
 
@@ -203,6 +235,8 @@ export class DashboardController {
           held: totalCreditHeld,
           total: totalCredit,
           usagePercentage: creditUsagePercentage,
+          thisMonth: thisMonthSpending,
+          transactions: totalTransactions,
         },
         stats: {
           totalBookings,

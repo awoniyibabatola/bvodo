@@ -183,6 +183,15 @@ model Booking {
   exchangeRate                Decimal? @map("exchange_rate") @db.Decimal(10, 6) // Rate used for conversion
   totalPriceOrgCurrency       Decimal? @map("total_price_org_currency") @db.Decimal(12, 2) // Converted to org currency
 
+  // Duffel Go-Live Compliance Fields
+  taxes                       Decimal? @db.Decimal(12, 2) // Separate taxes amount
+  fees                        Decimal? @db.Decimal(12, 2) // Separate service fees amount
+  dueAtAccommodation          Decimal? @map("due_at_accommodation") @db.Decimal(12, 2) // Amount due at hotel
+  cancellationTimeline        Json?    @map("cancellation_timeline") // Full cancellation policy timeline
+  supplier                    String?  @db.VarChar(50) // Supplier info (e.g., booking_com)
+  checkInTime                 String?  @map("check_in_time") @db.VarChar(20) // Check-in time from API
+  checkOutTime                String?  @map("check_out_time") @db.VarChar(20) // Check-out time from API
+
   // Booking Status
   status                      String   @default("pending") @db.VarChar(30)
   // pending, pending_approval, approved, awaiting_confirmation, confirmed, cancelled, rejected, completed, failed, pending_reselection

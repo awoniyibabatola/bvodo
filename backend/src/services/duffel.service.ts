@@ -120,9 +120,20 @@ export class DuffelService implements IFlightProvider {
       return standardizedOffers.slice(0, maxResults);
     } catch (error: any) {
       logger.error('[Duffel] Flight search error:', error.response?.data || error);
-      throw new Error(
-        error.response?.data?.errors?.[0]?.message || 'Failed to search flights with Duffel'
-      );
+
+      // Extract and format error message from Duffel API
+      const duffelError = error.response?.data?.errors?.[0];
+      let errorMessage = duffelError?.message || 'Failed to search flights with Duffel';
+
+      // Provide more helpful messages for common errors
+      if (errorMessage.includes('origin') || errorMessage.includes('destination')) {
+        // Check which field is invalid
+        const invalidField = duffelError?.source?.pointer?.includes('origin') ? 'origin' : 'destination';
+        const invalidCode = params[invalidField === 'origin' ? 'originLocationCode' : 'destinationLocationCode'];
+        errorMessage = `Invalid ${invalidField} airport code: "${invalidCode}". ${errorMessage}. Please select a valid airport from the dropdown.`;
+      }
+
+      throw new Error(errorMessage);
     }
   }
 
@@ -522,6 +533,7 @@ export class DuffelService implements IFlightProvider {
       isRefundable: offer.conditions.refund_before_departure?.allowed || false,
       isChangeable: offer.conditions.change_before_departure?.allowed || false,
       lastTicketingDate: offer.payment_requirements.payment_required_by,
+      expiresAt: offer.expires_at, // Include expiration timestamp
 
       // Fare information
       fareBrandName,
@@ -822,6 +834,45 @@ export class DuffelService implements IFlightProvider {
         })),
       })),
     };
+  }
+
+  /**
+   * Search for places (airports and cities) using Duffel Places API
+   * @param query - Search string for finding matching places by name
+   * @returns Array of location objects with IATA codes
+   */
+  async searchPlaces(query: string): Promise<Array<{
+    iataCode: string;
+    name: string;
+    cityName?: string;
+    countryName?: string;
+    type: 'AIRPORT' | 'CITY';
+  }>> {
+    try {
+      logger.info(`[Duffel] Searching places: ${query}`);
+
+      const { data: response } = await this.client.get<DuffelApiListResponse<any>>(
+        `/places/suggestions?query=${encodeURIComponent(query)}`
+      );
+
+      logger.info(`[Duffel] Found ${response.data.length} places`);
+
+      // Transform to standardized format
+      const locations = response.data.map((place: any) => ({
+        iataCode: place.iata_code,
+        name: place.name,
+        cityName: place.city_name,
+        countryName: place.iata_country_code, // We'll need to map this to country names if needed
+        type: place.type.toUpperCase() as 'AIRPORT' | 'CITY',
+      }));
+
+      return locations;
+    } catch (error: any) {
+      logger.error('[Duffel] Place search error:', error.response?.data || error);
+      throw new Error(
+        error.response?.data?.errors?.[0]?.message || 'Failed to search places with Duffel'
+      );
+    }
   }
 }
 

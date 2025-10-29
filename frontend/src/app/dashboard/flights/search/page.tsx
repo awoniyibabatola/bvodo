@@ -34,6 +34,7 @@ import { getApiEndpoint } from '@/lib/api-config';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
 import AirportAutocomplete from '@/components/AirportAutocomplete';
 import TravelClassSelector from '@/components/TravelClassSelector';
+import { getCityCode } from '@/utils/cityMapping';
 
 // Airline names mapping
 const AIRLINE_NAMES: { [key: string]: string } = {
@@ -718,9 +719,25 @@ export default function FlightSearchPage() {
     setError('');
 
     try {
+      // Convert city names to IATA codes
+      const originCode = getCityCode(origin) || origin.toUpperCase();
+      const destinationCode = getCityCode(destination) || destination.toUpperCase();
+
+      // Validate IATA codes (must be 3 letters)
+      if (!/^[A-Z]{3}$/.test(originCode)) {
+        setError(`Invalid origin airport: "${origin}". Please select a city from the dropdown or enter a 3-letter airport code (e.g., BOS, LAX).`);
+        setLoading(false);
+        return;
+      }
+      if (!/^[A-Z]{3}$/.test(destinationCode)) {
+        setError(`Invalid destination airport: "${destination}". Please select a city from the dropdown or enter a 3-letter airport code (e.g., BOS, LAX).`);
+        setLoading(false);
+        return;
+      }
+
       const params = new URLSearchParams({
-        origin,
-        destination,
+        origin: originCode,
+        destination: destinationCode,
         departureDate: depDate,
         ...(retDate && { returnDate: retDate }),
         adults: adults.toString(),
@@ -753,10 +770,25 @@ export default function FlightSearchPage() {
           timestamp: Date.now(),
         }));
       } else {
-        setError(data.message || 'Failed to search flights');
+        // Provide more helpful error messages for common issues
+        let errorMessage = data.message || 'Failed to search flights';
+
+        // Check for IATA code validation errors
+        if (errorMessage.toLowerCase().includes('iata') || errorMessage.toLowerCase().includes('invalid')) {
+          errorMessage = `${errorMessage}\n\nPlease make sure you've selected valid airports from the dropdown. If searching for Monaco, use Nice (NCE) airport instead.`;
+        }
+
+        setError(errorMessage);
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred while searching flights');
+      let errorMessage = err.message || 'An error occurred while searching flights';
+
+      // Provide helpful context for network or API errors
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('Network')) {
+        errorMessage = 'Unable to connect to the flight search service. Please check your internet connection and try again.';
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

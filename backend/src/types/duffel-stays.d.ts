@@ -30,21 +30,56 @@ export interface DuffelStaysSearchParams {
 }
 
 export interface DuffelStaysSearchResult {
-  id: string; // Search result ID (used to fetch rates)
+  id?: string; // Search result ID (may not be present in all responses)
+  supported_negotiated_rates: string[];
+  cheapest_rate_total_amount: string;
+  cheapest_rate_currency: string;
+  cheapest_rate_public_amount: string;
+  cheapest_rate_public_currency: string;
+  cheapest_rate_base_amount: string;
+  cheapest_rate_base_currency: string;
+  cheapest_rate_due_at_accommodation_amount?: string;
+  cheapest_rate_due_at_accommodation_currency?: string;
+  cheapest_rate_deal_types?: string[]; // Deal types like "early_bird", "member_rate"
+  cheapest_rate_payment_type?: string; // Payment type like "pay_now", "pay_later"
+  cheapest_rate_conditions?: Array<{
+    title?: string;
+    description?: string;
+  }>; // Rate conditions and policies
+  guests: DuffelStaysGuest[];
+  check_in_date: string;
+  check_out_date: string;
+  rooms: number;
   accommodation: {
     id: string;
     name: string;
+    description?: string;
     location: {
       geographic_coordinates: {
         latitude: number;
         longitude: number;
       };
     };
+    address?: DuffelStaysAddress;
+    photos: DuffelStaysPhoto[];
+    rating?: number;
+    review_count?: number;
+    review_score?: number; // Review score (e.g., 8.9 out of 10)
+    amenities?: string[];
+    check_in_information?: {
+      check_in_after_time?: string;
+      check_in_before_time?: string;
+      check_out_before_time?: string;
+    };
+    payment_instruction_supported?: boolean;
+    supported_loyalty_programme?: string;
   };
-  cheapest_rate: {
-    id: string;
-    total_amount: string;
-    total_currency: string;
+}
+
+export interface DuffelStaysSearchResponse {
+  data: {
+    created_at: string;
+    results: DuffelStaysSearchResult[];
   };
 }
 

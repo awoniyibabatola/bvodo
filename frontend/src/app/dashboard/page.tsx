@@ -25,6 +25,7 @@ import {
 import AIChatbox from '@/components/AIChatbox';
 import CreditCard from '@/components/CreditCard';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
+import BusinessFooter from '@/components/BusinessFooter';
 import { getApiEndpoint } from '@/lib/api-config';
 
 interface DashboardStats {
@@ -34,6 +35,8 @@ interface DashboardStats {
     held: number;
     total: number;
     usagePercentage: number;
+    thisMonth: number;
+    transactions: number;
   };
   stats: {
     totalBookings: number;
@@ -50,6 +53,7 @@ interface DashboardStats {
     date: string;
     status: string;
     amount: string;
+    image: string | null;
   }>;
   organization: {
     name: string;
@@ -144,6 +148,41 @@ export default function DashboardPage() {
             <Calendar className="w-3.5 h-3.5" />
             <p className="text-xs">{user.organization} • {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
+        </div>
+
+        {/* Quick Action Buttons */}
+        <div className="grid grid-cols-2 gap-3 mb-8">
+          {/* Book Flight */}
+          <Link
+            href="/dashboard/flights/search"
+            className="group relative bg-white border-2 border-gray-900 rounded-xl p-5 hover:bg-gray-900 transition-all duration-200 overflow-hidden"
+          >
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-900 group-hover:bg-white rounded-lg transition-colors">
+                  <Plane className="w-5 h-5 text-white group-hover:text-gray-900 transition-colors" />
+                </div>
+                <span className="text-sm font-bold text-gray-900 group-hover:text-white transition-colors">Book Flight</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+            </div>
+          </Link>
+
+          {/* Book Hotel */}
+          <Link
+            href="/dashboard/hotels/search"
+            className="group relative bg-white border-2 border-gray-700 rounded-xl p-5 hover:bg-gray-700 transition-all duration-200 overflow-hidden"
+          >
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-700 group-hover:bg-white rounded-lg transition-colors">
+                  <Hotel className="w-5 h-5 text-white group-hover:text-gray-700 transition-colors" />
+                </div>
+                <span className="text-sm font-bold text-gray-700 group-hover:text-white transition-colors">Book Hotel</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+            </div>
+          </Link>
         </div>
 
         {/* AI Quick Booking Suggestions - Horizontal Slider */}
@@ -263,6 +302,11 @@ export default function DashboardPage() {
                   availableBalance={dashboardStats?.credits.available || 0}
                   size="large"
                   disableInternalFlip={true}
+                  usageData={{
+                    used: dashboardStats?.credits.used || 0,
+                    total: dashboardStats?.credits.total || 0,
+                    usagePercentage: dashboardStats?.credits.usagePercentage || 0,
+                  }}
                 />
               </div>
 
@@ -435,37 +479,51 @@ export default function DashboardPage() {
 
                 return (
                 <Link key={index} href={bookingLink} className="group relative block">
-                  <div className="relative flex items-center justify-between p-3 md:p-4 lg:p-5 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 hover:border-gray-400 transition-all cursor-pointer shadow-sm">
-                    <div className="flex items-center gap-2 md:gap-3 lg:gap-4 flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        {booking.type === 'Flight' ? (
-                          <>
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
-                            <div className="p-2 md:p-2.5 lg:p-3 bg-gray-900 rounded-xl md:rounded-2xl flex-shrink-0">
-                              <Plane className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="w-1.5 h-1.5 rounded-full bg-gray-700 flex-shrink-0"></div>
-                            <div className="p-2 md:p-2.5 lg:p-3 bg-gray-700 rounded-xl md:rounded-2xl flex-shrink-0">
-                              <Hotel className="w-4 h-4 md:w-5 md:h-5 text-white" />
-                            </div>
-                          </>
-                        )}
+                  <div className="relative flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-200 hover:border-gray-400 transition-all cursor-pointer shadow-sm overflow-hidden">
+                    {/* Thumbnail Image for Hotels */}
+                    {booking.type === 'Hotel' && booking.image && (
+                      <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden flex-shrink-0">
+                        <img
+                          src={booking.image}
+                          alt={booking.route}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            target.parentElement!.classList.add('bg-gray-200');
+                            const icon = document.createElement('div');
+                            icon.className = 'absolute inset-0 flex items-center justify-center';
+                            icon.innerHTML = '<svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 8h.01M12 12h.01M15 16h.01"/></svg>';
+                            target.parentElement!.appendChild(icon);
+                          }}
+                        />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm md:text-base text-gray-900 mb-1 md:mb-1.5 break-words">{booking.route}</div>
-                        <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600 flex-wrap">
-                          <span className="break-words">{booking.traveler}</span>
-                          <span className="text-gray-400 hidden sm:inline">•</span>
-                          <span className="hidden sm:flex items-center gap-1">
-                            <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                            {booking.date}
-                          </span>
+                    )}
+
+                    {/* Flight Icon */}
+                    {booking.type === 'Flight' && (
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+                        <div className="p-2 md:p-2.5 lg:p-3 bg-gray-900 rounded-xl md:rounded-2xl">
+                          <Plane className="w-4 h-4 md:w-5 md:h-5 text-white" />
                         </div>
                       </div>
+                    )}
+
+                    {/* Booking Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm md:text-base text-gray-900 mb-0.5 break-words line-clamp-1">{booking.route}</div>
+                      <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600 flex-wrap">
+                        <span className="break-words">{booking.traveler}</span>
+                        <span className="text-gray-400 hidden sm:inline">•</span>
+                        <span className="hidden sm:flex items-center gap-1">
+                          <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                          {booking.date}
+                        </span>
+                      </div>
                     </div>
+
+                    {/* Price and Status */}
                     <div className="text-right flex-shrink-0 ml-2">
                       <div className="font-bold text-sm md:text-base text-gray-900 mb-1 md:mb-1.5">{booking.amount}</div>
                       <div className={`text-[10px] md:text-xs font-medium px-2 md:px-3 py-1 md:py-1.5 rounded-full inline-flex items-center gap-1 md:gap-1.5 border ${
@@ -670,6 +728,9 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Business Information Footer */}
+      <BusinessFooter />
     </div>
   );
 }

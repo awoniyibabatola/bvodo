@@ -4,6 +4,7 @@ import {
   getBookings,
   getBookingById,
   createBooking,
+  getCancellationPreview,
   cancelBooking,
   approveBooking,
   rejectBooking,
@@ -30,6 +31,13 @@ router.get('/', getBookings);
  * @access  Private
  */
 router.get('/stats', getBookingStats);
+
+/**
+ * @route   GET /api/bookings/:id/cancellation-preview
+ * @desc    Get cancellation preview/quote
+ * @access  Private
+ */
+router.get('/:id/cancellation-preview', getCancellationPreview);
 
 /**
  * @route   GET /api/bookings/:id

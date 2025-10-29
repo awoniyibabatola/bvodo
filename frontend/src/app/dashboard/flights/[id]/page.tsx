@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -120,6 +120,7 @@ export default function FlightDetailsPage() {
   // Payment method selection
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'card'>('credit');
   const [userCredits, setUserCredits] = useState<number>(0);
+  const [userRole, setUserRole] = useState<string>('traveler');
 
   useEffect(() => {
     // Try to get flight data from sessionStorage first
@@ -131,32 +132,30 @@ export default function FlightDetailsPage() {
         const parsedFlight = JSON.parse(cachedFlightData);
         setFlight(parsedFlight);
 
-        // Check if offer has expired (10 minutes)
-        const savedAt = parsedFlight._savedAt ? new Date(parsedFlight._savedAt) : null;
+        // Check if offer has expired - enforce max 10 minutes
         const now = new Date();
+        const savedAt = parsedFlight._savedAt ? new Date(parsedFlight._savedAt) : now;
         const EXPIRY_MINUTES = 10;
 
-        if (savedAt) {
-          const minutesElapsed = (now.getTime() - savedAt.getTime()) / (1000 * 60);
+        // Calculate time elapsed since offer was saved
+        const minutesElapsed = (now.getTime() - savedAt.getTime()) / (1000 * 60);
 
-          if (minutesElapsed >= EXPIRY_MINUTES) {
-            // Offer has expired
-            setIsOfferExpired(true);
-            setTimeRemaining(0);
-            setIsValidating(false);
-          } else {
-            // Offer still valid, calculate remaining time
-            const remaining = Math.floor((EXPIRY_MINUTES * 60) - ((now.getTime() - savedAt.getTime()) / 1000));
-            setTimeRemaining(remaining);
-
-            // Validate offer with backend
-            validateOffer(parsedFlight.id);
-          }
-        } else {
-          // No timestamp, assume expired
+        if (minutesElapsed >= EXPIRY_MINUTES) {
+          // Offer has expired (10 minutes passed)
           setIsOfferExpired(true);
           setTimeRemaining(0);
           setIsValidating(false);
+          console.log(`⏰ Offer expired (${minutesElapsed.toFixed(1)} minutes elapsed)`);
+        } else {
+          // Offer still valid, calculate remaining time (max 10 minutes)
+          const remaining = Math.floor((EXPIRY_MINUTES * 60) - ((now.getTime() - savedAt.getTime()) / 1000));
+          setTimeRemaining(remaining);
+
+          const minutesRemaining = Math.floor(remaining / 60);
+          console.log(`⏰ Offer expires in ${minutesRemaining} minutes (${remaining} seconds)`);
+
+          // Validate offer with backend
+          validateOffer(parsedFlight.id);
         }
       } catch (error) {
         console.error('Failed to parse flight data from sessionStorage:', error);
@@ -190,7 +189,9 @@ export default function FlightDetailsPage() {
   const validateOffer = async (offerId: string) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(getApiEndpoint(`flights/offers/${offerId}`), {
+      // Determine provider from offer ID format (Duffel IDs start with 'off_')
+      const provider = offerId.startsWith('off_') ? 'duffel' : 'amadeus';
+      const response = await fetch(getApiEndpoint(`flights/offers/${offerId}?provider=${provider}`), {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
@@ -208,12 +209,19 @@ export default function FlightDetailsPage() {
     }
   };
 
-  // Fetch user's credit balance
+  // Fetch user's credit balance and role
   useEffect(() => {
     const fetchUserCredits = async () => {
       try {
         const token = localStorage.getItem('accessToken');
         if (!token) return;
+
+        // Get user role from localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const parsedUser = JSON.parse(userData);
+          setUserRole(parsedUser.role || 'traveler');
+        }
 
         const response = await fetch(getApiEndpoint('dashboard/stats'), {
           headers: {
@@ -558,15 +566,16 @@ export default function FlightDetailsPage() {
       if (response.ok) {
         const result = await response.json();
 
-        // If card payment, redirect to Stripe checkout
-        if (paymentMethod === 'card' && result.checkoutUrl) {
+        // Check if there's a checkout URL (indicates card payment via Stripe)
+        if (result.checkoutUrl) {
           console.log('Redirecting to Stripe checkout:', result.checkoutUrl);
           window.location.href = result.checkoutUrl;
-        } else {
-          // For credit payment, show success and go to booking details
-          alert('Booking created successfully!');
-          router.push(`/dashboard/bookings/${result.data.id}`);
+          return;
         }
+
+        // For credit payment, show success and go to booking details
+        alert('Booking created successfully!');
+        router.push(`/dashboard/bookings/${result.data.id}`);
       } else {
         const error = await response.json();
 
@@ -635,35 +644,40 @@ export default function FlightDetailsPage() {
 
       {/* Offer Expiry Timer or Expired Banner */}
       {timeRemaining !== null && !isOfferExpired && (
-        <div className="bg-blue-50 border-b border-blue-200">
+        <div className="border-b bg-gray-50 border-gray-200">
           <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-blue-700" />
-                <span className="text-sm font-semibold text-blue-900">
-                  This offer expires in: {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
+                <Clock className="w-4 h-4 text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">
+                  Offer expires in {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
                 </span>
               </div>
-              <span className="text-xs text-blue-700">Complete your booking soon!</span>
+              <span className="text-xs text-gray-500">
+                {timeRemaining < 120 ? 'Complete booking soon' : 'Limited time offer'}
+              </span>
             </div>
           </div>
         </div>
       )}
 
       {isOfferExpired && (
-        <div className="bg-red-50 border-b border-red-200">
-          <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-4">
-            <div className="text-center">
-              <h2 className="text-lg font-bold text-red-900 mb-2">Flight Offer Expired</h2>
-              <p className="text-sm text-red-700 mb-4">
-                This flight offer has expired after 10 minutes. Prices and availability may have changed.
+        <div className="bg-gray-50 border-b border-gray-200">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6">
+            <div className="max-w-2xl mx-auto text-center">
+              <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 text-gray-500">
+                <Clock className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">This offer has expired</h2>
+              <p className="text-sm text-gray-600 mb-6">
+                Flight offers are only available for a limited time. Search again to find current prices and availability.
               </p>
               <Link
                 href="/dashboard/flights/search"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Search for New Flights
+                Back to Search
               </Link>
             </div>
           </div>
@@ -1008,6 +1022,7 @@ export default function FlightDetailsPage() {
                   onChange={setPaymentMethod}
                   userCredits={userCredits}
                   bookingAmount={parseFloat(getFlightPrice(flight).total.toString())}
+                  userRole={userRole}
                 />
               </div>
 

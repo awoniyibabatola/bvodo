@@ -73,8 +73,9 @@ export default function AirportAutocomplete({
 
     searchTimeoutRef.current = setTimeout(async () => {
       try {
+        // Use Duffel provider for location search to match flight search provider
         const response = await fetch(
-          `${getApiEndpoint('flights/locations')}?keyword=${encodeURIComponent(searchQuery)}`
+          `${getApiEndpoint('flights/locations')}?keyword=${encodeURIComponent(searchQuery)}&provider=duffel`
         );
         const data = await response.json();
 

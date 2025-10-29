@@ -67,6 +67,9 @@ export const cityToCodeMap: { [key: string]: string } = {
   'marseille': 'MRS',
   'lyon': 'LYS',
   'nice': 'NCE',
+  'monaco': 'NCE', // Monaco uses Nice airport (NCE)
+  'monte carlo': 'NCE',
+  'montecarlo': 'NCE',
   'toulouse': 'TLS',
   'nantes': 'NTE',
   'bordeaux': 'BOD',

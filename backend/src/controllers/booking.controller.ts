@@ -12,6 +12,7 @@ import {
   sendBookingCancellationEmail,
 } from '../utils/email.service';
 import duffelService from '../services/duffel.service';
+import { duffelStaysService } from '../services/duffel-stays.service';
 import emailService from '../services/email.service';
 import { stripeService } from '../services/stripe.service';
 
@@ -454,6 +455,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       bookingData,
       services,                     // NEW: Services array (seats & baggage)
       paymentMethod = 'credit',     // NEW: Payment method ('credit' or 'card')
+      isInstantConfirmation,        // NEW: For hotels - instant vs non-instant confirmation
       flightDetails,
       hotelDetails,
     } = req.body;
@@ -532,7 +534,16 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
             ...bookingData,
             services: services || undefined,  // Store services in bookingData JSON
             paymentMethod: paymentMethod || 'credit',  // Store payment method for display
+            isInstantConfirmation: bookingType === 'hotel' ? (isInstantConfirmation !== false) : undefined,  // For hotels, store instant confirmation flag
           },
+          // Duffel Go-Live Compliance Fields
+          taxes: bookingData?.selectedOffer?.price?.taxes ? parseFloat(bookingData.selectedOffer.price.taxes) : null,
+          fees: bookingData?.selectedOffer?.price?.fees ? parseFloat(bookingData.selectedOffer.price.fees) : null,
+          dueAtAccommodation: bookingData?.selectedOffer?.price?.dueAtAccommodation ? parseFloat(bookingData.selectedOffer.price.dueAtAccommodation) : null,
+          cancellationTimeline: bookingData?.selectedOffer?.policies?.cancellation?.timeline || null,
+          supplier: bookingData?.selectedOffer?.supplier || null,
+          checkInTime: bookingData?.selectedOffer?.policies?.checkIn?.from || hotelDetails?.checkInTime || null,
+          checkOutTime: bookingData?.selectedOffer?.policies?.checkOut?.before || hotelDetails?.checkOutTime || null,
         },
       });
 
@@ -602,8 +613,9 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
           },
         });
 
-        // If multi-room booking, create room items and guests
+        // Create room items and guests based on booking type
         if (isMultiRoom && multiRoomData && Array.isArray(multiRoomData)) {
+          // MULTI-ROOM: Create multiple room records
           for (const room of multiRoomData) {
             // Create room booking item
             const roomBookingItem = await tx.roomBookingItem.create({
@@ -629,8 +641,8 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
                     firstName: guest.firstName,
                     lastName: guest.lastName,
                     email: guest.email,
-                    phone: guest.phone,
-                    dateOfBirth: guest.dateOfBirth,
+                    phone: guest.phone || '',  // Schema requires string, not null
+                    dateOfBirth: guest.dateOfBirth || '1990-01-01',  // Schema requires string, not null
                     address: guest.address || null,
                     city: guest.city || null,
                     country: guest.country || null,
@@ -640,6 +652,46 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
                   },
                 });
               }
+            }
+          }
+        } else {
+          // SINGLE-ROOM: Create one room record with guests from passengerDetails
+          const guestList = passengerDetails || bookingData?.passengerDetails || [];
+
+          if (Array.isArray(guestList) && guestList.length > 0) {
+            // Create single room booking item
+            const roomBookingItem = await tx.roomBookingItem.create({
+              data: {
+                hotelBookingId: hotelBooking.id,
+                roomNumber: 1,
+                offerId: providerBookingReference || bookingData?.rateId || null, // Use rate ID as offer ID
+                roomType: hotelData.roomType || 'Standard',
+                bedType: hotelData.bedType || null,
+                roomDescription: hotelData.roomDescription || null,
+                price: totalPrice ? parseFloat(totalPrice.toString()) : 0,
+                currency: currency || 'USD',
+                numberOfGuests: guestList.length,
+              },
+            });
+
+            // Create guest records for single room
+            for (const guest of guestList) {
+              await tx.guest.create({
+                data: {
+                  roomBookingId: roomBookingItem.id,
+                  firstName: guest.firstName,
+                  lastName: guest.lastName,
+                  email: guest.email,
+                  phone: guest.phone || '',  // Schema requires string, not null
+                  dateOfBirth: guest.dateOfBirth || '1990-01-01',  // Schema requires string, not null
+                  address: guest.address || null,
+                  city: guest.city || null,
+                  country: guest.country || null,
+                  passportNumber: guest.passportNumber || null,
+                  passportExpiry: guest.passportExpiry || null,
+                  passportCountry: guest.passportCountry || null,
+                },
+              });
             }
           }
         }
@@ -652,7 +704,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       if (paymentMethod === 'credit' && totalPrice && parseFloat(totalPrice) > 0) {
         const bookingCost = parseFloat(totalPrice);
 
-        // Get user's current credit balance
+        // Get user's current credit balance and role
         const bookingUser = await tx.user.findUnique({
           where: { id: user.userId },
           select: {
@@ -665,15 +717,31 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
           throw new Error('User not found');
         }
 
-        const userBalance = parseFloat(bookingUser.availableCredits.toString());
+        // Determine which balance to check based on user role
+        const isAdminRole = bookingUser.role === 'admin' || bookingUser.role === 'company_admin' || bookingUser.role === 'super_admin';
 
-        // Check if user has sufficient credits (validation only - no deduction)
-        if (userBalance < bookingCost) {
-          throw new Error('Insufficient credits. Please contact your administrator to increase your credit limit.');
+        let availableBalance: number;
+        if (isAdminRole) {
+          // For admins: check organization credits
+          const orgBalance = parseFloat(organization.availableCredits.toString());
+          availableBalance = orgBalance;
+        } else {
+          // For travelers: check personal credit limit
+          const userBalance = parseFloat(bookingUser.availableCredits.toString());
+          availableBalance = userBalance;
+        }
+
+        // Check if sufficient credits are available (validation only - no deduction)
+        if (availableBalance < bookingCost) {
+          if (isAdminRole) {
+            throw new Error('Insufficient organization credits. Please contact your super admin to top up the company balance.');
+          } else {
+            throw new Error('Insufficient credits. Please contact your administrator to increase your credit limit.');
+          }
         }
 
         // NOTE: No credit deduction here! Credits will be deducted on approval
-        // This just validates the user has enough credits for the booking
+        // This just validates there are enough credits for the booking
       }
 
       return newBooking;
@@ -747,6 +815,91 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
           throw new Error(
             `Failed to create flight booking with airline: ${duffelError.message}. ` +
             `Your credits have NOT been charged. Please try again or contact support if the issue persists.`
+          );
+        }
+      }
+
+      // 2b. Create Duffel Stays booking for hotel bookings
+      if (bookingType === 'hotel' && provider === 'duffel') {
+        const rateId = providerBookingReference || bookingData?.rateId;
+
+        if (!rateId) {
+          throw new Error('Cannot create Duffel hotel booking: Rate ID is missing');
+        }
+
+        try {
+          logger.info(`[Auto-Approved Hotel] Creating Duffel Stays booking for ${bookingReference}`);
+          logger.info(`[Auto-Approved Hotel] Rate ID: ${rateId}`);
+
+          // Import duffelStaysService at the top of the file
+          const { duffelStaysService } = await import('../services/duffel-stays.service');
+
+          // Step 1: Create quote to validate rate availability and lock pricing
+          logger.info(`[Auto-Approved Hotel] Creating quote for rate ${rateId}`);
+          const quote = await duffelStaysService.createQuote(rateId);
+          logger.info(`[Auto-Approved Hotel] Quote created: ${quote.id}, expires at ${quote.expires_at}`);
+
+          // Step 2: Prepare guest details
+          // hotelDetails should have guest information
+          const hotelData = hotelDetails as any;
+          const guests = hotelData?.guests || [];
+
+          if (guests.length === 0) {
+            throw new Error('No guest details provided for hotel booking');
+          }
+
+          // Format guests for Duffel (map to their required format)
+          const duffelGuests = guests.map((guest: any) => ({
+            given_name: guest.firstName || guest.given_name,
+            family_name: guest.lastName || guest.family_name,
+            born_on: guest.dateOfBirth || guest.born_on,
+            email: guest.email,
+            phone_number: guest.phone || guest.phone_number,
+          }));
+
+          const contactEmail = duffelGuests[0]?.email || user.email;
+          const contactPhone = duffelGuests[0]?.phone_number || '';
+
+          logger.info(`[Auto-Approved Hotel] Contact: ${contactEmail}, Phone: ${contactPhone}`);
+          logger.info(`[Auto-Approved Hotel] Guests: ${duffelGuests.length}`);
+
+          // Step 3: Create Duffel Stays booking
+          const duffelHotelBooking = await duffelStaysService.createBooking({
+            quote_id: quote.id,
+            email: contactEmail,
+            phone_number: contactPhone,
+            guests: duffelGuests,
+            accommodation_special_requests: hotelData?.specialRequests || bookingData?.specialRequests,
+          });
+
+          logger.info(`[Auto-Approved Hotel] ✅ Duffel Stays booking created: ${duffelHotelBooking.id}`);
+
+          // Store Duffel booking data
+          duffelOrder = {
+            bookingReference: duffelHotelBooking.id,
+            rawData: JSON.parse(JSON.stringify(duffelHotelBooking)),
+          };
+        } catch (duffelError: any) {
+          logger.error(`[Auto-Approved Hotel] ❌ Duffel Stays booking creation FAILED for ${bookingReference}`);
+          logger.error(`[Auto-Approved Hotel] Error: ${duffelError.message}`);
+
+          if (duffelError.response) {
+            logger.error(`[Auto-Approved Hotel] Duffel API Response:`, JSON.stringify(duffelError.response.data, null, 2));
+          }
+
+          // Update booking status to failed
+          await prisma.booking.update({
+            where: { id: booking.id },
+            data: {
+              status: 'failed',
+              notes: `Duffel Stays booking creation failed: ${duffelError.message}. No credits were charged.`,
+            },
+          });
+
+          // Throw error to prevent credit deduction
+          throw new Error(
+            `Failed to create hotel booking: ${duffelError.message}. ` +
+            `Your credits have NOT been charged. Please try again or contact support.`
           );
         }
       }
@@ -909,13 +1062,14 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
     if (paymentMethod === 'card' && completeBooking) {
       try {
         // VALIDATE DUFFEL OFFER BEFORE PAYMENT - Prevent payment for expired/invalid offers
-        if (provider === 'duffel') {
+        // NOTE: Only validate FLIGHT offers, not hotel rates (hotel validation happens during Duffel Stays booking creation)
+        if (provider === 'duffel' && bookingType === 'flight') {
           const offerId = providerBookingReference || bookingData?.id;
           if (!offerId) {
             throw new Error('Duffel offer ID not found in booking data');
           }
 
-          logger.info(`[Booking] Validating Duffel offer ${offerId} before payment`);
+          logger.info(`[Booking] Validating Duffel flight offer ${offerId} before payment`);
 
           try {
             // This will throw if offer is expired or invalid
@@ -1063,6 +1217,120 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
 };
 
 /**
+ * Get cancellation preview/quote
+ * Shows what refund the user would get if they cancel now
+ */
+export const getCancellationPreview = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(401).json({ success: false, message: 'Unauthorized' });
+      return;
+    }
+
+    const { id } = req.params;
+
+    // Find booking
+    const booking = await prisma.booking.findFirst({
+      where: {
+        id,
+        organizationId: user.organizationId,
+        ...(user.role === 'traveler' ? { userId: user.userId } : {}),
+      },
+      select: {
+        id: true,
+        bookingReference: true,
+        bookingType: true,
+        status: true,
+        totalPrice: true,
+        currency: true,
+        departureDate: true,
+        cancellationTimeline: true,
+        cancelledAt: true,
+      },
+    });
+
+    if (!booking) {
+      res.status(404).json({
+        success: false,
+        message: 'Booking not found',
+      });
+      return;
+    }
+
+    if (booking.status === 'cancelled') {
+      res.status(400).json({
+        success: false,
+        message: 'Booking is already cancelled',
+      });
+      return;
+    }
+
+    // Check if booking can be cancelled
+    if (!booking.cancellationTimeline || (Array.isArray(booking.cancellationTimeline) && booking.cancellationTimeline.length === 0)) {
+      res.status(200).json({
+        success: true,
+        data: {
+          canCancel: false,
+          refundAmount: 0,
+          refundCurrency: booking.currency,
+          isNonRefundable: true,
+          message: 'This booking is non-refundable',
+        },
+      });
+      return;
+    }
+
+    // Parse cancellation timeline
+    const timeline = booking.cancellationTimeline as any[];
+    const now = new Date();
+
+    // Find the applicable refund based on current time
+    let refundInfo = {
+      canCancel: true,
+      refundAmount: 0,
+      refundCurrency: booking.currency,
+      refundPercentage: 0,
+      deadline: null as string | null,
+      isNonRefundable: false,
+      isPastDeadline: false,
+    };
+
+    // Check each timeline entry
+    for (const entry of timeline) {
+      const deadline = new Date(entry.before);
+
+      // If current time is before the deadline, this refund applies
+      if (now < deadline) {
+        refundInfo.refundAmount = parseFloat(entry.refund_amount || '0');
+        refundInfo.refundCurrency = entry.currency || booking.currency;
+        refundInfo.deadline = entry.before;
+        refundInfo.refundPercentage = Math.round((refundInfo.refundAmount / parseFloat(booking.totalPrice.toString())) * 100);
+        break;
+      }
+    }
+
+    // If no timeline entry applies, booking is past all deadlines (non-refundable)
+    if (refundInfo.refundAmount === 0 && timeline.length > 0) {
+      refundInfo.isNonRefundable = true;
+      refundInfo.isPastDeadline = true;
+      refundInfo.canCancel = true; // Can still cancel, but no refund
+    }
+
+    res.status(200).json({
+      success: true,
+      data: refundInfo,
+    });
+  } catch (error: any) {
+    logger.error('Get cancellation preview error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to get cancellation preview',
+    });
+  }
+};
+
+/**
  * Cancel a booking
  */
 export const cancelBooking = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -1102,6 +1370,47 @@ export const cancelBooking = async (req: AuthRequest, res: Response): Promise<vo
         message: 'Booking is already cancelled',
       });
       return;
+    }
+
+    // For hotel bookings, cancel with Duffel API first
+    let duffelCancellation = null;
+    if (booking.bookingType === 'hotel') {
+      if (booking.providerOrderId) {
+        try {
+          logger.info('[Cancellation] Cancelling hotel booking with Duffel Stays API', {
+            bookingId: booking.id,
+            bookingReference: booking.bookingReference,
+            providerOrderId: booking.providerOrderId,
+            status: booking.status,
+          });
+
+          duffelCancellation = await duffelStaysService.cancelBooking(booking.providerOrderId);
+
+          logger.info('[Cancellation] ✅ Duffel Stays cancellation successful', {
+            bookingReference: booking.bookingReference,
+            cancellationId: duffelCancellation.id,
+            refundAmount: duffelCancellation.refund_amount,
+            refundCurrency: duffelCancellation.refund_currency,
+          });
+        } catch (error: any) {
+          logger.error('[Cancellation] ❌ Failed to cancel hotel booking with Duffel:', {
+            bookingReference: booking.bookingReference,
+            error: error.message,
+            response: error.response?.data,
+          });
+
+          // Don't block the cancellation if Duffel API fails
+          // Still proceed with internal cancellation but log the error
+          logger.warn('[Cancellation] ⚠️ Proceeding with internal cancellation despite Duffel API error');
+        }
+      } else {
+        logger.warn('[Cancellation] ⚠️ Hotel booking has no providerOrderId - Duffel booking was never created', {
+          bookingId: booking.id,
+          bookingReference: booking.bookingReference,
+          status: booking.status,
+        });
+        logger.info('[Cancellation] This booking was likely cancelled before Super Admin confirmation');
+      }
     }
 
     // Update booking and release credits in a transaction
@@ -1235,7 +1544,7 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    // Process approval in transaction: deduct credits + create Duffel order
+    // Process approval in transaction: deduct credits + update status
     const updatedBooking = await prisma.$transaction(async (tx) => {
       // 1. Deduct credits (handles admin vs regular user automatically)
       const bookingCost = parseFloat(booking.totalPrice.toString());
@@ -1252,11 +1561,15 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
         );
       }
 
-      // 2. Update booking status to confirmed
+      // 2. Update booking status
+      // For HOTELS: Move to 'awaiting_confirmation' (requires Super Admin confirmation)
+      // For FLIGHTS: Move to 'confirmed' (no second tier required)
+      const newStatus = booking.bookingType === 'hotel' ? 'awaiting_confirmation' : 'confirmed';
+
       const updated = await tx.booking.update({
         where: { id },
         data: {
-          status: 'confirmed',
+          status: newStatus,
           approverId: user.userId,
           approvedAt: new Date(),
           approvalNotes,
@@ -1284,7 +1597,8 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
       return updated;
     });
 
-    // 3. Create Duffel order for flight bookings (outside transaction as it's external API)
+    // 3. Create Duffel order for FLIGHT bookings ONLY (outside transaction as it's external API)
+    // HOTELS: Duffel booking creation is deferred to confirmBooking() for 2-tier approval
     if (updatedBooking.bookingType === 'flight' && updatedBooking.provider === 'duffel') {
       try {
         // Get offer ID from either providerBookingReference or bookingData.id
@@ -1468,6 +1782,17 @@ export const approveBooking = async (req: AuthRequest, res: Response): Promise<v
       }
     }
 
+    // 4. For HOTEL bookings: Skip Duffel booking creation during approval
+    // Hotel bookings with Bvodo Credit require 2-tier approval:
+    // - First tier (Company Admin): Approves and moves to 'awaiting_confirmation' (this function)
+    // - Second tier (Super Admin): Confirms and creates Duffel booking (confirmBooking function)
+    if (updatedBooking.bookingType === 'hotel') {
+      logger.info(`[Approval Hotel] Hotel booking ${updatedBooking.bookingReference} approved by Company Admin`);
+      logger.info(`[Approval Hotel] Status: awaiting_confirmation - waiting for Super Admin confirmation`);
+      logger.info(`[Approval Hotel] Credits deducted: ${booking.totalPrice} ${booking.currency}`);
+      // Duffel booking creation will happen in confirmBooking()
+    }
+
     // Send approval email to traveler
     if (updatedBooking.approver) {
       await sendBookingApprovalEmail(
@@ -1630,6 +1955,16 @@ export const confirmBooking = async (req: AuthRequest, res: Response): Promise<v
         id,
         status: 'awaiting_confirmation',
       },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
     });
 
     if (!booking) {
@@ -1675,6 +2010,152 @@ export const confirmBooking = async (req: AuthRequest, res: Response): Promise<v
         },
       },
     });
+
+    // Create Duffel Stays booking for hotel bookings (outside transaction as it's external API)
+    if (updatedBooking.bookingType === 'hotel' && updatedBooking.provider === 'duffel') {
+      try {
+        logger.info(`[Confirmation Hotel] Creating Duffel Stays booking for ${updatedBooking.bookingReference}`);
+
+        // Import duffelStaysService
+        const { duffelStaysService } = await import('../services/duffel-stays.service');
+
+        // Get rate ID from either providerBookingReference or bookingData.rateId
+        const bookingData = updatedBooking.bookingData as any;
+        const rateId = updatedBooking.providerBookingReference || bookingData?.rateId;
+
+        if (!rateId) {
+          logger.error(`[Confirmation Hotel] No rate ID found for hotel booking ${updatedBooking.bookingReference}`);
+          throw new Error('Cannot create Duffel Stays booking: Rate ID not found');
+        }
+
+        logger.info(`[Confirmation Hotel] Provider: ${updatedBooking.provider}, Rate ID: ${rateId}`);
+
+        // Step 1: Create quote (validates availability and handles expiry)
+        let quote;
+        try {
+          quote = await duffelStaysService.createQuote(rateId);
+          logger.info(`[Confirmation Hotel] Quote created: ${quote.id}, expires at ${quote.expires_at}`);
+        } catch (quoteError: any) {
+          // Rate has expired or is no longer available
+          logger.error(`[Confirmation Hotel] Rate ${rateId} is no longer valid:`, quoteError.message);
+
+          // Update booking status to indicate rate expired
+          await prisma.booking.update({
+            where: { id: updatedBooking.id },
+            data: {
+              status: 'awaiting_confirmation',
+              notes: `${updatedBooking.notes || ''}\n\n[System] Hotel rate expired during confirmation. Please have the traveler re-search and select a new room, then try confirming again.`.trim(),
+            },
+          });
+
+          throw new Error(
+            'The selected hotel rate has expired. Please have the traveler search for hotels again and select a new room. ' +
+            'Once a new room is selected, you can confirm the booking again.'
+          );
+        }
+
+        // Step 2: Prepare guest details
+        // Get hotel booking to access guest information
+        const hotelBooking = await prisma.hotelBooking.findFirst({
+          where: { bookingId: updatedBooking.id },
+          include: {
+            rooms: {
+              include: {
+                guests: true,
+              },
+            },
+          },
+        });
+
+        if (!hotelBooking || !hotelBooking.rooms || hotelBooking.rooms.length === 0) {
+          throw new Error('No guest details found for hotel booking');
+        }
+
+        // Collect all guests from all rooms
+        const allGuests = hotelBooking.rooms.flatMap(room => room.guests);
+
+        if (allGuests.length === 0) {
+          throw new Error('No guest details provided for hotel booking');
+        }
+
+        // Format guests for Duffel
+        const duffelGuests = allGuests.map((guest: any) => {
+          // Ensure phone number has + prefix for E.164 format
+          let phoneNumber = guest.phone || undefined;
+          if (phoneNumber && !phoneNumber.startsWith('+')) {
+            phoneNumber = '+' + phoneNumber;
+          }
+          return {
+            given_name: guest.firstName,
+            family_name: guest.lastName,
+            born_on: guest.dateOfBirth || undefined,
+            email: guest.email || undefined,
+            phone_number: phoneNumber,
+          };
+        });
+
+        const contactEmail = duffelGuests[0]?.email || updatedBooking.user.email;
+        let contactPhone = duffelGuests[0]?.phone_number || '';
+
+        // FIX: Ensure phone number has + prefix for E.164 format (required by Duffel)
+        if (contactPhone && !contactPhone.startsWith('+')) {
+          contactPhone = '+' + contactPhone;
+          logger.info(`[Confirmation Hotel] 🔧 Added + prefix to phone number: ${contactPhone}`);
+        }
+
+        logger.info(`[Confirmation Hotel] Guest count: ${duffelGuests.length}`);
+        logger.info(`[Confirmation Hotel] Contact: ${contactEmail}, ${contactPhone}`);
+
+        // Step 3: Create Duffel Stays booking
+        const duffelHotelBooking = await duffelStaysService.createBooking({
+          quote_id: quote.id,
+          email: contactEmail,
+          phone_number: contactPhone,
+          guests: duffelGuests,
+          accommodation_special_requests: bookingData?.specialRequests,
+        });
+
+        // Use the short accommodation reference (e.g. "5JISXI") if available, otherwise fall back to booking ID
+        const shortReference = (duffelHotelBooking as any).reference || duffelHotelBooking.id;
+
+        // Update booking with Duffel booking ID
+        await prisma.booking.update({
+          where: { id: updatedBooking.id },
+          data: {
+            providerOrderId: duffelHotelBooking.id,
+            providerConfirmationNumber: shortReference, // 🔥 SAVE SHORT REFERENCE (e.g. "5JISXI")
+            providerRawData: JSON.parse(JSON.stringify(duffelHotelBooking)),
+          },
+        });
+
+        logger.info(`[Confirmation Hotel] ✅ Booking ${updatedBooking.bookingReference} confirmed with short ref: ${shortReference}`);
+
+        logger.info(`[Confirmation Hotel] ✅ Duffel Stays booking created: ${duffelHotelBooking.id}`);
+      } catch (error: any) {
+        // CRITICAL: Duffel Stays booking creation failed!
+        logger.error(`[Confirmation Hotel] ❌ Duffel Stays booking creation FAILED for ${updatedBooking.bookingReference}`);
+        logger.error(`[Confirmation Hotel] Error: ${error.message}`);
+
+        if (error.response) {
+          logger.error(`[Confirmation Hotel] Duffel API Response:`, JSON.stringify(error.response.data, null, 2));
+        }
+
+        // Update booking with failure note
+        await prisma.booking.update({
+          where: { id: updatedBooking.id },
+          data: {
+            status: 'awaiting_confirmation',
+            notes: `${updatedBooking.notes || ''}\n\n[System] Duffel Stays booking creation failed: ${error.message}. Please try confirming again or contact support.`.trim(),
+          },
+        });
+
+        // Throw the error to inform the Super Admin
+        throw new Error(
+          `Failed to create hotel booking: ${error.message}. ` +
+          `Please try confirming again or contact support if the issue persists.`
+        );
+      }
+    }
 
     // Send confirmation email to traveler
     await sendBookingConfirmationEmail(
@@ -1763,3 +2244,4 @@ export const getBookingStats = async (req: AuthRequest, res: Response): Promise<
 
 
 
+ 

@@ -320,7 +320,27 @@ async function handleCheckoutSessionCompleted(session: any) {
         }
         // HOTEL BOOKING
         else if (booking.bookingType === 'hotel') {
-          logger.info(`[Payment] Creating Duffel Stays hotel booking for approved booking ${booking.bookingReference}`);
+          // Check if hotel requires instant confirmation or not
+          const isInstantConfirmation = bookingData?.isInstantConfirmation !== false; // Default true unless explicitly false
+
+          if (!isInstantConfirmation) {
+            // NON-INSTANT: Payment complete, but needs Super Admin confirmation
+            logger.info(`[Payment] Hotel booking ${booking.bookingReference} is NON-INSTANT - moving to awaiting_confirmation`);
+
+            await prisma.booking.update({
+              where: { id: booking.id },
+              data: {
+                status: 'awaiting_confirmation',
+              },
+            });
+
+            logger.info(`[Payment] ✅ Hotel booking awaiting Super Admin confirmation: ${booking.bookingReference}`);
+            // Exit early - Duffel booking will be created when Super Admin confirms
+            return;
+          }
+
+          // INSTANT CONFIRMATION: Create Duffel booking immediately
+          logger.info(`[Payment] Creating Duffel Stays hotel booking for INSTANT booking ${booking.bookingReference}`);
 
           const { duffelStaysService } = await import('../services/duffel-stays.service');
 
@@ -348,52 +368,122 @@ async function handleCheckoutSessionCompleted(session: any) {
             throw new Error('Hotel booking details not found');
           }
 
-          // Step 1: Create or refresh quote if needed
+          // Validate that we have room and guest data
+          if (!hotelBooking.rooms || hotelBooking.rooms.length === 0) {
+            logger.error(`[Payment] No room data found for hotel booking ${booking.bookingReference}`);
+            throw new Error('No room data found. Please contact support.');
+          }
+
+          // Check if rooms have guests
+          const totalGuests = hotelBooking.rooms.reduce((sum: number, room: any) =>
+            sum + (room.guests?.length || 0), 0
+          );
+
+          if (totalGuests === 0) {
+            logger.error(`[Payment] No guest data found for hotel booking ${booking.bookingReference}`);
+            throw new Error('No guest information found. Please contact support.');
+          }
+
+          logger.info(`[Payment] Hotel booking data validated: ${hotelBooking.rooms.length} room(s), ${totalGuests} guest(s)`);
+
+          // Step 1: Use pre-created quoteId OR create new quote if needed
           let finalQuoteId = quoteId;
-          if (!quoteId && rateId) {
-            logger.info(`[Payment] Creating quote from rate ${rateId}`);
-            const quote = await duffelStaysService.createQuote(rateId);
-            finalQuoteId = quote.id;
+
+          if (quoteId) {
+            // BEST CASE: Quote was created in frontend before payment
+            logger.info(`[Payment] ✅ Using pre-created quote: ${quoteId}`);
+          } else if (rateId) {
+            // FALLBACK: Create quote now (rate might have expired)
+            logger.warn(`[Payment] ⚠️ No quoteId found, attempting to create quote from rate ${rateId}`);
+            try {
+              const quote = await duffelStaysService.createQuote(rateId);
+              finalQuoteId = quote.id;
+              logger.info(`[Payment] Quote created successfully: ${finalQuoteId}, expires at ${quote.expires_at}`);
+            } catch (quoteError: any) {
+              logger.error(`[Payment] Failed to create quote for rate ${rateId}:`, quoteError);
+              throw new Error('Rate is no longer available. Please search for a new hotel room.');
+            }
+          } else {
+            // ERROR: Neither quoteId nor rateId available
+            throw new Error('No quote ID or rate ID available. Please contact support.');
           }
 
           // Step 2: Format guest details for Duffel Stays
           const duffelGuests = hotelBooking.rooms.flatMap((room: any) =>
-            room.guests.map((guest: any) => ({
-              given_name: guest.firstName,
-              family_name: guest.lastName,
-              born_on: guest.dateOfBirth,
-            }))
+            room.guests.map((guest: any) => {
+              // Ensure phone number has + prefix for E.164 format
+              let phoneNumber = guest.phone || undefined;
+              if (phoneNumber && !phoneNumber.startsWith('+')) {
+                phoneNumber = '+' + phoneNumber;
+              }
+              return {
+                given_name: guest.firstName,
+                family_name: guest.lastName,
+                born_on: guest.dateOfBirth || undefined,
+                email: guest.email || undefined,
+                phone_number: phoneNumber,
+              };
+            })
           );
+
+          logger.info(`[Payment] Formatted ${duffelGuests.length} guest(s) for Duffel booking`);
 
           // Step 3: Extract contact info
           const firstGuest = hotelBooking.rooms[0]?.guests[0];
           const contactEmail = firstGuest?.email || booking.user.email;
-          const contactPhone = firstGuest?.phone || '';
+          let contactPhone = firstGuest?.phone || booking.user.phone || '';
+
+          // FIX: Ensure phone number has + prefix for E.164 format (required by Duffel)
+          if (contactPhone && !contactPhone.startsWith('+')) {
+            contactPhone = '+' + contactPhone;
+            logger.info(`[Payment] 🔧 Added + prefix to phone number: ${contactPhone}`);
+          }
+
+          logger.info(`[Payment] Contact info - Email: ${contactEmail}, Phone: ${contactPhone || 'not provided'}`);
+
+          // Validate contact info
+          if (!contactEmail) {
+            throw new Error('Contact email is required but not found');
+          }
 
           // Step 4: Create Duffel Stays booking
-          const duffelHotelBooking = await duffelStaysService.createBooking({
+          const bookingParams = {
             quote_id: finalQuoteId,
             email: contactEmail,
             phone_number: contactPhone,
             guests: duffelGuests,
             accommodation_special_requests: hotelBooking.specialRequests || undefined,
+          };
+
+          logger.info(`[Payment] Creating Duffel Stays booking with params:`, {
+            quote_id: bookingParams.quote_id,
+            email: bookingParams.email,
+            phone_number: bookingParams.phone_number,
+            guestCount: bookingParams.guests.length,
+            guests: bookingParams.guests,
+            hasSpecialRequests: !!bookingParams.accommodation_special_requests,
           });
+
+          const duffelHotelBooking = await duffelStaysService.createBooking(bookingParams);
 
           logger.info(`[Payment] ✅ Duffel Stays hotel booking created successfully: ${duffelHotelBooking.id}`);
 
           // CRITICAL: Update booking with Duffel Stays booking details IMMEDIATELY
           try {
+            // Use the short accommodation reference (e.g. "5JISXI") if available, otherwise fall back to booking ID
+            const shortReference = (duffelHotelBooking as any).reference || duffelHotelBooking.id;
+
             await prisma.booking.update({
               where: { id: booking.id },
               data: {
                 providerOrderId: duffelHotelBooking.id,
-                providerConfirmationNumber: duffelHotelBooking.confirmation_number || duffelHotelBooking.id,
+                providerConfirmationNumber: shortReference, // 🔥 SAVE SHORT REFERENCE (e.g. "5JISXI")
                 providerRawData: JSON.parse(JSON.stringify(duffelHotelBooking)),
                 status: 'confirmed',
                 confirmedAt: new Date(),
               },
             });
-            logger.info(`[Payment] ✅ Booking ${booking.bookingReference} marked as confirmed with confirmation: ${duffelHotelBooking.confirmation_number || duffelHotelBooking.id}`);
+            logger.info(`[Payment] ✅ Booking ${booking.bookingReference} marked as confirmed with short ref: ${shortReference}`);
           } catch (updateError) {
             logger.error(`[Payment] CRITICAL: Failed to update booking status after Duffel hotel booking created!`, updateError);
             logger.error(`[Payment] Confirmation ${duffelHotelBooking.id} exists but booking ${booking.bookingReference} not updated in DB!`);
@@ -412,6 +502,28 @@ async function handleCheckoutSessionCompleted(session: any) {
         }
       } catch (duffelError: any) {
         logger.error(`[Payment] ❌ Failed to create Duffel booking for ${booking.bookingReference}:`, duffelError);
+
+        // Log detailed error information for debugging
+        logger.error(`[Payment] Duffel Error Details:`, {
+          errorType: duffelError.constructor.name,
+          errorMessage: duffelError.message,
+          errorStack: duffelError.stack,
+          hasResponse: !!duffelError.response,
+        });
+
+        // Log API response if available
+        if (duffelError.response) {
+          logger.error(`[Payment] Duffel API Response:`, {
+            status: duffelError.response.status,
+            statusText: duffelError.response.statusText,
+            data: JSON.stringify(duffelError.response.data, null, 2),
+          });
+        }
+
+        // Log original error for full context
+        if (duffelError.originalError) {
+          logger.error(`[Payment] Original Duffel Error:`, duffelError.originalError);
+        }
 
         // IMPORTANT: Payment was successful, so booking stays as "approved"
         // Admin must manually create the booking or issue refund
@@ -835,45 +947,113 @@ export const completeBookingPayment = async (req: Request, res: Response) => {
                 throw new Error('Hotel booking details not found');
               }
 
-              // Step 1: Create or refresh quote if needed
+              // Validate that we have room and guest data
+              if (!hotelBooking.rooms || hotelBooking.rooms.length === 0) {
+                logger.error(`[Payment Credit] No room data found for hotel booking ${booking.bookingReference}`);
+                throw new Error('No room data found. Please contact support.');
+              }
+
+              // Check if rooms have guests
+              const totalGuests = hotelBooking.rooms.reduce((sum: number, room: any) =>
+                sum + (room.guests?.length || 0), 0
+              );
+
+              if (totalGuests === 0) {
+                logger.error(`[Payment Credit] No guest data found for hotel booking ${booking.bookingReference}`);
+                throw new Error('No guest information found. Please contact support.');
+              }
+
+              logger.info(`[Payment Credit] Hotel booking data validated: ${hotelBooking.rooms.length} room(s), ${totalGuests} guest(s)`);
+
+              // Step 1: Use pre-created quoteId OR create new quote if needed
               let finalQuoteId = quoteId;
-              if (!quoteId && rateId) {
-                logger.info(`[Payment] Creating quote from rate ${rateId}`);
-                const quote = await duffelStaysService.createQuote(rateId);
-                finalQuoteId = quote.id;
+
+              if (quoteId) {
+                // BEST CASE: Quote was created in frontend before payment
+                logger.info(`[Payment Credit] ✅ Using pre-created quote: ${quoteId}`);
+              } else if (rateId) {
+                // FALLBACK: Create quote now (rate might have expired)
+                logger.warn(`[Payment Credit] ⚠️ No quoteId found, attempting to create quote from rate ${rateId}`);
+                try {
+                  const quote = await duffelStaysService.createQuote(rateId);
+                  finalQuoteId = quote.id;
+                  logger.info(`[Payment Credit] Quote created successfully: ${finalQuoteId}`);
+                } catch (quoteError: any) {
+                  logger.error(`[Payment Credit] Failed to create quote:`, quoteError);
+                  throw new Error('Rate is no longer available. Please search for a new hotel room.');
+                }
+              } else {
+                // ERROR: Neither quoteId nor rateId available
+                throw new Error('No quote ID or rate ID available. Please contact support.');
               }
 
               // Step 2: Format guest details for Duffel Stays
               const duffelGuests = hotelBooking.rooms.flatMap((room: any) =>
-                room.guests.map((guest: any) => ({
-                  given_name: guest.firstName,
-                  family_name: guest.lastName,
-                  born_on: guest.dateOfBirth,
-                }))
+                room.guests.map((guest: any) => {
+                  // Ensure phone number has + prefix for E.164 format
+                  let phoneNumber = guest.phone || undefined;
+                  if (phoneNumber && !phoneNumber.startsWith('+')) {
+                    phoneNumber = '+' + phoneNumber;
+                  }
+                  return {
+                    given_name: guest.firstName,
+                    family_name: guest.lastName,
+                    born_on: guest.dateOfBirth || undefined,
+                    email: guest.email || undefined,
+                    phone_number: phoneNumber,
+                  };
+                })
               );
+
+              logger.info(`[Payment Credit] Formatted ${duffelGuests.length} guest(s) for Duffel booking`);
 
               // Step 3: Extract contact info
               const firstGuest = hotelBooking.rooms[0]?.guests[0];
               const contactEmail = firstGuest?.email || booking.user.email;
-              const contactPhone = firstGuest?.phone || '';
+              let contactPhone = firstGuest?.phone || booking.user.phone || '';
+
+              // FIX: Ensure phone number has + prefix for E.164 format (required by Duffel)
+              if (contactPhone && !contactPhone.startsWith('+')) {
+                contactPhone = '+' + contactPhone;
+                logger.info(`[Payment Credit] 🔧 Added + prefix to phone number: ${contactPhone}`);
+              }
+
+              logger.info(`[Payment Credit] Contact info - Email: ${contactEmail}, Phone: ${contactPhone || 'not provided'}`);
+
+              if (!contactEmail) {
+                throw new Error('Contact email is required but not found');
+              }
 
               // Step 4: Create Duffel Stays booking
-              const duffelHotelBooking = await duffelStaysService.createBooking({
+              const bookingParams = {
                 quote_id: finalQuoteId,
                 email: contactEmail,
                 phone_number: contactPhone,
                 guests: duffelGuests,
                 accommodation_special_requests: hotelBooking.specialRequests || undefined,
+              };
+
+              logger.info(`[Payment Credit] Creating Duffel Stays booking with params:`, {
+                quote_id: bookingParams.quote_id,
+                email: bookingParams.email,
+                phone_number: bookingParams.phone_number,
+                guestCount: bookingParams.guests.length,
+                hasSpecialRequests: !!bookingParams.accommodation_special_requests,
               });
 
+              const duffelHotelBooking = await duffelStaysService.createBooking(bookingParams);
+
               logger.info(`[Payment] ✅ Duffel Stays hotel booking created for ${booking.bookingReference}: ${duffelHotelBooking.id}`);
+
+              // Use the short accommodation reference (e.g. "5JISXI") if available, otherwise fall back to booking ID
+              const shortReference = (duffelHotelBooking as any).reference || duffelHotelBooking.id;
 
               // Update booking with Duffel Stays booking details
               await prisma.booking.update({
                 where: { id: booking.id },
                 data: {
                   providerOrderId: duffelHotelBooking.id,
-                  providerConfirmationNumber: duffelHotelBooking.confirmation_number || duffelHotelBooking.id,
+                  providerConfirmationNumber: shortReference, // 🔥 SAVE SHORT REFERENCE (e.g. "5JISXI")
                   providerRawData: JSON.parse(JSON.stringify(duffelHotelBooking)),
                   status: 'confirmed',
                   confirmedAt: new Date(),

@@ -121,9 +121,16 @@ export class GeocodingService {
   }
 
   /**
-   * Reverse geocode coordinates to address
+   * Reverse geocode coordinates to address with detailed components
    */
-  static async reverseGeocode(latitude: number, longitude: number): Promise<string | null> {
+  static async reverseGeocode(latitude: number, longitude: number): Promise<{
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+    formattedAddress?: string;
+  } | null> {
     try {
       if (!this.apiKey || this.apiKey === 'your-google-maps-api-key') {
         logger.warn('Google Maps API key not configured for reverse geocoding');
@@ -138,7 +145,39 @@ export class GeocodingService {
       });
 
       if (response.data.status === 'OK' && response.data.results?.length > 0) {
-        return response.data.results[0].formatted_address;
+        const result = response.data.results[0];
+
+        // Extract address components
+        let street: string | undefined;
+        let city: string | undefined;
+        let state: string | undefined;
+        let country: string | undefined;
+        let postalCode: string | undefined;
+
+        result.address_components.forEach((component: any) => {
+          if (component.types.includes('route')) {
+            street = component.long_name;
+          } else if (component.types.includes('street_number')) {
+            street = component.long_name + (street ? ' ' + street : '');
+          } else if (component.types.includes('locality')) {
+            city = component.long_name;
+          } else if (component.types.includes('administrative_area_level_1')) {
+            state = component.short_name;
+          } else if (component.types.includes('country')) {
+            country = component.short_name;
+          } else if (component.types.includes('postal_code')) {
+            postalCode = component.long_name;
+          }
+        });
+
+        return {
+          street,
+          city,
+          state,
+          country,
+          postalCode,
+          formattedAddress: result.formatted_address,
+        };
       }
 
       return null;

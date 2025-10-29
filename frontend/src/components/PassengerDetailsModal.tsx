@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Users, Plus, Trash2, UserPlus, Check, CreditCard as CreditCardIcon, Plane, Shield, Lock, MapPin, Hotel, Calendar, Clock, Bed, ChevronDown, ChevronUp } from 'lucide-react';
 import CreditCard from './CreditCard';
+import BusinessFooter from './BusinessFooter';
 import { getApiEndpoint } from '@/lib/api-config';
 
 // Comprehensive list of countries
@@ -88,6 +89,10 @@ interface PassengerDetailsModalProps {
   availableOffers?: any[];
   onMultiRoomSubmit?: (bookingData: MultiRoomBookingSubmit) => void;
 
+  // Duffel Go-Live Requirements
+  selectedOffer?: any;  // For single-room bookings to access pricing and policy details
+  hotelAddress?: string;  // Hotel address for checkout display
+
   bookingDetails?: {
     // Hotel details
     hotelName?: string;
@@ -121,6 +126,9 @@ export default function PassengerDetailsModal({
   numberOfRooms = 1,
   availableOffers = [],
   onMultiRoomSubmit,
+  // Duffel Go-Live props
+  selectedOffer,
+  hotelAddress,
 }: PassengerDetailsModalProps) {
   // Determine if multi-room mode
   const isMultiRoomMode = numberOfRooms > 1 && availableOffers.length > 0 && onMultiRoomSubmit;
@@ -132,6 +140,9 @@ export default function PassengerDetailsModal({
   const [showCheckout, setShowCheckout] = useState(false);
   const [availableCredits, setAvailableCredits] = useState(5000);
   const [organizationName, setOrganizationName] = useState('Corporate Travel');
+
+  // Duffel Go-Live: Terms & Conditions acceptance
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Multi-room state
   const [rooms, setRooms] = useState<RoomSelection[]>([]);
@@ -158,14 +169,6 @@ export default function PassengerDetailsModal({
   const totalGuests = passengers.length;
   const totalRoomsBooked = isMultiRoomMode ? rooms.length : numberOfRooms;
 
-  // Debug logging to verify counts are updating
-  console.log('=== Guest Counts ===');
-  console.log('passengers.length:', passengers.length);
-  console.log('totalGuests:', totalGuests);
-  console.log('totalRoomsBooked:', totalRoomsBooked);
-  console.log('numberOfTravelers (prop):', numberOfTravelers);
-  console.log('numberOfRooms (prop):', numberOfRooms);
-
   // Smart auto-assignment logic
   const autoAssignGuestsToRooms = (): RoomSelection[] => {
     if (!isMultiRoomMode || availableOffers.length === 0) return [];
@@ -184,11 +187,6 @@ export default function PassengerDetailsModal({
     // Use the first available offer as default suggestion
     const defaultOffer = availableOffers[0];
 
-    console.log('=== Auto-assigning guests to rooms ===');
-    console.log('Total travelers:', numberOfTravelers);
-    console.log('Total rooms:', numberOfRooms);
-    console.log('Total guest slots:', totalGuestSlots);
-
     for (let i = 0; i < numberOfRooms; i++) {
       const guestsInThisRoom = baseGuestsPerRoom + (i < extraGuests ? 1 : 0);
       const assignedGuestIds = [];
@@ -196,8 +194,6 @@ export default function PassengerDetailsModal({
       for (let j = 0; j < guestsInThisRoom; j++) {
         assignedGuestIds.push(guestIndex++);
       }
-
-      console.log(`Room ${i + 1}: ${guestsInThisRoom} guests, IDs:`, assignedGuestIds);
 
       autoRooms.push({
         roomNumber: i + 1,
@@ -750,24 +746,113 @@ export default function PassengerDetailsModal({
                         <span className="text-xs font-bold text-gray-900">{groupName}</span>
                       </div>
                     )}
+                    {/* Itemized Pricing - Duffel Go-Live Requirement */}
                     <div className="border-t border-gray-200 pt-3 mt-3">
-                      <div className="flex justify-between items-center mb-2">
+                      {selectedOffer && bookingType === 'hotel' && (
+                        <div className="space-y-2 mb-3">
+                          {/* Base Rate */}
+                          <div className="flex justify-between text-sm text-gray-700">
+                            <span>Room Rate</span>
+                            <span className="font-semibold">
+                              {currency} {parseFloat(selectedOffer.price?.base || '0').toLocaleString()}
+                            </span>
+                          </div>
+
+                          {/* Taxes */}
+                          <div className="flex justify-between text-sm text-gray-700">
+                            <span>Taxes</span>
+                            <span className="font-semibold">
+                              {currency} {parseFloat(selectedOffer.price?.taxes || '0').toLocaleString()}
+                            </span>
+                          </div>
+
+                          {/* Service Fees */}
+                          {parseFloat(selectedOffer.price?.fees || '0') > 0 && (
+                            <div className="flex justify-between text-sm text-gray-700">
+                              <span>Service Fees</span>
+                              <span className="font-semibold">
+                                {currency} {parseFloat(selectedOffer.price?.fees || '0').toLocaleString()}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Due at Hotel */}
+                          {parseFloat(selectedOffer.price?.dueAtAccommodation || '0') > 0 && (
+                            <div className="flex justify-between text-sm text-orange-700 font-semibold">
+                              <span>Due at Hotel</span>
+                              <span>
+                                {currency} {parseFloat(selectedOffer.price?.dueAtAccommodation || '0').toLocaleString()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Total */}
+                      <div className="flex justify-between items-center mb-2 pt-2 border-t border-gray-300">
                         <span className="text-sm font-bold text-gray-900">Total Amount</span>
                         <span className="text-lg font-bold text-gray-900">
-                          ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {currency} {totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
+
+                      {/* Remaining Balance for Credit */}
                       {paymentMethod === 'credit' && (
                         <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded border border-gray-200">
                           <span className="text-xs text-gray-700">Remaining Balance</span>
-                          <span className={`text-sm font-bold ${availableCredits - totalPrice >= 0 ? 'text-gray-900' : 'text-gray-900'}`}>
-                            ${(availableCredits - totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          <span className={`text-sm font-bold ${availableCredits - totalPrice >= 0 ? 'text-gray-900' : 'text-red-600'}`}>
+                            {currency} {(availableCredits - totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
+
+                {/* Cancellation Policy - Duffel Go-Live Requirement */}
+                {selectedOffer?.policies?.cancellation && bookingType === 'hotel' && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 className="font-semibold text-sm text-blue-900 mb-2 flex items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      Cancellation Policy
+                    </h4>
+                    {(() => {
+                      const timeline = selectedOffer.policies.cancellation.timeline || [];
+
+                      if (timeline.length === 0) {
+                        return (
+                          <div className="text-xs text-gray-700">
+                            <p className="font-semibold text-red-700">Non-Refundable</p>
+                            <p>This booking cannot be cancelled or refunded.</p>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="space-y-2">
+                          {timeline.map((policy: any, idx: number) => {
+                            const deadline = new Date(policy.before);
+                            const isPenaltyFree = parseFloat(policy.penalty_amount) === 0;
+
+                            return (
+                              <div key={idx} className="flex items-start gap-2 text-xs">
+                                {isPenaltyFree ? (
+                                  <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                                ) : (
+                                  <X className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" />
+                                )}
+                                <p className={isPenaltyFree ? "text-green-700" : "text-orange-700"}>
+                                  {isPenaltyFree ? "Free cancellation" : `${policy.penalty_currency} ${parseFloat(policy.penalty_amount).toFixed(2)} penalty`}
+                                  {" "}until {deadline.toLocaleDateString()} at {deadline.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
 
                 {/* Security Notice */}
                 <div className="flex items-start gap-3 p-3 bg-gray-50 border border-gray-200 rounded">
@@ -1264,6 +1349,16 @@ export default function PassengerDetailsModal({
                             </div>
                           </div>
                         )}
+                        {/* Hotel Address - Duffel Go-Live Requirement */}
+                        {hotelAddress && (
+                          <div className="flex items-start gap-2 pt-2 border-t border-gray-200">
+                            <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <div className="text-xs font-semibold text-gray-900 mb-1">Hotel Address</div>
+                              <div className="text-xs text-gray-700">{hotelAddress}</div>
+                            </div>
+                          </div>
+                        )}
                         <div className="flex items-start gap-2">
                           <Users className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
                           <div className="text-gray-600">{totalGuests} guests in {totalRoomsBooked} rooms</div>
@@ -1649,6 +1744,66 @@ export default function PassengerDetailsModal({
           </div>
         </div>
 
+        {/* Terms & Conditions - Required for both flights and hotels */}
+        {showCheckout && (
+          <div className="px-4 pb-4">
+            <label className="flex items-start gap-3 p-4 border-2 border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <input
+                type="checkbox"
+                required
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+              />
+              <span className="text-xs text-gray-700 leading-relaxed">
+                I have read and agree to{' '}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline hover:text-blue-800 font-semibold"
+                >
+                  Terms & Conditions
+                </a>
+                {', '}
+                <a
+                  href="/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline hover:text-blue-800 font-semibold"
+                >
+                  Privacy Policy
+                </a>
+                {', and '}
+                <a
+                  href="/cancellation-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline hover:text-blue-800 font-semibold"
+                >
+                  Cancellation Policy
+                </a>
+                {bookingType === 'hotel' && selectedOffer?.supplier === 'booking_com' && (
+                  <>
+                    {', as well as '}
+                    <a
+                      href="https://www.booking.com/content/terms.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline hover:text-blue-800 font-semibold"
+                    >
+                      Booking.com's Terms
+                    </a>
+                  </>
+                )}
+              </span>
+            </label>
+          </div>
+        )}
+
+        {/* Business Footer - Duffel Go-Live Requirement */}
+        {showCheckout && bookingType === 'hotel' && <BusinessFooter />}
+
         {/* Footer */}
         <div className="px-4 py-3 bg-white border-t border-gray-200 flex items-center justify-between gap-3 flex-shrink-0">
           {showCheckout ? (
@@ -1668,7 +1823,7 @@ export default function PassengerDetailsModal({
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={paymentMethod === 'credit' && availableCredits < totalPrice}
+                disabled={!acceptedTerms || (paymentMethod === 'credit' && availableCredits < totalPrice)}
                 className="px-4 py-2 bg-gray-900 text-white rounded font-semibold hover:bg-gray-800 transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
               >
                 <Check className="w-3 h-3" />

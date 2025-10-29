@@ -1561,16 +1561,16 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Support</h4>
+              <h4 className="text-white font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Legal</h4>
               <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                <li><Link href="#" className="hover:text-white transition">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-white transition">Contact</Link></li>
-                <li><Link href="#" className="hover:text-white transition">Privacy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition">Terms & Conditions</Link></li>
+                <li><Link href="/privacy-policy" className="hover:text-white transition">Privacy Policy</Link></li>
+                <li><Link href="/cancellation-policy" className="hover:text-white transition">Cancellation Policy</Link></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-xs sm:text-sm">
-            <p>&copy; 2024 bvodo. Built for African businesses.</p>
+            <p>&copy; {new Date().getFullYear()} bvodo. Built for African businesses.</p>
           </div>
         </div>
       </footer>

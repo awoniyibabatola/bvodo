@@ -9,6 +9,11 @@ interface CreditCardProps {
   className?: string;
   size?: 'small' | 'large';
   disableInternalFlip?: boolean;
+  usageData?: {
+    used?: number;
+    total?: number;
+    usagePercentage?: number;
+  };
 }
 
 export default function CreditCard({
@@ -16,7 +21,8 @@ export default function CreditCard({
   availableBalance,
   className = '',
   size = 'large',
-  disableInternalFlip = false
+  disableInternalFlip = false,
+  usageData = {}
 }: CreditCardProps) {
   const isSmall = size === 'small';
   const [isFlipped, setIsFlipped] = useState(false);
@@ -86,14 +92,6 @@ export default function CreditCard({
 
         {/* Bottom Section */}
         <div className="relative z-10">
-          {/* Card Number (decorative) */}
-          <div className="flex gap-3.5 mb-4 text-white/70 text-sm tracking-widest font-light">
-            <span>••••</span>
-            <span>••••</span>
-            <span>••••</span>
-            <span>•••• </span>
-          </div>
-
           <div className="flex justify-between items-end">
             <div className="flex-1 min-w-0">
               <div className="text-white/40 text-[10px] font-medium uppercase tracking-wider mb-1">Card Holder</div>
@@ -126,30 +124,42 @@ export default function CreditCard({
           }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 bg-[#ADF802]/20 rounded-lg flex items-center justify-center border border-[#ADF802]/30">
                 <Plane className="w-3.5 h-3.5 text-[#ADF802]" />
               </div>
               <span className="text-sm font-semibold text-gray-900 tracking-wide">bvodo</span>
             </div>
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider">Card Usage</div>
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider">Credit Usage</div>
+          </div>
+
+          {/* Available Balance */}
+          <div className="mb-6">
+            <div className="text-gray-500 text-[10px] font-medium uppercase tracking-wider mb-1">Available Balance</div>
+            <div className="text-2xl font-bold text-gray-900">
+              ${(availableBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </div>
           </div>
 
           {/* Usage Stats */}
-          <div className="flex-1 space-y-3">
-            <div className="flex justify-between items-center pb-2 border-b border-gray-200">
-              <span className="text-xs text-gray-600">This Month</span>
-              <span className="text-sm font-bold text-gray-900">$0</span>
+          <div className="flex-1 space-y-2.5">
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-600">Used</span>
+              <span className="text-gray-900 font-semibold">
+                ${(usageData.used || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </span>
             </div>
-            <div className="flex justify-between items-center pb-2 border-b border-gray-200">
-              <span className="text-xs text-gray-600">Total Spent</span>
-              <span className="text-sm font-bold text-gray-900">$0</span>
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-600">Total</span>
+              <span className="text-gray-900 font-semibold">
+                ${(usageData.total || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </span>
             </div>
-            <div className="flex justify-between items-center pb-2 border-b border-gray-200">
-              <span className="text-xs text-gray-600">Transactions</span>
-              <span className="text-sm font-bold text-gray-900">0</span>
+            <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-gray-900 rounded-full" style={{width: `${usageData.usagePercentage || 0}%`}}></div>
             </div>
+            <div className="text-gray-500 text-[10px] text-center pt-1">{usageData.usagePercentage || 0}% utilized</div>
           </div>
 
           {/* Footer */}

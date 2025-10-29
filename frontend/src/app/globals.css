@@ -120,6 +120,34 @@
     animation: loading-bar 0.5s ease-out;
   }
 
+  @keyframes fade-scale {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-scale {
+    animation: fade-scale 0.3s ease-out;
+  }
+
+  @keyframes progress-bar {
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  .animate-progress {
+    animation: progress-bar 4s linear;
+  }
+
   /* 3D Transform Utilities */
   .transform-style-3d {
     transform-style: preserve-3d;
@@ -199,6 +227,73 @@
         display: flex !important;
         align-items: center !important;
       }
+    }
+  }
+
+  /* Print Styles */
+  .print-only {
+    display: none;
+  }
+
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    body {
+      background: white !important;
+      margin: 0;
+      padding: 0;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+
+    .print-only {
+      display: block !important;
+    }
+
+    .print-container {
+      max-width: 210mm !important;
+      margin: 0 auto !important;
+      padding: 20mm !important;
+      background: white !important;
+    }
+
+    .print-full-width {
+      max-width: 100% !important;
+    }
+
+    .page-break-before {
+      page-break-before: always;
+    }
+
+    .page-break-after {
+      page-break-after: always;
+    }
+
+    .avoid-break {
+      page-break-inside: avoid;
+    }
+
+    /* Hide sidebar on print, show invoice at top */
+    .print-hide-sidebar {
+      display: none !important;
+    }
+
+    .print-invoice {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+    }
+
+    /* Ensure gradients and colors print */
+    .print-preserve-bg {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
   }
 }

@@ -292,10 +292,11 @@ export const createFlightBooking = async (req: AuthRequest, res: Response): Prom
 
 /**
  * Search for locations (airports/cities)
+ * Now supports multiple providers (Duffel, Amadeus)
  */
 export const searchLocations = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { keyword } = req.query;
+    const { keyword, provider } = req.query;
 
     if (!keyword) {
       res.status(400).json({
@@ -305,12 +306,24 @@ export const searchLocations = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const locations = await AmadeusService.searchLocation(keyword as string);
+    let locations;
+
+    // Use Duffel for location search if specified, otherwise default to Amadeus
+    if (provider === 'duffel') {
+      const duffelService = (await import('../services/duffel.service')).default;
+      locations = await duffelService.searchPlaces(keyword as string);
+    } else {
+      // Default to Amadeus for backward compatibility
+      locations = await AmadeusService.searchLocation(keyword as string);
+    }
 
     res.status(200).json({
       success: true,
       message: 'Locations retrieved successfully',
       data: locations,
+      meta: {
+        provider: provider || 'amadeus',
+      },
     });
   } catch (error: any) {
     logger.error('Search locations error:', error);

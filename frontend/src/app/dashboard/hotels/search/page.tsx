@@ -42,50 +42,33 @@ import {
 import AIChatbox from '@/components/AIChatbox';
 
 /**
- * Adapter function to transform Duffel Stays API response to match UI expectations
+ * Adapter function to transform backend response to match UI expectations
  *
- * Duffel Stays returns:
+ * Backend already transforms Duffel data and returns:
  * {
  *   searchResultId: string,
- *   accommodation: { id, name, photos, amenities, location, address, rating, rooms },
- *   cheapestRate: { id, total_amount, total_currency }
+ *   hotel: { hotelId, name, media, amenities, location, address, rating, distance },
+ *   price: { total, currency, base, public },
+ *   offers: []
  * }
  *
- * UI expects:
- * {
- *   hotel: { hotelId, name, media, amenities, distance, rating },
- *   price: string
- * }
+ * This adapter ensures searchResultId is used consistently for navigation
  */
-const adaptDuffelStaysData = (duffelData: any) => {
+const adaptDuffelStaysData = (backendData: any) => {
+  // Backend already transforms the data, so we mostly pass it through
+  // Just ensure searchResultId is properly set for navigation
   return {
-    searchResultId: duffelData.searchResultId, // NEW: Store for navigation
+    searchResultId: backendData.searchResultId, // For fetching rates on detail page
     hotel: {
-      hotelId: duffelData.searchResultId, // Use searchResultId as hotelId for navigation
-      name: duffelData.accommodation?.name || 'Hotel',
-      description: duffelData.accommodation?.description || '',
-      rating: duffelData.accommodation?.rating || 0,
-      media: duffelData.accommodation?.photos?.map((photo: any) => ({
-        uri: photo.url,
-        url: photo.url,
-      })) || [],
-      amenities: duffelData.accommodation?.amenities?.map((amenity: any) =>
-        amenity.description || amenity.type
-      ) || [],
-      address: {
-        cityName: duffelData.accommodation?.address?.city_name || '',
-        countryCode: duffelData.accommodation?.address?.country_code || '',
-      },
-      location: duffelData.accommodation?.location,
-      // Distance calculation - from coordinates if available
-      distance: duffelData.accommodation?.location?.geographic_coordinates ? {
-        value: 0, // Will be calculated if needed
-        unit: 'KM'
-      } : undefined,
+      ...backendData.hotel,
+      hotelId: backendData.searchResultId || backendData.hotel?.hotelId, // Use searchResultId for navigation
     },
-    price: duffelData.cheapestRate?.total_amount || '0',
-    currency: duffelData.cheapestRate?.total_currency || 'USD',
-    rating: duffelData.accommodation?.rating || 0, // For top-level filtering
+    price: backendData.price?.total || '0',
+    currency: backendData.price?.currency || 'USD',
+    rating: backendData.hotel?.rating || 0,
+    offers: backendData.offers || [],
+    deals: backendData.deals,
+    isRefundable: backendData.isRefundable,
   };
 };
 
@@ -118,6 +101,7 @@ export default function HotelSearchPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [showSearchForm, setShowSearchForm] = useState(false);
   const [loadingCardIndex, setLoadingCardIndex] = useState<number | null>(null);
+  const [viewedHotels, setViewedHotels] = useState<any[]>([]);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -130,7 +114,57 @@ export default function HotelSearchPage() {
         organization: parsedUser.organization || '',
       });
     }
+
+    // Load viewed hotels from localStorage
+    const viewedHotelsData = localStorage.getItem('viewedHotels');
+    if (viewedHotelsData) {
+      try {
+        const parsed = JSON.parse(viewedHotelsData);
+        setViewedHotels(parsed);
+      } catch (error) {
+        console.error('Error parsing viewed hotels:', error);
+      }
+    }
   }, []);
+
+  // Save viewed hotel to localStorage
+  const saveViewedHotel = (hotel: any) => {
+    const hotelData = {
+      id: hotel.hotel?.hotelId || hotel.searchResultId,
+      name: hotel.hotel?.name || 'Hotel',
+      city: hotel.hotel?.address?.city_name || address,
+      image: hotel.hotel?.media?.[0]?.url || hotel.hotel?.media?.[0]?.uri || '',
+      price: hotel.offers?.[0]?.price?.total || '0',
+      currency: hotel.offers?.[0]?.price?.currency || 'USD',
+      rating: hotel.hotel?.rating || 0,
+      checkIn: checkInDate,
+      checkOut: checkOutDate,
+      adults: adults,
+      rooms: roomQuantity,
+      viewedAt: new Date().toISOString(),
+    };
+
+    // Get existing viewed hotels
+    const existing = JSON.parse(localStorage.getItem('viewedHotels') || '[]');
+
+    // Remove if already exists (to update position)
+    const filtered = existing.filter((h: any) => h.id !== hotelData.id);
+
+    // Add to beginning (most recent first)
+    const updated = [hotelData, ...filtered].slice(0, 6); // Keep only last 6
+
+    // Save to localStorage
+    localStorage.setItem('viewedHotels', JSON.stringify(updated));
+    setViewedHotels(updated);
+  };
+
+  // Remove viewed hotel
+  const removeViewedHotel = (hotelId: string) => {
+    const existing = JSON.parse(localStorage.getItem('viewedHotels') || '[]');
+    const filtered = existing.filter((h: any) => h.id !== hotelId);
+    localStorage.setItem('viewedHotels', JSON.stringify(filtered));
+    setViewedHotels(filtered);
+  };
 
   // Read URL params and trigger search on mount
   useEffect(() => {
@@ -189,6 +223,7 @@ export default function HotelSearchPage() {
         radiusUnit: 'KM',
         roomQuantity: roomQuantity.toString(),
         limit: '20', // Always start with 20
+        provider: 'duffel', // Use Duffel Stays API
       });
 
       console.log('[Hotels Search] Fetching with params:', params.toString());
@@ -197,8 +232,22 @@ export default function HotelSearchPage() {
       console.log('[Hotels Search] API response:', data);
 
       if (data.success) {
+        // Debug: Check first hotel structure from backend
+        if (data.data && data.data.length > 0) {
+          console.log('[Hotels Search] First hotel from backend:', data.data[0]);
+          console.log('[Hotels Search] searchResultId:', data.data[0].searchResultId);
+          console.log('[Hotels Search] hotel.hotelId:', data.data[0].hotel?.hotelId);
+        }
+
         // Adapt Duffel Stays data to UI format
         let adaptedHotels = data.data.map(adaptDuffelStaysData);
+
+        // Debug: Check first adapted hotel
+        if (adaptedHotels.length > 0) {
+          console.log('[Hotels Search] First adapted hotel:', adaptedHotels[0]);
+          console.log('[Hotels Search] Adapted searchResultId:', adaptedHotels[0].searchResultId);
+          console.log('[Hotels Search] Adapted hotel.hotelId:', adaptedHotels[0].hotel?.hotelId);
+        }
         console.log('[Hotels Search] Before filtering:', adaptedHotels.length, 'hotels');
 
         // Check if we got fewer hotels than requested (means no more available)
@@ -324,6 +373,7 @@ export default function HotelSearchPage() {
         radiusUnit: 'KM',
         currency: 'USD',
         limit: '20',
+        provider: 'duffel', // Use Duffel Stays API
       });
 
       // If we have a valid city code from our map, use it; otherwise use full address for geocoding
@@ -385,6 +435,7 @@ export default function HotelSearchPage() {
         radiusUnit: 'KM',
         currency: 'USD',
         limit: '20', // Always start with 20
+        provider: 'duffel', // Use Duffel Stays API
       });
 
       // If we have a valid city code from our map, use it; otherwise use full address for geocoding
@@ -428,6 +479,7 @@ export default function HotelSearchPage() {
         radiusUnit: 'KM',
         currency: 'USD',
         limit: newLimit.toString(),
+        provider: 'duffel', // Use Duffel Stays API
       });
 
       if (cityCode) {
@@ -473,34 +525,37 @@ export default function HotelSearchPage() {
     return amenityMap[amenityCode] || Coffee;
   };
 
-  // Format hotel address for better display
+  // Format hotel address - show full address
   const formatHotelAddress = (hotel: any) => {
     const addr = hotel.hotel?.address;
+
+    // Debug: log address data for first hotel
+    if (hotels.indexOf(hotel) === 0) {
+      console.log('[Address Debug] Full address object:', addr);
+      console.log('[Address Debug] Available fields:', {
+        line_one: addr?.line_one,
+        line_two: addr?.line_two,
+        city_name: addr?.city_name,
+        region: addr?.region,
+        postal_code: addr?.postal_code,
+        country_code: addr?.country_code,
+      });
+    }
+
     if (!addr) return address;
 
-    // Build address parts
+    // Build full address with all available parts
     const parts = [];
 
-    // Add street address if available
-    if (addr.lines && addr.lines.length > 0) {
-      parts.push(addr.lines[0]);
-    }
+    if (addr.line_one) parts.push(addr.line_one);
+    if (addr.line_two) parts.push(addr.line_two);
+    if (addr.city_name) parts.push(addr.city_name);
+    if (addr.region) parts.push(addr.region);
+    if (addr.postal_code) parts.push(addr.postal_code);
+    if (addr.country_code) parts.push(addr.country_code);
 
-    // Add city and state/province if available
-    if (addr.cityName) {
-      let cityPart = addr.cityName;
-      if (addr.stateCode) {
-        cityPart += `, ${addr.stateCode}`;
-      }
-      parts.push(cityPart);
-    }
-
-    // If we have parts, join them; otherwise use country code or fallback
-    if (parts.length > 0) {
-      return parts.join(' • ');
-    }
-
-    return addr.countryCode || address;
+    // Return full address or fallback
+    return parts.length > 0 ? parts.join(', ') : address;
   };
 
   // Get distance display
@@ -534,6 +589,15 @@ export default function HotelSearchPage() {
       return parseFloat(hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0');
     }
     return 0;
+  };
+
+  // Format price with thousand separators
+  const formatPrice = (price: string | number): string => {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return numPrice.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
 
   // Filter and sort hotels
@@ -618,133 +682,12 @@ export default function HotelSearchPage() {
         </div>
 
         {/* Page Header */}
-        <div className="mb-4 md:mb-6 lg:mb-8">
+        <div className="mb-4 md:mb-6">
           <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
             Search Hotels
           </h1>
           <p className="text-xs text-gray-600">Find the perfect accommodation for your business trip</p>
         </div>
-
-        {/* Mobile Search Button - Shows on mobile when no results yet */}
-        {!hotels.length && (
-          <button
-            onClick={() => setShowSearchForm(true)}
-            className="md:hidden w-full mb-6 py-3 px-4 bg-white text-gray-700 rounded-lg font-medium border border-gray-200 flex items-center justify-center gap-2"
-          >
-            <Search className="w-4 h-4" />
-            <span className="text-sm">Start Your Hotel Search</span>
-          </button>
-        )}
-
-        {/* Recent Bookings */}
-        {!hotels.length && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
-              <History className="w-4 h-4 text-gray-700" />
-              <h2 className="text-sm font-semibold text-gray-900">Recent Bookings</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {pastBookings.map((booking, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleQuickSearch(booking.city, index)}
-                  disabled={loadingCardIndex === index}
-                  className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loadingCardIndex === index && (
-                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 border-4 border-gray-700 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-sm font-medium text-gray-700">Searching...</span>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex gap-4">
-                    <div className="w-32 h-24 flex-shrink-0 overflow-hidden">
-                      <img
-                        src={booking.image}
-                        alt={booking.hotel}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    </div>
-                    <div className="flex-1 p-4 text-left">
-                      <div className="flex items-center gap-2 mb-1">
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-semibold text-gray-900">{booking.city}</span>
-                        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-medium">
-                          {booking.cityCode}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 mb-2">{booking.hotel}</p>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Clock className="w-3 h-3" />
-                        <span>{booking.date}</span>
-                      </div>
-                    </div>
-                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Search className="w-4 h-4 text-gray-700" />
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Popular Destinations */}
-        {!hotels.length && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
-              <TrendingUp className="w-4 h-4 text-gray-600" />
-              <h2 className="text-sm font-semibold text-gray-900">Popular Destinations</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {popularDestinations.map((destination, index) => {
-                const cardIndex = 100 + index; // Offset to avoid conflict with pastBookings indices
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handleQuickSearch(destination.city, cardIndex)}
-                    disabled={loadingCardIndex === cardIndex}
-                    className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loadingCardIndex === cardIndex && (
-                      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
-                          <span className="text-sm font-medium text-gray-700">Searching...</span>
-                        </div>
-                      </div>
-                    )}
-                  <div className="relative h-40 overflow-hidden">
-                    <img
-                      src={destination.image}
-                      alt={destination.city}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-gray-900/20 to-transparent"></div>
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-white font-bold text-sm">{destination.city}</h3>
-                        <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded">
-                          {destination.cityCode}
-                        </span>
-                      </div>
-                      <p className="text-white/90 text-[10px] mb-1">{destination.description}</p>
-                      <p className="text-white/70 text-[10px]">
-                        <span className="inline-block px-1.5 py-0.5 bg-[#ADF802] text-gray-900 rounded text-[9px] font-bold mr-1">{destination.hotels.split(' ')[0]}</span>
-                        hotels
-                      </p>
-                    </div>
-                  </div>
-                </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Search Form - Desktop only, always hidden on mobile */}
         <div className="hidden md:block relative mb-6 md:mb-8">
@@ -883,6 +826,219 @@ export default function HotelSearchPage() {
             </button>
           </form>
         </div>
+
+        {/* Mobile Search Button - Shows on mobile when no results yet */}
+        {!hotels.length && (
+          <button
+            onClick={() => setShowSearchForm(true)}
+            className="md:hidden w-full mb-6 py-3 px-4 bg-white text-gray-700 rounded-lg font-medium border border-gray-200 flex items-center justify-center gap-2"
+          >
+            <Search className="w-4 h-4" />
+            <span className="text-sm">Start Your Hotel Search</span>
+          </button>
+        )}
+
+        {/* Recent Bookings */}
+        {!hotels.length && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+              <History className="w-4 h-4 text-gray-700" />
+              <h2 className="text-sm font-semibold text-gray-900">Recent Bookings</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {pastBookings.map((booking, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleQuickSearch(booking.city, index)}
+                  disabled={loadingCardIndex === index}
+                  className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loadingCardIndex === index && (
+                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-8 h-8 border-4 border-gray-700 border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm font-medium text-gray-700">Searching...</span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex gap-4">
+                    <div className="w-32 h-24 flex-shrink-0 overflow-hidden">
+                      <img
+                        src={booking.image}
+                        alt={booking.hotel}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="flex-1 p-4 text-left">
+                      <div className="flex items-center gap-2 mb-1">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm font-semibold text-gray-900">{booking.city}</span>
+                        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-medium">
+                          {booking.cityCode}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 mb-2">{booking.hotel}</p>
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Clock className="w-3 h-3" />
+                        <span>{booking.date}</span>
+                      </div>
+                    </div>
+                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Search className="w-4 h-4 text-gray-700" />
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recently Viewed Hotels */}
+        {!hotels.length && viewedHotels.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+              <Clock className="w-4 h-4 text-gray-700" />
+              <h2 className="text-sm font-semibold text-gray-900">Recently Viewed</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {viewedHotels.map((hotel, index) => (
+                <div
+                  key={hotel.id}
+                  className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300"
+                >
+                  {/* Remove button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeViewedHotel(hotel.id);
+                    }}
+                    className="absolute top-2 right-2 z-20 p-1.5 bg-white/90 hover:bg-red-50 rounded-full border border-gray-200 hover:border-red-300 transition-all"
+                    title="Remove from history"
+                  >
+                    <X className="w-3.5 h-3.5 text-gray-600 hover:text-red-600" />
+                  </button>
+
+                  <Link
+                    href={`/dashboard/hotels/${hotel.id}?checkIn=${hotel.checkIn}&checkOut=${hotel.checkOut}&adults=${hotel.adults}&rooms=${hotel.rooms}`}
+                    className="flex gap-4"
+                  >
+                    <div className="w-32 h-24 flex-shrink-0 overflow-hidden">
+                      {hotel.image ? (
+                        <img
+                          src={hotel.image}
+                          alt={hotel.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <Building2 className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 p-4 text-left min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">{hotel.name}</h3>
+                        {hotel.rating > 0 && (
+                          <div className="flex items-center gap-0.5 flex-shrink-0">
+                            <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                            <span className="text-xs font-medium text-gray-700">{hotel.rating}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 mb-2">
+                        <MapPin className="w-3 h-3 text-gray-400" />
+                        <span className="text-xs text-gray-600 line-clamp-1">{hotel.city}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-gray-500">
+                          {hotel.price && parseFloat(hotel.price) > 0 && (
+                            <span className="font-semibold text-gray-900">
+                              ${formatPrice(hotel.price)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] text-gray-500">
+                          <Clock className="w-3 h-3" />
+                          <span>
+                            {(() => {
+                              const viewedDate = new Date(hotel.viewedAt);
+                              const now = new Date();
+                              const diffMs = now.getTime() - viewedDate.getTime();
+                              const diffMins = Math.floor(diffMs / 60000);
+                              const diffHours = Math.floor(diffMs / 3600000);
+                              const diffDays = Math.floor(diffMs / 86400000);
+
+                              if (diffMins < 1) return 'Just now';
+                              if (diffMins < 60) return `${diffMins}m ago`;
+                              if (diffHours < 24) return `${diffHours}h ago`;
+                              return `${diffDays}d ago`;
+                            })()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Popular Destinations */}
+        {!hotels.length && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+              <TrendingUp className="w-4 h-4 text-gray-600" />
+              <h2 className="text-sm font-semibold text-gray-900">Popular Destinations</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {popularDestinations.map((destination, index) => {
+                const cardIndex = 100 + index; // Offset to avoid conflict with pastBookings indices
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickSearch(destination.city, cardIndex)}
+                    disabled={loadingCardIndex === cardIndex}
+                    className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loadingCardIndex === cardIndex && (
+                      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-sm font-medium text-gray-700">Searching...</span>
+                        </div>
+                      </div>
+                    )}
+                  <div className="relative h-40 overflow-hidden">
+                    <img
+                      src={destination.image}
+                      alt={destination.city}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-gray-900/20 to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-white font-bold text-sm">{destination.city}</h3>
+                        <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded">
+                          {destination.cityCode}
+                        </span>
+                      </div>
+                      <p className="text-white/90 text-[10px] mb-1">{destination.description}</p>
+                      <p className="text-white/70 text-[10px]">
+                        <span className="inline-block px-1.5 py-0.5 bg-[#ADF802] text-gray-900 rounded text-[9px] font-bold mr-1">{destination.hotels.split(' ')[0]}</span>
+                        hotels
+                      </p>
+                    </div>
+                  </div>
+                </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Error Message */}
         {error && (
@@ -1122,12 +1278,12 @@ export default function HotelSearchPage() {
                       )}
                     </div>
 
-                    {/* City name at bottom */}
+                    {/* Full address at bottom */}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent p-3 md:p-6 z-10">
                       <div className="flex items-center gap-1.5 md:gap-2 text-white">
                         <MapPin className="w-3 h-3 md:w-4 md:h-4" />
-                        <span className="text-xs md:text-sm font-semibold">
-                          {hotel.hotel?.address?.cityName || address}
+                        <span className="text-xs md:text-sm font-semibold line-clamp-1">
+                          {formatHotelAddress(hotel)}
                         </span>
                       </div>
                     </div>
@@ -1138,7 +1294,7 @@ export default function HotelSearchPage() {
                     <div className="mb-3 md:mb-5">
                       <div className="flex items-center gap-2 mb-2 md:mb-3">
                         <div className="w-1.5 h-1.5 rounded-full bg-gray-700 flex-shrink-0"></div>
-                        <h3 className="text-sm font-bold text-gray-900 leading-tight line-clamp-1">
+                        <h3 className="text-base font-bold text-gray-900 leading-tight line-clamp-1">
                           {hotel.hotel?.name || 'Hotel'}
                         </h3>
                       </div>
@@ -1146,11 +1302,6 @@ export default function HotelSearchPage() {
                         <MapPin className="w-3 h-3 md:w-4 md:h-4 mt-0.5 flex-shrink-0 text-gray-500" />
                         <div className="flex-1">
                           <span className="line-clamp-2 text-[10px] md:text-xs font-medium">{formatHotelAddress(hotel)}</span>
-                          {getDistanceDisplay(hotel) && (
-                            <span className="text-[10px] text-gray-700 font-semibold mt-1 block bg-gray-100 px-1.5 md:px-2 py-0.5 md:py-1 rounded inline-block">
-                              {getDistanceDisplay(hotel)}
-                            </span>
-                          )}
                         </div>
                       </div>
 
@@ -1196,13 +1347,14 @@ export default function HotelSearchPage() {
                       <div className="mb-3 md:mb-4">
                         <div className="text-[10px] font-semibold text-gray-700 mb-1.5 md:mb-2">Popular Facilities</div>
                         <div className="flex flex-wrap gap-1.5 md:gap-2">
-                          {hotel.hotel.amenities.slice(0, 6).map((amenity: string, idx: number) => {
+                          {hotel.hotel.amenities.slice(0, 6).map((amenity: any, idx: number) => {
+                            const amenityText = typeof amenity === 'string' ? amenity : (amenity?.description || amenity?.type || 'Amenity');
                             return (
                               <div
                                 key={idx}
                                 className="px-2 md:px-3 py-1 md:py-1.5 text-[10px] text-gray-700"
                               >
-                                <span>{amenity.replace(/_/g, ' ').toLowerCase()}</span>
+                                <span>{amenityText.replace(/_/g, ' ').toLowerCase()}</span>
                               </div>
                             );
                           })}
@@ -1246,7 +1398,7 @@ export default function HotelSearchPage() {
                           </div>
                           <div className="flex items-baseline gap-1 mb-0.5 md:mb-1">
                             <span className="text-lg md:text-2xl font-bold text-gray-900">
-                              ${hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00'}
+                              ${formatPrice(hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00')}
                             </span>
                           </div>
                           <div className="text-[10px] text-gray-500 font-medium">
@@ -1267,6 +1419,7 @@ export default function HotelSearchPage() {
 
                     <Link
                       href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
+                      onClick={() => saveViewedHotel(hotel)}
                       className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium text-center"
                     >
                       View Details
@@ -1381,7 +1534,7 @@ export default function HotelSearchPage() {
                           {hotel.offers && hotel.offers.length > 0 ? (
                             <div className="flex items-baseline gap-1">
                               <span className="text-lg font-bold text-gray-900">
-                                ${hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00'}
+                                ${formatPrice(hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00')}
                               </span>
                             </div>
                           ) : (
@@ -1393,7 +1546,10 @@ export default function HotelSearchPage() {
                         <Link
                           href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
                           className="flex-shrink-0 self-center px-4 py-2 bg-gray-900 text-white rounded-lg font-medium transition-all text-xs"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            saveViewedHotel(hotel);
+                          }}
                         >
                           View
                         </Link>
@@ -1431,12 +1587,12 @@ export default function HotelSearchPage() {
                         </div>
                       )}
 
-                      {/* City name */}
+                      {/* Full address */}
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 z-10">
                         <div className="flex items-center gap-1.5 text-white text-xs">
                           <MapPin className="w-3.5 h-3.5" />
-                          <span className="font-medium">
-                            {hotel.hotel?.address?.cityName || address}
+                          <span className="font-medium line-clamp-1">
+                            {formatHotelAddress(hotel)}
                           </span>
                         </div>
                       </div>
@@ -1455,11 +1611,6 @@ export default function HotelSearchPage() {
                         <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-600" />
                         <div className="flex-1">
                           <span className="line-clamp-1 text-xs font-medium">{formatHotelAddress(hotel)}</span>
-                          {getDistanceDisplay(hotel) && (
-                            <span className="text-xs text-gray-700 font-semibold mt-1 block bg-gray-100 px-2 py-0.5 rounded inline-block">
-                              {getDistanceDisplay(hotel)}
-                            </span>
-                          )}
                         </div>
                       </div>
 
@@ -1495,7 +1646,7 @@ export default function HotelSearchPage() {
                               <>
                                 <div className="text-xs text-gray-500">Total Price</div>
                                 <div className="text-xl font-bold text-gray-900">
-                                  ${hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00'}
+                                  ${formatPrice(hotel.offers[0].price?.total || hotel.offers[0].price?.base || '0.00')}
                                 </div>
                                 <div className="text-xs text-gray-500">
                                   for {calculateNights()} {calculateNights() === 1 ? 'night' : 'nights'}
@@ -1514,6 +1665,7 @@ export default function HotelSearchPage() {
 
                         <Link
                           href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
+                          onClick={() => saveViewedHotel(hotel)}
                           className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg font-medium text-center text-sm"
                         >
                           View Details

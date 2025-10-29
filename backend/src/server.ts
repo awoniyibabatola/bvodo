@@ -8,6 +8,7 @@ const PORT = env.PORT || 5000;
 async function startServer() {
   try {
     // Test database connection
+    // Updated: Fixed guest creation with required fields
     await prisma.$connect();
     logger.info('✅ Database connected successfully');
 

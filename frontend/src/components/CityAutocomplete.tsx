@@ -15,7 +15,7 @@ interface CityAutocompleteProps {
 export default function CityAutocomplete({
   value,
   onChange,
-  placeholder = 'City, neighborhood, or address...',
+  placeholder = 'City, hotel name, neighborhood, or address...',
   className = '',
   required = false,
 }: CityAutocompleteProps) {
@@ -155,7 +155,7 @@ export default function CityAutocomplete({
             <p className="text-xs text-blue-700 flex items-start gap-2">
               <span className="text-blue-500 mt-0.5">💡</span>
               <span>
-                <strong>Tip:</strong> Not in the list? Type any address or neighborhood (e.g., "Seton Calgary", "123 Main St")
+                <strong>Tip:</strong> Not in the list? Type any hotel name, address, or neighborhood (e.g., "Conrad Dubai", "Marriott Toronto", "123 Main St")
                 and we'll find hotels nearby using geocoding.
               </span>
             </p>

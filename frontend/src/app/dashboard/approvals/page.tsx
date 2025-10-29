@@ -73,6 +73,15 @@ function ApprovalModal({ booking, userRole, onClose, onApprove, onConfirm, onRej
   const isSuperAdmin = userRole === 'super_admin';
   const isAwaitingConfirmation = booking.status === 'awaiting_confirmation';
 
+  // DEBUG: Log values for troubleshooting
+  console.log('🔍 ApprovalModal Debug:', {
+    userRole,
+    bookingStatus: booking.status,
+    isSuperAdmin,
+    isAwaitingConfirmation,
+    shouldShowConfirmButton: isSuperAdmin && isAwaitingConfirmation,
+  });
+
   const handleSubmit = () => {
     if (action === 'approve' && onApprove) {
       onApprove(booking.id, notes || undefined);
@@ -386,6 +395,15 @@ export default function ApprovalsPage() {
     const userData = localStorage.getItem('user');
     if (userData) {
       const parsedUser = JSON.parse(userData);
+
+      // DEBUG: Log localStorage user data
+      console.log('🔍 Approvals Page - User from localStorage:', {
+        firstName: parsedUser.firstName,
+        lastName: parsedUser.lastName,
+        role: parsedUser.role,
+        email: parsedUser.email,
+      });
+
       setUser({
         name: `${parsedUser.firstName} ${parsedUser.lastName}`,
         role: parsedUser.role,
@@ -652,9 +670,19 @@ export default function ApprovalsPage() {
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-lg md:text-xl font-bold text-gray-900 mb-1">
-            {user?.role === 'super_admin' ? 'Booking Confirmations' : 'Booking Approvals'}
-          </h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-lg md:text-xl font-bold text-gray-900">
+              {user?.role === 'super_admin' ? 'Booking Confirmations' : 'Booking Approvals'}
+            </h1>
+            {/* User Role Indicator */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-900 text-white">
+              <span className="text-xs font-medium">{user.name}</span>
+              <span className="text-xs opacity-75">•</span>
+              <span className={`text-xs font-bold ${user.role === 'super_admin' ? 'text-yellow-300' : 'text-blue-300'}`}>
+                {user.role.toUpperCase().replace('_', ' ')}
+              </span>
+            </div>
+          </div>
           <p className="text-xs text-gray-600">
             {user?.role === 'super_admin'
               ? 'Review and confirm bookings that have been approved by managers. Verify rates and availability before confirming.'
@@ -1025,17 +1053,27 @@ export default function ApprovalsPage() {
       </div>
 
       {/* Approval Modal */}
-      {selectedBooking && user && (
-        <ApprovalModal
-          booking={selectedBooking}
-          userRole={user.role}
-          onClose={() => setSelectedBooking(null)}
-          onApprove={handleApprove}
-          onConfirm={handleConfirm}
-          onReject={handleReject}
-          isProcessing={isProcessing}
-        />
-      )}
+      {selectedBooking && user && (() => {
+        // DEBUG: Log props being passed to modal
+        console.log('🔍 Rendering ApprovalModal with props:', {
+          bookingId: selectedBooking.id,
+          bookingReference: selectedBooking.bookingReference,
+          bookingStatus: selectedBooking.status,
+          userRole: user.role,
+          userName: user.name,
+        });
+        return (
+          <ApprovalModal
+            booking={selectedBooking}
+            userRole={user.role}
+            onClose={() => setSelectedBooking(null)}
+            onApprove={handleApprove}
+            onConfirm={handleConfirm}
+            onReject={handleReject}
+            isProcessing={isProcessing}
+          />
+        );
+      })()}
     </div>
   );
 }
