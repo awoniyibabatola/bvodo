@@ -4,91 +4,20 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Gift,
-  Trophy,
-  Star,
-  Sparkles,
   Check,
-  Lock,
-  ArrowRight,
+  Sparkles,
   Plane,
-  Crown,
-  Zap
+  Zap,
+  ArrowRight,
+  Hotel,
+  DollarSign,
+  Clock,
+  ShieldCheck,
+  Headphones,
+  TrendingUp
 } from 'lucide-react';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
 import BusinessFooter from '@/components/BusinessFooter';
-import { getApiEndpoint } from '@/lib/api-config';
-
-interface DashboardStats {
-  stats: {
-    totalBookings: number;
-  };
-}
-
-// Tier configuration
-const TIERS = [
-  {
-    name: 'Explorer',
-    min: 0,
-    max: 5,
-    color: 'from-gray-400 to-gray-600',
-    icon: Plane,
-    bgGradient: 'from-gray-50 to-gray-100',
-    borderColor: 'border-gray-300',
-    rewards: [
-      'Welcome to Bvodo',
-      'Access to standard support',
-      'Basic booking features'
-    ]
-  },
-  {
-    name: 'Adventurer',
-    min: 6,
-    max: 15,
-    color: 'from-blue-400 to-blue-600',
-    icon: Star,
-    bgGradient: 'from-blue-50 to-blue-100',
-    borderColor: 'border-blue-300',
-    rewards: [
-      '$25 Gift Card',
-      'Priority email support',
-      'Exclusive travel tips',
-      'Early access to deals'
-    ]
-  },
-  {
-    name: 'Globetrotter',
-    min: 16,
-    max: 30,
-    color: 'from-purple-400 to-purple-600',
-    icon: Trophy,
-    bgGradient: 'from-purple-50 to-purple-100',
-    borderColor: 'border-purple-300',
-    rewards: [
-      '$50 Gift Card',
-      '24/7 Priority support',
-      'Dedicated account manager',
-      'Premium travel insurance',
-      'Lounge access vouchers'
-    ]
-  },
-  {
-    name: 'Elite Traveler',
-    min: 31,
-    max: Infinity,
-    color: 'from-amber-400 to-amber-600',
-    icon: Crown,
-    bgGradient: 'from-amber-50 to-amber-100',
-    borderColor: 'border-amber-300',
-    rewards: [
-      '$100 Gift Card',
-      'VIP concierge service',
-      'Complimentary upgrades',
-      'Exclusive luxury deals',
-      'Annual travel voucher',
-      'Invitation-only events'
-    ]
-  }
-];
 
 export default function PerksPage() {
   const [user, setUser] = useState({
@@ -98,8 +27,6 @@ export default function PerksPage() {
     organization: 'Acme Corporation',
     avatar: '',
   });
-  const [totalBookings, setTotalBookings] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Get user data from localStorage
@@ -118,282 +45,238 @@ export default function PerksPage() {
         avatar: parsedUser.avatarUrl || '',
       });
     }
-
-    // Fetch dashboard stats for booking count
-    fetchBookingCount();
   }, []);
 
-  const fetchBookingCount = async () => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-
-      const response = await fetch(getApiEndpoint('dashboard/stats'), {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data: DashboardStats = await response.json();
-        setTotalBookings(data.stats.totalBookings || 0);
-      }
-    } catch (error) {
-      console.error('Error fetching booking count:', error);
-    } finally {
-      setIsLoading(false);
+  // Benefits data
+  const benefits = [
+    {
+      icon: Gift,
+      title: 'Exclusive Gift Cards',
+      description: 'Earn gift cards as you travel more. Heavy fliers get rewarded with Amazon, dining, and travel vouchers.'
+    },
+    {
+      icon: DollarSign,
+      title: 'Travel Credits',
+      description: 'Unlock travel credits on future bookings. The more you fly, the more you save on your next trip.'
+    },
+    {
+      icon: Headphones,
+      title: 'Priority Support',
+      description: 'Get dedicated support when you need it. VIP access to our travel specialists 24/7.'
+    },
+    {
+      icon: Zap,
+      title: 'Early Access',
+      description: 'Be the first to know about flash sales, exclusive deals, and limited-time offers.'
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Premium Insurance',
+      description: 'Complimentary travel insurance coverage for your peace of mind on every journey.'
+    },
+    {
+      icon: TrendingUp,
+      title: 'Upgrade Opportunities',
+      description: 'Priority upgrades on flights and hotels. Experience luxury without the premium price.'
     }
-  };
+  ];
 
-  // Determine current tier based on bookings
-  const getCurrentTier = () => {
-    return TIERS.find(tier => totalBookings >= tier.min && totalBookings <= tier.max) || TIERS[0];
-  };
-
-  // Get next tier
-  const getNextTier = () => {
-    const currentIndex = TIERS.findIndex(tier => tier === getCurrentTier());
-    return currentIndex < TIERS.length - 1 ? TIERS[currentIndex + 1] : null;
-  };
-
-  // Calculate progress to next tier
-  const getProgress = () => {
-    const currentTier = getCurrentTier();
-    const nextTier = getNextTier();
-
-    if (!nextTier) return 100; // Already at max tier
-
-    const currentProgress = totalBookings - currentTier.min;
-    const tierRange = nextTier.min - currentTier.min;
-    return Math.min((currentProgress / tierRange) * 100, 100);
-  };
-
-  const currentTier = getCurrentTier();
-  const nextTier = getNextTier();
-  const progress = getProgress();
-  const bookingsToNextTier = nextTier ? nextTier.min - totalBookings : 0;
+  // Tier showcase
+  const tiers = [
+    {
+      name: 'Explorer',
+      bookings: '1-5 trips',
+      perks: ['Welcome bonus', 'Basic support', 'Email updates']
+    },
+    {
+      name: 'Adventurer',
+      bookings: '6-15 trips',
+      perks: ['$25 gift card', 'Priority support', 'Early access to deals', 'Exclusive tips']
+    },
+    {
+      name: 'Globetrotter',
+      bookings: '16-30 trips',
+      perks: ['$50 gift card', '24/7 dedicated support', 'Premium insurance', 'Lounge vouchers', 'Upgrade priority']
+    },
+    {
+      name: 'Elite',
+      bookings: '31+ trips',
+      perks: ['$100 gift card', 'VIP concierge', 'Luxury upgrades', 'Annual voucher', 'Exclusive events', 'Personal manager']
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
       <UnifiedNavBar currentPage="perks" user={user} />
 
       {/* Main Content */}
-      <main className="relative max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
+      <main className="relative max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
+
         {/* Hero Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Travel Perks</h1>
-              <p className="text-gray-600 mt-1">Earn rewards as you explore the world</p>
-            </div>
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-black text-[#ADF802] rounded-full text-sm font-bold mb-6">
+            <Sparkles className="w-4 h-4" />
+            Travel Perks Program
           </div>
+          <h1 className="text-4xl md:text-6xl font-bold text-black mb-6">
+            Book More,
+            <br />
+            <span className="text-[#ADF802]">Earn More</span>
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Every trip brings you closer to exclusive rewards, gift cards, and premium travel benefits.
+          </p>
         </div>
 
-        {/* Current Status Card */}
-        <div className={`bg-gradient-to-br ${currentTier.bgGradient} border-2 ${currentTier.borderColor} rounded-2xl p-6 md:p-8 mb-8 shadow-lg`}>
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className={`w-16 h-16 bg-gradient-to-br ${currentTier.color} rounded-2xl flex items-center justify-center shadow-lg`}>
-                <currentTier.icon className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <div className="text-sm text-gray-600 font-medium mb-1">Current Tier</div>
-                <div className="text-2xl md:text-3xl font-bold text-gray-900">{currentTier.name}</div>
-                <div className="text-sm text-gray-600 mt-1">{totalBookings} {totalBookings === 1 ? 'booking' : 'bookings'} completed</div>
-              </div>
-            </div>
-
-            {nextTier && (
-              <div className="w-full md:w-auto">
-                <div className="text-sm text-gray-600 font-medium mb-2">Next: {nextTier.name}</div>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 md:w-64">
-                    <div className="h-3 bg-white/50 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r ${currentTier.color} transition-all duration-500 ease-out`}
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="text-sm font-semibold text-gray-700 whitespace-nowrap">
-                    {bookingsToNextTier} more
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {!nextTier && (
-              <div className="flex items-center gap-2 text-amber-600">
-                <Crown className="w-5 h-5" />
-                <span className="font-semibold">Highest Tier Achieved!</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* All Tiers Progress */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 mb-8 shadow-sm">
-          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-pink-500" />
-            Your Journey
+        {/* Benefits Grid */}
+        <div className="mb-20">
+          <h2 className="text-2xl md:text-3xl font-bold text-black mb-10 text-center">
+            What You'll Get
           </h2>
-
-          <div className="space-y-6">
-            {TIERS.map((tier, index) => {
-              const isUnlocked = totalBookings >= tier.min;
-              const isCurrent = tier === currentTier;
-              const Icon = tier.icon;
-
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {benefits.map((benefit, index) => {
+              const Icon = benefit.icon;
               return (
-                <div key={tier.name} className="relative">
-                  {/* Connecting line for non-last tiers */}
-                  {index < TIERS.length - 1 && (
-                    <div className={`absolute left-6 top-12 w-0.5 h-12 ${isUnlocked ? 'bg-gradient-to-b ' + tier.color : 'bg-gray-200'}`} />
-                  )}
-
-                  <div className={`flex items-start gap-4 transition-all duration-300 ${isCurrent ? 'scale-105' : ''}`}>
-                    {/* Icon */}
-                    <div className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center ${isUnlocked ? `bg-gradient-to-br ${tier.color}` : 'bg-gray-200'} shadow-md`}>
-                      {isUnlocked ? (
-                        <Icon className="w-6 h-6 text-white" />
-                      ) : (
-                        <Lock className="w-6 h-6 text-gray-400" />
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className={`text-lg font-bold ${isUnlocked ? 'text-gray-900' : 'text-gray-400'}`}>
-                          {tier.name}
-                        </h3>
-                        {isCurrent && (
-                          <span className="px-2 py-1 bg-pink-100 text-pink-600 text-xs font-semibold rounded-full">
-                            Current
-                          </span>
-                        )}
-                        {isUnlocked && !isCurrent && (
-                          <Check className="w-4 h-4 text-green-600" />
-                        )}
-                      </div>
-
-                      <div className={`text-sm ${isUnlocked ? 'text-gray-600' : 'text-gray-400'} mb-2`}>
-                        {tier.min === 0 ? 'Start' : tier.min} - {tier.max === Infinity ? '∞' : tier.max} bookings
-                      </div>
-
-                      {/* Progress bar for current tier */}
-                      {isCurrent && nextTier && (
-                        <div className="mb-3">
-                          <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-                            <span>{totalBookings} bookings</span>
-                            <span>{nextTier.min} to unlock {nextTier.name}</span>
-                          </div>
-                          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full bg-gradient-to-r ${tier.color} transition-all duration-500`}
-                              style={{ width: `${progress}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Rewards */}
-                      {isUnlocked && (
-                        <div className="space-y-1">
-                          {tier.rewards.map((reward, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
-                              <Zap className="w-3 h-3 text-pink-500 flex-shrink-0" />
-                              <span>{reward}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {!isUnlocked && (
-                        <div className="text-sm text-gray-400">
-                          🔒 Unlock at {tier.min} bookings
-                        </div>
-                      )}
-                    </div>
+                <div
+                  key={index}
+                  className="bg-gray-50 rounded-2xl p-8 border-2 border-gray-100 hover:border-black transition-all duration-300 group"
+                >
+                  <div className="w-14 h-14 bg-black rounded-xl flex items-center justify-center mb-5 group-hover:bg-[#ADF802] transition-colors">
+                    <Icon className="w-7 h-7 text-[#ADF802] group-hover:text-black transition-colors" />
                   </div>
+                  <h3 className="text-xl font-bold text-black mb-3">{benefit.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{benefit.description}</p>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Rewards Showcase */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {TIERS.map(tier => {
-            const isUnlocked = totalBookings >= tier.min;
-            const Icon = tier.icon;
+        {/* Tier Levels */}
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-black mb-4">
+              Four Ways to Fly
+            </h2>
+            <p className="text-lg text-gray-600">
+              Progress through tiers as you book more trips
+            </p>
+          </div>
 
-            return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {tiers.map((tier, index) => (
               <div
-                key={tier.name}
-                className={`rounded-xl border-2 p-5 transition-all duration-300 ${
-                  isUnlocked
-                    ? `${tier.borderColor} bg-gradient-to-br ${tier.bgGradient} shadow-md hover:shadow-lg`
-                    : 'border-gray-200 bg-gray-50'
-                }`}
+                key={index}
+                className={`rounded-2xl p-6 border-2 ${
+                  index === tiers.length - 1
+                    ? 'bg-black text-white border-black'
+                    : 'bg-white text-black border-gray-200 hover:border-black'
+                } transition-all duration-300`}
               >
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${
-                  isUnlocked ? `bg-gradient-to-br ${tier.color}` : 'bg-gray-200'
-                }`}>
-                  {isUnlocked ? (
-                    <Icon className="w-5 h-5 text-white" />
-                  ) : (
-                    <Lock className="w-5 h-5 text-gray-400" />
-                  )}
+                <div className="mb-6">
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg mb-4 ${
+                    index === tiers.length - 1 ? 'bg-[#ADF802]' : 'bg-gray-100'
+                  }`}>
+                    <Plane className={`w-6 h-6 ${
+                      index === tiers.length - 1 ? 'text-black' : 'text-black'
+                    }`} />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
+                  <p className={`text-sm ${
+                    index === tiers.length - 1 ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
+                    {tier.bookings}
+                  </p>
                 </div>
-                <h3 className={`font-bold mb-1 ${isUnlocked ? 'text-gray-900' : 'text-gray-400'}`}>
-                  {tier.name}
-                </h3>
-                <p className={`text-sm ${isUnlocked ? 'text-gray-600' : 'text-gray-400'}`}>
-                  {tier.rewards[0]}
-                </p>
+
+                <ul className="space-y-3">
+                  {tier.perks.map((perk, perkIndex) => (
+                    <li key={perkIndex} className="flex items-start gap-2">
+                      <Check className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+                        index === tiers.length - 1 ? 'text-[#ADF802]' : 'text-black'
+                      }`} />
+                      <span className={`text-sm ${
+                        index === tiers.length - 1 ? 'text-gray-200' : 'text-gray-700'
+                      }`}>
+                        {perk}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        {/* Call to Action */}
-        <div className="bg-gradient-to-br from-[#0f1729] via-[#1a2332] to-[#0f1729] rounded-2xl p-8 text-center shadow-lg">
-          <Sparkles className="w-12 h-12 text-pink-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Keep Traveling, Keep Earning!</h2>
-          <p className="text-gray-300 mb-6">
-            Book your next trip to unlock exclusive rewards and benefits
+        {/* How It Works */}
+        <div className="mb-20">
+          <h2 className="text-2xl md:text-3xl font-bold text-black mb-10 text-center">
+            How It Works
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-[#ADF802] rounded-2xl flex items-center justify-center mx-auto mb-5">
+                <Plane className="w-8 h-8 text-black" />
+              </div>
+              <h3 className="text-xl font-bold text-black mb-3">1. Book Your Trip</h3>
+              <p className="text-gray-600">
+                Search and book flights or hotels through our platform
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-5">
+                <TrendingUp className="w-8 h-8 text-[#ADF802]" />
+              </div>
+              <h3 className="text-xl font-bold text-black mb-3">2. Earn Automatically</h3>
+              <p className="text-gray-600">
+                Every completed booking counts toward your next tier
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-[#ADF802] rounded-2xl flex items-center justify-center mx-auto mb-5">
+                <Gift className="w-8 h-8 text-black" />
+              </div>
+              <h3 className="text-xl font-bold text-black mb-3">3. Unlock Rewards</h3>
+              <p className="text-gray-600">
+                Receive gift cards, credits, and exclusive perks
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="bg-black rounded-3xl p-8 md:p-12 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Start Earning Today
+          </h2>
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            Your next trip could be your first step toward exclusive rewards
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/dashboard/flights/search"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#ADF802] text-black font-bold rounded-xl hover:bg-[#9DE600] transition-colors text-lg"
             >
-              <Plane className="w-4 h-4" />
-              Book Flight
-              <ArrowRight className="w-4 h-4" />
+              <Plane className="w-5 h-5" />
+              Search Flights
+              <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
               href="/dashboard/hotels/search"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-pink-500 text-white font-semibold rounded-lg hover:bg-pink-600 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-100 transition-colors text-lg"
             >
-              <Gift className="w-4 h-4" />
-              Book Hotel
-              <ArrowRight className="w-4 h-4" />
+              <Hotel className="w-5 h-5" />
+              Find Hotels
+              <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
+
       </main>
 
       {/* Footer */}
-      <div className="mt-16">
+      <div className="mt-20">
         <BusinessFooter />
       </div>
     </div>
