@@ -368,15 +368,18 @@ export default function DashboardPage() {
             <Link href="/dashboard/bookings" className="group relative h-full block">
               <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-400 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden">
                 {/* Icon - Top Left */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start mb-4">
                   <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 group-hover:border-gray-300 transition-colors">
                     <CheckCircle className="w-4 h-4 text-gray-700" />
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
+                  {/* Arrow above label */}
+                  <div className="mb-2">
+                    <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
+                  </div>
                   <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Total Bookings</div>
                   <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.totalBookings || 0}</div>
 
@@ -390,15 +393,18 @@ export default function DashboardPage() {
             <div className="group relative h-full cursor-pointer">
               <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-400 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden">
                 {/* Icon - Top Left */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start mb-4">
                   <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 group-hover:border-gray-300 transition-colors">
                     <MapPin className="w-4 h-4 text-gray-700" />
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
+                  {/* Arrow above label */}
+                  <div className="mb-2">
+                    <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
+                  </div>
                   <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Destinations</div>
                   <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.destinations || 0}</div>
 
@@ -412,15 +418,18 @@ export default function DashboardPage() {
             <Link href="/dashboard/hotels/search" className="group relative h-full block">
               <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-400 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden">
                 {/* Icon - Top Left */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start mb-4">
                   <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 group-hover:border-gray-300 transition-colors">
                     <Hotel className="w-4 h-4 text-gray-700" />
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
+                  {/* Arrow above label */}
+                  <div className="mb-2">
+                    <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
+                  </div>
                   <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Hotels Booked</div>
                   <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.hotelsBooked || 0}</div>
 
@@ -434,15 +443,18 @@ export default function DashboardPage() {
             <Link href="/dashboard/flights/search" className="group relative h-full block">
               <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-400 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden">
                 {/* Icon - Top Left */}
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start mb-4">
                   <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 group-hover:border-gray-300 transition-colors">
                     <Plane className="w-4 h-4 text-gray-700" />
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
                 </div>
 
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
+                  {/* Arrow above label */}
+                  <div className="mb-2">
+                    <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
+                  </div>
                   <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Flights Taken</div>
                   <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.flightsTaken || 0}</div>
 
