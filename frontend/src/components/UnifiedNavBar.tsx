@@ -48,6 +48,7 @@ export default function UnifiedNavBar({
       { label: 'Bookings', href: '/dashboard/bookings', key: 'bookings' },
       { label: 'Flights', href: '/dashboard/flights/search?new=true', key: 'flights' },
       { label: 'Hotels', href: '/dashboard/hotels/search', key: 'hotels' },
+      { label: 'Perks', href: '/dashboard/perks', key: 'perks' },
     ];
 
     // Add Approvals for admin, manager, company_admin
