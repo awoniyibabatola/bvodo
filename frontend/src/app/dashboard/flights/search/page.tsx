@@ -2302,7 +2302,7 @@ export default function FlightSearchPage() {
               const isOutOfPolicy = isPriceOutOfPolicy || isCabinClassOutOfPolicy;
 
               // Check if we're showing return flights
-              const isReturnFlightCard = hasRoundTrip && showReturnFlightSelection;
+              const isReturnFlightCard = showReturnFlightSelection;
 
               return (
                 <div
