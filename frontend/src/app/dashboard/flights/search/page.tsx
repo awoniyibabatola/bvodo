@@ -1664,18 +1664,6 @@ export default function FlightSearchPage() {
         )}
 
         {/* Draft and Recent Bookings - Show only when no search results */}
-        {(() => {
-          console.log('🎨 Render conditions:', {
-            loading,
-            flightsLength: flights.length,
-            error,
-            loadingBookings,
-            draftBookingsLength: draftBookings.length,
-            recentBookingsLength: recentBookings.length,
-            shouldShow: !loading && flights.length === 0 && !error
-          });
-          return null;
-        })()}
         {!loading && flights.length === 0 && !error && (
           <div className="mb-8 space-y-6">
             {/* Draft Flights */}
