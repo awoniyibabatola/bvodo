@@ -908,6 +908,13 @@ export default function FlightSearchPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔍 Flight search triggered');
+    console.log('📍 From:', from, fromDisplay);
+    console.log('📍 To:', to, toDisplay);
+    console.log('📅 Dates:', departureDate, returnDate);
+    console.log('👥 Passengers:', passengers);
+    console.log('💺 Class:', travelClass);
+
     setLoading(true);
     setError('');
     setShowSearchForm(false); // Close modal on mobile after search
@@ -928,13 +935,20 @@ export default function FlightSearchPage() {
         provider: 'duffel', // Use Duffel as primary provider
       });
 
+      const apiUrl = `${getApiEndpoint('flights/search')}?${params}`;
+      console.log('🌐 API URL:', apiUrl);
+
       // Update URL with search params (without navigation)
       window.history.replaceState({}, '', `?${params}`);
 
-      const response = await fetch(`${getApiEndpoint('flights/search')}?${params}`);
+      const response = await fetch(apiUrl);
+      console.log('📡 Response status:', response.status);
+
       const data = await response.json();
+      console.log('📦 Response data:', data);
 
       if (data.success) {
+        console.log('✅ Search successful, flights found:', data.data?.length || 0);
         setFlights(data.data);
         // Store search results in sessionStorage
         sessionStorage.setItem('flightSearchResults', JSON.stringify({
@@ -953,9 +967,11 @@ export default function FlightSearchPage() {
           timestamp: Date.now(),
         }));
       } else {
+        console.error('❌ Search failed:', data.message);
         setError(data.message || 'Failed to search flights');
       }
     } catch (err: any) {
+      console.error('❌ Search error:', err);
       setError(err.message || 'An error occurred while searching flights');
     } finally {
       setLoading(false);
