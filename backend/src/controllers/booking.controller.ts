@@ -15,6 +15,7 @@ import duffelService from '../services/duffel.service';
 import { duffelStaysService } from '../services/duffel-stays.service';
 import emailService from '../services/email.service';
 import { stripeService } from '../services/stripe.service';
+import PolicyService from '../services/policy.service';
 
 /**
  * Helper function to deduct credits based on user role
@@ -488,10 +489,112 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
       select: { approverId: true },
     });
 
+    // ============================================
+    // POLICY VALIDATION
+    // ============================================
+    let policyViolation = null;
+    let policyRequiresApproval = false;
+
+    try {
+      // Get user's effective policy
+      const policy = await PolicyService.getPolicyForUser(
+        user.userId,
+        user.organizationId
+      );
+
+      if (policy) {
+        // Get effective limits (exception overrides base policy)
+        const effectiveFlightMaxAmount = policy.exception?.flightMaxAmount || policy.flightMaxAmount;
+        const effectiveHotelMaxPerNight = policy.exception?.hotelMaxAmountPerNight || policy.hotelMaxAmountPerNight;
+        const effectiveHotelMaxTotal = policy.exception?.hotelMaxAmountTotal || policy.hotelMaxAmountTotal;
+        const requiresApprovalAbove = policy.requiresApprovalAbove;
+
+        const bookingAmount = parseFloat(totalPrice);
+
+        // Check flight policy
+        if (bookingType === 'flight' && effectiveFlightMaxAmount) {
+          const maxAmount = Number(effectiveFlightMaxAmount);
+          if (bookingAmount > maxAmount) {
+            policyViolation = `Booking amount (${currency} ${totalPrice}) exceeds your flight policy limit of ${currency} ${maxAmount}`;
+          }
+
+          // Check flight class restrictions
+          if (policy.allowedFlightClasses && Array.isArray(policy.allowedFlightClasses) && flightDetails) {
+            const allowedClasses = policy.allowedFlightClasses as string[];
+            const flightClass = (flightDetails.cabinClass || flightDetails.travelClass || 'economy').toLowerCase();
+
+            if (!allowedClasses.includes(flightClass)) {
+              policyViolation = `Flight class '${flightClass}' is not allowed by your policy. Allowed classes: ${allowedClasses.join(', ')}`;
+            }
+          }
+        }
+
+        // Check hotel policy
+        if (bookingType === 'hotel' && hotelDetails) {
+          const checkIn = new Date(departureDate);
+          const checkOut = returnDate ? new Date(returnDate) : new Date(departureDate);
+          const numberOfNights = Math.max(1, Math.ceil(
+            (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+          ));
+          const perNightPrice = bookingAmount / numberOfNights;
+
+          // Check per-night limit
+          if (effectiveHotelMaxPerNight) {
+            const maxPerNight = Number(effectiveHotelMaxPerNight);
+            if (perNightPrice > maxPerNight) {
+              policyViolation = `Hotel rate (${currency} ${perNightPrice.toFixed(2)}/night) exceeds your policy limit of ${currency} ${maxPerNight}/night`;
+            }
+          }
+
+          // Check total limit
+          if (effectiveHotelMaxTotal) {
+            const maxTotal = Number(effectiveHotelMaxTotal);
+            if (bookingAmount > maxTotal) {
+              policyViolation = `Total hotel cost (${currency} ${totalPrice}) exceeds your policy limit of ${currency} ${maxTotal}`;
+            }
+          }
+        }
+
+        // Check if amount requires approval (even if within policy)
+        if (requiresApprovalAbove && bookingAmount > Number(requiresApprovalAbove)) {
+          policyRequiresApproval = true;
+        }
+
+        // Log policy check
+        await PolicyService.logPolicyUsage({
+          policyId: policy.id,
+          organizationId: user.organizationId,
+          userId: user.userId,
+          eventType: policyViolation ? 'policy_violated' : 'policy_applied',
+          bookingType,
+          requestedAmount: bookingAmount,
+          currency,
+          policySnapshot: policy as any,
+          wasAllowed: !policyViolation,
+          requiresApproval: policyRequiresApproval,
+        });
+      }
+    } catch (policyError) {
+      logger.warn('Error checking booking policy:', policyError);
+      // Continue without policy enforcement if there's an error
+    }
+
+    // Reject booking if it violates policy
+    if (policyViolation && paymentMethod === 'credit') {
+      res.status(403).json({
+        success: false,
+        message: 'Booking violates your organization policy',
+        error: policyViolation,
+        requiresException: true,
+      });
+      return;
+    }
+
     // Check if booking requires approval
     // Card payments are auto-approved after Stripe payment (user pays with own money)
     // Balance/credit payments require manual approval (using company money)
     const requiresApproval = paymentMethod === 'credit' && (
+      policyRequiresApproval ||
       organization.requireApprovalAll ||
       (totalPrice && parseFloat(totalPrice) >= parseFloat(organization.approvalThreshold.toString()))
     );

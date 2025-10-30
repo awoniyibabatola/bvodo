@@ -589,6 +589,14 @@ export const getAllUsers = async (req: Request, res: Response) => {
         status: true,
         creditLimit: true,
         availableCredits: true,
+        policyId: true,
+        policy: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
         lastLoginAt: true,
         createdAt: true,
       },
@@ -604,6 +612,8 @@ export const getAllUsers = async (req: Request, res: Response) => {
           ...user,
           creditLimit: user.creditLimit.toString(),
           availableCredits: user.availableCredits.toString(),
+          policyId: user.policyId,
+          policy: user.policy,
         })),
         total: users.length,
       },
@@ -815,7 +825,7 @@ export const getOrganizationStats = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const { firstName, lastName, role, department, status } = req.body;
+    const { firstName, lastName, role, department, status, policyId } = req.body;
     const adminUser = (req as AuthRequest).user;
 
     if (!adminUser) {
@@ -840,6 +850,25 @@ export const updateUser = async (req: Request, res: Response) => {
       });
     }
 
+    // If policyId is provided, verify it belongs to the same organization
+    if (policyId !== undefined) {
+      if (policyId !== null) {
+        const policy = await prisma.bookingPolicy.findFirst({
+          where: {
+            id: policyId,
+            organizationId: adminUser.organizationId,
+          },
+        });
+
+        if (!policy) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid policy ID or policy does not belong to your organization',
+          });
+        }
+      }
+    }
+
     // Build update data
     const updateData: any = {};
     if (firstName) updateData.firstName = firstName;
@@ -847,10 +876,19 @@ export const updateUser = async (req: Request, res: Response) => {
     if (role) updateData.role = role;
     if (department !== undefined) updateData.department = department;
     if (status) updateData.status = status;
+    if (policyId !== undefined) updateData.policyId = policyId;
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: updateData,
+      include: {
+        policy: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
 
     logger.info(`User ${userId} updated by ${adminUser.email}`);
@@ -867,6 +905,8 @@ export const updateUser = async (req: Request, res: Response) => {
           role: updatedUser.role,
           department: updatedUser.department,
           status: updatedUser.status,
+          policyId: updatedUser.policyId,
+          policy: updatedUser.policy,
         },
       },
     });

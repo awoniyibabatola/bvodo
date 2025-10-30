@@ -45,9 +45,8 @@ export class PolicyService {
   /**
    * Get the effective policy for a user
    * Takes into account:
+   * - User's assigned policy (policyId)
    * - Active policies
-   * - User role
-   * - Policy priority
    * - Effective dates
    * - Policy exceptions
    */
@@ -56,23 +55,28 @@ export class PolicyService {
     organizationId: string
   ): Promise<(BookingPolicy & { exception?: PolicyException | null }) | null> {
     try {
-      // Get user to determine role
+      // Get user's assigned policy
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { role: true },
+        select: { policyId: true },
       });
 
       if (!user) {
         throw new Error('User not found');
       }
 
+      // If user has no policy assigned, return null
+      if (!user.policyId) {
+        return null;
+      }
+
       const today = new Date();
 
-      // Find active policy for user's role
+      // Get the user's assigned policy (if active and within date range)
       const policy = await prisma.bookingPolicy.findFirst({
         where: {
+          id: user.policyId,
           organizationId,
-          role: user.role,
           isActive: true,
           OR: [
             {
@@ -94,7 +98,6 @@ export class PolicyService {
           ],
           deletedAt: null,
         },
-        orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
       });
 
       if (!policy) {
