@@ -17,6 +17,7 @@ import {
   BarChart3,
   Search,
   ArrowUpRight,
+  ArrowRight,
   Sparkles,
   X,
   Globe,
