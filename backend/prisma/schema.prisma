@@ -53,6 +53,9 @@ model Organization {
   bookings           Booking[]
   creditTransactions CreditTransaction[]
   creditApplications CreditApplication[]
+  bookingPolicies    BookingPolicy[]
+  policyExceptions   PolicyException[]
+  policyUsageLogs    PolicyUsageLog[]
 
   @@index([subdomain])
   @@index([status])
@@ -134,6 +137,10 @@ model User {
   confirmedBookings   Booking[]    @relation("BookingConfirmer")
   creditTransactions  CreditTransaction[]
   createdTransactions CreditTransaction[] @relation("TransactionCreator")
+  createdPolicies     BookingPolicy[]     @relation("PolicyCreator")
+  policyExceptions    PolicyException[]   @relation("PolicyExceptionUser")
+  approvedExceptions  PolicyException[]   @relation("PolicyExceptionApprover")
+  policyUsageLogs     PolicyUsageLog[]
 
   @@unique([organizationId, email])
   @@index([organizationId])
@@ -237,6 +244,13 @@ model Booking {
   // Additional Data
   bookingData                 Json?    @map("booking_data")
 
+  // Policy Enforcement
+  appliedPolicyId             String?  @map("applied_policy_id")
+  policyExceptionId           String?  @map("policy_exception_id")
+  policyViolation             Boolean  @default(false) @map("policy_violation")
+  policyOverrideBy            String?  @map("policy_override_by")
+  policyOverrideReason        String?  @map("policy_override_reason") @db.Text
+
   // Timestamps
   bookedAt        DateTime  @default(now()) @map("booked_at")
   confirmedAt     DateTime? @map("confirmed_at")
@@ -254,6 +268,9 @@ model Booking {
   creditTransactions CreditTransaction[]
   flightBookings     FlightBooking[]
   hotelBookings      HotelBooking[]
+  appliedPolicy      BookingPolicy?      @relation("BookingPolicy", fields: [appliedPolicyId], references: [id], onDelete: SetNull)
+  policyException    PolicyException?    @relation("BookingPolicyException", fields: [policyExceptionId], references: [id], onDelete: SetNull)
+  policyUsageLogs    PolicyUsageLog[]
 
   @@index([organizationId])
   @@index([userId])
@@ -600,4 +617,179 @@ model CreditTransaction {
   @@index([transactionType])
   @@index([createdAt])
   @@map("credit_transactions")
+}
+
+// ============================================================================
+// BOOKING POLICIES
+// ============================================================================
+
+model BookingPolicy {
+  id                      String   @id @default(uuid())
+  organizationId          String   @map("organization_id")
+
+  // Policy Information
+  name                    String   @db.VarChar(200)
+  description             String?  @db.Text
+
+  // Target Role
+  role                    String   @db.VarChar(20) // employee, traveler, manager, admin, company_admin
+
+  // Policy Type
+  policyType              String   @map("policy_type") @db.VarChar(30)
+  // per_night, per_trip, per_booking, monthly_limit, annual_limit
+
+  // Spending Limits
+  flightMaxAmount         Decimal? @map("flight_max_amount") @db.Decimal(12, 2)
+  hotelMaxAmountPerNight  Decimal? @map("hotel_max_amount_per_night") @db.Decimal(12, 2)
+  hotelMaxAmountTotal     Decimal? @map("hotel_max_amount_total") @db.Decimal(12, 2)
+  monthlyLimit            Decimal? @map("monthly_limit") @db.Decimal(12, 2)
+  annualLimit             Decimal? @map("annual_limit") @db.Decimal(12, 2)
+
+  // Currency
+  currency                String   @default("USD") @db.VarChar(3)
+
+  // Flight Restrictions
+  allowedFlightClasses    Json?    @map("allowed_flight_classes")
+  // JSON array: ["economy", "premium_economy", "business", "first"]
+
+  // Approval Thresholds
+  requiresApprovalAbove   Decimal? @map("requires_approval_above") @db.Decimal(12, 2)
+  autoApproveBelow        Decimal? @map("auto_approve_below") @db.Decimal(12, 2)
+
+  // Override Settings
+  allowManagerOverride    Boolean  @default(false) @map("allow_manager_override")
+  allowExceptions         Boolean  @default(true) @map("allow_exceptions")
+
+  // Booking Restrictions
+  advanceBookingDays      Int?     @map("advance_booking_days") // Minimum days before travel
+  maxTripDuration         Int?     @map("max_trip_duration") // Maximum trip length in days
+
+  // Policy Status
+  isActive                Boolean  @default(true) @map("is_active")
+  priority                Int      @default(0) // Higher priority policies override lower ones
+
+  // Effective Dates
+  effectiveFrom           DateTime? @map("effective_from") @db.Date
+  effectiveTo             DateTime? @map("effective_to") @db.Date
+
+  // Metadata
+  createdBy               String?  @map("created_by")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+  deletedAt               DateTime? @map("deleted_at")
+
+  // Relations
+  organization            Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator                 User?             @relation("PolicyCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  exceptions              PolicyException[]
+  usageLogs               PolicyUsageLog[]
+  bookings                Booking[]         @relation("BookingPolicy")
+
+  @@index([organizationId])
+  @@index([role])
+  @@index([isActive])
+  @@index([priority])
+  @@index([effectiveFrom])
+  @@index([effectiveTo])
+  @@map("booking_policies")
+}
+
+// ============================================================================
+// POLICY EXCEPTIONS
+// ============================================================================
+
+model PolicyException {
+  id                      String   @id @default(uuid())
+  policyId                String   @map("policy_id")
+  organizationId          String   @map("organization_id")
+  userId                  String?  @map("user_id")
+  bookingId               String?  @map("booking_id")
+
+  // Exception Type
+  exceptionType           String   @map("exception_type") @db.VarChar(30)
+  // user_permanent, user_temporary, booking_one_time, department
+
+  // Override Limits (null means use default from policy)
+  flightMaxAmount         Decimal? @map("flight_max_amount") @db.Decimal(12, 2)
+  hotelMaxAmountPerNight  Decimal? @map("hotel_max_amount_per_night") @db.Decimal(12, 2)
+  hotelMaxAmountTotal     Decimal? @map("hotel_max_amount_total") @db.Decimal(12, 2)
+
+  // Justification
+  reason                  String   @db.Text
+  approvedBy              String?  @map("approved_by")
+  approvedAt              DateTime? @map("approved_at")
+
+  // Validity
+  validFrom               DateTime? @map("valid_from") @db.Date
+  validTo                 DateTime? @map("valid_to") @db.Date
+  isActive                Boolean  @default(true) @map("is_active")
+
+  // Metadata
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  policy                  BookingPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  organization            Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user                    User?         @relation("PolicyExceptionUser", fields: [userId], references: [id], onDelete: Cascade)
+  approver                User?         @relation("PolicyExceptionApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+  bookings                Booking[]     @relation("BookingPolicyException")
+
+  @@index([policyId])
+  @@index([organizationId])
+  @@index([userId])
+  @@index([bookingId])
+  @@index([exceptionType])
+  @@index([isActive])
+  @@map("policy_exceptions")
+}
+
+// ============================================================================
+// POLICY USAGE LOGS
+// ============================================================================
+
+model PolicyUsageLog {
+  id                      String   @id @default(uuid())
+  policyId                String?  @map("policy_id")
+  organizationId          String   @map("organization_id")
+  userId                  String   @map("user_id")
+  bookingId               String?  @map("booking_id")
+
+  // Event Information
+  eventType               String   @map("event_type") @db.VarChar(50)
+  // policy_applied, policy_violated, exception_granted, override_used, limit_exceeded
+
+  // Policy Snapshot (for audit trail)
+  policySnapshot          Json?    @map("policy_snapshot")
+
+  // Booking Details
+  bookingType             String?  @map("booking_type") @db.VarChar(20) // flight, hotel
+  requestedAmount         Decimal? @map("requested_amount") @db.Decimal(12, 2)
+  policyLimit             Decimal? @map("policy_limit") @db.Decimal(12, 2)
+  currency                String?  @default("USD") @db.VarChar(3)
+
+  // Result
+  wasAllowed              Boolean  @default(false) @map("was_allowed")
+  requiresApproval        Boolean  @default(false) @map("requires_approval")
+
+  // Additional Context
+  details                 String?  @db.Text
+  metadata                Json?
+
+  // Timestamp
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  // Relations
+  organization            Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user                    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  policy                  BookingPolicy? @relation(fields: [policyId], references: [id], onDelete: SetNull)
+  booking                 Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([policyId])
+  @@index([organizationId])
+  @@index([userId])
+  @@index([bookingId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("policy_usage_logs")
 }
