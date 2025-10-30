@@ -827,6 +827,14 @@ export default function FlightSearchPage() {
   }, [searchParams]);
 
   const performSearch = async (origin: string, destination: string, depDate: string, retDate: string | null, adults: number, directFlight?: boolean) => {
+    console.log('🔍 [performSearch] Flight search triggered from URL params');
+    console.log('📍 [performSearch] Origin:', origin);
+    console.log('📍 [performSearch] Destination:', destination);
+    console.log('📅 [performSearch] Dates:', depDate, retDate);
+    console.log('👥 [performSearch] Adults:', adults);
+    console.log('💺 [performSearch] Class:', travelClass);
+    console.log('✈️ [performSearch] Direct flight only:', directFlight);
+
     setLoading(true);
     setError('');
 
@@ -835,13 +843,17 @@ export default function FlightSearchPage() {
       const originCode = getCityCode(origin) || origin.toUpperCase();
       const destinationCode = getCityCode(destination) || destination.toUpperCase();
 
+      console.log('🔤 [performSearch] IATA Codes - Origin:', originCode, 'Destination:', destinationCode);
+
       // Validate IATA codes (must be 3 letters)
       if (!/^[A-Z]{3}$/.test(originCode)) {
+        console.error('❌ [performSearch] Invalid origin code:', originCode);
         setError(`Invalid origin airport: "${origin}". Please select a city from the dropdown or enter a 3-letter airport code (e.g., BOS, LAX).`);
         setLoading(false);
         return;
       }
       if (!/^[A-Z]{3}$/.test(destinationCode)) {
+        console.error('❌ [performSearch] Invalid destination code:', destinationCode);
         setError(`Invalid destination airport: "${destination}". Please select a city from the dropdown or enter a 3-letter airport code (e.g., BOS, LAX).`);
         setLoading(false);
         return;
@@ -860,10 +872,21 @@ export default function FlightSearchPage() {
         provider: 'duffel', // Use Duffel as primary provider
       });
 
-      const response = await fetch(`${getApiEndpoint('flights/search')}?${params}`);
+      const apiUrl = `${getApiEndpoint('flights/search')}?${params}`;
+      console.log('🌐 [performSearch] API URL:', apiUrl);
+      console.log('📋 [performSearch] Full params:', Object.fromEntries(params));
+
+      const response = await fetch(apiUrl);
+      console.log('📡 [performSearch] Response status:', response.status);
+
       const data = await response.json();
+      console.log('📦 [performSearch] Response data:', data);
 
       if (data.success) {
+        console.log('✅ [performSearch] Search successful! Flights found:', data.data?.length || 0);
+        if (data.data?.length === 0) {
+          console.warn('⚠️ [performSearch] API returned success but 0 flights. This might be normal for the route/dates.');
+        }
         setFlights(data.data);
         // Store search results in sessionStorage
         sessionStorage.setItem('flightSearchResults', JSON.stringify({
@@ -882,6 +905,7 @@ export default function FlightSearchPage() {
           timestamp: Date.now(),
         }));
       } else {
+        console.error('❌ [performSearch] Search failed:', data.message);
         // Provide more helpful error messages for common issues
         let errorMessage = data.message || 'Failed to search flights';
 
@@ -893,6 +917,7 @@ export default function FlightSearchPage() {
         setError(errorMessage);
       }
     } catch (err: any) {
+      console.error('❌ [performSearch] Search error:', err);
       let errorMessage = err.message || 'An error occurred while searching flights';
 
       // Provide helpful context for network or API errors
