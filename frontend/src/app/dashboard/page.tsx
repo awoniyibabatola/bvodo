@@ -177,14 +177,8 @@ export default function DashboardPage() {
               <div className="absolute bottom-4 left-4 w-12 h-12 bg-[#ADF802]/5 rounded-lg rotate-12 group-hover:rotate-45 transition-transform duration-500"></div>
 
               <div className="relative h-full p-6 flex flex-col justify-between z-10">
-                {/* Icon in corner */}
-                <div className="flex justify-between items-start">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-[#ADF802]/20 blur-xl rounded-full"></div>
-                    <div className="relative w-16 h-16 bg-[#ADF802] rounded-2xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
-                      <Plane className="w-8 h-8 text-black" />
-                    </div>
-                  </div>
+                {/* Indicator dot */}
+                <div className="flex justify-end">
                   <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-pulse"></div>
                 </div>
 
@@ -216,15 +210,9 @@ export default function DashboardPage() {
               <div className="absolute bottom-6 right-6 w-14 h-14 bg-[#ADF802]/5 rounded-full group-hover:scale-125 transition-transform duration-500"></div>
 
               <div className="relative h-full p-6 flex flex-col justify-between z-10">
-                {/* Icon in corner */}
-                <div className="flex justify-between items-start">
+                {/* Indicator dot */}
+                <div className="flex justify-start">
                   <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-pulse"></div>
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-[#ADF802]/20 blur-xl rounded-full"></div>
-                    <div className="relative w-16 h-16 bg-[#ADF802] rounded-2xl flex items-center justify-center shadow-lg group-hover:-rotate-12 transition-transform">
-                      <Hotel className="w-8 h-8 text-black" />
-                    </div>
-                  </div>
                 </div>
 
                 {/* Text content */}
