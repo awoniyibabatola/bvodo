@@ -2851,8 +2851,24 @@ export default function FlightSearchPage() {
                           </div>
                         </div>
 
-                        {/* Action Button */}
-                        <div className="mt-4 flex justify-end">
+                        {/* Action Buttons */}
+                        <div className="mt-4 flex justify-between items-center">
+                          {/* Change Outbound Button - Only show in return flight selection */}
+                          {showReturnFlightSelection && (
+                            <button
+                              onClick={() => {
+                                setShowReturnFlightSelection(false);
+                                setSelectedOutboundFlight(null);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                              }}
+                              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300"
+                            >
+                              <ArrowLeft className="w-4 h-4" />
+                              Change Outbound
+                            </button>
+                          )}
+
+                          {/* Main Action Button */}
                           <button
                             onClick={() => {
                               const selectedFlight = selectedFares.get(`group-${groupIndex}`) || flight;
@@ -2883,7 +2899,7 @@ export default function FlightSearchPage() {
                               isOutOfPolicy
                                 ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                                 : 'bg-gray-900 text-white hover:bg-gray-800'
-                            }`}
+                            } ${!showReturnFlightSelection ? 'ml-auto' : ''}`}
                           >
                             {(() => {
                               const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
@@ -2899,7 +2915,23 @@ export default function FlightSearchPage() {
 
                     {/* Single Fare - Direct CTA (when there's only one unique fare option) */}
                     {getUniqueFares(flightGroup).length === 1 && (
-                      <div className="mt-4 flex justify-end">
+                      <div className="mt-4 flex justify-between items-center">
+                        {/* Change Outbound Button - Only show in return flight selection */}
+                        {showReturnFlightSelection && (
+                          <button
+                            onClick={() => {
+                              setShowReturnFlightSelection(false);
+                              setSelectedOutboundFlight(null);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          >
+                            <ArrowLeft className="w-4 h-4" />
+                            Change Outbound
+                          </button>
+                        )}
+
+                        {/* Main Action Button */}
                         <button
                           onClick={() => {
                             // Get the single unique fare (it's the only one)
@@ -2931,7 +2963,7 @@ export default function FlightSearchPage() {
                             isOutOfPolicy
                               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                               : 'bg-gray-900 text-white hover:bg-gray-800'
-                          }`}
+                          } ${!showReturnFlightSelection ? 'ml-auto' : ''}`}
                         >
                           {(() => {
                             const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
