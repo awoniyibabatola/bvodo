@@ -408,8 +408,8 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Hotels - Hidden on mobile, visible on desktop */}
-            <div className="group relative h-full hidden lg:block">
+            {/* Hotels */}
+            <div className="group relative h-full">
               <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
                 {/* Subtle geometric pattern */}
                 <div className="absolute top-0 left-0 w-16 h-16 opacity-[0.03]">
@@ -430,8 +430,8 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Flights - Hidden on mobile, visible on desktop */}
-            <div className="group relative h-full hidden lg:block">
+            {/* Flights */}
+            <div className="group relative h-full">
               <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
                 {/* Subtle geometric pattern */}
                 <div className="absolute bottom-0 right-0 w-20 h-20 opacity-[0.03]">
