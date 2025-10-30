@@ -168,12 +168,8 @@ export default function DashboardPage() {
             href="/dashboard/flights/search"
             className="group relative block rounded-xl overflow-hidden shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-300 border border-gray-200"
           >
-            <div className="relative h-[140px] bg-white overflow-hidden">
-              {/* Floating geometric shapes */}
-              <div className="absolute top-3 right-3 w-16 h-16 border-2 border-gray-100 rounded-full group-hover:rotate-90 transition-transform duration-500"></div>
-              <div className="absolute bottom-4 left-4 w-12 h-12 bg-gray-50 rounded-lg rotate-12 group-hover:rotate-45 transition-transform duration-500"></div>
-
-              <div className="relative h-full p-6 flex flex-col justify-between z-10">
+            <div className="relative h-[110px] bg-white overflow-hidden">
+              <div className="relative h-full p-5 flex flex-col justify-between z-10">
                 {/* Indicator dot */}
                 <div className="flex justify-end">
                   <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-pulse"></div>
@@ -181,7 +177,7 @@ export default function DashboardPage() {
 
                 {/* Text content */}
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+                  <h3 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">
                     Book Flight
                   </h3>
                   <div className="flex items-center gap-2 text-gray-600">
@@ -198,12 +194,8 @@ export default function DashboardPage() {
             href="/dashboard/hotels/search"
             className="group relative block rounded-xl overflow-hidden shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-300 border border-gray-200"
           >
-            <div className="relative h-[140px] bg-white overflow-hidden">
-              {/* Floating geometric shapes */}
-              <div className="absolute top-4 left-4 w-20 h-20 border-2 border-gray-100 rounded-2xl rotate-12 group-hover:-rotate-12 transition-transform duration-500"></div>
-              <div className="absolute bottom-6 right-6 w-14 h-14 bg-gray-50 rounded-full group-hover:scale-125 transition-transform duration-500"></div>
-
-              <div className="relative h-full p-6 flex flex-col justify-between z-10">
+            <div className="relative h-[110px] bg-white overflow-hidden">
+              <div className="relative h-full p-5 flex flex-col justify-between z-10">
                 {/* Indicator dot */}
                 <div className="flex justify-start">
                   <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-pulse"></div>
@@ -211,7 +203,7 @@ export default function DashboardPage() {
 
                 {/* Text content */}
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black text-gray-900 tracking-tight">
+                  <h3 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">
                     Book Hotel
                   </h3>
                   <div className="flex items-center gap-2 text-gray-600">
