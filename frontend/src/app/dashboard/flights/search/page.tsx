@@ -826,6 +826,35 @@ export default function FlightSearchPage() {
     }
   }, [searchParams]);
 
+  // Dynamically set filter ranges based on actual flight data
+  useEffect(() => {
+    if (flights.length > 0) {
+      // Calculate max price from all flights
+      const prices = flights.map(flight => getFlightPrice(flight).total);
+      const maxPrice = Math.max(...prices);
+      const minPrice = Math.min(...prices);
+
+      // Calculate max CO2 from all flights
+      const co2Values = flights.map(flight => estimateCO2(flight));
+      const maxCO2 = Math.max(...co2Values);
+      const minCO2 = Math.min(...co2Values);
+
+      // Only update filter ranges if they haven't been manually adjusted by user
+      // (i.e., if they're still at default values or need to be expanded)
+      if (filterPriceRange[1] === 10000 || maxPrice > filterPriceRange[1]) {
+        const newMaxPrice = Math.ceil(maxPrice * 1.1); // Add 10% padding
+        console.log(`[Filter Init] Setting price range: [${Math.floor(minPrice)}, ${newMaxPrice}]`);
+        setFilterPriceRange([Math.floor(minPrice), newMaxPrice]);
+      }
+
+      if (filterCO2[1] === 1000 || maxCO2 > filterCO2[1]) {
+        const newMaxCO2 = Math.ceil(maxCO2 * 1.1); // Add 10% padding
+        console.log(`[Filter Init] Setting CO2 range: [${Math.floor(minCO2)}, ${newMaxCO2}]`);
+        setFilterCO2([Math.floor(minCO2), newMaxCO2]);
+      }
+    }
+  }, [flights]);
+
   const performSearch = async (origin: string, destination: string, depDate: string, retDate: string | null, adults: number, directFlight?: boolean) => {
     console.log('🔍 [performSearch] Flight search triggered from URL params');
     console.log('📍 [performSearch] Origin:', origin);
@@ -1129,26 +1158,48 @@ export default function FlightSearchPage() {
   };
 
   const filterFlights = (flightsToFilter: any[]) => {
-    return flightsToFilter.filter((flight) => {
+    const filtered = flightsToFilter.filter((flight) => {
+      // Stops filter
       if (filterStops.length > 0) {
         const stops = getNumberOfStops(flight);
         if (!filterStops.includes(stops)) return false;
       }
+
+      // Price filter
       const price = getFlightPrice(flight).total;
-      if (price < filterPriceRange[0] || price > filterPriceRange[1]) return false;
+      if (price < filterPriceRange[0] || price > filterPriceRange[1]) {
+        console.log(`[Filter] Flight rejected - Price ${price} outside range [${filterPriceRange[0]}, ${filterPriceRange[1]}]`);
+        return false;
+      }
+
+      // Airlines filter
       if (filterAirlines.length > 0) {
         const flightAirlines = getAirlineCodes(flight);
         const hasMatchingAirline = flightAirlines.some(code => filterAirlines.includes(code));
         if (!hasMatchingAirline) return false;
       }
+
+      // Departure time filter
       if (filterDepartureTime.length > 0) {
         const timeCategory = getDepartureTimeCategory(flight);
         if (!filterDepartureTime.includes(timeCategory)) return false;
       }
+
+      // CO2 filter
       const co2 = estimateCO2(flight);
-      if (co2 < filterCO2[0] || co2 > filterCO2[1]) return false;
+      if (co2 < filterCO2[0] || co2 > filterCO2[1]) {
+        console.log(`[Filter] Flight rejected - CO2 ${co2} outside range [${filterCO2[0]}, ${filterCO2[1]}]`);
+        return false;
+      }
+
       return true;
     });
+
+    if (filtered.length !== flightsToFilter.length) {
+      console.log(`[Filter] ${flightsToFilter.length} flights → ${filtered.length} after filtering`);
+    }
+
+    return filtered;
   };
 
   const clearAllFilters = () => {
