@@ -101,6 +101,7 @@ export default function FlightDetailsPage() {
   const flightId = params.id as string;
 
   const [flight, setFlight] = useState<any>(null);
+  const [expandedSegments, setExpandedSegments] = useState<{ [key: number]: boolean }>({});
   const [isOfferExpired, setIsOfferExpired] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isValidating, setIsValidating] = useState(true);
@@ -244,6 +245,13 @@ export default function FlightDetailsPage() {
 
     fetchUserCredits();
   }, []);
+
+  const toggleSegment = (index: number) => {
+    setExpandedSegments((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
 
   const formatDuration = (duration: string) => {
     return duration.replace('PT', '').replace('H', 'h ').replace('M', 'm').toLowerCase();
@@ -701,45 +709,153 @@ export default function FlightDetailsPage() {
                 const mainAirlineCode = getSegmentAirlineCode(firstSegment);
 
                 return (
-                  <div key={itinIndex} className="mb-4 last:mb-0">
-                    {/* Simplified Flight Card */}
-                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                      <div className="flex items-center justify-between gap-4">
-                        {/* Flight Type Label */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <Plane className="w-4 h-4 text-gray-600" />
-                          <span className="text-xs font-bold text-gray-900">
-                            {itinIndex === 0 ? 'Outbound' : 'Return'}
-                          </span>
-                        </div>
-
-                        {/* Route */}
-                        <div className="flex items-center gap-2 flex-1">
-                          <span className="text-sm font-bold text-gray-900">
-                            {firstDeparture.iataCode}
-                          </span>
-                          <ArrowRight className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm font-bold text-gray-900">
-                            {lastArrival.iataCode}
-                          </span>
-                        </div>
-
-                        {/* Flight Info */}
-                        <div className="flex items-center gap-3 text-xs text-gray-600">
-                          <span>{formatDuration(itinerary.duration)}</span>
-                          <span>•</span>
-                          <span>
-                            {itinerary.segments.length === 1
-                              ? 'Direct'
-                              : `${itinerary.segments.length - 1} ${
-                                  itinerary.segments.length - 1 === 1 ? 'stop' : 'stops'
-                                }`}
-                          </span>
-                          <span>•</span>
-                          <span>{AIRLINE_NAMES[mainAirlineCode] || mainAirlineCode}</span>
-                        </div>
-                      </div>
+                  <div key={itinIndex} className="mb-6 last:mb-0">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Plane className="w-4 h-4 text-gray-700" />
+                      <h3 className="text-sm font-bold text-gray-900">
+                        {itinIndex === 0 ? 'Outbound Flight' : 'Return Flight'}
+                      </h3>
                     </div>
+
+                    {/* Segment Details */}
+                    {itinerary.segments.map((segment: any, segIndex: number) => {
+                      const segmentDeparture = getSegmentDeparture(segment);
+                      const segmentArrival = getSegmentArrival(segment);
+                      const segDeparture = formatDateTime(segmentDeparture.at);
+                      const segArrival = formatDateTime(segmentArrival.at);
+                      const airlineCode = getSegmentAirlineCode(segment);
+                      const flightNumber = getSegmentNumber(segment);
+                      const isExpanded = expandedSegments[itinIndex * 100 + segIndex];
+
+                      return (
+                        <div key={segIndex} className="mb-3 last:mb-0">
+                          <div
+                            className="bg-white border border-gray-200 rounded-lg p-3 hover:border-gray-400 transition-all cursor-pointer"
+                            onClick={() => toggleSegment(itinIndex * 100 + segIndex)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3 flex-1">
+                                {/* Airline Logo */}
+                                <div className="w-10 h-10 bg-white rounded flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
+                                  <img
+                                    src={getAirlineLogo(airlineCode)}
+                                    alt={AIRLINE_NAMES[airlineCode] || airlineCode}
+                                    className="w-full h-full object-contain p-1"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                  />
+                                  <Plane className="w-5 h-5 text-gray-600 hidden" />
+                                </div>
+                                <div className="flex-1">
+                                  <div className="font-bold text-gray-900 text-sm">
+                                    {AIRLINE_NAMES[airlineCode] || airlineCode}
+                                  </div>
+                                  <div className="text-[10px] text-gray-600">
+                                    {airlineCode} {flightNumber} • {segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode} → {segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
+                                  </div>
+                                </div>
+                                {/* Flight Times - Visible when collapsed */}
+                                {!isExpanded && (
+                                  <div className="flex items-start gap-4 mr-2">
+                                    <div className="text-center">
+                                      <div className="text-base font-bold text-gray-900">{segmentDeparture.iataCode}</div>
+                                      <div className="text-xs font-semibold text-gray-700">{segDeparture.time}</div>
+                                      <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
+                                      <div className="text-[10px] text-gray-600 font-medium mt-0.5">
+                                        {segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}
+                                      </div>
+                                      <div className="text-[9px] text-gray-500">
+                                        {segmentDeparture.airport || AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || ''}
+                                      </div>
+                                    </div>
+                                    <div className="flex flex-col items-center pt-6">
+                                      <ArrowRight className="w-4 h-4 text-gray-400" />
+                                      <div className="text-[10px] text-gray-600 font-medium mt-1">{formatDuration(segment.duration)}</div>
+                                    </div>
+                                    <div className="text-center">
+                                      <div className="text-base font-bold text-gray-900">{segmentArrival.iataCode}</div>
+                                      <div className="text-xs font-semibold text-gray-700">{segArrival.time}</div>
+                                      <div className="text-[10px] text-gray-500">{segArrival.date}</div>
+                                      <div className="text-[10px] text-gray-600 font-medium mt-0.5">
+                                        {segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
+                                      </div>
+                                      <div className="text-[9px] text-gray-500">
+                                        {segmentArrival.airport || AIRPORT_NAMES[segmentArrival.iataCode]?.airport || ''}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                              )}
+                            </div>
+
+                            {isExpanded && (
+                              <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <div className="text-[10px] text-gray-500 mb-0.5">Departure</div>
+                                    <div className="font-semibold text-gray-900 text-sm">
+                                      {segDeparture.time}
+                                    </div>
+                                    <div className="text-xs font-semibold text-gray-700">{segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}</div>
+                                    <div className="text-[10px] text-gray-600">{segmentDeparture.airport || AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || segmentDeparture.iataCode}</div>
+                                    <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-[10px] text-gray-500 mb-0.5">Arrival</div>
+                                    <div className="font-semibold text-gray-900 text-sm">
+                                      {segArrival.time}
+                                    </div>
+                                    <div className="text-xs font-semibold text-gray-700">{segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}</div>
+                                    <div className="text-[10px] text-gray-600">{segmentArrival.airport || AIRPORT_NAMES[segmentArrival.iataCode]?.airport || segmentArrival.iataCode}</div>
+                                    <div className="text-[10px] text-gray-500">{segArrival.date}</div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3 text-[10px] text-gray-600">
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    <span>{formatDuration(segment.duration)}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Briefcase className="w-3 h-3" />
+                                    <span>
+                                      {getTravelerPricings(flight)[0]?.fareDetailsBySegment?.[segIndex]
+                                        ?.cabin || segment.cabinClass || 'Economy'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Layover Notice */}
+                          {segIndex < itinerary.segments.length - 1 && (() => {
+                            const nextSegment = itinerary.segments[segIndex + 1];
+                            const nextSegmentDeparture = getSegmentDeparture(nextSegment);
+                            const layoverStart = new Date(segmentArrival.at);
+                            const layoverEnd = new Date(nextSegmentDeparture.at);
+                            const layoverMinutes = Math.floor((layoverEnd.getTime() - layoverStart.getTime()) / (1000 * 60));
+                            const layoverHours = Math.floor(layoverMinutes / 60);
+                            const layoverMins = layoverMinutes % 60;
+
+                            return (
+                              <div className="flex items-center justify-center py-2">
+                                <div className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-[10px] text-gray-700">
+                                  <Clock className="w-3 h-3 inline mr-1" />
+                                  Layover at {segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode} • {layoverHours}h {layoverMins}m
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
