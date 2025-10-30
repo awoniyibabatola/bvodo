@@ -166,32 +166,44 @@ export default function DashboardPage() {
           {/* Book Flight */}
           <Link
             href="/dashboard/flights/search"
-            className="group relative bg-white border-2 border-gray-900 rounded-xl p-5 md:p-5 hover:bg-gray-900 transition-all duration-200 overflow-hidden shadow-md hover:shadow-lg active:scale-[0.98]"
+            className="group relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-4 md:p-5 hover:shadow-xl transition-all duration-300 overflow-hidden active:scale-[0.98]"
           >
-            <div className="relative z-10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 md:p-2 bg-gray-900 group-hover:bg-white rounded-lg transition-colors">
-                  <Plane className="w-6 h-6 md:w-5 md:h-5 text-white group-hover:text-gray-900 transition-colors" />
+            {/* Lemon green accent line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-[#ADF802]"></div>
+
+            <div className="relative z-10 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="p-2 bg-[#ADF802]/20 rounded-lg">
+                  <Plane className="w-5 h-5 text-[#ADF802]" />
                 </div>
-                <span className="text-base md:text-sm font-light md:font-bold text-gray-900 group-hover:text-white transition-colors">Book Flight</span>
+                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#ADF802] group-hover:translate-x-1 transition-all" />
               </div>
-              <ChevronRight className="w-6 h-6 md:w-5 md:h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              <div>
+                <h3 className="text-base font-bold text-white mb-0.5">Book Flight</h3>
+                <p className="text-xs text-gray-400">Search & compare flights</p>
+              </div>
             </div>
           </Link>
 
           {/* Book Hotel */}
           <Link
             href="/dashboard/hotels/search"
-            className="group relative bg-white border-2 border-gray-700 rounded-xl p-5 md:p-5 hover:bg-gray-700 transition-all duration-200 overflow-hidden shadow-md hover:shadow-lg active:scale-[0.98]"
+            className="group relative bg-gradient-to-br from-gray-800 to-gray-700 rounded-2xl p-4 md:p-5 hover:shadow-xl transition-all duration-300 overflow-hidden active:scale-[0.98]"
           >
-            <div className="relative z-10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 md:p-2 bg-gray-700 group-hover:bg-white rounded-lg transition-colors">
-                  <Hotel className="w-6 h-6 md:w-5 md:h-5 text-white group-hover:text-gray-700 transition-colors" />
+            {/* Lemon green accent line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-[#ADF802]"></div>
+
+            <div className="relative z-10 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="p-2 bg-[#ADF802]/20 rounded-lg">
+                  <Hotel className="w-5 h-5 text-[#ADF802]" />
                 </div>
-                <span className="text-base md:text-sm font-light md:font-bold text-gray-700 group-hover:text-white transition-colors">Book Hotel</span>
+                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[#ADF802] group-hover:translate-x-1 transition-all" />
               </div>
-              <ChevronRight className="w-6 h-6 md:w-5 md:h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              <div>
+                <h3 className="text-base font-bold text-white mb-0.5">Book Hotel</h3>
+                <p className="text-xs text-gray-400">Find your perfect stay</p>
+              </div>
             </div>
           </Link>
         </div>
