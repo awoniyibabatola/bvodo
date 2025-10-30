@@ -134,6 +134,12 @@ export default function Home() {
             </div>
             <div className="flex gap-2 sm:gap-4">
               <Link
+                href="/pricing"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-gray-700 hover:text-[#ADF802] font-medium transition"
+              >
+                Pricing
+              </Link>
+              <Link
                 href="/login"
                 className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-gray-700 hover:text-[#ADF802] font-medium transition"
               >
@@ -1547,8 +1553,8 @@ export default function Home() {
             <div>
               <h4 className="text-white font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Product</h4>
               <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-                <li><Link href="#" className="hover:text-white transition">Features</Link></li>
-                <li><Link href="#" className="hover:text-white transition">Pricing</Link></li>
+                <li><Link href="/#features" className="hover:text-white transition">Features</Link></li>
+                <li><Link href="/pricing" className="hover:text-white transition">Pricing</Link></li>
                 <li><Link href="#" className="hover:text-white transition">API</Link></li>
               </ul>
             </div>
