@@ -14,7 +14,7 @@ import PolicyService from '../services/policy.service';
  * Provider can be specified via query parameter: ?provider=amadeus or ?provider=duffel
  * Default: amadeus (since Duffel Stays requires API access approval)
  */
-export const searchHotels = async (req: Request, res: Response): Promise<void> => {
+export const searchHotels = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const {
       cityCode,
@@ -121,14 +121,13 @@ async function searchHotelsWithAmadeus(req: Request, res: Response): Promise<voi
   // Policy Filtering (if user is authenticated)
   let policyInfo = null;
   let filteredHotels = hotels;
-  const authReq = req as AuthRequest;
 
-  if (authReq.user) {
+  if (req.user) {
     try {
       // Get user's effective policy
       const policy = await PolicyService.getPolicyForUser(
-        authReq.user.id,
-        authReq.user.organizationId
+        req.user.userId,
+        req.user.organizationId
       );
 
       if (policy) {
@@ -141,14 +140,11 @@ async function searchHotelsWithAmadeus(req: Request, res: Response): Promise<voi
         // Calculate number of nights
         const checkIn = new Date(checkInDate as string);
         const checkOut = new Date(checkOutDate as string);
-        const numberOfNights = Math.ceil(
-          (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
-        );
+        const numberOfNights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
 
         // Filter hotels by policy limits
         if (effectiveHotelMaxPerNight || effectiveHotelMaxTotal) {
           filteredHotels = hotels.filter((hotel: any) => {
-            // Parse price from hotel object
             const totalPrice = parseFloat(hotel.price || hotel.totalPrice || 0);
             const perNightPrice = totalPrice / numberOfNights;
 
@@ -205,8 +201,7 @@ async function searchHotelsWithAmadeus(req: Request, res: Response): Promise<voi
     count: filteredHotels.length,
     provider: 'amadeus',
     meta: {
-      totalBeforePolicy: hotels.length,
-      filteredByPolicy: policyInfo ? hotels.length - filteredHotels.length : 0,
+      total: hotels.length,
     },
     policy: policyInfo,
   });
@@ -642,14 +637,13 @@ async function searchHotelsWithDuffel(req: Request, res: Response): Promise<void
   // Policy Filtering (if user is authenticated)
   let policyInfo = null;
   let filteredHotels = hotels;
-  const authReq = req as AuthRequest;
 
-  if (authReq.user) {
+  if (req.user) {
     try {
       // Get user's effective policy
       const policy = await PolicyService.getPolicyForUser(
-        authReq.user.id,
-        authReq.user.organizationId
+        req.user.userId,
+        req.user.organizationId
       );
 
       if (policy) {
@@ -662,25 +656,15 @@ async function searchHotelsWithDuffel(req: Request, res: Response): Promise<void
         // Calculate number of nights
         const checkIn = new Date(checkInDate as string);
         const checkOut = new Date(checkOutDate as string);
-        const numberOfNights = Math.ceil(
-          (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
-        );
+        const numberOfNights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
 
         // Filter hotels by policy limits
         if (effectiveHotelMaxPerNight || effectiveHotelMaxTotal) {
           filteredHotels = hotels.filter((hotel: any) => {
-            // Get cheapest offer price
-            let totalPrice = 0;
-            if (hotel.offers && hotel.offers.length > 0) {
-              const prices = hotel.offers.map((offer: any) =>
-                parseFloat(offer.price?.total || offer.price || 0)
-              );
-              totalPrice = Math.min(...prices);
-            } else if (hotel.cheapestRate) {
-              totalPrice = parseFloat(hotel.cheapestRate.total_amount || 0);
-            }
-
+            // For Duffel, check the cheapest offer price
+            const totalPrice = parseFloat(hotel.cheapestPrice || hotel.price || hotel.totalPrice || 0);
             const perNightPrice = totalPrice / numberOfNights;
+
             let allowed = true;
 
             // Check per-night limit
@@ -734,8 +718,7 @@ async function searchHotelsWithDuffel(req: Request, res: Response): Promise<void
     count: filteredHotels.length,
     provider: 'duffel',
     meta: {
-      totalBeforePolicy: hotels.length,
-      filteredByPolicy: policyInfo ? hotels.length - filteredHotels.length : 0,
+      total: hotels.length,
     },
     policy: policyInfo,
   });

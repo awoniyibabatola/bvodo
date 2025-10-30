@@ -10,7 +10,7 @@ import PolicyService from '../services/policy.service';
  * Search for flights
  * Now supports multiple providers (Duffel, Amadeus) with automatic fallback
  */
-export const searchFlights = async (req: Request, res: Response): Promise<void> => {
+export const searchFlights = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const {
       origin,
@@ -61,14 +61,13 @@ export const searchFlights = async (req: Request, res: Response): Promise<void> 
     // Policy Filtering (if user is authenticated)
     let policyInfo = null;
     let filteredOffers = result.offers;
-    const authReq = req as AuthRequest;
 
-    if (authReq.user) {
+    if (req.user) {
       try {
         // Get user's effective policy
         const policy = await PolicyService.getPolicyForUser(
-          authReq.user.id,
-          authReq.user.organizationId
+          req.user.userId,
+          req.user.organizationId
         );
 
         if (policy) {
@@ -85,10 +84,7 @@ export const searchFlights = async (req: Request, res: Response): Promise<void> 
           }
 
           // Filter by allowed flight classes
-          if (
-            policy.allowedFlightClasses &&
-            Array.isArray(policy.allowedFlightClasses)
-          ) {
+          if (policy.allowedFlightClasses && Array.isArray(policy.allowedFlightClasses)) {
             const allowedClasses = policy.allowedFlightClasses as string[];
             filteredOffers = filteredOffers.filter((offer: any) => {
               const cabinClass = offer.cabinClass || offer.travelClass || 'economy';
@@ -126,8 +122,7 @@ export const searchFlights = async (req: Request, res: Response): Promise<void> 
       meta: {
         provider: result.provider,
         usedFallback: result.usedFallback,
-        totalBeforePolicy: result.offers.length,
-        filteredByPolicy: policyInfo ? result.offers.length - filteredOffers.length : 0,
+        total: result.offers.length,
       },
       policy: policyInfo,
     });
