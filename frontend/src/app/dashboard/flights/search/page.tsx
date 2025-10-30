@@ -28,6 +28,7 @@ import {
   SlidersHorizontal,
   Leaf,
   ArrowUpDown,
+  Shield,
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
