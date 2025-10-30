@@ -184,7 +184,7 @@ export default function Home() {
             </div>
             <h1 className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-5 sm:mb-6 leading-tight text-gray-900">
               Corporate Travel Made{' '}
-              <span className="bg-gray-900 bg-clip-text text-transparent">
+              <span className="text-[#ADF802]">
                 Simple
               </span>
             </h1>
@@ -1089,7 +1089,7 @@ export default function Home() {
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-sm font-medium mb-6">
                 <FileText className="w-4 h-4" />
-                Invoicing Made Simple
+                Invoicing <span className="text-[#ADF802]">Made Simple</span>
               </div>
               <h2 className="text-4xl font-bold mb-6">From Expense to Invoice in Seconds</h2>
               <p className="text-xl text-gray-100 mb-8 max-w-xl">
