@@ -190,10 +190,6 @@ export default function DashboardPage() {
 
                 {/* Text content */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className="h-0.5 w-8 bg-[#ADF802]"></div>
-                    <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Take Off</span>
-                  </div>
                   <h3 className="text-2xl font-black text-white tracking-tight">
                     Book Flight
                   </h3>
@@ -233,10 +229,6 @@ export default function DashboardPage() {
 
                 {/* Text content */}
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className="h-0.5 w-8 bg-[#ADF802]"></div>
-                    <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Check In</span>
-                  </div>
                   <h3 className="text-2xl font-black text-white tracking-tight">
                     Book Hotel
                   </h3>
