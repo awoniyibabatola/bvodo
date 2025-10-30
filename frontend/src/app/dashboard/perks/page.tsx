@@ -91,17 +91,17 @@ export default function PerksPage() {
     {
       name: 'Adventurer',
       bookings: '6-15 trips',
-      perks: ['$25 gift card', 'Priority support', 'Early access to deals', 'Exclusive tips']
+      perks: ['Gift card rewards', 'Priority support', 'Early access to deals', 'Exclusive tips']
     },
     {
       name: 'Globetrotter',
       bookings: '16-30 trips',
-      perks: ['$50 gift card', '24/7 dedicated support', 'Premium insurance', 'Lounge vouchers', 'Upgrade priority']
+      perks: ['Gift card rewards', '24/7 dedicated support', 'Premium insurance', 'Lounge vouchers', 'Upgrade priority']
     },
     {
       name: 'Elite',
       bookings: '31+ trips',
-      perks: ['$100 gift card', 'VIP concierge', 'Luxury upgrades', 'Annual voucher', 'Exclusive events', 'Personal manager']
+      perks: ['Gift card rewards', 'VIP concierge', 'Luxury upgrades', 'Annual voucher', 'Exclusive events', 'Personal manager']
     }
   ];
 
