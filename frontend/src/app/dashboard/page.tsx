@@ -365,9 +365,18 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 flex-1 w-full h-auto lg:h-[220px]">
             {/* Total Bookings */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-4 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle className="w-5 h-5 text-gray-900" />
+              <div className="relative h-full bg-white rounded-xl p-4 md:p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
+                {/* Subtle geometric pattern */}
+                <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.03]">
+                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="80" cy="20" r="30" fill="currentColor"/>
+                    <rect x="60" y="60" width="20" height="20" fill="currentColor" transform="rotate(45 70 70)"/>
+                  </svg>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <CheckCircle className="w-4 h-4 text-white" />
+                  </div>
                   <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Total</span>
                 </div>
                 <div>
@@ -379,9 +388,17 @@ export default function DashboardPage() {
 
             {/* Destinations */}
             <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-lg p-4 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-2">
-                  <MapPin className="w-5 h-5 text-gray-900" />
+              <div className="relative h-full bg-white rounded-xl p-4 md:p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
+                {/* Subtle geometric pattern */}
+                <div className="absolute bottom-0 left-0 w-20 h-20 opacity-[0.03]">
+                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="50,10 90,90 10,90" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <MapPin className="w-4 h-4 text-white" />
+                  </div>
                   <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Places</span>
                 </div>
                 <div>
@@ -393,9 +410,17 @@ export default function DashboardPage() {
 
             {/* Hotels - Hidden on mobile, visible on desktop */}
             <div className="group relative h-full hidden lg:block">
-              <div className="relative h-full bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-2">
-                  <Hotel className="w-5 h-5 text-gray-900" />
+              <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
+                {/* Subtle geometric pattern */}
+                <div className="absolute top-0 left-0 w-16 h-16 opacity-[0.03]">
+                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="20" y="20" width="60" height="60" fill="currentColor" transform="rotate(45 50 50)"/>
+                  </svg>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Hotel className="w-4 h-4 text-white" />
+                  </div>
                   <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Hotels</span>
                 </div>
                 <div>
@@ -407,9 +432,17 @@ export default function DashboardPage() {
 
             {/* Flights - Hidden on mobile, visible on desktop */}
             <div className="group relative h-full hidden lg:block">
-              <div className="relative h-full bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-2">
-                  <Plane className="w-5 h-5 text-gray-900" />
+              <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
+                {/* Subtle geometric pattern */}
+                <div className="absolute bottom-0 right-0 w-20 h-20 opacity-[0.03]">
+                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="30,0 60,15 60,45 30,60 0,45 0,15" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Plane className="w-4 h-4 text-white" />
+                  </div>
                   <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Flights</span>
                 </div>
                 <div>
