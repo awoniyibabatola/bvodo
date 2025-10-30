@@ -2313,16 +2313,6 @@ export default function FlightSearchPage() {
                       : 'bg-white border-gray-200 hover:shadow-md'
                   }`}
                 >
-                  {/* Return Flight Badge */}
-                  {isReturnFlightCard && !isOutOfPolicy && (
-                    <div className="absolute top-3 right-3 z-10">
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 border border-gray-300 rounded-md">
-                        <Plane className="w-3 h-3 text-gray-700 -rotate-90" />
-                        <span className="text-xs font-semibold text-gray-700">Return</span>
-                      </div>
-                    </div>
-                  )}
-
                   {/* Out of Policy Badge */}
                   {isOutOfPolicy && (
                     <div className="absolute top-3 right-3 z-10">
@@ -2356,9 +2346,17 @@ export default function FlightSearchPage() {
                           <Plane className="w-6 h-6 md:w-7 md:h-7 text-gray-400 hidden" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="text-sm md:text-base font-bold text-gray-900 truncate">
-                            {airlines.length > 0 ? airlines.map(code => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
-                          </h3>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm md:text-base font-bold text-gray-900 truncate">
+                              {airlines.length > 0 ? airlines.map(code => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
+                            </h3>
+                            {isReturnFlightCard && (
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-[10px] font-semibold text-gray-600 flex-shrink-0">
+                                <Plane className="w-2.5 h-2.5 -rotate-90" />
+                                Return
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-gray-500 mt-0.5">
                             {getSegmentAirlineCode(firstSegment)} {getSegmentNumber(firstSegment)}
                             {airlines.length > 1 && <span className="ml-2 text-[#ADF802] hidden sm:inline">• Multiple airlines</span>}
@@ -2425,12 +2423,12 @@ export default function FlightSearchPage() {
                       {/* Layover Information - HIDDEN ON MOBILE */}
                       {stops > 0 && (
                         <div className="mt-3 pt-3 border-t border-gray-200 hidden md:block">
-                          <div className="flex items-start gap-3 text-sm">
-                            <div className="flex items-center gap-1.5 text-gray-700 font-bold flex-shrink-0">
-                              <Clock className="w-5 h-5" />
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="flex items-center gap-1 text-gray-600 font-medium flex-shrink-0">
+                              <Clock className="w-3.5 h-3.5" />
                               <span>Layover{stops > 1 ? 's' : ''}:</span>
                             </div>
-                            <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-1.5">
                               {segments.slice(0, -1).map((segment: any, segIndex: number) => {
                                 const nextSegment = segments[segIndex + 1];
                                 const segArrival = getSegmentArrival(segment);
@@ -2442,11 +2440,11 @@ export default function FlightSearchPage() {
                                 const layoverMins = layoverMinutes % 60;
 
                                 return (
-                                  <div key={segIndex} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 border-2 border-gray-300 rounded-lg shadow-sm">
-                                    <MapPin className="w-4 h-4 text-gray-700" />
-                                    <span className="text-base font-bold text-gray-900">{segArrival.iataCode}</span>
-                                    <span className="text-gray-400">•</span>
-                                    <span className="text-base font-bold text-gray-700">{layoverHours > 0 && `${layoverHours}h `}{layoverMins}m wait</span>
+                                  <div key={segIndex} className="inline-flex items-center gap-1 px-2 py-1 bg-white border border-gray-300 rounded-md">
+                                    <MapPin className="w-3 h-3 text-gray-500" />
+                                    <span className="text-xs font-bold text-gray-900">{segArrival.iataCode}</span>
+                                    <span className="text-gray-300">•</span>
+                                    <span className="text-xs font-semibold text-gray-600">{layoverHours > 0 && `${layoverHours}h `}{layoverMins}m</span>
                                   </div>
                                 );
                               })}
