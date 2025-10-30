@@ -2283,8 +2283,8 @@ export default function FlightSearchPage() {
               const flightCabinClass = getFlightCabinClass(flight);
 
               // Check if flight exceeds policy limit (price or cabin class)
-              const isPriceOutOfPolicy = policyLimit && price.total > policyLimit;
-              const isCabinClassOutOfPolicy = allowedCabinClasses && !allowedCabinClasses.includes(flightCabinClass);
+              const isPriceOutOfPolicy = !!(policyLimit && price.total > policyLimit);
+              const isCabinClassOutOfPolicy = !!(allowedCabinClasses && !allowedCabinClasses.includes(flightCabinClass));
               const isOutOfPolicy = isPriceOutOfPolicy || isCabinClassOutOfPolicy;
 
               return (
