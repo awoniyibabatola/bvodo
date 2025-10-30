@@ -162,19 +162,16 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Action Cards - Modern Dark Design with Lime Accent */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Book Flight */}
           <Link
             href="/dashboard/flights/search"
-            className="group relative block rounded-xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
+            className="group relative block rounded-xl overflow-hidden shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-300 border border-gray-200"
           >
-            <div className="relative h-[140px] bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden">
-              {/* Animated gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#ADF802]/10 via-transparent to-[#ADF802]/5 group-hover:scale-110 transition-transform duration-700"></div>
-
+            <div className="relative h-[140px] bg-white overflow-hidden">
               {/* Floating geometric shapes */}
-              <div className="absolute top-3 right-3 w-16 h-16 border-2 border-white/10 rounded-full group-hover:rotate-90 transition-transform duration-500"></div>
-              <div className="absolute bottom-4 left-4 w-12 h-12 bg-[#ADF802]/5 rounded-lg rotate-12 group-hover:rotate-45 transition-transform duration-500"></div>
+              <div className="absolute top-3 right-3 w-16 h-16 border-2 border-gray-100 rounded-full group-hover:rotate-90 transition-transform duration-500"></div>
+              <div className="absolute bottom-4 left-4 w-12 h-12 bg-gray-50 rounded-lg rotate-12 group-hover:rotate-45 transition-transform duration-500"></div>
 
               <div className="relative h-full p-6 flex flex-col justify-between z-10">
                 {/* Indicator dot */}
@@ -184,10 +181,10 @@ export default function DashboardPage() {
 
                 {/* Text content */}
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black text-white tracking-tight">
+                  <h3 className="text-2xl font-black text-gray-900 tracking-tight">
                     Book Flight
                   </h3>
-                  <div className="flex items-center gap-2 text-gray-300">
+                  <div className="flex items-center gap-2 text-gray-600">
                     <span className="text-xs font-medium">Explore destinations</span>
                     <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </div>
@@ -199,15 +196,12 @@ export default function DashboardPage() {
           {/* Book Hotel */}
           <Link
             href="/dashboard/hotels/search"
-            className="group relative block rounded-xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
+            className="group relative block rounded-xl overflow-hidden shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-300 border border-gray-200"
           >
-            <div className="relative h-[140px] bg-gradient-to-br from-gray-800 via-gray-900 to-black overflow-hidden">
-              {/* Animated gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-tl from-[#ADF802]/5 via-transparent to-[#ADF802]/10 group-hover:scale-110 transition-transform duration-700"></div>
-
+            <div className="relative h-[140px] bg-white overflow-hidden">
               {/* Floating geometric shapes */}
-              <div className="absolute top-4 left-4 w-20 h-20 border-2 border-white/10 rounded-2xl rotate-12 group-hover:-rotate-12 transition-transform duration-500"></div>
-              <div className="absolute bottom-6 right-6 w-14 h-14 bg-[#ADF802]/5 rounded-full group-hover:scale-125 transition-transform duration-500"></div>
+              <div className="absolute top-4 left-4 w-20 h-20 border-2 border-gray-100 rounded-2xl rotate-12 group-hover:-rotate-12 transition-transform duration-500"></div>
+              <div className="absolute bottom-6 right-6 w-14 h-14 bg-gray-50 rounded-full group-hover:scale-125 transition-transform duration-500"></div>
 
               <div className="relative h-full p-6 flex flex-col justify-between z-10">
                 {/* Indicator dot */}
@@ -217,10 +211,10 @@ export default function DashboardPage() {
 
                 {/* Text content */}
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black text-white tracking-tight">
+                  <h3 className="text-2xl font-black text-gray-900 tracking-tight">
                     Book Hotel
                   </h3>
-                  <div className="flex items-center gap-2 text-gray-300">
+                  <div className="flex items-center gap-2 text-gray-600">
                     <span className="text-xs font-medium">Find your stay</span>
                     <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </div>
