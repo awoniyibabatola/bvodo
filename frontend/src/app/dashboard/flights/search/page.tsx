@@ -1004,11 +1004,25 @@ export default function FlightSearchPage() {
 
   const getFlightDuration = (flight: any) => {
     if (flight.outbound && flight.outbound[0]) {
-      // Duffel format - duration is on each segment
-      return flight.outbound[0].duration || '';
+      // Duffel format - calculate total duration from first departure to last arrival
+      const segments = flight.outbound;
+      const firstSegment = segments[0];
+      const lastSegment = segments[segments.length - 1];
+      const departure = getSegmentDeparture(firstSegment);
+      const arrival = getSegmentArrival(lastSegment);
+
+      const depTime = new Date(departure.at);
+      const arrTime = new Date(arrival.at);
+      const durationMs = arrTime.getTime() - depTime.getTime();
+      const hours = Math.floor(durationMs / (1000 * 60 * 60));
+      const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+
+      return `${hours}h ${minutes}m`;
     } else if (flight.itineraries && flight.itineraries[0]) {
-      // Amadeus format - duration is on itinerary
-      return flight.itineraries[0].duration || '';
+      // Amadeus format - duration is on itinerary in ISO 8601 format (PT5H30M)
+      const duration = flight.itineraries[0].duration || '';
+      // Convert PT5H30M to "5h 30m" format
+      return duration.replace('PT', '').replace('H', 'h ').replace('M', 'm').toLowerCase();
     }
     return '';
   };
@@ -2269,7 +2283,7 @@ export default function FlightSearchPage() {
                 minute: '2-digit',
               });
 
-              const duration = getFlightDuration(flight).replace('PT', '').toLowerCase();
+              const duration = getFlightDuration(flight);
               const stops = segments.length - 1;
 
               // Get unique airlines
@@ -2374,9 +2388,10 @@ export default function FlightSearchPage() {
                             </div>
                           </div>
                           <div className="text-center mt-2">
-                            <div className="text-xs font-medium text-gray-600">{duration}</div>
-                            <div className="text-xs text-gray-500 mt-0.5">
-                              {stops === 0 ? 'Direct' : `${stops} ${stops === 1 ? 'stop' : 'stops'}`}
+                            <div className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">Total Time</div>
+                            <div className="text-xs font-bold text-gray-900">{duration}</div>
+                            <div className="text-xs text-gray-600 mt-0.5 font-medium">
+                              {stops === 0 ? 'Direct Flight' : `${stops} ${stops === 1 ? 'Stop' : 'Stops'}`}
                             </div>
                           </div>
                         </div>
@@ -2397,10 +2412,12 @@ export default function FlightSearchPage() {
                       {/* Layover Information - HIDDEN ON MOBILE */}
                       {stops > 0 && (
                         <div className="mt-3 pt-3 border-t border-gray-200 hidden md:block">
-                          <div className="flex items-center gap-2 text-xs text-gray-600">
-                            <Clock className="w-4 h-4" />
-                            <span className="font-medium">{stops} Stop{stops > 1 ? 's' : ''}:</span>
-                            <div className="flex items-center gap-2">
+                          <div className="flex items-start gap-2 text-xs">
+                            <div className="flex items-center gap-1.5 text-gray-700 font-semibold flex-shrink-0">
+                              <Clock className="w-4 h-4" />
+                              <span>Layover{stops > 1 ? 's' : ''}:</span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
                               {segments.slice(0, -1).map((segment: any, segIndex: number) => {
                                 const nextSegment = segments[segIndex + 1];
                                 const segArrival = getSegmentArrival(segment);
@@ -2412,10 +2429,12 @@ export default function FlightSearchPage() {
                                 const layoverMins = layoverMinutes % 60;
 
                                 return (
-                                  <span key={segIndex} className="text-gray-900 font-medium">
-                                    {segArrival.iataCode} ({layoverHours > 0 && `${layoverHours}h `}{layoverMins}m)
-                                    {segIndex < segments.length - 2 && <span className="mx-1 text-gray-400">•</span>}
-                                  </span>
+                                  <div key={segIndex} className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 border border-gray-300 rounded-md">
+                                    <MapPin className="w-3 h-3 text-gray-600" />
+                                    <span className="font-bold text-gray-900">{segArrival.iataCode}</span>
+                                    <span className="text-gray-400">•</span>
+                                    <span className="font-semibold text-gray-700">{layoverHours > 0 && `${layoverHours}h `}{layoverMins}m wait</span>
+                                  </div>
                                 );
                               })}
                             </div>
@@ -2528,10 +2547,15 @@ export default function FlightSearchPage() {
                                 minute: '2-digit',
                               });
 
-                              // Calculate return duration
+                              // Calculate return duration - TOTAL time from first departure to last arrival
                               let returnDuration = '';
-                              if (firstReturnSegment.duration) {
-                                returnDuration = firstReturnSegment.duration.replace('PT', '').toLowerCase();
+                              if (returnSegments.length > 0) {
+                                const depTime = new Date(returnDeparture.at);
+                                const arrTime = new Date(returnArrival.at);
+                                const durationMs = arrTime.getTime() - depTime.getTime();
+                                const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                                const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                                returnDuration = `${hours}h ${minutes}m`;
                               }
                               const returnStops = returnSegments.length - 1;
 
@@ -2558,9 +2582,10 @@ export default function FlightSearchPage() {
                                         </div>
                                       </div>
                                       <div className="text-center mt-1 md:mt-2">
-                                        <div className="text-[10px] font-medium text-gray-600">{returnDuration}</div>
-                                        <div className="text-[10px] text-gray-500">
-                                          {returnStops === 0 ? 'Direct' : `${returnStops} ${returnStops === 1 ? 'stop' : 'stops'}`}
+                                        <div className="text-[9px] text-gray-500 uppercase tracking-wide mb-0.5">Total Time</div>
+                                        <div className="text-[10px] font-bold text-gray-900">{returnDuration}</div>
+                                        <div className="text-[10px] text-gray-600 font-medium">
+                                          {returnStops === 0 ? 'Direct' : `${returnStops} ${returnStops === 1 ? 'Stop' : 'Stops'}`}
                                         </div>
                                       </div>
                                     </div>
@@ -2580,14 +2605,14 @@ export default function FlightSearchPage() {
 
                                   {/* Return Layover Information */}
                                   {returnStops > 0 && (
-                                    <div className="mt-2 md:mt-3 p-2 md:p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                    <div className="mt-2 md:mt-3 p-2 md:p-3 bg-amber-50 border border-amber-200 rounded-lg">
                                       <div className="flex items-start gap-2 md:gap-3">
-                                        <div className="p-1 md:p-1.5 bg-gray-200 rounded-md flex-shrink-0">
-                                          <Clock className="w-3 h-3 text-gray-700" />
+                                        <div className="p-1 md:p-1.5 bg-amber-100 rounded-md flex-shrink-0">
+                                          <Clock className="w-3 h-3 text-amber-700" />
                                         </div>
                                         <div className="flex-1">
-                                          <div className="text-[10px] font-bold text-gray-900 mb-0.5 md:mb-1">
-                                            Layover{returnStops > 1 ? 's' : ''}: {returnStops} Stop{returnStops > 1 ? 's' : ''}
+                                          <div className="text-[10px] font-bold text-amber-900 mb-0.5 md:mb-1 uppercase tracking-wide">
+                                            Layover{returnStops > 1 ? 's' : ''} ({returnStops} Stop{returnStops > 1 ? 's' : ''})
                                           </div>
                                           <div className="flex flex-wrap gap-1.5 md:gap-2">
                                             {returnSegments.slice(0, -1).map((segment: any, segIndex: number) => {
@@ -2601,14 +2626,15 @@ export default function FlightSearchPage() {
                                               const layoverMins = layoverMinutes % 60;
 
                                               return (
-                                                <div key={segIndex} className="flex flex-col gap-0.5 px-2 md:px-2.5 py-1 md:py-1.5 bg-white border border-gray-200 rounded-md">
+                                                <div key={segIndex} className="flex flex-col gap-0.5 px-2 md:px-2.5 py-1 md:py-1.5 bg-white border border-amber-300 rounded-md">
                                                   <div className="flex items-center gap-1 md:gap-1.5">
-                                                    <MapPin className="w-2.5 h-2.5 text-gray-600" />
+                                                    <MapPin className="w-2.5 h-2.5 text-amber-700" />
                                                     <span className="text-[10px] font-bold text-gray-900">
                                                       {segArrival.iataCode}
                                                     </span>
-                                                    <span className="text-[10px] text-gray-700 font-medium">
-                                                      {layoverHours > 0 && `${layoverHours}h `}{layoverMins}m
+                                                    <span className="text-[9px] text-gray-400">•</span>
+                                                    <span className="text-[10px] text-amber-700 font-bold">
+                                                      {layoverHours > 0 && `${layoverHours}h `}{layoverMins}m wait
                                                     </span>
                                                   </div>
                                                   <div className="text-[9px] text-gray-600 pl-4 md:pl-5">
