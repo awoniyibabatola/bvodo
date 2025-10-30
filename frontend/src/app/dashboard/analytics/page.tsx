@@ -998,7 +998,7 @@ export default function AnalyticsPage() {
                     {topTravelers.map((traveler, index) => {
                       const maxBookings = topTravelers[0].bookings;
                       const heightPercent = (traveler.bookings / maxBookings) * 100;
-                      const initials = traveler.name.split(' ').map(n => n.charAt(0)).join('').toUpperCase();
+                      const initials = traveler.name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase();
 
                       // Color variations for top 3
                       const colors = [
@@ -1080,7 +1080,7 @@ export default function AnalyticsPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {topTravelers.map((traveler, index) => {
-                        const initials = traveler.name.split(' ').map(n => n.charAt(0)).join('').toUpperCase();
+                        const initials = traveler.name.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase();
                         const avgPerBooking = traveler.bookings > 0 ? traveler.spend / traveler.bookings : 0;
 
                         return (
