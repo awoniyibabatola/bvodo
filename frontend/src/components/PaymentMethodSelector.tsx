@@ -72,7 +72,7 @@ export default function PaymentMethodSelector({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <label className="block text-base font-medium text-gray-700">
+      <label className="block text-sm font-medium text-gray-700">
         Payment Method
       </label>
 
@@ -117,7 +117,7 @@ export default function PaymentMethodSelector({
                 </div>
 
                 <div className="text-left flex-1">
-                  <div className={`text-base font-semibold ${
+                  <div className={`text-sm font-semibold ${
                     isDisabled
                       ? 'text-gray-400'
                       : isSelected
@@ -126,7 +126,7 @@ export default function PaymentMethodSelector({
                   }`}>
                     {method.label}
                   </div>
-                  <div className={`text-sm mt-0.5 ${
+                  <div className={`text-xs mt-0.5 ${
                     isDisabled
                       ? 'text-gray-400'
                       : isSelected
@@ -145,7 +145,7 @@ export default function PaymentMethodSelector({
 
               {/* Insufficient Credits Warning */}
               {isDisabled && (
-                <div className="mt-2 text-sm text-red-600 font-medium">
+                <div className="mt-2 text-xs text-red-600 font-medium">
                   Insufficient credits
                 </div>
               )}
@@ -156,7 +156,7 @@ export default function PaymentMethodSelector({
 
       {hasInsufficientCredits && (
         <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-base text-yellow-800">
+          <p className="text-sm text-yellow-800">
             Your available credits are insufficient for this booking. Please select Credit Card payment or contact your administrator to add more credits.
           </p>
         </div>
