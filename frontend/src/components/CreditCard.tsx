@@ -89,7 +89,7 @@ export default function CreditCard({
               <div className="w-9 h-9 bg-pink-500/25 backdrop-blur-sm rounded-xl flex items-center justify-center border border-pink-400/40 shadow-lg">
                 <Plane className="w-4 h-4 text-pink-400" />
               </div>
-              <span className="text-lg font-bold text-white tracking-wide drop-shadow-lg">bvodo</span>
+              <span className="text-lg font-extrabold text-white tracking-wide drop-shadow-lg">bvodo</span>
             </div>
 
             {/* Enhanced Chip Design with pink accent */}
@@ -106,8 +106,8 @@ export default function CreditCard({
 
         {/* Middle Section - Balance */}
         <div className="relative z-10 py-3">
-          <div className="text-white/60 text-[11px] font-semibold uppercase tracking-wider mb-1.5">Available Balance</div>
-          <div className="text-1xl md:text-2xl font-bold text-white tracking-tight drop-shadow-lg">
+          <div className="text-white/70 text-xs font-bold uppercase tracking-wider mb-2">Available Balance</div>
+          <div className="text-2xl md:text-3xl font-extrabold text-white tracking-tight drop-shadow-lg">
             ${(availableBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </div>
         </div>
@@ -116,17 +116,17 @@ export default function CreditCard({
         <div className="relative z-10">
           <div className="flex justify-between items-end">
             <div className="flex-1 min-w-0">
-              <div className="text-white/40 text-[10px] font-medium uppercase tracking-wider mb-1">Card Holder</div>
-              <div className="text-white/90 font-light text-sm uppercase tracking-wide truncate">{organizationName}</div>
+              <div className="text-white/50 text-[10px] font-bold uppercase tracking-wider mb-1.5">Card Holder</div>
+              <div className="text-white font-semibold text-sm uppercase tracking-wide truncate">{organizationName}</div>
             </div>
             <div className="flex items-center gap-3">
               <div>
-                <div className="text-white/40 text-[10px] font-medium uppercase tracking-wider mb-1">Valid Thru</div>
-                <div className="text-white/90 font-light text-sm">12/25</div>
+                <div className="text-white/50 text-[10px] font-bold uppercase tracking-wider mb-1.5">Valid Thru</div>
+                <div className="text-white font-semibold text-sm">12/25</div>
               </div>
               {/* Enhanced VISA logo */}
               <div className="bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/30 shadow-lg">
-                <span className="text-white font-bold text-sm tracking-wider drop-shadow-md">VISA</span>
+                <span className="text-white font-extrabold text-sm tracking-wider drop-shadow-md">VISA</span>
               </div>
             </div>
           </div>
