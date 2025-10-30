@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
 import PolicyService from '../services/policy.service';
 
 /**
@@ -11,7 +12,7 @@ import PolicyService from '../services/policy.service';
  * @desc    Get all policies for the organization
  * @access  Admin, Company Admin
  */
-export const getPolicies = async (req: Request, res: Response): Promise<void> => {
+export const getPolicies = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { organizationId } = req.user!;
 
@@ -45,7 +46,7 @@ export const getPolicies = async (req: Request, res: Response): Promise<void> =>
  * @desc    Get a single policy by ID
  * @access  Admin, Company Admin
  */
-export const getPolicyById = async (req: Request, res: Response): Promise<void> => {
+export const getPolicyById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { organizationId } = req.user!;
@@ -97,9 +98,9 @@ export const getPolicyById = async (req: Request, res: Response): Promise<void> 
  * @desc    Create a new booking policy
  * @access  Admin, Company Admin
  */
-export const createPolicy = async (req: Request, res: Response): Promise<void> => {
+export const createPolicy = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { organizationId, id: userId } = req.user!;
+    const { organizationId, userId } = req.user!;
 
     // Check if user has admin rights
     if (!['admin', 'company_admin', 'super_admin'].includes(req.user!.role)) {
@@ -135,22 +136,24 @@ export const createPolicy = async (req: Request, res: Response): Promise<void> =
     } = req.body;
 
     // Validation
-    if (!name || !role || !policyType) {
+    if (!name || !policyType) {
       res.status(400).json({
         success: false,
-        message: 'Name, role, and policy type are required',
+        message: 'Name and policy type are required',
       });
       return;
     }
 
-    // Validate role
-    const validRoles = ['employee', 'traveler', 'manager', 'admin', 'company_admin'];
-    if (!validRoles.includes(role)) {
-      res.status(400).json({
-        success: false,
-        message: `Invalid role. Must be one of: ${validRoles.join(', ')}`,
-      });
-      return;
+    // Validate role if provided (now optional)
+    if (role) {
+      const validRoles = ['employee', 'traveler', 'manager', 'admin', 'company_admin'];
+      if (!validRoles.includes(role)) {
+        res.status(400).json({
+          success: false,
+          message: `Invalid role. Must be one of: ${validRoles.join(', ')}`,
+        });
+        return;
+      }
     }
 
     // Validate policy type
@@ -213,7 +216,7 @@ export const createPolicy = async (req: Request, res: Response): Promise<void> =
  * @desc    Update a booking policy
  * @access  Admin, Company Admin
  */
-export const updatePolicy = async (req: Request, res: Response): Promise<void> => {
+export const updatePolicy = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { organizationId } = req.user!;
@@ -315,7 +318,7 @@ export const updatePolicy = async (req: Request, res: Response): Promise<void> =
  * @desc    Delete a booking policy (soft delete)
  * @access  Admin, Company Admin
  */
-export const deletePolicy = async (req: Request, res: Response): Promise<void> => {
+export const deletePolicy = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { organizationId } = req.user!;
@@ -368,9 +371,9 @@ export const deletePolicy = async (req: Request, res: Response): Promise<void> =
  * @desc    Get the effective policy for the current user
  * @access  Authenticated users
  */
-export const getMyPolicy = async (req: Request, res: Response): Promise<void> => {
+export const getMyPolicy = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id: userId, organizationId } = req.user!;
+    const { userId, organizationId } = req.user!;
 
     const policy = await PolicyService.getPolicyForUser(userId, organizationId);
 
@@ -402,9 +405,9 @@ export const getMyPolicy = async (req: Request, res: Response): Promise<void> =>
  * @desc    Check if a booking complies with policy
  * @access  Authenticated users
  */
-export const checkPolicyCompliance = async (req: Request, res: Response): Promise<void> => {
+export const checkPolicyCompliance = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { id: userId, organizationId } = req.user!;
+    const { userId, organizationId } = req.user!;
     const {
       bookingType,
       amount,
@@ -467,10 +470,10 @@ export const checkPolicyCompliance = async (req: Request, res: Response): Promis
  * @desc    Create a policy exception
  * @access  Manager, Admin, Company Admin
  */
-export const createException = async (req: Request, res: Response): Promise<void> => {
+export const createException = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id: policyId } = req.params;
-    const { organizationId, id: approverId } = req.user!;
+    const { organizationId, userId: approverId } = req.user!;
 
     // Check if user has manager or admin rights
     if (!['manager', 'admin', 'company_admin', 'super_admin'].includes(req.user!.role)) {
@@ -554,7 +557,7 @@ export const createException = async (req: Request, res: Response): Promise<void
  * @desc    Get all exceptions for a policy
  * @access  Admin, Company Admin
  */
-export const getExceptions = async (req: Request, res: Response): Promise<void> => {
+export const getExceptions = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id: policyId } = req.params;
 
@@ -588,7 +591,7 @@ export const getExceptions = async (req: Request, res: Response): Promise<void> 
  * @desc    Get policy usage logs
  * @access  Admin, Company Admin
  */
-export const getUsageLogs = async (req: Request, res: Response): Promise<void> => {
+export const getUsageLogs = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { organizationId } = req.user!;
     const { userId, policyId, eventType, startDate, endDate } = req.query;
