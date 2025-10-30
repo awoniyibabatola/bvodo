@@ -2,13 +2,14 @@ import { Request, Response } from 'express';
 import { prisma } from '../config/database';
 import { hashPassword, comparePassword } from '../utils/auth.utils';
 import { logger } from '../utils/logger';
+import { AuthRequest } from '../middleware/auth.middleware';
 
 /**
  * Update user profile
  */
-export const updateProfile = async (req: Request, res: Response) => {
+export const updateProfile = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.id;
+    const userId = (req as AuthRequest).user?.userId;
     const { firstName, lastName, phone, location } = req.body;
 
     if (!userId) {
@@ -50,7 +51,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Update profile error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to update profile',
     });
@@ -60,9 +61,9 @@ export const updateProfile = async (req: Request, res: Response) => {
 /**
  * Update user avatar
  */
-export const updateAvatar = async (req: Request, res: Response) => {
+export const updateAvatar = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.id;
+    const userId = (req as AuthRequest).user?.userId;
     const { avatarUrl } = req.body;
 
     if (!userId) {
@@ -100,7 +101,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Update avatar error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to update avatar',
     });
@@ -110,9 +111,9 @@ export const updateAvatar = async (req: Request, res: Response) => {
 /**
  * Change user password
  */
-export const changePassword = async (req: Request, res: Response) => {
+export const changePassword = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.id;
+    const userId = (req as AuthRequest).user?.userId;
     const { currentPassword, newPassword } = req.body;
 
     if (!userId) {
@@ -183,7 +184,7 @@ export const changePassword = async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Change password error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to change password',
     });
