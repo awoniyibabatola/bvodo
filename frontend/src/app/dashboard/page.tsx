@@ -27,6 +27,7 @@ import AIChatbox from '@/components/AIChatbox';
 import CreditCard from '@/components/CreditCard';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
 import BusinessFooter from '@/components/BusinessFooter';
+import PolicyLimitsCard from '@/components/PolicyLimitsCard';
 import { getApiEndpoint } from '@/lib/api-config';
 
 interface DashboardStats {
@@ -468,6 +469,11 @@ export default function DashboardPage() {
               </div>
             </Link>
           </div>
+        </div>
+
+        {/* Policy Limits Card */}
+        <div className="mb-6 md:mb-8">
+          <PolicyLimitsCard />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-16">
