@@ -11,7 +11,7 @@ export default function PricingPage() {
       period: '/month',
       description: 'Perfect for small teams getting started',
       features: [
-        '$4000 booking credit',
+        '$4,000 booking credit',
         'Basic travel perks',
         'Email support',
         'Standard booking tools',
@@ -26,7 +26,7 @@ export default function PricingPage() {
       period: '/month',
       description: 'Ideal for growing businesses',
       features: [
-        '$20000 booking credit',
+        '$20,000 booking credit',
         'Enhanced travel perks',
         'Priority support',
         'Detailed analytics',

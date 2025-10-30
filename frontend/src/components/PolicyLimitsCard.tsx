@@ -85,7 +85,9 @@ export default function PolicyLimitsCard() {
 
   const formatAmount = (amount: number | null) => {
     if (!amount) return 'No limit';
-    return `$${amount.toLocaleString()}`;
+    // Convert to number in case it's a string from JSON
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return `$${numAmount.toLocaleString()}`;
   };
 
   const formatClasses = (classes: string[] | null) => {
