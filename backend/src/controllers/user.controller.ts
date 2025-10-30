@@ -7,7 +7,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 /**
  * Update user profile
  */
-export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+export const updateProfile = async (req: Request, res: Response) => {
   try {
     const userId = (req as AuthRequest).user?.userId;
     const { firstName, lastName, phone, location } = req.body;
@@ -61,7 +61,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 /**
  * Update user avatar
  */
-export const updateAvatar = async (req: Request, res: Response): Promise<void> => {
+export const updateAvatar = async (req: Request, res: Response) => {
   try {
     const userId = (req as AuthRequest).user?.userId;
     const { avatarUrl } = req.body;
@@ -111,7 +111,7 @@ export const updateAvatar = async (req: Request, res: Response): Promise<void> =
 /**
  * Change user password
  */
-export const changePassword = async (req: Request, res: Response): Promise<void> => {
+export const changePassword = async (req: Request, res: Response) => {
   try {
     const userId = (req as AuthRequest).user?.userId;
     const { currentPassword, newPassword } = req.body;
