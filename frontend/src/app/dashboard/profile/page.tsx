@@ -106,7 +106,7 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-24 h-24 bg-[#ADF802] rounded-2xl flex items-center justify-center text-black font-bold text-3xl border-4 border-white">
+                <div className="w-24 h-24 bg-gray-100 rounded-2xl flex items-center justify-center text-black font-bold text-3xl border-4 border-white">
                   {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
                 </div>
                 <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors">
@@ -136,7 +136,7 @@ export default function ProfilePage() {
               {!isEditing && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-6 py-3 bg-[#ADF802] text-black font-bold rounded-xl hover:bg-[#9DE600] transition-colors flex items-center gap-2"
+                  className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2"
                 >
                   <Edit className="w-4 h-4" />
                   Edit Profile
@@ -270,7 +270,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-6 py-3 bg-[#ADF802] text-black font-bold rounded-xl hover:bg-[#9DE600] transition-colors flex items-center gap-2"
+                  className="px-6 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-colors flex items-center gap-2"
                 >
                   <Check className="w-4 h-4" />
                   Save Changes

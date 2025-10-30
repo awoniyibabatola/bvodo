@@ -123,7 +123,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => setEmailNotifications(!emailNotifications)}
                 className={`w-14 h-8 rounded-full transition-colors ${
-                  emailNotifications ? 'bg-[#ADF802]' : 'bg-gray-300'
+                  emailNotifications ? 'bg-black' : 'bg-gray-300'
                 }`}
               >
                 <div
@@ -142,7 +142,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => setBookingConfirmations(!bookingConfirmations)}
                 className={`w-14 h-8 rounded-full transition-colors ${
-                  bookingConfirmations ? 'bg-[#ADF802]' : 'bg-gray-300'
+                  bookingConfirmations ? 'bg-black' : 'bg-gray-300'
                 }`}
               >
                 <div
@@ -161,7 +161,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => setPriceAlerts(!priceAlerts)}
                 className={`w-14 h-8 rounded-full transition-colors ${
-                  priceAlerts ? 'bg-[#ADF802]' : 'bg-gray-300'
+                  priceAlerts ? 'bg-black' : 'bg-gray-300'
                 }`}
               >
                 <div
@@ -180,7 +180,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => setNewsletter(!newsletter)}
                 className={`w-14 h-8 rounded-full transition-colors ${
-                  newsletter ? 'bg-[#ADF802]' : 'bg-gray-300'
+                  newsletter ? 'bg-black' : 'bg-gray-300'
                 }`}
               >
                 <div
