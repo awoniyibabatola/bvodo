@@ -15,6 +15,7 @@ import {
   Camera
 } from 'lucide-react';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
+import AccountSubNav from '@/components/AccountSubNav';
 import BusinessFooter from '@/components/BusinessFooter';
 
 export default function ProfilePage() {
@@ -94,10 +95,13 @@ export default function ProfilePage() {
       <main className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
 
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-black mb-2">My Profile</h1>
           <p className="text-gray-600">Manage your personal information and preferences</p>
         </div>
+
+        {/* Sub Navigation */}
+        <AccountSubNav currentPage="profile" />
 
         {/* Profile Card */}
         <div className="bg-gray-50 rounded-2xl border-2 border-gray-200 overflow-hidden mb-6">

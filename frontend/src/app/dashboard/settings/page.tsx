@@ -17,6 +17,7 @@ import {
   Smartphone
 } from 'lucide-react';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
+import AccountSubNav from '@/components/AccountSubNav';
 import BusinessFooter from '@/components/BusinessFooter';
 
 export default function SettingsPage() {
@@ -96,10 +97,13 @@ export default function SettingsPage() {
       <main className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
 
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-black mb-2">Settings</h1>
           <p className="text-gray-600">Manage your account preferences and security</p>
         </div>
+
+        {/* Sub Navigation */}
+        <AccountSubNav currentPage="settings" />
 
         {/* Notifications Section */}
         <div className="bg-gray-50 rounded-2xl border-2 border-gray-200 p-6 md:p-8 mb-6">
