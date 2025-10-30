@@ -39,6 +39,8 @@ const allowedOrigins = [
   'http://localhost:3006',
   env.CORS_ORIGIN,
   env.FRONTEND_URL,
+  'https://www.bvodo.com',
+  'https://bvodo.com',
 ];
 
 app.use(
