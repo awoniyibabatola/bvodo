@@ -43,6 +43,28 @@ interface PolicyCheckResult {
 
 export class PolicyService {
   /**
+   * Get user by email within organization
+   */
+  async getUserByEmail(email: string, organizationId: string): Promise<{ id: string } | null> {
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          email,
+          organizationId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      return user;
+    } catch (error) {
+      console.error('Error finding user by email:', error);
+      throw new Error('Failed to find user');
+    }
+  }
+
+  /**
    * Get the effective policy for a user
    * Takes into account:
    * - User's assigned policy (policyId)

@@ -401,6 +401,52 @@ export const getMyPolicy = async (req: AuthRequest, res: Response): Promise<void
 };
 
 /**
+ * @route   GET /api/policies/user/:email
+ * @desc    Get the effective policy for a user by email
+ * @access  Authenticated users
+ */
+export const getPolicyByUserEmail = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { email } = req.params;
+    const { organizationId } = req.user!;
+
+    // Find user by email within the same organization
+    const user = await PolicyService.getUserByEmail(email, organizationId);
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+      return;
+    }
+
+    const policy = await PolicyService.getPolicyForUser(user.id, organizationId);
+
+    if (!policy) {
+      res.status(200).json({
+        success: true,
+        message: 'No policy configured for this user',
+        data: null,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: policy,
+    });
+  } catch (error: any) {
+    console.error('Error fetching user policy by email:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user policy',
+      error: error.message,
+    });
+  }
+};
+
+/**
  * @route   POST /api/policies/check
  * @desc    Check if a booking complies with policy
  * @access  Authenticated users

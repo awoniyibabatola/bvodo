@@ -1970,9 +1970,63 @@ export default function FlightSearchPage() {
 
             {/* Empty State */}
             {!loadingBookings && draftBookings.length === 0 && recentBookings.length === 0 && (
-              <div className="text-center py-12">
-                <Plane className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No recent or pending flight bookings</p>
+              <div className="text-center py-8 md:py-12 px-4">
+                {/* Icon Container */}
+                <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-2xl mb-5">
+                  <Plane className="w-10 h-10 md:w-12 md:h-12 text-gray-400" />
+                </div>
+
+                {/* Main Message */}
+                <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
+                  Ready for Takeoff?
+                </h3>
+                <p className="text-sm md:text-base text-gray-600 mb-6 max-w-md mx-auto">
+                  Start your journey by searching for flights above. We'll find the best options for your business travel.
+                </p>
+
+                {/* Info Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto mb-6">
+                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-left hover:border-gray-300 transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                        <MapPin className="w-4 h-4 text-[#ADF802]" />
+                      </div>
+                      <h4 className="font-semibold text-gray-900 text-sm">Global Routes</h4>
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Access flights to destinations worldwide
+                    </p>
+                  </div>
+
+                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-left hover:border-gray-300 transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                        <DollarSign className="w-4 h-4 text-[#ADF802]" />
+                      </div>
+                      <h4 className="font-semibold text-gray-900 text-sm">Best Prices</h4>
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Compare fares from multiple airlines
+                    </p>
+                  </div>
+
+                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-left hover:border-gray-300 transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                        <Shield className="w-4 h-4 text-[#ADF802]" />
+                      </div>
+                      <h4 className="font-semibold text-gray-900 text-sm">Policy Aligned</h4>
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      All options match your travel policy
+                    </p>
+                  </div>
+                </div>
+
+                {/* Helper Text */}
+                <p className="text-xs text-gray-500">
+                  Your bookings will appear here once you start searching
+                </p>
               </div>
             )}
           </div>

@@ -7,6 +7,7 @@ import {
   updatePolicy,
   deletePolicy,
   getMyPolicy,
+  getPolicyByUserEmail,
   checkPolicyCompliance,
   createException,
   getExceptions,
@@ -24,6 +25,13 @@ router.use(authenticate);
  * @access  Private (All authenticated users)
  */
 router.get('/my-policy', getMyPolicy);
+
+/**
+ * @route   GET /api/policies/user/:email
+ * @desc    Get the effective policy for a user by email
+ * @access  Private (All authenticated users)
+ */
+router.get('/user/:email', getPolicyByUserEmail);
 
 /**
  * @route   POST /api/policies/check

@@ -929,6 +929,13 @@ export default function HotelSearchPage() {
           </button>
         )}
 
+        {/* Loading Indicator - Visible on all screen sizes */}
+        {loading && (
+          <div className="mb-8">
+            <FancyLoader message="Searching for hotels..." />
+          </div>
+        )}
+
         {/* Recent Bookings */}
         {!hotels.length && (
           <div className="mb-8">
