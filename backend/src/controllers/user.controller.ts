@@ -44,7 +44,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     logger.info(`Profile updated for user ${userId}`);
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Profile updated successfully',
       data: updatedUser,
@@ -94,7 +94,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
 
     logger.info(`Avatar updated for user ${userId}`);
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Avatar updated successfully',
       data: updatedUser,
@@ -178,7 +178,7 @@ export const changePassword = async (req: Request, res: Response) => {
 
     logger.info(`Password changed for user ${userId}`);
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Password changed successfully',
     });
