@@ -161,62 +161,97 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Action Cards - Clean Modern Style */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          {/* Book Flight */}
+        {/* Quick Action Cards - Unique Asymmetric Design */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {/* Book Flight - Diagonal Split Design */}
           <Link
             href="/dashboard/flights/search"
-            className="group relative block rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition-all hover:shadow-2xl"
+            className="group relative block rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
           >
-            <div className="relative h-[160px] bg-gradient-to-br from-gray-900 to-black p-5 flex flex-col justify-between">
-              <div className="relative">
-                <div className="w-14 h-14 bg-[#ADF802] rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Plane className="w-7 h-7 text-black" />
-                </div>
-                <h3 className="text-lg font-black text-white mb-1">
-                  Book<br/>Flight
-                </h3>
-              </div>
+            <div className="relative h-[180px] bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 overflow-hidden">
+              {/* Animated gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-400/20 via-transparent to-yellow-400/20 group-hover:scale-110 transition-transform duration-700"></div>
 
-              <div className="relative flex items-center justify-between">
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Search Flights</span>
-                <div className="w-8 h-8 rounded-full bg-[#ADF802]/10 flex items-center justify-center group-hover:bg-[#ADF802]/20 transition-colors">
-                  <ChevronRight className="w-4 h-4 text-[#ADF802]" />
+              {/* Diagonal split background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-sm"></div>
+
+              {/* Floating geometric shapes */}
+              <div className="absolute top-3 right-3 w-16 h-16 border-2 border-white/30 rounded-full group-hover:rotate-90 transition-transform duration-500"></div>
+              <div className="absolute bottom-4 left-4 w-12 h-12 bg-white/10 rounded-lg rotate-12 group-hover:rotate-45 transition-transform duration-500"></div>
+
+              <div className="relative h-full p-6 flex flex-col justify-between z-10">
+                {/* Icon in corner */}
+                <div className="flex justify-between items-start">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-white/30 blur-xl rounded-full"></div>
+                    <div className="relative w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
+                      <Plane className="w-8 h-8 text-blue-600" />
+                    </div>
+                  </div>
+                  <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-pulse"></div>
+                </div>
+
+                {/* Text content */}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="h-0.5 w-8 bg-white/60"></div>
+                    <span className="text-[10px] text-white/80 uppercase tracking-widest font-bold">Take Off</span>
+                  </div>
+                  <h3 className="text-2xl font-black text-white tracking-tight">
+                    Book Flight
+                  </h3>
+                  <div className="flex items-center gap-2 text-white/90">
+                    <span className="text-xs font-medium">Explore destinations</span>
+                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  </div>
                 </div>
               </div>
-
-              {/* Bottom accent line */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#ADF802]"></div>
             </div>
           </Link>
 
-          {/* Book Hotel */}
+          {/* Book Hotel - Layered Card Design */}
           <Link
             href="/dashboard/hotels/search"
-            className="group relative block rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition-all hover:shadow-2xl"
+            className="group relative block rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
           >
-            <div className="relative h-[160px] bg-gradient-to-br from-gray-800 to-gray-900 p-5 flex flex-col justify-between">
-              {/* Top corner accent */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-[#ADF802] opacity-10 blur-2xl group-hover:opacity-20 transition-opacity"></div>
+            <div className="relative h-[180px] bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 overflow-hidden">
+              {/* Animated gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-tl from-yellow-400/20 via-transparent to-purple-400/20 group-hover:scale-110 transition-transform duration-700"></div>
 
-              <div className="relative">
-                <div className="w-14 h-14 bg-[#ADF802] rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Hotel className="w-7 h-7 text-black" />
+              {/* Layered backdrop */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
+
+              {/* Floating geometric shapes */}
+              <div className="absolute top-4 left-4 w-20 h-20 border-2 border-white/20 rounded-2xl rotate-12 group-hover:-rotate-12 transition-transform duration-500"></div>
+              <div className="absolute bottom-6 right-6 w-14 h-14 bg-white/10 rounded-full group-hover:scale-125 transition-transform duration-500"></div>
+
+              <div className="relative h-full p-6 flex flex-col justify-between z-10">
+                {/* Icon in corner */}
+                <div className="flex justify-between items-start">
+                  <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-pulse"></div>
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-white/30 blur-xl rounded-full"></div>
+                    <div className="relative w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:-rotate-12 transition-transform">
+                      <Hotel className="w-8 h-8 text-orange-600" />
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-lg font-black text-white mb-1">
-                  Book<br/>Hotel
-                </h3>
-              </div>
 
-              <div className="relative flex items-center justify-between">
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Find Hotels</span>
-                <div className="w-8 h-8 rounded-full bg-[#ADF802]/10 flex items-center justify-center group-hover:bg-[#ADF802]/20 transition-colors">
-                  <ChevronRight className="w-4 h-4 text-[#ADF802]" />
+                {/* Text content */}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="h-0.5 w-8 bg-white/60"></div>
+                    <span className="text-[10px] text-white/80 uppercase tracking-widest font-bold">Check In</span>
+                  </div>
+                  <h3 className="text-2xl font-black text-white tracking-tight">
+                    Book Hotel
+                  </h3>
+                  <div className="flex items-center gap-2 text-white/90">
+                    <span className="text-xs font-medium">Find your stay</span>
+                    <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                  </div>
                 </div>
               </div>
-
-              {/* Bottom accent line */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#ADF802]"></div>
             </div>
           </Link>
         </div>
