@@ -190,6 +190,14 @@ export default function FlightDetailsPage() {
     return () => clearInterval(timer);
   }, [timeRemaining, isOfferExpired]);
 
+  // Auto-redirect when offer expires
+  useEffect(() => {
+    if (isOfferExpired) {
+      // Redirect immediately back to search results
+      router.push('/dashboard/flights/search');
+    }
+  }, [isOfferExpired, router]);
+
   // Validate offer with backend
   const validateOffer = async (offerId: string) => {
     try {
@@ -647,47 +655,6 @@ export default function FlightDetailsPage() {
         </div>
       </div>
 
-      {/* Offer Expiry Timer or Expired Banner */}
-      {timeRemaining !== null && !isOfferExpired && (
-        <div className="border-b bg-gray-50 border-gray-200">
-          <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-gray-600" />
-                <span className="text-base font-medium text-gray-700">
-                  Offer expires in {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
-                </span>
-              </div>
-              <span className="text-sm text-gray-500">
-                {timeRemaining < 120 ? 'Complete booking soon' : 'Limited time offer'}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isOfferExpired && (
-        <div className="bg-gray-50 border-b border-gray-200">
-          <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6">
-            <div className="max-w-2xl mx-auto text-center">
-              <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 text-gray-500">
-                <Clock className="w-6 h-6" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">This offer has expired</h2>
-              <p className="text-sm text-gray-600 mb-6">
-                Flight offers are only available for a limited time. Search again to find current prices and availability.
-              </p>
-              <Link
-                href="/dashboard/flights/search"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Search
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8">
