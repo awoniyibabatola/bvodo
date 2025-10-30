@@ -166,7 +166,7 @@ export default function DashboardPage() {
           {/* Book Flight - Diagonal Split Design */}
           <Link
             href="/dashboard/flights/search"
-            className="group relative block rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
+            className="group relative block rounded-xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
           >
             <div className="relative h-[180px] bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 overflow-hidden">
               {/* Animated gradient overlay */}
@@ -212,7 +212,7 @@ export default function DashboardPage() {
           {/* Book Hotel - Layered Card Design */}
           <Link
             href="/dashboard/hotels/search"
-            className="group relative block rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
+            className="group relative block rounded-xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
           >
             <div className="relative h-[180px] bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 overflow-hidden">
               {/* Animated gradient overlay */}
