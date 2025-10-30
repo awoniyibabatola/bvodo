@@ -418,48 +418,6 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-
-          {/* Corporate Travel Tips - HIDDEN ON MOBILE */}
-          <div className="flex-1 w-full max-w-[400px] mx-auto lg:max-w-none lg:mx-0 h-auto lg:h-[220px] hidden lg:block">
-            <div className="bg-white rounded-xl p-3 md:p-4 border border-gray-200 shadow-sm h-full flex flex-col">
-              <div className="flex items-center gap-2 mb-2 md:mb-3 flex-shrink-0">
-                <div className="p-1.5 bg-gray-900 rounded-lg">
-                  <Sparkles className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="text-sm md:text-base font-bold text-gray-900">Travel Smart</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-2 md:gap-2.5 flex-1">
-                <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-gray-50 border border-gray-200">
-                  <div className="flex-shrink-0 w-1 bg-gray-900 rounded-full"></div>
-                  <div>
-                    <p className="text-xs md:text-sm font-semibold text-gray-900 mb-1 leading-tight">Book Early</p>
-                    <p className="text-[10px] md:text-xs text-gray-600 leading-relaxed">Save up to 30%</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-gray-50 border border-gray-200">
-                  <div className="flex-shrink-0 w-1 bg-gray-800 rounded-full"></div>
-                  <div>
-                    <p className="text-xs md:text-sm font-semibold text-gray-900 mb-1 leading-tight">Flexible Dates</p>
-                    <p className="text-[10px] md:text-xs text-gray-600 leading-relaxed">20% cheaper</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-gray-50 border border-gray-200">
-                  <div className="flex-shrink-0 w-1 bg-gray-700 rounded-full"></div>
-                  <div>
-                    <p className="text-xs md:text-sm font-semibold text-gray-900 mb-1 leading-tight">Use AI Chat</p>
-                    <p className="text-[10px] md:text-xs text-gray-600 leading-relaxed">Compare faster</p>
-                  </div>
-                </div>
-                <div className="flex gap-2 p-2.5 md:p-3 rounded-lg bg-gray-50 border border-gray-200">
-                  <div className="flex-shrink-0 w-1 bg-gray-600 rounded-full"></div>
-                  <div>
-                    <p className="text-xs md:text-sm font-semibold text-gray-900 mb-1 leading-tight">Track Budget</p>
-                    <p className="text-[10px] md:text-xs text-gray-600 leading-relaxed">Real-time updates</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-16">
