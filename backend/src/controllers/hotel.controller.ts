@@ -6,6 +6,7 @@ import GooglePlacesService from '../services/google-places.service';
 import GeocodingService from '../services/geocoding.service';
 import { logger } from '../utils/logger';
 import { AuthRequest } from '../middleware/auth.middleware';
+import PolicyService from '../services/policy.service';
 
 /**
  * Search for hotels using Duffel Stays API or Amadeus API
@@ -117,12 +118,97 @@ async function searchHotelsWithAmadeus(req: Request, res: Response): Promise<voi
 
   logger.info(`Amadeus returned ${hotels.length} hotels`);
 
+  // Policy Filtering (if user is authenticated)
+  let policyInfo = null;
+  let filteredHotels = hotels;
+  const authReq = req as AuthRequest;
+
+  if (authReq.user) {
+    try {
+      // Get user's effective policy
+      const policy = await PolicyService.getPolicyForUser(
+        authReq.user.id,
+        authReq.user.organizationId
+      );
+
+      if (policy) {
+        // Get effective limits (exception overrides base policy)
+        const effectiveHotelMaxPerNight =
+          policy.exception?.hotelMaxAmountPerNight || policy.hotelMaxAmountPerNight;
+        const effectiveHotelMaxTotal =
+          policy.exception?.hotelMaxAmountTotal || policy.hotelMaxAmountTotal;
+
+        // Calculate number of nights
+        const checkIn = new Date(checkInDate as string);
+        const checkOut = new Date(checkOutDate as string);
+        const numberOfNights = Math.ceil(
+          (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        // Filter hotels by policy limits
+        if (effectiveHotelMaxPerNight || effectiveHotelMaxTotal) {
+          filteredHotels = hotels.filter((hotel: any) => {
+            // Parse price from hotel object
+            const totalPrice = parseFloat(hotel.price || hotel.totalPrice || 0);
+            const perNightPrice = totalPrice / numberOfNights;
+
+            let allowed = true;
+
+            // Check per-night limit
+            if (effectiveHotelMaxPerNight) {
+              const maxPerNight = Number(effectiveHotelMaxPerNight);
+              if (perNightPrice > maxPerNight) {
+                allowed = false;
+              }
+            }
+
+            // Check total limit
+            if (effectiveHotelMaxTotal) {
+              const maxTotal = Number(effectiveHotelMaxTotal);
+              if (totalPrice > maxTotal) {
+                allowed = false;
+              }
+            }
+
+            return allowed;
+          });
+        }
+
+        // Prepare policy info for response
+        policyInfo = {
+          policyId: policy.id,
+          policyName: policy.name,
+          limits: {
+            hotelMaxAmountPerNight: effectiveHotelMaxPerNight
+              ? Number(effectiveHotelMaxPerNight)
+              : null,
+            hotelMaxAmountTotal: effectiveHotelMaxTotal
+              ? Number(effectiveHotelMaxTotal)
+              : null,
+          },
+          hasException: !!policy.exception,
+          requiresApprovalAbove: policy.requiresApprovalAbove
+            ? Number(policy.requiresApprovalAbove)
+            : null,
+        };
+      }
+    } catch (policyError) {
+      logger.warn('Error applying policy filters:', policyError);
+      // Continue without policy filtering if there's an error
+    }
+  }
+
   res.status(200).json({
     success: true,
     message: 'Hotels retrieved successfully',
-    data: hotels,
-    count: hotels.length,
+    data: filteredHotels,
+    count: filteredHotels.length,
     provider: 'amadeus',
+    meta: {
+      totalBeforePolicy: hotels.length,
+      filteredByPolicy: policyInfo ? hotels.length - filteredHotels.length : 0,
+    },
+    policy: policyInfo,
   });
 }
 
@@ -553,12 +639,105 @@ async function searchHotelsWithDuffel(req: Request, res: Response): Promise<void
 
   logger.info(`Successfully retrieved ${hotels.length} hotels`);
 
+  // Policy Filtering (if user is authenticated)
+  let policyInfo = null;
+  let filteredHotels = hotels;
+  const authReq = req as AuthRequest;
+
+  if (authReq.user) {
+    try {
+      // Get user's effective policy
+      const policy = await PolicyService.getPolicyForUser(
+        authReq.user.id,
+        authReq.user.organizationId
+      );
+
+      if (policy) {
+        // Get effective limits (exception overrides base policy)
+        const effectiveHotelMaxPerNight =
+          policy.exception?.hotelMaxAmountPerNight || policy.hotelMaxAmountPerNight;
+        const effectiveHotelMaxTotal =
+          policy.exception?.hotelMaxAmountTotal || policy.hotelMaxAmountTotal;
+
+        // Calculate number of nights
+        const checkIn = new Date(checkInDate as string);
+        const checkOut = new Date(checkOutDate as string);
+        const numberOfNights = Math.ceil(
+          (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        // Filter hotels by policy limits
+        if (effectiveHotelMaxPerNight || effectiveHotelMaxTotal) {
+          filteredHotels = hotels.filter((hotel: any) => {
+            // Get cheapest offer price
+            let totalPrice = 0;
+            if (hotel.offers && hotel.offers.length > 0) {
+              const prices = hotel.offers.map((offer: any) =>
+                parseFloat(offer.price?.total || offer.price || 0)
+              );
+              totalPrice = Math.min(...prices);
+            } else if (hotel.cheapestRate) {
+              totalPrice = parseFloat(hotel.cheapestRate.total_amount || 0);
+            }
+
+            const perNightPrice = totalPrice / numberOfNights;
+            let allowed = true;
+
+            // Check per-night limit
+            if (effectiveHotelMaxPerNight) {
+              const maxPerNight = Number(effectiveHotelMaxPerNight);
+              if (perNightPrice > maxPerNight) {
+                allowed = false;
+              }
+            }
+
+            // Check total limit
+            if (effectiveHotelMaxTotal) {
+              const maxTotal = Number(effectiveHotelMaxTotal);
+              if (totalPrice > maxTotal) {
+                allowed = false;
+              }
+            }
+
+            return allowed;
+          });
+        }
+
+        // Prepare policy info for response
+        policyInfo = {
+          policyId: policy.id,
+          policyName: policy.name,
+          limits: {
+            hotelMaxAmountPerNight: effectiveHotelMaxPerNight
+              ? Number(effectiveHotelMaxPerNight)
+              : null,
+            hotelMaxAmountTotal: effectiveHotelMaxTotal
+              ? Number(effectiveHotelMaxTotal)
+              : null,
+          },
+          hasException: !!policy.exception,
+          requiresApprovalAbove: policy.requiresApprovalAbove
+            ? Number(policy.requiresApprovalAbove)
+            : null,
+        };
+      }
+    } catch (policyError) {
+      logger.warn('Error applying policy filters:', policyError);
+      // Continue without policy filtering if there's an error
+    }
+  }
+
   res.status(200).json({
     success: true,
     message: 'Hotels retrieved successfully',
-    data: hotels,
-    count: hotels.length,
+    data: filteredHotels,
+    count: filteredHotels.length,
     provider: 'duffel',
+    meta: {
+      totalBeforePolicy: hotels.length,
+      filteredByPolicy: policyInfo ? hotels.length - filteredHotels.length : 0,
+    },
+    policy: policyInfo,
   });
 }
 

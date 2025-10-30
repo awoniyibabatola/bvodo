@@ -4,6 +4,7 @@ import { logger } from '../utils/logger';
 import { AuthRequest } from '../middleware/auth.middleware';
 import FlightProviderFactory from '../services/flight-provider.factory';
 import { FlightSearchParams as StandardFlightSearchParams, ProviderType } from '../interfaces/flight-provider.interface';
+import PolicyService from '../services/policy.service';
 
 /**
  * Search for flights
@@ -57,15 +58,78 @@ export const searchFlights = async (req: Request, res: Response): Promise<void> 
       provider as ProviderType | undefined
     );
 
+    // Policy Filtering (if user is authenticated)
+    let policyInfo = null;
+    let filteredOffers = result.offers;
+    const authReq = req as AuthRequest;
+
+    if (authReq.user) {
+      try {
+        // Get user's effective policy
+        const policy = await PolicyService.getPolicyForUser(
+          authReq.user.id,
+          authReq.user.organizationId
+        );
+
+        if (policy) {
+          // Get effective limits (exception overrides base policy)
+          const effectiveFlightMaxAmount =
+            policy.exception?.flightMaxAmount || policy.flightMaxAmount;
+
+          // Filter offers by policy limits
+          if (effectiveFlightMaxAmount) {
+            const maxAmount = Number(effectiveFlightMaxAmount);
+            filteredOffers = result.offers.filter(
+              (offer: any) => parseFloat(offer.totalPrice) <= maxAmount
+            );
+          }
+
+          // Filter by allowed flight classes
+          if (
+            policy.allowedFlightClasses &&
+            Array.isArray(policy.allowedFlightClasses)
+          ) {
+            const allowedClasses = policy.allowedFlightClasses as string[];
+            filteredOffers = filteredOffers.filter((offer: any) => {
+              const cabinClass = offer.cabinClass || offer.travelClass || 'economy';
+              return allowedClasses.includes(cabinClass.toLowerCase());
+            });
+          }
+
+          // Prepare policy info for response
+          policyInfo = {
+            policyId: policy.id,
+            policyName: policy.name,
+            limits: {
+              flightMaxAmount: effectiveFlightMaxAmount
+                ? Number(effectiveFlightMaxAmount)
+                : null,
+              allowedFlightClasses: policy.allowedFlightClasses,
+            },
+            hasException: !!policy.exception,
+            requiresApprovalAbove: policy.requiresApprovalAbove
+              ? Number(policy.requiresApprovalAbove)
+              : null,
+          };
+        }
+      } catch (policyError) {
+        logger.warn('Error applying policy filters:', policyError);
+        // Continue without policy filtering if there's an error
+      }
+    }
+
     res.status(200).json({
       success: true,
       message: 'Flights retrieved successfully',
-      data: result.offers,
-      count: result.offers.length,
+      data: filteredOffers,
+      count: filteredOffers.length,
       meta: {
         provider: result.provider,
         usedFallback: result.usedFallback,
+        totalBeforePolicy: result.offers.length,
+        filteredByPolicy: policyInfo ? result.offers.length - filteredOffers.length : 0,
       },
+      policy: policyInfo,
     });
   } catch (error: any) {
     logger.error('Search flights error:', error);
