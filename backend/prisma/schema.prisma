@@ -16,23 +16,23 @@ datasource db {
 // ============================================================================
 
 model Organization {
-  id        String   @id @default(uuid())
-  name      String
-  subdomain String   @unique
-  email     String   @unique
-  phone     String?
-  country   String?
-  address   String?
-  city      String?
-  state     String?
+  id         String  @id @default(uuid())
+  name       String
+  subdomain  String  @unique
+  email      String  @unique
+  phone      String?
+  country    String?
+  address    String?
+  city       String?
+  state      String?
   postalCode String? @map("postal_code")
-  logoUrl   String?  @map("logo_url")
-  website   String?
+  logoUrl    String? @map("logo_url")
+  website    String?
 
   // Credit Configuration
-  totalCredits       Decimal @default(0) @map("total_credits") @db.Decimal(12, 2)
-  availableCredits   Decimal @default(0) @map("available_credits") @db.Decimal(12, 2)
-  creditCurrency     String  @default("USD") @map("credit_currency") @db.VarChar(3)
+  totalCredits        Decimal @default(0) @map("total_credits") @db.Decimal(12, 2)
+  availableCredits    Decimal @default(0) @map("available_credits") @db.Decimal(12, 2)
+  creditCurrency      String  @default("USD") @map("credit_currency") @db.VarChar(3)
   lowBalanceThreshold Decimal @default(500) @map("low_balance_threshold") @db.Decimal(12, 2)
 
   // Approval Settings
@@ -67,61 +67,65 @@ model Organization {
 // ============================================================================
 
 model User {
-  id               String   @id @default(uuid())
-  organizationId   String   @map("organization_id")
+  id             String @id @default(uuid())
+  organizationId String @map("organization_id")
 
   // Authentication
-  email            String
-  passwordHash     String   @map("password_hash")
-  emailVerified    Boolean  @default(false) @map("email_verified")
-  emailVerifiedAt  DateTime? @map("email_verified_at")
+  email           String
+  passwordHash    String    @map("password_hash")
+  emailVerified   Boolean   @default(false) @map("email_verified")
+  emailVerifiedAt DateTime? @map("email_verified_at")
 
   // Personal Information
-  firstName        String   @map("first_name") @db.VarChar(100)
-  lastName         String   @map("last_name") @db.VarChar(100)
-  phone            String?  @db.VarChar(50)
-  dateOfBirth      DateTime? @map("date_of_birth") @db.Date
-  nationality      String?  @db.VarChar(100)
+  firstName   String    @map("first_name") @db.VarChar(100)
+  lastName    String    @map("last_name") @db.VarChar(100)
+  phone       String?   @db.VarChar(50)
+  location    String?   @db.VarChar(200)
+  dateOfBirth DateTime? @map("date_of_birth") @db.Date
+  nationality String?   @db.VarChar(100)
 
   // Passport Information
-  passportNumber   String?  @map("passport_number") @db.VarChar(100)
-  passportExpiry   DateTime? @map("passport_expiry") @db.Date
-  passportCountry  String?  @map("passport_country") @db.VarChar(100)
+  passportNumber  String?   @map("passport_number") @db.VarChar(100)
+  passportExpiry  DateTime? @map("passport_expiry") @db.Date
+  passportCountry String?   @map("passport_country") @db.VarChar(100)
 
   // Role & Permissions
-  role             String   @default("traveler") @db.VarChar(20) // super_admin, admin, company_admin, manager, traveler
-  department       String?  @db.VarChar(100)
+  role       String  @default("traveler") @db.VarChar(20) // super_admin, admin, company_admin, manager, traveler
+  department String? @db.VarChar(100)
+
+  // Policy Assignment
+  policyId String? @map("policy_id")
 
   // Credit Allocation
-  creditLimit      Decimal  @default(0) @map("credit_limit") @db.Decimal(12, 2)
-  availableCredits Decimal  @default(0) @map("available_credits") @db.Decimal(12, 2)
+  creditLimit      Decimal @default(0) @map("credit_limit") @db.Decimal(12, 2)
+  availableCredits Decimal @default(0) @map("available_credits") @db.Decimal(12, 2)
 
   // Approval Settings
-  approverId       String?  @map("approver_id")
-  autoApprove      Boolean  @default(false) @map("auto_approve")
+  approverId  String? @map("approver_id")
+  autoApprove Boolean @default(false) @map("auto_approve")
 
   // Profile
-  avatarUrl        String?  @map("avatar_url") @db.VarChar(500)
+  avatarUrl String? @map("avatar_url") @db.VarChar(500)
 
   // User Preferences
-  preferredCurrency    String   @default("USD") @map("preferred_currency") @db.VarChar(3)
-  preferredLanguage    String?  @default("en") @map("preferred_language") @db.VarChar(10)
-  preferredTimezone    String?  @default("UTC") @map("preferred_timezone") @db.VarChar(50)
+  preferredCurrency String  @default("USD") @map("preferred_currency") @db.VarChar(3)
+  preferredLanguage String? @default("en") @map("preferred_language") @db.VarChar(10)
+  preferredTimezone String? @default("UTC") @map("preferred_timezone") @db.VarChar(50)
 
   // Status
-  status               String   @default("pending") @db.VarChar(20) // active, pending, inactive, suspended
-  lastLoginAt          DateTime? @map("last_login_at")
-  failedLoginAttempts  Int      @default(0) @map("failed_login_attempts")
-  lockedUntil          DateTime? @map("locked_until")
+  status              String    @default("pending") @db.VarChar(20) // active, pending, inactive, suspended
+  lastLoginAt         DateTime? @map("last_login_at")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until")
 
   // Invitation
-  invitationToken      String?  @map("invitation_token") @db.VarChar(255)
+  invitationToken      String?   @map("invitation_token") @db.VarChar(255)
   invitationSentAt     DateTime? @map("invitation_sent_at")
   invitationAcceptedAt DateTime? @map("invitation_accepted_at")
 
   // Password Reset
-  resetToken           String?  @map("reset_token") @db.VarChar(255)
-  resetTokenExpiresAt  DateTime? @map("reset_token_expires_at")
+  resetToken          String?   @map("reset_token") @db.VarChar(255)
+  resetTokenExpiresAt DateTime? @map("reset_token_expires_at")
 
   // Timestamps
   createdAt DateTime  @default(now()) @map("created_at")
@@ -129,12 +133,13 @@ model User {
   deletedAt DateTime? @map("deleted_at")
 
   // Relations
-  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  approver            User?        @relation("UserApprover", fields: [approverId], references: [id], onDelete: SetNull)
-  approvees           User[]       @relation("UserApprover")
+  organization        Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  policy              BookingPolicy?      @relation("UserPolicy", fields: [policyId], references: [id], onDelete: SetNull)
+  approver            User?               @relation("UserApprover", fields: [approverId], references: [id], onDelete: SetNull)
+  approvees           User[]              @relation("UserApprover")
   bookings            Booking[]
-  approvedBookings    Booking[]    @relation("BookingApprover")
-  confirmedBookings   Booking[]    @relation("BookingConfirmer")
+  approvedBookings    Booking[]           @relation("BookingApprover")
+  confirmedBookings   Booking[]           @relation("BookingConfirmer")
   creditTransactions  CreditTransaction[]
   createdTransactions CreditTransaction[] @relation("TransactionCreator")
   createdPolicies     BookingPolicy[]     @relation("PolicyCreator")
@@ -156,109 +161,109 @@ model User {
 // ============================================================================
 
 model Booking {
-  id                          String   @id @default(uuid())
-  organizationId              String   @map("organization_id")
-  userId                      String   @map("user_id")
+  id             String @id @default(uuid())
+  organizationId String @map("organization_id")
+  userId         String @map("user_id")
 
   // Booking Details
-  bookingReference            String   @unique @map("booking_reference") @db.VarChar(50)
-  bookingType                 String   @map("booking_type") @db.VarChar(20) // flight, hotel, package
+  bookingReference String @unique @map("booking_reference") @db.VarChar(50)
+  bookingType      String @map("booking_type") @db.VarChar(20) // flight, hotel, package
 
   // Group Booking
-  isGroupBooking              Boolean  @default(false) @map("is_group_booking")
-  numberOfTravelers           Int      @default(1) @map("number_of_travelers")
-  groupName                   String?  @map("group_name") @db.VarChar(200)
+  isGroupBooking    Boolean @default(false) @map("is_group_booking")
+  numberOfTravelers Int     @default(1) @map("number_of_travelers")
+  groupName         String? @map("group_name") @db.VarChar(200)
 
   // Trip Information
-  origin                      String?  @db.VarChar(100)
-  destination                 String   @db.VarChar(100)
-  departureDate               DateTime @map("departure_date") @db.Date
-  returnDate                  DateTime? @map("return_date") @db.Date
-  isRoundTrip                 Boolean  @default(false) @map("is_round_trip")
+  origin        String?   @db.VarChar(100)
+  destination   String    @db.VarChar(100)
+  departureDate DateTime  @map("departure_date") @db.Date
+  returnDate    DateTime? @map("return_date") @db.Date
+  isRoundTrip   Boolean   @default(false) @map("is_round_trip")
 
   // Passenger/Guest Information
-  passengers                  Int      @default(1)
-  passengerDetails            Json     @map("passenger_details") // JSON array of passenger info
+  passengers       Int  @default(1)
+  passengerDetails Json @map("passenger_details") // JSON array of passenger info
 
   // Pricing
-  basePrice                   Decimal  @map("base_price") @db.Decimal(12, 2)
-  taxesFees                   Decimal  @default(0) @map("taxes_fees") @db.Decimal(12, 2)
-  totalPrice                  Decimal  @map("total_price") @db.Decimal(12, 2)
-  currency                    String   @default("USD") @db.VarChar(3)
+  basePrice  Decimal @map("base_price") @db.Decimal(12, 2)
+  taxesFees  Decimal @default(0) @map("taxes_fees") @db.Decimal(12, 2)
+  totalPrice Decimal @map("total_price") @db.Decimal(12, 2)
+  currency   String  @default("USD") @db.VarChar(3)
 
   // Multi-Currency Support
-  exchangeRate                Decimal? @map("exchange_rate") @db.Decimal(10, 6) // Rate used for conversion
-  totalPriceOrgCurrency       Decimal? @map("total_price_org_currency") @db.Decimal(12, 2) // Converted to org currency
+  exchangeRate          Decimal? @map("exchange_rate") @db.Decimal(10, 6) // Rate used for conversion
+  totalPriceOrgCurrency Decimal? @map("total_price_org_currency") @db.Decimal(12, 2) // Converted to org currency
 
   // Duffel Go-Live Compliance Fields
-  taxes                       Decimal? @db.Decimal(12, 2) // Separate taxes amount
-  fees                        Decimal? @db.Decimal(12, 2) // Separate service fees amount
-  dueAtAccommodation          Decimal? @map("due_at_accommodation") @db.Decimal(12, 2) // Amount due at hotel
-  cancellationTimeline        Json?    @map("cancellation_timeline") // Full cancellation policy timeline
-  supplier                    String?  @db.VarChar(50) // Supplier info (e.g., booking_com)
-  checkInTime                 String?  @map("check_in_time") @db.VarChar(20) // Check-in time from API
-  checkOutTime                String?  @map("check_out_time") @db.VarChar(20) // Check-out time from API
+  taxes                Decimal? @db.Decimal(12, 2) // Separate taxes amount
+  fees                 Decimal? @db.Decimal(12, 2) // Separate service fees amount
+  dueAtAccommodation   Decimal? @map("due_at_accommodation") @db.Decimal(12, 2) // Amount due at hotel
+  cancellationTimeline Json?    @map("cancellation_timeline") // Full cancellation policy timeline
+  supplier             String?  @db.VarChar(50) // Supplier info (e.g., booking_com)
+  checkInTime          String?  @map("check_in_time") @db.VarChar(20) // Check-in time from API
+  checkOutTime         String?  @map("check_out_time") @db.VarChar(20) // Check-out time from API
 
   // Booking Status
-  status                      String   @default("pending") @db.VarChar(30)
+  status String @default("pending") @db.VarChar(30)
   // pending, pending_approval, approved, awaiting_confirmation, confirmed, cancelled, rejected, completed, failed, pending_reselection
 
   // Two-Tier Approval Workflow
-  requiresApproval            Boolean  @default(false) @map("requires_approval")
+  requiresApproval Boolean @default(false) @map("requires_approval")
 
   // First Tier: Company Admin/Manager Approval
-  approverId                  String?  @map("approver_id")
-  approvedAt                  DateTime? @map("approved_at")
-  approvalNotes               String?  @map("approval_notes") @db.Text
+  approverId    String?   @map("approver_id")
+  approvedAt    DateTime? @map("approved_at")
+  approvalNotes String?   @map("approval_notes") @db.Text
 
   // Second Tier: Super Admin Confirmation
-  confirmerId                 String?  @map("confirmer_id")
-  confirmedByAt               DateTime? @map("confirmed_by_at")
-  confirmationNotes           String?  @map("confirmation_notes") @db.Text
+  confirmerId       String?   @map("confirmer_id")
+  confirmedByAt     DateTime? @map("confirmed_by_at")
+  confirmationNotes String?   @map("confirmation_notes") @db.Text
 
   // Rejection (can happen at either tier)
-  rejectionReason             String?  @map("rejection_reason") @db.Text
-  rejectedBy                  String?  @map("rejected_by") // Who rejected (approverId or confirmerId)
+  rejectionReason String? @map("rejection_reason") @db.Text
+  rejectedBy      String? @map("rejected_by") // Who rejected (approverId or confirmerId)
 
   // Travel Purpose
-  travelReason                String?  @map("travel_reason") @db.Text
-  notes                       String?  @db.Text
+  travelReason String? @map("travel_reason") @db.Text
+  notes        String? @db.Text
 
   // Provider Information
-  provider                    String   @default("duffel") @db.VarChar(20) // duffel, amadeus
-  providerName                String?  @map("provider_name") @db.VarChar(100)
-  providerOrderId             String?  @map("provider_order_id") @db.VarChar(100) // Duffel order ID or Amadeus PNR
-  providerBookingReference    String?  @map("provider_booking_reference") @db.VarChar(100)
-  providerConfirmationNumber  String?  @map("provider_confirmation_number") @db.VarChar(100)
-  providerRawData             Json?    @map("provider_raw_data") // Full provider response for reference
+  provider                   String  @default("duffel") @db.VarChar(20) // duffel, amadeus
+  providerName               String? @map("provider_name") @db.VarChar(100)
+  providerOrderId            String? @map("provider_order_id") @db.VarChar(100) // Duffel order ID or Amadeus PNR
+  providerBookingReference   String? @map("provider_booking_reference") @db.VarChar(100)
+  providerConfirmationNumber String? @map("provider_confirmation_number") @db.VarChar(100)
+  providerRawData            Json?   @map("provider_raw_data") // Full provider response for reference
 
   // Duffel-specific checkout fields
-  checkoutSessionId           String?  @map("checkout_session_id") @db.VarChar(200)
-  paymentStatus               String   @default("pending") @map("payment_status") @db.VarChar(30) // pending, completed, failed, refunded
+  checkoutSessionId String? @map("checkout_session_id") @db.VarChar(200)
+  paymentStatus     String  @default("pending") @map("payment_status") @db.VarChar(30) // pending, completed, failed, refunded
 
   // Documents
-  confirmationUrl             String?  @map("confirmation_url") @db.VarChar(500)
-  ticketUrl                   String?  @map("ticket_url") @db.VarChar(500)
-  invoiceUrl                  String?  @map("invoice_url") @db.VarChar(500)
+  confirmationUrl String? @map("confirmation_url") @db.VarChar(500)
+  ticketUrl       String? @map("ticket_url") @db.VarChar(500)
+  invoiceUrl      String? @map("invoice_url") @db.VarChar(500)
 
   // Additional Data
-  bookingData                 Json?    @map("booking_data")
+  bookingData Json? @map("booking_data")
 
   // Policy Enforcement
-  appliedPolicyId             String?  @map("applied_policy_id")
-  policyExceptionId           String?  @map("policy_exception_id")
-  policyViolation             Boolean  @default(false) @map("policy_violation")
-  policyOverrideBy            String?  @map("policy_override_by")
-  policyOverrideReason        String?  @map("policy_override_reason") @db.Text
+  appliedPolicyId      String? @map("applied_policy_id")
+  policyExceptionId    String? @map("policy_exception_id")
+  policyViolation      Boolean @default(false) @map("policy_violation")
+  policyOverrideBy     String? @map("policy_override_by")
+  policyOverrideReason String? @map("policy_override_reason") @db.Text
 
   // Timestamps
-  bookedAt        DateTime  @default(now()) @map("booked_at")
-  confirmedAt     DateTime? @map("confirmed_at")
-  cancelledAt     DateTime? @map("cancelled_at")
-  cancellationReason String? @map("cancellation_reason") @db.Text
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
-  deletedAt       DateTime? @map("deleted_at")
+  bookedAt           DateTime  @default(now()) @map("booked_at")
+  confirmedAt        DateTime? @map("confirmed_at")
+  cancelledAt        DateTime? @map("cancelled_at")
+  cancellationReason String?   @map("cancellation_reason") @db.Text
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
 
   // Relations
   organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -290,52 +295,52 @@ model Booking {
 // ============================================================================
 
 model FlightBooking {
-  id                    String   @id @default(uuid())
-  bookingId             String   @map("booking_id")
+  id        String @id @default(uuid())
+  bookingId String @map("booking_id")
 
   // Flight Details
-  airline               String   @db.VarChar(100)
-  airlineCode           String?  @map("airline_code") @db.VarChar(10)
-  flightNumber          String   @map("flight_number") @db.VarChar(20)
+  airline      String  @db.VarChar(100)
+  airlineCode  String? @map("airline_code") @db.VarChar(10)
+  flightNumber String  @map("flight_number") @db.VarChar(20)
 
   // Route
-  departureAirport      String   @map("departure_airport") @db.VarChar(100)
-  departureAirportCode  String   @map("departure_airport_code") @db.VarChar(10)
-  arrivalAirport        String   @map("arrival_airport") @db.VarChar(100)
-  arrivalAirportCode    String   @map("arrival_airport_code") @db.VarChar(10)
+  departureAirport     String @map("departure_airport") @db.VarChar(100)
+  departureAirportCode String @map("departure_airport_code") @db.VarChar(10)
+  arrivalAirport       String @map("arrival_airport") @db.VarChar(100)
+  arrivalAirportCode   String @map("arrival_airport_code") @db.VarChar(10)
 
   // Times
-  departureTime         DateTime @map("departure_time")
-  arrivalTime           DateTime @map("arrival_time")
-  duration              Int?     // Duration in minutes
+  departureTime DateTime @map("departure_time")
+  arrivalTime   DateTime @map("arrival_time")
+  duration      Int? // Duration in minutes
 
   // Flight Details
-  cabinClass            String   @map("cabin_class") @db.VarChar(50) // economy, premium_economy, business, first
-  stops                 Int      @default(0) // Number of stops
-  layoverInfo           Json?    @map("layover_info") // Array of layover details
+  cabinClass  String @map("cabin_class") @db.VarChar(50) // economy, premium_economy, business, first
+  stops       Int    @default(0) // Number of stops
+  layoverInfo Json?  @map("layover_info") // Array of layover details
 
   // Baggage
-  baggageAllowance      String?  @map("baggage_allowance") @db.VarChar(200)
-  carryOnAllowance      String?  @map("carry_on_allowance") @db.VarChar(200)
+  baggageAllowance String? @map("baggage_allowance") @db.VarChar(200)
+  carryOnAllowance String? @map("carry_on_allowance") @db.VarChar(200)
 
   // Seat Information
-  seatNumbers           Json?    @map("seat_numbers") // Array of seat assignments
+  seatNumbers Json? @map("seat_numbers") // Array of seat assignments
 
   // Additional Info
-  aircraft              String?  @db.VarChar(100)
-  terminal              String?  @db.VarChar(50)
-  gate                  String?  @db.VarChar(50)
+  aircraft String? @db.VarChar(100)
+  terminal String? @db.VarChar(50)
+  gate     String? @db.VarChar(50)
 
   // E-ticket
-  eTicketNumbers        Json?    @map("e_ticket_numbers") // Array of e-ticket numbers
-  pnr                   String?  @db.VarChar(20) // Passenger Name Record
+  eTicketNumbers Json?   @map("e_ticket_numbers") // Array of e-ticket numbers
+  pnr            String? @db.VarChar(20) // Passenger Name Record
 
   // Timestamps
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  booking               Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@index([bookingId])
   @@index([flightNumber])
@@ -348,66 +353,66 @@ model FlightBooking {
 // ============================================================================
 
 model HotelBooking {
-  id                    String   @id @default(uuid())
-  bookingId             String   @map("booking_id")
+  id        String @id @default(uuid())
+  bookingId String @map("booking_id")
 
   // Hotel Details
-  hotelId               String   @map("hotel_id") @db.VarChar(100)
-  hotelName             String   @map("hotel_name") @db.VarChar(200)
-  hotelChain            String?  @map("hotel_chain") @db.VarChar(100)
-  photoUrl              String?  @map("photo_url") @db.VarChar(500)
+  hotelId    String  @map("hotel_id") @db.VarChar(100)
+  hotelName  String  @map("hotel_name") @db.VarChar(200)
+  hotelChain String? @map("hotel_chain") @db.VarChar(100)
+  photoUrl   String? @map("photo_url") @db.VarChar(500)
 
   // Location
-  address               String   @db.VarChar(500)
-  city                  String   @db.VarChar(100)
-  country               String   @db.VarChar(100)
-  postalCode            String?  @map("postal_code") @db.VarChar(20)
-  latitude              Decimal? @db.Decimal(10, 8)
-  longitude             Decimal? @db.Decimal(11, 8)
+  address    String   @db.VarChar(500)
+  city       String   @db.VarChar(100)
+  country    String   @db.VarChar(100)
+  postalCode String?  @map("postal_code") @db.VarChar(20)
+  latitude   Decimal? @db.Decimal(10, 8)
+  longitude  Decimal? @db.Decimal(11, 8)
 
   // Stay Details
-  checkInDate           DateTime @map("check_in_date") @db.Date
-  checkOutDate          DateTime @map("check_out_date") @db.Date
-  numberOfNights        Int      @map("number_of_nights")
-  numberOfRooms         Int      @default(1) @map("number_of_rooms")
+  checkInDate    DateTime @map("check_in_date") @db.Date
+  checkOutDate   DateTime @map("check_out_date") @db.Date
+  numberOfNights Int      @map("number_of_nights")
+  numberOfRooms  Int      @default(1) @map("number_of_rooms")
 
   // Multi-room support
-  isMultiRoom           Boolean  @default(false) @map("is_multi_room")
+  isMultiRoom Boolean @default(false) @map("is_multi_room")
 
   // Room Details (for single room backward compatibility)
-  roomType              String   @map("room_type") @db.VarChar(100)
-  roomDescription       String?  @map("room_description") @db.Text
-  bedType               String?  @map("bed_type") @db.VarChar(100)
-  guestsPerRoom         Int      @default(1) @map("guests_per_room")
+  roomType        String  @map("room_type") @db.VarChar(100)
+  roomDescription String? @map("room_description") @db.Text
+  bedType         String? @map("bed_type") @db.VarChar(100)
+  guestsPerRoom   Int     @default(1) @map("guests_per_room")
 
   // Amenities & Services
-  amenities             Json?    // Array of amenities
-  mealPlan              String?  @map("meal_plan") @db.VarChar(50) // breakfast_included, half_board, full_board, all_inclusive
+  amenities Json? // Array of amenities
+  mealPlan  String? @map("meal_plan") @db.VarChar(50) // breakfast_included, half_board, full_board, all_inclusive
 
   // Special Requests
-  specialRequests       String?  @map("special_requests") @db.Text
+  specialRequests String? @map("special_requests") @db.Text
 
   // Room Numbers (assigned after check-in)
-  roomNumbers           Json?    @map("room_numbers") // Array of room numbers
+  roomNumbers Json? @map("room_numbers") // Array of room numbers
 
   // Contact
-  hotelPhone            String?  @map("hotel_phone") @db.VarChar(50)
-  hotelEmail            String?  @map("hotel_email") @db.VarChar(200)
+  hotelPhone String? @map("hotel_phone") @db.VarChar(50)
+  hotelEmail String? @map("hotel_email") @db.VarChar(200)
 
   // Cancellation Policy
-  cancellationPolicy    String?  @map("cancellation_policy") @db.Text
+  cancellationPolicy    String?   @map("cancellation_policy") @db.Text
   freeCancellationUntil DateTime? @map("free_cancellation_until")
 
   // Confirmation
-  confirmationNumber    String?  @map("confirmation_number") @db.VarChar(100)
+  confirmationNumber String? @map("confirmation_number") @db.VarChar(100)
 
   // Timestamps
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  booking               Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  rooms                 RoomBookingItem[] // Multi-room bookings
+  booking Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  rooms   RoomBookingItem[] // Multi-room bookings
 
   @@index([bookingId])
   @@index([hotelId])
@@ -422,33 +427,33 @@ model HotelBooking {
 // ============================================================================
 
 model RoomBookingItem {
-  id                String   @id @default(uuid())
-  hotelBookingId    String   @map("hotel_booking_id")
+  id             String @id @default(uuid())
+  hotelBookingId String @map("hotel_booking_id")
 
   // Room Details
-  roomNumber        Int      @map("room_number") // Room 1, Room 2, etc.
-  offerId           String   @map("offer_id") @db.VarChar(100)
-  roomType          String   @map("room_type") @db.VarChar(100)
-  bedType           String?  @map("bed_type") @db.VarChar(100)
-  roomDescription   String?  @map("room_description") @db.Text
+  roomNumber      Int     @map("room_number") // Room 1, Room 2, etc.
+  offerId         String  @map("offer_id") @db.VarChar(100)
+  roomType        String  @map("room_type") @db.VarChar(100)
+  bedType         String? @map("bed_type") @db.VarChar(100)
+  roomDescription String? @map("room_description") @db.Text
 
   // Pricing
-  price             Decimal  @db.Decimal(12, 2)
-  currency          String   @default("USD") @db.VarChar(3)
+  price    Decimal @db.Decimal(12, 2)
+  currency String  @default("USD") @db.VarChar(3)
 
   // Guest Count
-  numberOfGuests    Int      @map("number_of_guests")
+  numberOfGuests Int @map("number_of_guests")
 
   // Assigned Room Number (after check-in)
   assignedRoomNumber String? @map("assigned_room_number") @db.VarChar(20)
 
   // Timestamps
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  hotelBooking      HotelBooking @relation(fields: [hotelBookingId], references: [id], onDelete: Cascade)
-  guests            Guest[] // Guests assigned to this room
+  hotelBooking HotelBooking @relation(fields: [hotelBookingId], references: [id], onDelete: Cascade)
+  guests       Guest[] // Guests assigned to this room
 
   @@index([hotelBookingId])
   @@index([roomNumber])
@@ -460,32 +465,32 @@ model RoomBookingItem {
 // ============================================================================
 
 model Guest {
-  id                String   @id @default(uuid())
-  roomBookingId     String   @map("room_booking_id")
+  id            String @id @default(uuid())
+  roomBookingId String @map("room_booking_id")
 
   // Personal Information
-  firstName         String   @map("first_name") @db.VarChar(100)
-  lastName          String   @map("last_name") @db.VarChar(100)
-  email             String   @db.VarChar(200)
-  phone             String   @db.VarChar(50)
-  dateOfBirth       String   @map("date_of_birth") @db.VarChar(50)
+  firstName   String @map("first_name") @db.VarChar(100)
+  lastName    String @map("last_name") @db.VarChar(100)
+  email       String @db.VarChar(200)
+  phone       String @db.VarChar(50)
+  dateOfBirth String @map("date_of_birth") @db.VarChar(50)
 
   // Address
-  address           String?  @db.VarChar(500)
-  city              String?  @db.VarChar(100)
-  country           String?  @db.VarChar(100)
+  address String? @db.VarChar(500)
+  city    String? @db.VarChar(100)
+  country String? @db.VarChar(100)
 
   // Passport Information
-  passportNumber    String?  @map("passport_number") @db.VarChar(100)
-  passportExpiry    String?  @map("passport_expiry") @db.VarChar(50)
-  passportCountry   String?  @map("passport_country") @db.VarChar(100)
+  passportNumber  String? @map("passport_number") @db.VarChar(100)
+  passportExpiry  String? @map("passport_expiry") @db.VarChar(50)
+  passportCountry String? @map("passport_country") @db.VarChar(100)
 
   // Timestamps
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  roomBooking       RoomBookingItem @relation(fields: [roomBookingId], references: [id], onDelete: Cascade)
+  roomBooking RoomBookingItem @relation(fields: [roomBookingId], references: [id], onDelete: Cascade)
 
   @@index([roomBookingId])
   @@index([email])
@@ -497,69 +502,69 @@ model Guest {
 // ============================================================================
 
 model CreditApplication {
-  id                    String   @id @default(uuid())
-  organizationId        String   @map("organization_id")
+  id             String @id @default(uuid())
+  organizationId String @map("organization_id")
 
   // Application Details
-  requestedAmount       Decimal  @map("requested_amount") @db.Decimal(12, 2)
-  currency              String   @default("USD") @db.VarChar(3)
+  requestedAmount Decimal @map("requested_amount") @db.Decimal(12, 2)
+  currency        String  @default("USD") @db.VarChar(3)
 
   // Business Information
-  companyName           String   @map("company_name") @db.VarChar(200)
-  registrationNumber    String?  @map("registration_number") @db.VarChar(100)
-  businessType          String?  @map("business_type") @db.VarChar(100)
-  industry              String?  @db.VarChar(100)
-  yearEstablished       Int?     @map("year_established")
-  numberOfEmployees     Int?     @map("number_of_employees")
-  annualRevenue         Decimal? @map("annual_revenue") @db.Decimal(15, 2)
+  companyName        String   @map("company_name") @db.VarChar(200)
+  registrationNumber String?  @map("registration_number") @db.VarChar(100)
+  businessType       String?  @map("business_type") @db.VarChar(100)
+  industry           String?  @db.VarChar(100)
+  yearEstablished    Int?     @map("year_established")
+  numberOfEmployees  Int?     @map("number_of_employees")
+  annualRevenue      Decimal? @map("annual_revenue") @db.Decimal(15, 2)
 
   // Contact Information
-  contactPersonName     String   @map("contact_person_name") @db.VarChar(200)
-  contactPersonTitle    String?  @map("contact_person_title") @db.VarChar(100)
-  contactEmail          String   @map("contact_email") @db.VarChar(200)
-  contactPhone          String   @map("contact_phone") @db.VarChar(50)
+  contactPersonName  String  @map("contact_person_name") @db.VarChar(200)
+  contactPersonTitle String? @map("contact_person_title") @db.VarChar(100)
+  contactEmail       String  @map("contact_email") @db.VarChar(200)
+  contactPhone       String  @map("contact_phone") @db.VarChar(50)
 
   // Address
-  businessAddress       String   @map("business_address") @db.VarChar(500)
-  city                  String   @db.VarChar(100)
-  state                 String?  @db.VarChar(100)
-  country               String   @db.VarChar(100)
-  postalCode            String   @map("postal_code") @db.VarChar(20)
+  businessAddress String  @map("business_address") @db.VarChar(500)
+  city            String  @db.VarChar(100)
+  state           String? @db.VarChar(100)
+  country         String  @db.VarChar(100)
+  postalCode      String  @map("postal_code") @db.VarChar(20)
 
   // Financial Information
-  bankName              String?  @map("bank_name") @db.VarChar(200)
-  bankAccountNumber     String?  @map("bank_account_number") @db.VarChar(100)
-  taxId                 String?  @map("tax_id") @db.VarChar(100)
+  bankName          String? @map("bank_name") @db.VarChar(200)
+  bankAccountNumber String? @map("bank_account_number") @db.VarChar(100)
+  taxId             String? @map("tax_id") @db.VarChar(100)
 
   // Credit Terms
   proposedCreditTerm    Int?     @map("proposed_credit_term") // In days (e.g., 30, 60, 90)
   estimatedMonthlySpend Decimal? @map("estimated_monthly_spend") @db.Decimal(12, 2)
 
   // Documents
-  documentsUploaded     Json?    @map("documents_uploaded") // Array of document URLs
+  documentsUploaded Json? @map("documents_uploaded") // Array of document URLs
 
   // Application Status
-  status                String   @default("pending") @db.VarChar(30)
+  status String @default("pending") @db.VarChar(30)
   // pending, under_review, approved, rejected, additional_info_required
 
   // Review Information
-  reviewedBy            String?  @map("reviewed_by")
-  reviewedAt            DateTime? @map("reviewed_at")
-  reviewNotes           String?  @map("review_notes") @db.Text
-  rejectionReason       String?  @map("rejection_reason") @db.Text
+  reviewedBy      String?   @map("reviewed_by")
+  reviewedAt      DateTime? @map("reviewed_at")
+  reviewNotes     String?   @map("review_notes") @db.Text
+  rejectionReason String?   @map("rejection_reason") @db.Text
 
   // Approved Terms
-  approvedAmount        Decimal? @map("approved_amount") @db.Decimal(12, 2)
-  approvedCreditTerm    Int?     @map("approved_credit_term")
+  approvedAmount           Decimal?  @map("approved_amount") @db.Decimal(12, 2)
+  approvedCreditTerm       Int?      @map("approved_credit_term")
   creditLimitEffectiveDate DateTime? @map("credit_limit_effective_date")
 
   // Timestamps
-  submittedAt           DateTime @default(now()) @map("submitted_at")
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @updatedAt @map("updated_at")
+  submittedAt DateTime @default(now()) @map("submitted_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
-  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
   @@index([status])
@@ -572,38 +577,38 @@ model CreditApplication {
 // ============================================================================
 
 model CreditTransaction {
-  id               String   @id @default(uuid())
-  organizationId   String   @map("organization_id")
-  userId           String?  @map("user_id")
+  id             String  @id @default(uuid())
+  organizationId String  @map("organization_id")
+  userId         String? @map("user_id")
 
   // Transaction Details
-  transactionType  String   @map("transaction_type") @db.VarChar(20)
+  transactionType String @map("transaction_type") @db.VarChar(20)
   // credit_added, credit_deducted, credit_held, credit_released, credit_allocated, credit_refunded
 
   // Amount
-  amount           Decimal  @db.Decimal(12, 2)
-  currency         String   @default("USD") @db.VarChar(3)
+  amount   Decimal @db.Decimal(12, 2)
+  currency String  @default("USD") @db.VarChar(3)
 
   // Balance After Transaction
-  balanceBefore    Decimal  @map("balance_before") @db.Decimal(12, 2)
-  balanceAfter     Decimal  @map("balance_after") @db.Decimal(12, 2)
+  balanceBefore Decimal @map("balance_before") @db.Decimal(12, 2)
+  balanceAfter  Decimal @map("balance_after") @db.Decimal(12, 2)
 
   // Related Records
-  bookingId        String?  @map("booking_id")
-  paymentId        String?  @map("payment_id")
+  bookingId String? @map("booking_id")
+  paymentId String? @map("payment_id")
 
   // Payment Information
-  paymentMethod    String?  @map("payment_method") @db.VarChar(50)
-  paymentReference String?  @map("payment_reference") @db.VarChar(100)
-  paymentProvider  String?  @map("payment_provider") @db.VarChar(50)
+  paymentMethod    String? @map("payment_method") @db.VarChar(50)
+  paymentReference String? @map("payment_reference") @db.VarChar(100)
+  paymentProvider  String? @map("payment_provider") @db.VarChar(50)
 
   // Description
-  description      String   @db.Text
-  notes            String?  @db.Text
+  description String  @db.Text
+  notes       String? @db.Text
 
   // Metadata
-  createdAt        DateTime @default(now()) @map("created_at")
-  createdBy        String?  @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy String?  @map("created_by")
 
   // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -624,66 +629,67 @@ model CreditTransaction {
 // ============================================================================
 
 model BookingPolicy {
-  id                      String   @id @default(uuid())
-  organizationId          String   @map("organization_id")
+  id             String @id @default(uuid())
+  organizationId String @map("organization_id")
 
   // Policy Information
-  name                    String   @db.VarChar(200)
-  description             String?  @db.Text
+  name        String  @db.VarChar(200)
+  description String? @db.Text
 
-  // Target Role
-  role                    String   @db.VarChar(20) // employee, traveler, manager, admin, company_admin
+  // Target Role (Optional - now just a category/label, not used for assignment)
+  role String? @db.VarChar(20) // employee, traveler, manager, admin, company_admin
 
   // Policy Type
-  policyType              String   @map("policy_type") @db.VarChar(30)
+  policyType String @map("policy_type") @db.VarChar(30)
   // per_night, per_trip, per_booking, monthly_limit, annual_limit
 
   // Spending Limits
-  flightMaxAmount         Decimal? @map("flight_max_amount") @db.Decimal(12, 2)
-  hotelMaxAmountPerNight  Decimal? @map("hotel_max_amount_per_night") @db.Decimal(12, 2)
-  hotelMaxAmountTotal     Decimal? @map("hotel_max_amount_total") @db.Decimal(12, 2)
-  monthlyLimit            Decimal? @map("monthly_limit") @db.Decimal(12, 2)
-  annualLimit             Decimal? @map("annual_limit") @db.Decimal(12, 2)
+  flightMaxAmount        Decimal? @map("flight_max_amount") @db.Decimal(12, 2)
+  hotelMaxAmountPerNight Decimal? @map("hotel_max_amount_per_night") @db.Decimal(12, 2)
+  hotelMaxAmountTotal    Decimal? @map("hotel_max_amount_total") @db.Decimal(12, 2)
+  monthlyLimit           Decimal? @map("monthly_limit") @db.Decimal(12, 2)
+  annualLimit            Decimal? @map("annual_limit") @db.Decimal(12, 2)
 
   // Currency
-  currency                String   @default("USD") @db.VarChar(3)
+  currency String @default("USD") @db.VarChar(3)
 
   // Flight Restrictions
-  allowedFlightClasses    Json?    @map("allowed_flight_classes")
+  allowedFlightClasses Json? @map("allowed_flight_classes")
   // JSON array: ["economy", "premium_economy", "business", "first"]
 
   // Approval Thresholds
-  requiresApprovalAbove   Decimal? @map("requires_approval_above") @db.Decimal(12, 2)
-  autoApproveBelow        Decimal? @map("auto_approve_below") @db.Decimal(12, 2)
+  requiresApprovalAbove Decimal? @map("requires_approval_above") @db.Decimal(12, 2)
+  autoApproveBelow      Decimal? @map("auto_approve_below") @db.Decimal(12, 2)
 
   // Override Settings
-  allowManagerOverride    Boolean  @default(false) @map("allow_manager_override")
-  allowExceptions         Boolean  @default(true) @map("allow_exceptions")
+  allowManagerOverride Boolean @default(false) @map("allow_manager_override")
+  allowExceptions      Boolean @default(true) @map("allow_exceptions")
 
   // Booking Restrictions
-  advanceBookingDays      Int?     @map("advance_booking_days") // Minimum days before travel
-  maxTripDuration         Int?     @map("max_trip_duration") // Maximum trip length in days
+  advanceBookingDays Int? @map("advance_booking_days") // Minimum days before travel
+  maxTripDuration    Int? @map("max_trip_duration") // Maximum trip length in days
 
   // Policy Status
-  isActive                Boolean  @default(true) @map("is_active")
-  priority                Int      @default(0) // Higher priority policies override lower ones
+  isActive Boolean @default(true) @map("is_active")
+  priority Int     @default(0) // Higher priority policies override lower ones
 
   // Effective Dates
-  effectiveFrom           DateTime? @map("effective_from") @db.Date
-  effectiveTo             DateTime? @map("effective_to") @db.Date
+  effectiveFrom DateTime? @map("effective_from") @db.Date
+  effectiveTo   DateTime? @map("effective_to") @db.Date
 
   // Metadata
-  createdBy               String?  @map("created_by")
-  createdAt               DateTime @default(now()) @map("created_at")
-  updatedAt               DateTime @updatedAt @map("updated_at")
-  deletedAt               DateTime? @map("deleted_at")
+  createdBy String?   @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   // Relations
-  organization            Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  creator                 User?             @relation("PolicyCreator", fields: [createdBy], references: [id], onDelete: SetNull)
-  exceptions              PolicyException[]
-  usageLogs               PolicyUsageLog[]
-  bookings                Booking[]         @relation("BookingPolicy")
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator      User?             @relation("PolicyCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  users        User[]            @relation("UserPolicy")
+  exceptions   PolicyException[]
+  usageLogs    PolicyUsageLog[]
+  bookings     Booking[]         @relation("BookingPolicy")
 
   @@index([organizationId])
   @@index([role])
@@ -699,41 +705,41 @@ model BookingPolicy {
 // ============================================================================
 
 model PolicyException {
-  id                      String   @id @default(uuid())
-  policyId                String   @map("policy_id")
-  organizationId          String   @map("organization_id")
-  userId                  String?  @map("user_id")
-  bookingId               String?  @map("booking_id")
+  id             String  @id @default(uuid())
+  policyId       String  @map("policy_id")
+  organizationId String  @map("organization_id")
+  userId         String? @map("user_id")
+  bookingId      String? @map("booking_id")
 
   // Exception Type
-  exceptionType           String   @map("exception_type") @db.VarChar(30)
+  exceptionType String @map("exception_type") @db.VarChar(30)
   // user_permanent, user_temporary, booking_one_time, department
 
   // Override Limits (null means use default from policy)
-  flightMaxAmount         Decimal? @map("flight_max_amount") @db.Decimal(12, 2)
-  hotelMaxAmountPerNight  Decimal? @map("hotel_max_amount_per_night") @db.Decimal(12, 2)
-  hotelMaxAmountTotal     Decimal? @map("hotel_max_amount_total") @db.Decimal(12, 2)
+  flightMaxAmount        Decimal? @map("flight_max_amount") @db.Decimal(12, 2)
+  hotelMaxAmountPerNight Decimal? @map("hotel_max_amount_per_night") @db.Decimal(12, 2)
+  hotelMaxAmountTotal    Decimal? @map("hotel_max_amount_total") @db.Decimal(12, 2)
 
   // Justification
-  reason                  String   @db.Text
-  approvedBy              String?  @map("approved_by")
-  approvedAt              DateTime? @map("approved_at")
+  reason     String    @db.Text
+  approvedBy String?   @map("approved_by")
+  approvedAt DateTime? @map("approved_at")
 
   // Validity
-  validFrom               DateTime? @map("valid_from") @db.Date
-  validTo                 DateTime? @map("valid_to") @db.Date
-  isActive                Boolean  @default(true) @map("is_active")
+  validFrom DateTime? @map("valid_from") @db.Date
+  validTo   DateTime? @map("valid_to") @db.Date
+  isActive  Boolean   @default(true) @map("is_active")
 
   // Metadata
-  createdAt               DateTime @default(now()) @map("created_at")
-  updatedAt               DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  policy                  BookingPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
-  organization            Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user                    User?         @relation("PolicyExceptionUser", fields: [userId], references: [id], onDelete: Cascade)
-  approver                User?         @relation("PolicyExceptionApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
-  bookings                Booking[]     @relation("BookingPolicyException")
+  policy       BookingPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?         @relation("PolicyExceptionUser", fields: [userId], references: [id], onDelete: Cascade)
+  approver     User?         @relation("PolicyExceptionApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+  bookings     Booking[]     @relation("BookingPolicyException")
 
   @@index([policyId])
   @@index([organizationId])
@@ -749,41 +755,41 @@ model PolicyException {
 // ============================================================================
 
 model PolicyUsageLog {
-  id                      String   @id @default(uuid())
-  policyId                String?  @map("policy_id")
-  organizationId          String   @map("organization_id")
-  userId                  String   @map("user_id")
-  bookingId               String?  @map("booking_id")
+  id             String  @id @default(uuid())
+  policyId       String? @map("policy_id")
+  organizationId String  @map("organization_id")
+  userId         String  @map("user_id")
+  bookingId      String? @map("booking_id")
 
   // Event Information
-  eventType               String   @map("event_type") @db.VarChar(50)
+  eventType String @map("event_type") @db.VarChar(50)
   // policy_applied, policy_violated, exception_granted, override_used, limit_exceeded
 
   // Policy Snapshot (for audit trail)
-  policySnapshot          Json?    @map("policy_snapshot")
+  policySnapshot Json? @map("policy_snapshot")
 
   // Booking Details
-  bookingType             String?  @map("booking_type") @db.VarChar(20) // flight, hotel
-  requestedAmount         Decimal? @map("requested_amount") @db.Decimal(12, 2)
-  policyLimit             Decimal? @map("policy_limit") @db.Decimal(12, 2)
-  currency                String?  @default("USD") @db.VarChar(3)
+  bookingType     String?  @map("booking_type") @db.VarChar(20) // flight, hotel
+  requestedAmount Decimal? @map("requested_amount") @db.Decimal(12, 2)
+  policyLimit     Decimal? @map("policy_limit") @db.Decimal(12, 2)
+  currency        String?  @default("USD") @db.VarChar(3)
 
   // Result
-  wasAllowed              Boolean  @default(false) @map("was_allowed")
-  requiresApproval        Boolean  @default(false) @map("requires_approval")
+  wasAllowed       Boolean @default(false) @map("was_allowed")
+  requiresApproval Boolean @default(false) @map("requires_approval")
 
   // Additional Context
-  details                 String?  @db.Text
-  metadata                Json?
+  details  String? @db.Text
+  metadata Json?
 
   // Timestamp
-  createdAt               DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  organization            Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user                    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  policy                  BookingPolicy? @relation(fields: [policyId], references: [id], onDelete: SetNull)
-  booking                 Booking?      @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  policy       BookingPolicy? @relation(fields: [policyId], references: [id], onDelete: SetNull)
+  booking      Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
 
   @@index([policyId])
   @@index([organizationId])

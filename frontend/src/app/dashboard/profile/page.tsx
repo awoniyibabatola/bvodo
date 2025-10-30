@@ -17,6 +17,7 @@ import {
 import UnifiedNavBar from '@/components/UnifiedNavBar';
 import AccountSubNav from '@/components/AccountSubNav';
 import BusinessFooter from '@/components/BusinessFooter';
+import { getApiEndpoint } from '@/lib/api-config';
 
 export default function ProfilePage() {
   const [user, setUser] = useState({
@@ -66,7 +67,7 @@ export default function ProfilePage() {
       .join(' ');
   };
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Check file size (max 5MB)
@@ -83,45 +84,93 @@ export default function ProfilePage() {
 
       // Convert to base64 for storage
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const base64String = reader.result as string;
 
-        // Update user state
-        const updatedUser = { ...user, avatar: base64String };
-        setUser(updatedUser);
-        setEditedUser(updatedUser);
+        try {
+          // Upload to backend API
+          const token = localStorage.getItem('accessToken');
+          const response = await fetch(getApiEndpoint('user/avatar'), {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ avatarUrl: base64String }),
+          });
 
-        // Update localStorage
-        const userData = localStorage.getItem('user');
-        if (userData) {
-          const parsedUser = JSON.parse(userData);
-          parsedUser.avatarUrl = base64String;
-          localStorage.setItem('user', JSON.stringify(parsedUser));
+          const data = await response.json();
+
+          if (data.success) {
+            // Update user state
+            const updatedUser = { ...user, avatar: base64String };
+            setUser(updatedUser);
+            setEditedUser(updatedUser);
+
+            // Update localStorage
+            const userData = localStorage.getItem('user');
+            if (userData) {
+              const parsedUser = JSON.parse(userData);
+              parsedUser.avatarUrl = base64String;
+              localStorage.setItem('user', JSON.stringify(parsedUser));
+            }
+
+            alert('Avatar uploaded successfully!');
+          } else {
+            alert('Failed to upload avatar: ' + data.message);
+          }
+        } catch (error) {
+          console.error('Avatar upload error:', error);
+          alert('Failed to upload avatar. Please try again.');
         }
-
-        // TODO: Upload to backend API
-        // uploadAvatarToBackend(base64String);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSave = () => {
-    setUser(editedUser);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      // Update profile via API
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(getApiEndpoint('user/profile'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName: editedUser.firstName,
+          lastName: editedUser.lastName,
+          phone: editedUser.phone,
+          location: editedUser.location,
+        }),
+      });
 
-    // Update localStorage
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      parsedUser.firstName = editedUser.firstName;
-      parsedUser.lastName = editedUser.lastName;
-      parsedUser.phone = editedUser.phone;
-      parsedUser.location = editedUser.location;
-      localStorage.setItem('user', JSON.stringify(parsedUser));
+      const data = await response.json();
+
+      if (data.success) {
+        setUser(editedUser);
+        setIsEditing(false);
+
+        // Update localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const parsedUser = JSON.parse(userData);
+          parsedUser.firstName = editedUser.firstName;
+          parsedUser.lastName = editedUser.lastName;
+          parsedUser.phone = editedUser.phone;
+          parsedUser.location = editedUser.location;
+          localStorage.setItem('user', JSON.stringify(parsedUser));
+        }
+
+        alert('Profile updated successfully!');
+      } else {
+        alert('Failed to update profile: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Profile update error:', error);
+      alert('Failed to update profile. Please try again.');
     }
-
-    // TODO: Add API call to update user profile
   };
 
   const handleCancel = () => {

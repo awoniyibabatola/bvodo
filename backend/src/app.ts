@@ -19,7 +19,7 @@ import creditApplicationRoutes from './routes/credit-application.routes';
 import testRoutes from './routes/test.routes';
 import paymentRoutes from './routes/payment.routes';
 import policyRoutes from './routes/policy.routes';
-// import userRoutes from './routes/user.routes';
+import userRoutes from './routes/user.routes';
 // import organizationRoutes from './routes/organization.routes';
 // import creditRoutes from './routes/credit.routes';
 
@@ -102,7 +102,7 @@ app.use(`${apiPrefix}/credit-applications`, creditApplicationRoutes);
 app.use(`${apiPrefix}/payments`, paymentRoutes);
 app.use(`${apiPrefix}/policies`, policyRoutes);
 app.use(`${apiPrefix}/test`, testRoutes);
-// app.use(`${apiPrefix}/users`, userRoutes);
+app.use(`${apiPrefix}/user`, userRoutes);
 // app.use(`${apiPrefix}/organizations`, organizationRoutes);
 // app.use(`${apiPrefix}/credits`, creditRoutes);
 

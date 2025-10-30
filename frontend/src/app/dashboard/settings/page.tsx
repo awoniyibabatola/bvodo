@@ -19,6 +19,7 @@ import {
 import UnifiedNavBar from '@/components/UnifiedNavBar';
 import AccountSubNav from '@/components/AccountSubNav';
 import BusinessFooter from '@/components/BusinessFooter';
+import { getApiEndpoint } from '@/lib/api-config';
 
 export default function SettingsPage() {
   const [user, setUser] = useState({
@@ -70,17 +71,51 @@ export default function SettingsPage() {
     }
   }, []);
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (newPassword !== confirmPassword) {
       alert('New passwords do not match');
       return;
     }
-    // TODO: Add API call to change password
-    alert('Password change functionality coming soon');
-    setShowPasswordFields(false);
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+
+    if (!currentPassword || !newPassword) {
+      alert('Please fill in all password fields');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      alert('New password must be at least 8 characters long');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(getApiEndpoint('user/password'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Password changed successfully!');
+        setShowPasswordFields(false);
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        alert('Failed to change password: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Password change error:', error);
+      alert('Failed to change password. Please try again.');
+    }
   };
 
   const handleSaveSettings = () => {
