@@ -168,7 +168,7 @@ export default function DashboardPage() {
             href="/dashboard/flights/search"
             className="group relative block rounded-xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
           >
-            <div className="relative h-[180px] bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden">
+            <div className="relative h-[140px] bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden">
               {/* Animated gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-tr from-[#ADF802]/10 via-transparent to-[#ADF802]/5 group-hover:scale-110 transition-transform duration-700"></div>
 
@@ -201,7 +201,7 @@ export default function DashboardPage() {
             href="/dashboard/hotels/search"
             className="group relative block rounded-xl overflow-hidden shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all duration-300"
           >
-            <div className="relative h-[180px] bg-gradient-to-br from-gray-800 via-gray-900 to-black overflow-hidden">
+            <div className="relative h-[140px] bg-gradient-to-br from-gray-800 via-gray-900 to-black overflow-hidden">
               {/* Animated gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-tl from-[#ADF802]/5 via-transparent to-[#ADF802]/10 group-hover:scale-110 transition-transform duration-700"></div>
 
