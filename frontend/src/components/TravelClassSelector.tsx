@@ -20,6 +20,7 @@ interface TravelClassSelectorProps {
   onChange: (value: string) => void;
   variant?: 'desktop' | 'mobile';
   className?: string;
+  allowedClasses?: string[] | null; // Array of allowed cabin classes from policy
 }
 
 const travelClasses: TravelClassOption[] = [
@@ -78,22 +79,38 @@ export default function TravelClassSelector({
   onChange,
   variant = 'desktop',
   className = '',
+  allowedClasses = null,
 }: TravelClassSelectorProps) {
   const isDesktop = variant === 'desktop';
+
+  // Helper to check if a class is allowed
+  const isClassAllowed = (classValue: string): boolean => {
+    if (!allowedClasses || allowedClasses.length === 0) return true;
+
+    // Normalize class value to match policy format
+    const normalized = classValue.toLowerCase().replace(/_/g, '_');
+    return allowedClasses.some(allowed =>
+      allowed.toLowerCase().replace(/_/g, '_') === normalized
+    );
+  };
 
   return (
     <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${isDesktop ? 'md:gap-2.5' : ''} ${className}`}>
       {travelClasses.map((cls) => {
         const Icon = cls.icon;
         const isSelected = value === cls.value;
+        const isAllowed = isClassAllowed(cls.value);
 
         return (
           <button
             key={cls.value}
             type="button"
-            onClick={() => onChange(cls.value)}
+            onClick={() => isAllowed && onChange(cls.value)}
+            disabled={!isAllowed}
             className={`group relative overflow-hidden p-4 ${isDesktop ? 'md:p-2.5' : ''} rounded-xl ${isDesktop ? 'md:rounded-lg' : ''} font-medium border-2 transition-all duration-300 ${
-              isSelected
+              !isAllowed
+                ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+                : isSelected
                 ? `${cls.colors.border} bg-gradient-to-br ${cls.colors.gradient} text-white shadow-lg shadow-${cls.colors.gradient.split('-')[1]}-200 scale-[1.02]`
                 : `border-gray-200 bg-white text-gray-700 ${cls.colors.hoverBorder} hover:shadow-md hover:scale-[1.01]`
             }`}
@@ -101,13 +118,15 @@ export default function TravelClassSelector({
             {/* Icon Badge */}
             <div className={`${isDesktop ? 'md:inline-flex md:items-center md:gap-2' : 'flex flex-col items-center gap-2'}`}>
               <div className={`flex items-center justify-center w-10 h-10 ${isDesktop ? 'md:w-7 md:h-7' : ''} rounded-lg ${
-                isSelected
+                !isAllowed
+                  ? 'bg-gray-200'
+                  : isSelected
                   ? 'bg-white/20 backdrop-blur-sm'
                   : `${cls.colors.iconBg}`
               } transition-all duration-300 ${isDesktop ? 'mx-auto mb-2 md:mb-0 md:mx-0' : 'mx-auto'}`}>
                 <Icon
                   className={`w-5 h-5 ${isDesktop ? 'md:w-4 md:h-4' : ''} ${
-                    isSelected ? 'text-white' : cls.colors.iconColor
+                    !isAllowed ? 'text-gray-400' : isSelected ? 'text-white' : cls.colors.iconColor
                   } transition-all duration-300`}
                 />
               </div>
@@ -123,6 +142,13 @@ export default function TravelClassSelector({
             {/* Selected Indicator - Small dot or checkmark */}
             {isSelected && (
               <div className="absolute top-2 right-2 w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            )}
+
+            {/* Not Allowed Indicator */}
+            {!isAllowed && (
+              <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 bg-red-100 border border-red-300 rounded text-[8px] font-bold text-red-600">
+                Not Allowed
+              </div>
             )}
           </button>
         );

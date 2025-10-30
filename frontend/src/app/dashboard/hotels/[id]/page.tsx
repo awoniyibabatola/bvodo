@@ -88,7 +88,7 @@ export default function HotelDetailsPage() {
   const [expandedRooms, setExpandedRooms] = useState<Set<number>>(new Set()); // Will be populated with all rooms on mount
   const [groupByPolicy, setGroupByPolicy] = useState(true); // Group by refundable/non-refundable
   const [roomImageIndices, setRoomImageIndices] = useState<{ [key: number]: number }>({}); // Track current image for each room
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(true); // About this property collapse state
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false); // About this property collapse state
 
   // Group booking modal state
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);

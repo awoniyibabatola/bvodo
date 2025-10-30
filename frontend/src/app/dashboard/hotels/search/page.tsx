@@ -103,6 +103,8 @@ export default function HotelSearchPage() {
   const [showSearchForm, setShowSearchForm] = useState(false);
   const [loadingCardIndex, setLoadingCardIndex] = useState<number | null>(null);
   const [viewedHotels, setViewedHotels] = useState<any[]>([]);
+  const [userPolicy, setUserPolicy] = useState<any>(undefined); // undefined = loading, null = no policy, object = has policy
+  const [policyLimit, setPolicyLimit] = useState<number | null>(null);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -127,6 +129,68 @@ export default function HotelSearchPage() {
       }
     }
   }, []);
+
+  // Fetch user's policy and apply hotel limits
+  useEffect(() => {
+    const fetchUserPolicy = async () => {
+      try {
+        const token = localStorage.getItem('accessToken'); // Fixed: Use 'accessToken' not 'token'
+        console.log('[Policy] Fetching policy, token exists:', !!token);
+        if (!token) return;
+
+        console.log('[Policy] Making API request to /api/v1/policies/my-policy');
+        const response = await fetch(getApiEndpoint('/policies/my-policy'), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        console.log('[Policy] Response status:', response.status);
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('[Policy] API response:', result);
+
+          const policy = result.data; // Extract data from response
+
+          // If no policy assigned to user, show all hotels
+          if (!policy) {
+            console.log('[Policy] No policy assigned to user - showing ALL hotels (no filtering)');
+            setUserPolicy(null);
+            setPolicyLimit(null);
+            // maxPrice stays at 0, meaning no filter
+            return;
+          }
+
+          setUserPolicy(policy);
+
+          // Apply hotel max amount per night as the default filter
+          if (policy.hotelMaxAmountPerNight) {
+            const limit = parseFloat(policy.hotelMaxAmountPerNight);
+            setPolicyLimit(limit);
+            console.log('[Policy] Policy limit found:', limit);
+
+            // Only set maxPrice if it's not already set from URL params
+            if (maxPrice === 0) {
+              setMaxPrice(limit);
+              console.log('[Policy] Applied hotel limit - filtering enabled:', limit);
+            }
+          } else {
+            console.log('[Policy] Policy has no hotel limit - showing ALL hotels (no filtering)');
+            setPolicyLimit(null);
+            // Keep maxPrice at 0 to show all hotels
+          }
+        } else {
+          console.log('[Policy] API request failed with status:', response.status);
+          console.log('[Policy] Showing ALL hotels (no filtering)');
+        }
+      } catch (error) {
+        console.error('[Policy] Error fetching user policy:', error);
+      }
+    };
+
+    fetchUserPolicy();
+  }, [user.email]); // Run when user email is available
 
   // Save viewed hotel to localStorage
   const saveViewedHotel = (hotel: any) => {
@@ -683,11 +747,31 @@ export default function HotelSearchPage() {
         </div>
 
         {/* Page Header - SIMPLIFIED FOR MOBILE */}
-        <div className="mb-4 md:mb-6">
-          <h1 className="text-2xl md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
-            Search Hotels
-          </h1>
-          <p className="text-sm md:text-xs text-gray-600 hidden md:block">Find the perfect accommodation for your business trip</p>
+        <div className="mb-4 md:mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
+              Search Hotels
+            </h1>
+            <p className="text-sm md:text-xs text-gray-600 hidden md:block">Find the perfect accommodation for your business trip</p>
+          </div>
+
+          {/* Policy Limit Badge - Top Right */}
+          {policyLimit ? (
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-xs font-medium text-gray-500">Your Policy Limit</span>
+              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+                <span className="text-lg font-bold text-blue-700">${policyLimit}</span>
+                <span className="text-xs text-blue-600">per night</span>
+              </div>
+            </div>
+          ) : userPolicy === null && (
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-xs font-medium text-gray-500">Booking Policy</span>
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg">
+                <span className="text-xs text-gray-600">No limit - All hotels available</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Search Form - Desktop only, always hidden on mobile */}

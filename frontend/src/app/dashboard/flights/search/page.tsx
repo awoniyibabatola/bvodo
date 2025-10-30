@@ -29,7 +29,6 @@ import {
   Leaf,
   ArrowUpDown,
 } from 'lucide-react';
-import AIChatbox from '@/components/AIChatbox';
 import { getApiEndpoint } from '@/lib/api-config';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
 import AirportAutocomplete from '@/components/AirportAutocomplete';
@@ -428,6 +427,25 @@ export default function FlightSearchPage() {
   const [filterCO2, setFilterCO2] = useState<[number, number]>([0, 1000]);
   const [sortBy, setSortBy] = useState<'price-asc' | 'price-desc' | 'duration' | 'departure' | 'co2'>('price-asc');
 
+  // Policy States
+  const [userPolicy, setUserPolicy] = useState<any>(undefined); // undefined = loading, null = no policy, object = has policy
+  const [policyLimit, setPolicyLimit] = useState<number | null>(null);
+  const [allowedCabinClasses, setAllowedCabinClasses] = useState<string[] | null>(null);
+
+  // Function to get cabin class from flight
+  const getFlightCabinClass = (flight: any): string => {
+    // Try multiple sources for cabin class
+    const cabinClass =
+      flight.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin ||
+      flight.cabinClass ||
+      flight.cabin ||
+      flight.outbound?.[0]?.cabin ||
+      'economy';
+
+    // Normalize to lowercase for comparison
+    return cabinClass.toLowerCase().replace(/\s+/g, '_');
+  };
+
   // Function to get full descriptive fare name
   const getFullFareName = (flight: any) => {
     const fareBrand = flight.fareBrandName || '';
@@ -649,6 +667,92 @@ export default function FlightSearchPage() {
 
     fetchBookings();
   }, []);
+
+  // Fetch user's booking policy
+  useEffect(() => {
+    const fetchUserPolicy = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.log('[Policy] No token found, skipping policy fetch');
+          return;
+        }
+
+        console.log('[Policy] Fetching policy for user:', user.email);
+        const response = await fetch(getApiEndpoint('/policies/my-policy'), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          const policy = result.data;
+
+          console.log('[Policy] Policy response:', policy);
+
+          // If no policy assigned, show all flights
+          if (!policy) {
+            console.log('[Policy] No policy assigned to user');
+            setUserPolicy(null);
+            setPolicyLimit(null);
+            return;
+          }
+
+          setUserPolicy(policy);
+
+          // Apply flight limit if exists
+          if (policy.flightMaxAmount) {
+            const limit = parseFloat(policy.flightMaxAmount);
+            console.log('[Policy] Flight max amount from policy:', limit);
+            setPolicyLimit(limit);
+
+            // Update price filter range upper bound to match policy
+            if (filterPriceRange[1] > limit || filterPriceRange[1] === 10000) {
+              setFilterPriceRange([filterPriceRange[0], limit]);
+              console.log('[Policy] Applied flight policy limit:', limit);
+            }
+          } else {
+            console.log('[Policy] No flight limit in policy');
+            setPolicyLimit(null);
+          }
+
+          // Apply cabin class restrictions if exists
+          if (policy.allowedFlightClasses && Array.isArray(policy.allowedFlightClasses)) {
+            console.log('[Policy] Allowed cabin classes:', policy.allowedFlightClasses);
+            // Normalize cabin classes to lowercase for comparison
+            const normalizedClasses = policy.allowedFlightClasses.map((c: string) => c.toLowerCase());
+            setAllowedCabinClasses(normalizedClasses);
+
+            // If current travel class is not allowed, switch to the first allowed class
+            const currentClassNormalized = travelClass.toLowerCase().replace(/_/g, '_');
+            const isCurrentClassAllowed = normalizedClasses.some(
+              (allowed: string) => allowed.toLowerCase().replace(/_/g, '_') === currentClassNormalized
+            );
+
+            if (!isCurrentClassAllowed && normalizedClasses.length > 0) {
+              // Map policy class to selector format (e.g., "economy" -> "ECONOMY")
+              const firstAllowed = normalizedClasses[0].toUpperCase().replace(/_/g, '_');
+              console.log('[Policy] Current class not allowed, switching to:', firstAllowed);
+              setTravelClass(firstAllowed);
+            }
+          } else {
+            console.log('[Policy] No cabin class restrictions in policy');
+            setAllowedCabinClasses(null);
+          }
+        } else {
+          console.error('[Policy] Failed to fetch policy:', response.status);
+        }
+      } catch (error) {
+        console.error('[Policy] Error fetching user policy:', error);
+      }
+    };
+
+    // Only fetch if user email is available
+    if (user.email) {
+      fetchUserPolicy();
+    }
+  }, [user.email]);
 
   // Read URL params and trigger search on mount, or restore from sessionStorage
   useEffect(() => {
@@ -1341,6 +1445,7 @@ export default function FlightSearchPage() {
                 value={travelClass}
                 onChange={setTravelClass}
                 variant="desktop"
+                allowedClasses={allowedCabinClasses}
               />
             </div>
 
@@ -1365,14 +1470,14 @@ export default function FlightSearchPage() {
           </form>
         </div>
 
-        {/* Floating Action Button - Mobile Only (shows when results exist) */}
+        {/* Floating Action Button - Mobile Only (shows when results exist) - Small round button centered at bottom */}
         {flights.length > 0 && (
           <button
             onClick={() => setShowSearchForm(true)}
-            className="md:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-4 bg-gray-900 text-white rounded-lg font-semibold border border-gray-900"
+            className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-30 w-14 h-14 bg-gray-900 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+            title="Modify Search"
           >
-            <Search className="w-5 h-5" />
-            <span>Modify Search</span>
+            <Search className="w-6 h-6" />
           </button>
         )}
 
@@ -1393,7 +1498,7 @@ export default function FlightSearchPage() {
               </div>
 
               {/* Header */}
-              <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-3.5 flex items-center justify-between z-10">
+              <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-3.5 flex items-center justify-between z-20">
                 <h2 className="text-base font-bold text-gray-900">Modify Search</h2>
                 <button
                   onClick={() => setShowSearchForm(false)}
@@ -1517,6 +1622,7 @@ export default function FlightSearchPage() {
                     value={travelClass}
                     onChange={setTravelClass}
                     variant="mobile"
+                    allowedClasses={allowedCabinClasses}
                   />
                 </div>
 
@@ -1809,7 +1915,7 @@ export default function FlightSearchPage() {
                 });
 
                 return (
-                  <div className="mb-6 space-y-4">
+                  <div className="relative z-10 mb-6 space-y-4">
                     {/* Progress Steps */}
                     <div className="flex items-center justify-center gap-4 mb-6">
                       <div className="flex items-center gap-2">
@@ -1820,7 +1926,7 @@ export default function FlightSearchPage() {
                       </div>
                       <div className="w-16 h-0.5 bg-gray-300"></div>
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                        <div className="w-8 h-8 bg-gray-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                           2
                         </div>
                         <span className="text-sm font-medium text-gray-900">Choose Return</span>
@@ -1858,9 +1964,9 @@ export default function FlightSearchPage() {
                     </div>
 
                     {/* Return Flight Selection Header */}
-                    <div className="bg-white border-2 border-gray-800 rounded-xl p-5">
+                    <div className="relative z-10 bg-gray-50 border-2 border-gray-300 rounded-xl p-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-gray-800 to-gray-900 rounded-full flex items-center justify-center">
+                        <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
                           <Plane className="w-5 h-5 text-white -rotate-90" />
                         </div>
                         <div>
@@ -1896,7 +2002,7 @@ export default function FlightSearchPage() {
                     </div>
 
                     {/* Outbound Selection Header */}
-                    <div className="bg-white border-2 border-gray-800 rounded-xl p-5">
+                    <div className="relative z-10 bg-white border-2 border-gray-800 rounded-xl p-5">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-r from-gray-800 to-gray-900 rounded-full flex items-center justify-center">
                           <Plane className="w-5 h-5 text-white rotate-90" />
@@ -2029,16 +2135,37 @@ export default function FlightSearchPage() {
               </div>
 
               {/* Flights List */}
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
-                    <h2 className="text-sm md:text-lg font-bold text-gray-900">
-                      Available Flights
-                      <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
-                        {filterFlights(flights).length}
-                      </span>
-                    </h2>
+              <div className="flex-1 max-w-full overflow-hidden pb-24 md:pb-0">
+                {/* Header with title and policy badge - stacked on mobile, side-by-side on desktop */}
+                <div className="mb-4">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-5 bg-gray-900 rounded-full"></div>
+                      <h2 className="text-sm md:text-lg font-bold text-gray-900">
+                        Available Flights
+                        <span className="inline-block ml-2 px-2 py-0.5 bg-[#ADF802] rounded text-xs font-bold text-gray-900">
+                          {filterFlights(flights).length}
+                        </span>
+                      </h2>
+                    </div>
+
+                    {/* Policy Badge - full width on mobile, auto on desktop */}
+                    {policyLimit ? (
+                      <div className="flex flex-col items-start md:items-end gap-1">
+                        <span className="text-xs font-medium text-gray-500">Your Policy Limit</span>
+                        <div className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-blue-50 border border-blue-200 rounded-lg">
+                          <span className="text-base md:text-lg font-bold text-blue-700">${policyLimit.toLocaleString()}</span>
+                          <span className="text-xs text-blue-600">per flight</span>
+                        </div>
+                      </div>
+                    ) : userPolicy === null && (
+                      <div className="flex flex-col items-start md:items-end gap-1">
+                        <span className="text-xs font-medium text-gray-500">Booking Policy</span>
+                        <div className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-gray-50 border border-gray-200 rounded-lg">
+                          <span className="text-xs text-gray-600">No limit - All flights available</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -2152,16 +2279,44 @@ export default function FlightSearchPage() {
               // Get price
               const price = getFlightPrice(flight);
 
+              // Get cabin class
+              const flightCabinClass = getFlightCabinClass(flight);
+
+              // Check if flight exceeds policy limit (price or cabin class)
+              const isPriceOutOfPolicy = policyLimit && price.total > policyLimit;
+              const isCabinClassOutOfPolicy = allowedCabinClasses && !allowedCabinClasses.includes(flightCabinClass);
+              const isOutOfPolicy = isPriceOutOfPolicy || isCabinClassOutOfPolicy;
+
               return (
                 <div
                   key={index}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200"
+                  className={`relative z-0 rounded-xl shadow-sm transition-shadow border mb-4 ${
+                    isOutOfPolicy
+                      ? 'bg-gray-50 border-gray-300 opacity-60'
+                      : 'bg-white border-gray-200 hover:shadow-md'
+                  }`}
                 >
+                  {/* Out of Policy Badge */}
+                  {isOutOfPolicy && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 border border-red-300 rounded-full">
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                        <span className="text-xs font-semibold text-red-700">
+                          {isCabinClassOutOfPolicy && isPriceOutOfPolicy
+                            ? 'Out of Policy'
+                            : isCabinClassOutOfPolicy
+                            ? 'Class Not Allowed'
+                            : 'Exceeds Price Limit'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="p-4 md:p-6">
                     {/* Header: Airline Name + Price */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-14 h-14 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
+                    <div className="flex items-center justify-between gap-3 mb-6">
+                      <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+                        <div className="w-12 h-12 md:w-14 md:h-14 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden flex-shrink-0">
                           <img
                             src={getAirlineLogo(getSegmentAirlineCode(firstSegment))}
                             alt={AIRLINE_NAMES[getSegmentAirlineCode(firstSegment)] || getSegmentAirlineCode(firstSegment)}
@@ -2171,20 +2326,20 @@ export default function FlightSearchPage() {
                               e.currentTarget.nextElementSibling?.classList.remove('hidden');
                             }}
                           />
-                          <Plane className="w-7 h-7 text-gray-400 hidden" />
+                          <Plane className="w-6 h-6 md:w-7 md:h-7 text-gray-400 hidden" />
                         </div>
-                        <div>
-                          <h3 className="text-base font-bold text-gray-900">
+                        <div className="min-w-0">
+                          <h3 className="text-sm md:text-base font-bold text-gray-900 truncate">
                             {airlines.length > 0 ? airlines.map(code => AIRLINE_NAMES[code] || code).join(', ') : 'Flight'}
                           </h3>
                           <p className="text-xs text-gray-500 mt-0.5">
                             {getSegmentAirlineCode(firstSegment)} {getSegmentNumber(firstSegment)}
-                            {airlines.length > 1 && <span className="ml-2 text-[#ADF802]">• Multiple airlines</span>}
+                            {airlines.length > 1 && <span className="ml-2 text-[#ADF802] hidden sm:inline">• Multiple airlines</span>}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900">
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-lg md:text-2xl font-bold text-gray-900">
                           {price.currency} {price.total.toLocaleString()}
                         </div>
                         <div className="text-xs text-gray-500 mt-0.5">
@@ -2197,25 +2352,25 @@ export default function FlightSearchPage() {
                     </div>
 
                     {/* Flight Route */}
-                    <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="bg-gray-50 rounded-lg p-3 md:p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <div className="text-2xl font-bold text-gray-900">
+                          <div className="text-xl md:text-2xl font-bold text-gray-900">
                             {departureTime}
                           </div>
                           <div className="text-sm font-semibold text-gray-600 mt-1">
                             {departure.iataCode}
                           </div>
-                          <div className="text-xs text-gray-500 mt-0.5">
+                          <div className="text-xs text-gray-500 mt-0.5 hidden sm:block">
                             {AIRPORT_CITY_NAMES[departure.iataCode] || departure.iataCode}
                           </div>
                         </div>
 
-                        <div className="flex-1 px-6">
+                        <div className="flex-1 px-3 md:px-6">
                           <div className="relative">
                             <div className="border-t-2 border-gray-300"></div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-50 px-2">
-                              <Plane className="w-4 h-4 text-gray-400 rotate-90" />
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-50 px-1.5 md:px-2">
+                              <Plane className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 rotate-90" />
                             </div>
                           </div>
                           <div className="text-center mt-2">
@@ -2227,13 +2382,13 @@ export default function FlightSearchPage() {
                         </div>
 
                         <div className="flex-1 text-right">
-                          <div className="text-2xl font-bold text-gray-900">
+                          <div className="text-xl md:text-2xl font-bold text-gray-900">
                             {arrivalTime}
                           </div>
                           <div className="text-sm font-semibold text-gray-600 mt-1">
                             {arrival.iataCode}
                           </div>
-                          <div className="text-xs text-gray-500 mt-0.5">
+                          <div className="text-xs text-gray-500 mt-0.5 hidden sm:block">
                             {AIRPORT_CITY_NAMES[arrival.iataCode] || arrival.iataCode}
                           </div>
                         </div>
@@ -2319,9 +2474,9 @@ export default function FlightSearchPage() {
                     {flight.inbound && flight.inbound.length > 0 && !showReturnFlightSelection && (
                       <div className="mt-6 pt-5 border-t-2 border-dashed border-gray-300">
                         <div className="mb-4 flex items-center justify-center gap-2">
-                          <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg">
-                            <Plane className="w-4 h-4 text-white -rotate-90" />
-                            <span className="text-sm font-bold text-white">Return Flight</span>
+                          <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg">
+                            <Plane className="w-4 h-4 text-gray-700 -rotate-90" />
+                            <span className="text-sm font-bold text-gray-900">Return Flight</span>
                           </div>
                         </div>
 
@@ -2534,20 +2689,45 @@ export default function FlightSearchPage() {
                             const fullFareName = getFullFareName(fareOption);
                             const hasReturnFlight = fareOption.inbound && fareOption.inbound.length > 0;
 
+                            // Check policy compliance for fare options
+                            const fareCabinClass = getFlightCabinClass(fareOption);
+                            const isFarePriceOutOfPolicy = policyLimit && farePrice.total > policyLimit;
+                            const isFareCabinOutOfPolicy = allowedCabinClasses && !allowedCabinClasses.includes(fareCabinClass);
+                            const isFareOutOfPolicy = isFarePriceOutOfPolicy || isFareCabinOutOfPolicy;
+
                             return (
                               <div
                                 key={fareIndex}
                                 onClick={() => {
-                                  const newSelected = new Map(selectedFares);
-                                  newSelected.set(`group-${groupIndex}`, fareOption);
-                                  setSelectedFares(newSelected);
+                                  if (!isFareOutOfPolicy) {
+                                    const newSelected = new Map(selectedFares);
+                                    newSelected.set(`group-${groupIndex}`, fareOption);
+                                    setSelectedFares(newSelected);
+                                  }
                                 }}
-                                className={`relative p-5 rounded-lg cursor-pointer transition-all duration-200 flex-shrink-0 w-72 snap-start ${
-                                  isSelected
-                                    ? 'bg-gray-900 text-white shadow-lg ring-2 ring-gray-900'
-                                    : 'bg-white border border-gray-200 hover:border-gray-400 hover:shadow-md'
+                                className={`relative p-5 rounded-lg transition-all duration-200 flex-shrink-0 w-72 snap-start ${
+                                  isFareOutOfPolicy
+                                    ? 'bg-gray-100 border-2 border-red-200 opacity-60 cursor-not-allowed'
+                                    : isSelected
+                                    ? 'bg-gray-900 text-white shadow-lg ring-2 ring-gray-900 cursor-pointer'
+                                    : 'bg-white border border-gray-200 hover:border-gray-400 hover:shadow-md cursor-pointer'
                                 }`}
                               >
+                                {/* Out of Policy Badge for Fare Options */}
+                                {isFareOutOfPolicy && (
+                                  <div className="absolute top-2 right-2 z-10">
+                                    <div className="flex items-center gap-1 px-2 py-1 bg-red-100 border border-red-300 rounded-full">
+                                      <AlertCircle className="w-3 h-3 text-red-600" />
+                                      <span className="text-[10px] font-semibold text-red-700">
+                                        {isFareCabinOutOfPolicy && isFarePriceOutOfPolicy
+                                          ? 'Out of Policy'
+                                          : isFareCabinOutOfPolicy
+                                          ? 'Class Not Allowed'
+                                          : 'Exceeds Limit'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
                                 {/* Selected Indicator */}
                                 {isSelected && (
                                   <div className="absolute top-3 right-3">
@@ -2558,13 +2738,13 @@ export default function FlightSearchPage() {
                                 )}
 
                                 {/* Fare Name */}
-                                <div className={`text-sm font-bold mb-3 pr-8 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                <div className={`text-sm font-bold mb-3 pr-8 ${isFareOutOfPolicy ? 'text-gray-500' : isSelected ? 'text-white' : 'text-gray-900'}`}>
                                   {fullFareName}
                                 </div>
 
                                 {/* Price */}
                                 <div className="mb-3">
-                                  <div className={`text-2xl font-bold ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                  <div className={`text-2xl font-bold ${isFareOutOfPolicy ? 'text-gray-500' : isSelected ? 'text-white' : 'text-gray-900'}`}>
                                     {farePrice.currency} {farePrice.total.toLocaleString('en-US', {
                                       minimumFractionDigits: 0,
                                       maximumFractionDigits: 0,
@@ -2661,7 +2841,12 @@ export default function FlightSearchPage() {
                                 window.location.href = `/dashboard/flights/${selectedFlight.id || index}`;
                               }
                             }}
-                            className="px-6 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+                            disabled={isOutOfPolicy}
+                            className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2 ${
+                              isOutOfPolicy
+                                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                : 'bg-gray-900 text-white hover:bg-gray-800'
+                            }`}
                           >
                             {(() => {
                               const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
@@ -2675,16 +2860,18 @@ export default function FlightSearchPage() {
                       </div>
                     )}
 
-                    {/* Single Fare - Direct CTA */}
-                    {flightGroup.length === 1 && (
+                    {/* Single Fare - Direct CTA (when there's only one unique fare option) */}
+                    {getUniqueFares(flightGroup).length === 1 && (
                       <div className="mt-4 flex justify-end">
                         <button
                           onClick={() => {
+                            // Get the single unique fare (it's the only one)
+                            const singleFlight = getUniqueFares(flightGroup)[0] || flight;
                             const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
 
                             // If this is outbound selection step in round-trip
                             if (hasRoundTrip && !showReturnFlightSelection) {
-                              setSelectedOutboundFlight(flight);
+                              setSelectedOutboundFlight(singleFlight);
                               setShowReturnFlightSelection(true);
                               setShowTransitionNotification(true);
                               setTimeout(() => {
@@ -2695,14 +2882,19 @@ export default function FlightSearchPage() {
                               // For return selection or one-way, proceed to booking
                               // Add timestamp for 10-minute expiry tracking
                               const flightWithTimestamp = {
-                                ...flight,
+                                ...singleFlight,
                                 _savedAt: new Date().toISOString()
                               };
-                              sessionStorage.setItem(`flight_${flight.id || index}`, JSON.stringify(flightWithTimestamp));
-                              window.location.href = `/dashboard/flights/${flight.id || index}`;
+                              sessionStorage.setItem(`flight_${singleFlight.id || index}`, JSON.stringify(flightWithTimestamp));
+                              window.location.href = `/dashboard/flights/${singleFlight.id || index}`;
                             }
                           }}
-                          className="px-6 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors inline-flex items-center justify-center gap-2"
+                          disabled={isOutOfPolicy}
+                          className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors inline-flex items-center justify-center gap-2 ${
+                            isOutOfPolicy
+                              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                              : 'bg-gray-900 text-white hover:bg-gray-800'
+                          }`}
                         >
                           {(() => {
                             const hasRoundTrip = flights.some(f => f.inbound && f.inbound.length > 0);
@@ -2723,9 +2915,6 @@ export default function FlightSearchPage() {
             </div>
         )}
       </div>
-
-      {/* AI Chatbox */}
-      <AIChatbox />
       </div>
     </>
   );

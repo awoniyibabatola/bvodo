@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Loader2, User, Mail, Briefcase, Shield } from 'lucide-react';
+import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
 
 interface UserData {
@@ -16,6 +16,17 @@ interface UserData {
   status: string;
   creditLimit: string;
   availableCredits: string;
+  policyId?: string | null;
+  policy?: {
+    id: string;
+    name: string;
+  } | null;
+}
+
+interface Policy {
+  id: string;
+  name: string;
+  description: string | null;
 }
 
 export default function EditUserPage() {
@@ -28,6 +39,7 @@ export default function EditUserPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [policies, setPolicies] = useState<Policy[]>([]);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -35,10 +47,12 @@ export default function EditUserPage() {
     role: '',
     department: '',
     status: '',
+    policyId: '',
   });
 
   useEffect(() => {
     fetchUser();
+    fetchPolicies();
   }, [userId]);
 
   const fetchUser = async () => {
@@ -59,6 +73,7 @@ export default function EditUserPage() {
             role: user.role,
             department: user.department || '',
             status: user.status,
+            policyId: user.policyId || '',
           });
         } else {
           setError('User not found');
@@ -69,6 +84,22 @@ export default function EditUserPage() {
       setError('Failed to load user data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPolicies = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(getApiEndpoint('policies'), {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setPolicies(data.data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching policies:', err);
     }
   };
 
@@ -143,30 +174,23 @@ export default function EditUserPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="w-full px-4 md:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8 max-w-3xl mx-auto">
           <Link
             href="/dashboard/users"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Users
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gray-900 rounded-2xl shadow-lg">
-              <User className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
-              <p className="text-gray-600">Update user information and permissions</p>
-            </div>
-          </div>
+          <h1 className="text-lg md:text-xl font-bold text-gray-900">Edit User</h1>
+          <p className="text-xs text-gray-600">Update user information and permissions</p>
         </div>
 
         {/* Success Message */}
         {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl">
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg max-w-3xl mx-auto">
             <p className="text-sm text-green-700 font-medium">
               User updated successfully! Redirecting...
             </p>
@@ -175,46 +199,40 @@ export default function EditUserPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl">
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg max-w-3xl mx-auto">
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
 
         {/* User Info Card */}
         {userData && (
-          <div className="bg-gray-50 rounded-2xl p-6 mb-6 border border-gray-200">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center text-white font-bold text-2xl">
+          <div className="bg-white rounded-lg p-4 mb-6 border border-gray-200 max-w-3xl mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                 {userData.firstName.charAt(0)}{userData.lastName.charAt(0)}
               </div>
               <div className="flex-1">
-                <div className="text-lg font-bold text-gray-900">
+                <div className="font-semibold text-gray-900 text-sm">
                   {userData.firstName} {userData.lastName}
                 </div>
-                <div className="text-sm text-gray-600 flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  {userData.email}
-                </div>
-                <div className="flex gap-4 mt-2 text-sm">
-                  <div className="text-gray-600">
-                    Credits: <span className="font-semibold text-gray-900">
-                      ${parseFloat(userData.availableCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </span> / ${parseFloat(userData.creditLimit).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
+                <div className="text-xs text-gray-500">{userData.email}</div>
+              </div>
+              <div className="text-xs text-gray-600">
+                <span className="font-semibold text-gray-900">
+                  ${parseFloat(userData.availableCredits).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span> / ${parseFloat(userData.creditLimit).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
           </div>
         )}
 
         {/* Edit Form */}
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* First Name & Last Name */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <User className="w-4 h-4 inline mr-2" />
                   First Name
                 </label>
                 <input
@@ -223,7 +241,7 @@ export default function EditUserPage() {
                   value={formData.firstName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="John"
                 />
               </div>
@@ -237,7 +255,7 @@ export default function EditUserPage() {
                   value={formData.lastName}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                   placeholder="Doe"
                 />
               </div>
@@ -246,29 +264,24 @@ export default function EditUserPage() {
             {/* Role */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Shield className="w-4 h-4 inline mr-2" />
                 Role
               </label>
               <select
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               >
                 <option value="traveler">Traveler</option>
                 <option value="manager">Manager</option>
                 <option value="company_admin">Company Admin</option>
                 <option value="admin">Admin</option>
               </select>
-              <p className="mt-2 text-sm text-gray-500">
-                User's role determines their access level in the system
-              </p>
             </div>
 
             {/* Department */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Briefcase className="w-4 h-4 inline mr-2" />
                 Department
               </label>
               <input
@@ -276,9 +289,32 @@ export default function EditUserPage() {
                 name="department"
                 value={formData.department}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
                 placeholder="Engineering"
               />
+            </div>
+
+            {/* Policy Assignment */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Booking Policy
+              </label>
+              <select
+                name="policyId"
+                value={formData.policyId}
+                onChange={handleChange}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
+              >
+                <option value="">No policy assigned</option>
+                {policies.map((policy) => (
+                  <option key={policy.id} value={policy.id}>
+                    {policy.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Determines spending limits and booking rules for this user
+              </p>
             </div>
 
             {/* Status */}
@@ -290,40 +326,37 @@ export default function EditUserPage() {
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 outline-none"
               >
                 <option value="active">Active</option>
                 <option value="pending">Pending</option>
                 <option value="inactive">Inactive</option>
                 <option value="suspended">Suspended</option>
               </select>
-              <p className="mt-2 text-sm text-gray-500">
-                Inactive or suspended users cannot access the system
-              </p>
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-3 pt-4 border-t border-gray-200">
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-xl font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {saving ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Saving Changes...
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Saving...
                   </>
                 ) : (
                   <>
-                    <Save className="w-5 h-5" />
+                    <Save className="w-4 h-4" />
                     Save Changes
                   </>
                 )}
               </button>
               <Link
                 href="/dashboard/users"
-                className="px-6 py-3 border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition"
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
               >
                 Cancel
               </Link>

@@ -14,7 +14,8 @@ import {
   ArrowLeft,
   CheckCircle,
   Clock,
-  XCircle
+  XCircle,
+  Shield
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
@@ -29,6 +30,12 @@ interface User {
   status: string;
   creditLimit: string;
   availableCredits: string;
+  policyId?: string | null;
+  policy?: {
+    id: string;
+    name: string;
+    description: string | null;
+  } | null;
   lastLoginAt: string | null;
   createdAt: string;
 }
@@ -150,13 +157,22 @@ export default function ManageUsersPage() {
               <h1 className="text-lg md:text-xl font-bold text-gray-900">Manage Users</h1>
               <p className="text-xs text-gray-600">{filteredUsers.length} users in your organization</p>
             </div>
-            <Link
-              href="/dashboard/users/invite"
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition whitespace-nowrap"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>Invite User</span>
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/dashboard/policies"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition whitespace-nowrap"
+              >
+                <Shield className="w-4 h-4" />
+                <span>Policies</span>
+              </Link>
+              <Link
+                href="/dashboard/users/invite"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition whitespace-nowrap"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Invite User</span>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -231,6 +247,9 @@ export default function ManageUsersPage() {
                       Role
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Policy
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Department
                     </th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -264,6 +283,16 @@ export default function ManageUsersPage() {
                         <span className="capitalize text-sm text-gray-700">
                           {user.role.replace('_', ' ')}
                         </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {user.policy ? (
+                          <div className="flex items-center gap-1.5">
+                            <Shield className="w-3.5 h-3.5 text-gray-500" />
+                            <span className="text-sm text-gray-700">{user.policy.name}</span>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-400 italic">No policy</span>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-sm text-gray-700">{user.department || '-'}</span>
