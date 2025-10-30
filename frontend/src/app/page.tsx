@@ -641,8 +641,8 @@ export default function Home() {
             <Sparkles className="w-4 h-4 text-[#ADF802]" />
             AI-Powered Booking
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-700 via-gray-700 to-gray-800 bg-clip-text text-transparent">
-            Book Travel by Just Chatting
+          <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-6 text-gray-800">
+            Book Travel by <span className="text-[#ADF802]">Just Chatting</span>
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
             No forms. No complexity. Just tell our AI what you need in plain English.
