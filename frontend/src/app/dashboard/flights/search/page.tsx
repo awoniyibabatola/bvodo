@@ -2522,7 +2522,7 @@ export default function FlightSearchPage() {
                                 return (
                                   <div key={segIndex} className="inline-flex items-center gap-1 px-2 py-1 bg-white border border-gray-300 rounded-md">
                                     <MapPin className="w-3 h-3 text-gray-500" />
-                                    <span className="text-xs font-bold text-gray-900">{segArrival.iataCode}</span>
+                                    <span className="text-xs font-bold text-gray-900">{AIRPORT_CITY_NAMES[segArrival.iataCode] || segArrival.iataCode}</span>
                                     <span className="text-gray-300">•</span>
                                     <span className="text-xs font-semibold text-gray-600">{layoverHours > 0 && `${layoverHours}h `}{layoverMins}m</span>
                                   </div>
@@ -2721,15 +2721,12 @@ export default function FlightSearchPage() {
                                                   <div className="flex items-center gap-1 md:gap-1.5">
                                                     <MapPin className="w-2.5 h-2.5 text-amber-700" />
                                                     <span className="text-[10px] font-bold text-gray-900">
-                                                      {segArrival.iataCode}
+                                                      {AIRPORT_CITY_NAMES[segArrival.iataCode] || segArrival.iataCode}
                                                     </span>
                                                     <span className="text-[9px] text-gray-400">•</span>
                                                     <span className="text-[10px] text-amber-700 font-bold">
                                                       {layoverHours > 0 && `${layoverHours}h `}{layoverMins}m wait
                                                     </span>
-                                                  </div>
-                                                  <div className="text-[9px] text-gray-600 pl-4 md:pl-5">
-                                                    {AIRPORT_CITY_NAMES[segArrival.iataCode] || segArrival.iataCode}
                                                   </div>
                                                 </div>
                                               );
