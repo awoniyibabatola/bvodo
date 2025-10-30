@@ -161,131 +161,65 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Action Cards - Boarding Pass Style */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {/* Book Flight - Ticket Style */}
+        {/* Quick Action Cards - Clean Modern Style */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          {/* Book Flight */}
           <Link
             href="/dashboard/flights/search"
-            className="group relative block h-[150px] overflow-hidden rounded-r-2xl shadow-lg active:scale-[0.98] transition-transform"
+            className="group relative block rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition-all hover:shadow-2xl"
           >
-            {/* Main ticket body */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-gray-900 to-gray-800">
-              {/* Perforated edge effect on left */}
-              <div className="absolute left-0 top-0 bottom-0 w-3 flex flex-col justify-around py-2">
-                {[...Array(10)].map((_, i) => (
-                  <div key={i} className="w-2 h-2 bg-white/20 rounded-full mx-auto"></div>
-                ))}
-              </div>
+            <div className="relative h-[160px] bg-gradient-to-br from-gray-900 to-black p-5 flex flex-col justify-between">
+              {/* Top corner accent */}
+              <div className="absolute top-0 right-0 w-20 h-20 bg-[#ADF802] opacity-10 blur-2xl group-hover:opacity-20 transition-opacity"></div>
 
-              {/* Animated plane path */}
-              <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
-                <svg width="50" height="30" viewBox="0 0 50 30" className="hidden md:block">
-                  <path
-                    d="M 5,25 Q 15,8 25,15 T 45,5"
-                    stroke="#ADF802"
-                    strokeWidth="1.5"
-                    fill="none"
-                    strokeDasharray="3,3"
-                  />
-                </svg>
-              </div>
-
-              {/* Content */}
-              <div className="relative h-full pl-6 pr-5 py-4 flex flex-col justify-between">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="inline-block px-2 py-0.5 bg-[#ADF802] rounded text-black text-[9px] font-bold mb-2">
-                      FLIGHTS
-                    </div>
-                    <h3 className="text-lg md:text-xl font-black text-white mb-1 tracking-tight">
-                      Book Flight
-                    </h3>
-                    <p className="text-[11px] text-gray-400">Search destinations worldwide</p>
-                  </div>
-                  <div className="w-11 h-11 bg-[#ADF802]/10 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <Plane className="w-5 h-5 text-[#ADF802]" />
-                  </div>
+              <div className="relative">
+                <div className="w-14 h-14 bg-[#ADF802] rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Plane className="w-7 h-7 text-black" />
                 </div>
+                <h3 className="text-lg font-black text-white mb-1">
+                  Book<br/>Flight
+                </h3>
+              </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#ADF802] animate-pulse"></div>
-                    <span className="text-[9px] text-gray-500 uppercase tracking-wider">Ready for takeoff</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-[#ADF802] group-hover:translate-x-1 transition-transform" />
+              <div className="relative flex items-center justify-between">
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Search Flights</span>
+                <div className="w-8 h-8 rounded-full bg-[#ADF802]/10 flex items-center justify-center group-hover:bg-[#ADF802]/20 transition-colors">
+                  <ChevronRight className="w-4 h-4 text-[#ADF802]" />
                 </div>
               </div>
 
-              {/* Barcode effect at bottom */}
-              <div className="absolute bottom-0 left-6 right-0 h-6 flex items-center gap-[1px] px-4 opacity-20 pointer-events-none">
-                {[...Array(30)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 bg-white"
-                    style={{ height: `${(i % 3 === 0) ? '60%' : (i % 2 === 0) ? '80%' : '40%'}` }}
-                  ></div>
-                ))}
-              </div>
+              {/* Bottom accent line */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#ADF802]"></div>
             </div>
-
-            {/* Notch effect on right edge */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-6 bg-white rounded-l-full"></div>
           </Link>
 
-          {/* Book Hotel - Keycard Style */}
+          {/* Book Hotel */}
           <Link
             href="/dashboard/hotels/search"
-            className="group relative block h-[150px] overflow-hidden rounded-lg shadow-lg active:scale-[0.98] transition-transform"
+            className="group relative block rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition-all hover:shadow-2xl"
           >
-            {/* Main card body */}
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700">
-              {/* Magnetic stripe effect */}
-              <div className="absolute top-10 left-0 right-0 h-8 bg-black/40"></div>
+            <div className="relative h-[160px] bg-gradient-to-br from-gray-800 to-gray-900 p-5 flex flex-col justify-between">
+              {/* Top corner accent */}
+              <div className="absolute top-0 right-0 w-20 h-20 bg-[#ADF802] opacity-10 blur-2xl group-hover:opacity-20 transition-opacity"></div>
 
-              {/* Hotel building silhouette - simplified */}
-              <div className="absolute bottom-0 right-4 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none hidden md:block">
-                <svg width="70" height="60" viewBox="0 0 70 60">
-                  <rect x="10" y="5" width="18" height="55" fill="white"/>
-                  <rect x="35" y="15" width="25" height="45" fill="white"/>
-                  {[...Array(5)].map((_, i) => (
-                    <g key={i}>
-                      <rect x="14" y={10 + i * 10} width="4" height="4" fill="#ADF802"/>
-                      <rect x="21" y={10 + i * 10} width="4" height="4" fill="#ADF802"/>
-                      <rect x="40" y={20 + i * 8} width="4" height="4" fill="#ADF802"/>
-                      <rect x="52" y={20 + i * 8} width="4" height="4" fill="#ADF802"/>
-                    </g>
-                  ))}
-                </svg>
+              <div className="relative">
+                <div className="w-14 h-14 bg-[#ADF802] rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Hotel className="w-7 h-7 text-black" />
+                </div>
+                <h3 className="text-lg font-black text-white mb-1">
+                  Book<br/>Hotel
+                </h3>
               </div>
 
-              {/* Content */}
-              <div className="relative h-full px-5 py-4 flex flex-col justify-between z-10">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="inline-block px-2 py-0.5 bg-[#ADF802] rounded text-black text-[9px] font-bold mb-2">
-                      HOTELS
-                    </div>
-                    <h3 className="text-lg md:text-xl font-black text-white mb-1 tracking-tight">
-                      Book Hotel
-                    </h3>
-                    <p className="text-[11px] text-gray-400">Find your perfect stay</p>
-                  </div>
-                  <div className="w-11 h-11 bg-[#ADF802]/10 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <Hotel className="w-5 h-5 text-[#ADF802]" />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#ADF802] animate-pulse"></div>
-                    <span className="text-[9px] text-gray-500 uppercase tracking-wider">Check-in anytime</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-[#ADF802] group-hover:translate-x-1 transition-transform" />
+              <div className="relative flex items-center justify-between">
+                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Find Hotels</span>
+                <div className="w-8 h-8 rounded-full bg-[#ADF802]/10 flex items-center justify-center group-hover:bg-[#ADF802]/20 transition-colors">
+                  <ChevronRight className="w-4 h-4 text-[#ADF802]" />
                 </div>
               </div>
 
-              {/* Chip effect */}
-              <div className="absolute bottom-4 left-5 w-9 h-7 bg-amber-400/20 rounded border border-amber-400/30"></div>
+              {/* Bottom accent line */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#ADF802]"></div>
             </div>
           </Link>
         </div>
