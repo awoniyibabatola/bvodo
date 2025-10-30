@@ -364,93 +364,92 @@ export default function DashboardPage() {
           {/* Travel Metrics - Spread to fill space */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 flex-1 w-full h-auto lg:h-[220px]">
             {/* Total Bookings */}
-            <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-xl p-4 md:p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
-                {/* Subtle geometric pattern */}
-                <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.03]">
-                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="80" cy="20" r="30" fill="currentColor"/>
-                    <rect x="60" y="60" width="20" height="20" fill="currentColor" transform="rotate(45 70 70)"/>
-                  </svg>
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <CheckCircle className="w-4 h-4 text-white" />
+            <Link href="/dashboard/bookings" className="group relative h-full block">
+              <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-400 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden">
+                {/* Icon - Top Left */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 group-hover:border-gray-300 transition-colors">
+                    <CheckCircle className="w-4 h-4 text-gray-700" />
                   </div>
-                  <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Total</span>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
                 </div>
-                <div>
-                  <div className="text-3xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.totalBookings || 0}</div>
-                  <div className="text-sm md:text-sm text-gray-600 mt-1">Bookings</div>
+
+                {/* Content */}
+                <div className="flex-1 flex flex-col justify-end">
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Total Bookings</div>
+                  <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.totalBookings || 0}</div>
+
+                  {/* Horizontal line */}
+                  <div className="w-12 h-0.5 bg-gray-900 rounded-full"></div>
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Destinations */}
-            <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-xl p-4 md:p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
-                {/* Subtle geometric pattern */}
-                <div className="absolute bottom-0 left-0 w-20 h-20 opacity-[0.03]">
-                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="50,10 90,90 10,90" fill="currentColor"/>
-                  </svg>
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <MapPin className="w-4 h-4 text-white" />
+            <div className="group relative h-full cursor-pointer">
+              <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-400 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden">
+                {/* Icon - Top Left */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 group-hover:border-gray-300 transition-colors">
+                    <MapPin className="w-4 h-4 text-gray-700" />
                   </div>
-                  <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Places</span>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
                 </div>
-                <div>
-                  <div className="text-3xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.destinations || 0}</div>
-                  <div className="text-sm md:text-sm text-gray-600 mt-1">Destinations</div>
+
+                {/* Content */}
+                <div className="flex-1 flex flex-col justify-end">
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Destinations</div>
+                  <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.destinations || 0}</div>
+
+                  {/* Horizontal line */}
+                  <div className="w-12 h-0.5 bg-gray-900 rounded-full"></div>
                 </div>
               </div>
             </div>
 
             {/* Hotels */}
-            <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
-                {/* Subtle geometric pattern */}
-                <div className="absolute top-0 left-0 w-16 h-16 opacity-[0.03]">
-                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="20" y="20" width="60" height="60" fill="currentColor" transform="rotate(45 50 50)"/>
-                  </svg>
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Hotel className="w-4 h-4 text-white" />
+            <Link href="/dashboard/hotels/search" className="group relative h-full block">
+              <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-400 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden">
+                {/* Icon - Top Left */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 group-hover:border-gray-300 transition-colors">
+                    <Hotel className="w-4 h-4 text-gray-700" />
                   </div>
-                  <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Hotels</span>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
                 </div>
-                <div>
-                  <div className="text-3xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.hotelsBooked || 0}</div>
-                  <div className="text-sm text-gray-600 mt-1">Booked</div>
+
+                {/* Content */}
+                <div className="flex-1 flex flex-col justify-end">
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Hotels Booked</div>
+                  <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.hotelsBooked || 0}</div>
+
+                  {/* Horizontal line */}
+                  <div className="w-12 h-0.5 bg-gray-900 rounded-full"></div>
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Flights */}
-            <div className="group relative h-full">
-              <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-900 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col justify-center overflow-hidden">
-                {/* Subtle geometric pattern */}
-                <div className="absolute bottom-0 right-0 w-20 h-20 opacity-[0.03]">
-                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="30,0 60,15 60,45 30,60 0,45 0,15" fill="currentColor"/>
-                  </svg>
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Plane className="w-4 h-4 text-white" />
+            <Link href="/dashboard/flights/search" className="group relative h-full block">
+              <div className="relative h-full bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-400 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden">
+                {/* Icon - Top Left */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-9 h-9 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 group-hover:border-gray-300 transition-colors">
+                    <Plane className="w-4 h-4 text-gray-700" />
                   </div>
-                  <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Flights</span>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-0.5 transition-all" />
                 </div>
-                <div>
-                  <div className="text-3xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.flightsTaken || 0}</div>
-                  <div className="text-sm text-gray-600 mt-1">Taken</div>
+
+                {/* Content */}
+                <div className="flex-1 flex flex-col justify-end">
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Flights Taken</div>
+                  <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.flightsTaken || 0}</div>
+
+                  {/* Horizontal line */}
+                  <div className="w-12 h-0.5 bg-gray-900 rounded-full"></div>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
 
