@@ -624,7 +624,7 @@ export default function FlightDetailsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Plane className="w-12 h-12 text-gray-700 animate-pulse mx-auto mb-4" />
-          <p className="text-gray-600">Loading flight details...</p>
+          <p className="text-base text-gray-600">Loading flight details...</p>
         </div>
       </div>
     );
@@ -641,7 +641,7 @@ export default function FlightDetailsPage() {
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Search</span>
+              <span className="text-base font-medium">Back to Search</span>
             </Link>
           </div>
         </div>
@@ -654,11 +654,11 @@ export default function FlightDetailsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-lg font-medium text-gray-700">
                   Offer expires in {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
                 </span>
               </div>
-              <span className="text-xs text-gray-500">
+              <span className="text-base text-gray-500">
                 {timeRemaining < 120 ? 'Complete booking soon' : 'Limited time offer'}
               </span>
             </div>
@@ -673,13 +673,13 @@ export default function FlightDetailsPage() {
               <div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 text-gray-500">
                 <Clock className="w-6 h-6" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">This offer has expired</h2>
-              <p className="text-sm text-gray-600 mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">This offer has expired</h2>
+              <p className="text-base text-gray-600 mb-6">
                 Flight offers are only available for a limited time. Search again to find current prices and availability.
               </p>
               <Link
                 href="/dashboard/flights/search"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white text-base font-semibold rounded-lg hover:bg-gray-800 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Search
@@ -696,7 +696,7 @@ export default function FlightDetailsPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Flight Overview */}
             <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <h1 className="text-base font-bold text-gray-900 mb-4">Flight Details</h1>
+              <h1 className="text-xl font-bold text-gray-900 mb-4">Flight Details</h1>
 
               {/* Itineraries */}
               {getItineraries(flight).map((itinerary: any, itinIndex: number) => {
@@ -712,7 +712,7 @@ export default function FlightDetailsPage() {
                   <div key={itinIndex} className="mb-6 last:mb-0">
                     <div className="flex items-center gap-2 mb-3">
                       <Plane className="w-4 h-4 text-gray-700" />
-                      <h3 className="text-sm font-bold text-gray-900">
+                      <h3 className="text-lg font-bold text-gray-900">
                         {itinIndex === 0 ? 'Outbound Flight' : 'Return Flight'}
                       </h3>
                     </div>
@@ -749,10 +749,10 @@ export default function FlightDetailsPage() {
                                   <Plane className="w-5 h-5 text-gray-600 hidden" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="font-bold text-gray-900 text-sm">
+                                  <div className="font-bold text-gray-900 text-lg">
                                     {AIRLINE_NAMES[airlineCode] || airlineCode}
                                   </div>
-                                  <div className="text-[10px] text-gray-600">
+                                  <div className="text-sm text-gray-600">
                                     {airlineCode} {flightNumber} • {segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode} → {segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
                                   </div>
                                 </div>
@@ -760,28 +760,28 @@ export default function FlightDetailsPage() {
                                 {!isExpanded && (
                                   <div className="flex items-start gap-4 mr-2">
                                     <div className="text-center">
-                                      <div className="text-base font-bold text-gray-900">{segmentDeparture.iataCode}</div>
-                                      <div className="text-xs font-semibold text-gray-700">{segDeparture.time}</div>
-                                      <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
-                                      <div className="text-[10px] text-gray-600 font-medium mt-0.5">
+                                      <div className="text-xl font-bold text-gray-900">{segmentDeparture.iataCode}</div>
+                                      <div className="text-base font-semibold text-gray-700">{segDeparture.time}</div>
+                                      <div className="text-sm text-gray-500">{segDeparture.date}</div>
+                                      <div className="text-sm text-gray-600 font-medium mt-0.5">
                                         {segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}
                                       </div>
-                                      <div className="text-[9px] text-gray-500">
+                                      <div className="text-xs text-gray-500">
                                         {segmentDeparture.airport || AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || ''}
                                       </div>
                                     </div>
                                     <div className="flex flex-col items-center pt-6">
                                       <ArrowRight className="w-4 h-4 text-gray-400" />
-                                      <div className="text-[10px] text-gray-600 font-medium mt-1">{formatDuration(segment.duration)}</div>
+                                      <div className="text-sm text-gray-600 font-medium mt-1">{formatDuration(segment.duration)}</div>
                                     </div>
                                     <div className="text-center">
-                                      <div className="text-base font-bold text-gray-900">{segmentArrival.iataCode}</div>
-                                      <div className="text-xs font-semibold text-gray-700">{segArrival.time}</div>
-                                      <div className="text-[10px] text-gray-500">{segArrival.date}</div>
-                                      <div className="text-[10px] text-gray-600 font-medium mt-0.5">
+                                      <div className="text-xl font-bold text-gray-900">{segmentArrival.iataCode}</div>
+                                      <div className="text-base font-semibold text-gray-700">{segArrival.time}</div>
+                                      <div className="text-sm text-gray-500">{segArrival.date}</div>
+                                      <div className="text-sm text-gray-600 font-medium mt-0.5">
                                         {segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}
                                       </div>
-                                      <div className="text-[9px] text-gray-500">
+                                      <div className="text-xs text-gray-500">
                                         {segmentArrival.airport || AIRPORT_NAMES[segmentArrival.iataCode]?.airport || ''}
                                       </div>
                                     </div>
@@ -799,25 +799,25 @@ export default function FlightDetailsPage() {
                               <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
                                 <div className="grid grid-cols-2 gap-3">
                                   <div>
-                                    <div className="text-[10px] text-gray-500 mb-0.5">Departure</div>
-                                    <div className="font-semibold text-gray-900 text-sm">
+                                    <div className="text-sm text-gray-500 mb-0.5">Departure</div>
+                                    <div className="font-semibold text-gray-900 text-lg">
                                       {segDeparture.time}
                                     </div>
-                                    <div className="text-xs font-semibold text-gray-700">{segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}</div>
-                                    <div className="text-[10px] text-gray-600">{segmentDeparture.airport || AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || segmentDeparture.iataCode}</div>
-                                    <div className="text-[10px] text-gray-500">{segDeparture.date}</div>
+                                    <div className="text-base font-semibold text-gray-700">{segmentDeparture.city || AIRPORT_NAMES[segmentDeparture.iataCode]?.city || segmentDeparture.iataCode}</div>
+                                    <div className="text-sm text-gray-600">{segmentDeparture.airport || AIRPORT_NAMES[segmentDeparture.iataCode]?.airport || segmentDeparture.iataCode}</div>
+                                    <div className="text-sm text-gray-500">{segDeparture.date}</div>
                                   </div>
                                   <div>
-                                    <div className="text-[10px] text-gray-500 mb-0.5">Arrival</div>
-                                    <div className="font-semibold text-gray-900 text-sm">
+                                    <div className="text-sm text-gray-500 mb-0.5">Arrival</div>
+                                    <div className="font-semibold text-gray-900 text-lg">
                                       {segArrival.time}
                                     </div>
-                                    <div className="text-xs font-semibold text-gray-700">{segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}</div>
-                                    <div className="text-[10px] text-gray-600">{segmentArrival.airport || AIRPORT_NAMES[segmentArrival.iataCode]?.airport || segmentArrival.iataCode}</div>
-                                    <div className="text-[10px] text-gray-500">{segArrival.date}</div>
+                                    <div className="text-base font-semibold text-gray-700">{segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode}</div>
+                                    <div className="text-sm text-gray-600">{segmentArrival.airport || AIRPORT_NAMES[segmentArrival.iataCode]?.airport || segmentArrival.iataCode}</div>
+                                    <div className="text-sm text-gray-500">{segArrival.date}</div>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-3 text-[10px] text-gray-600">
+                                <div className="flex items-center gap-3 text-sm text-gray-600">
                                   <div className="flex items-center gap-1">
                                     <Clock className="w-3 h-3" />
                                     <span>{formatDuration(segment.duration)}</span>
@@ -846,7 +846,7 @@ export default function FlightDetailsPage() {
 
                             return (
                               <div className="flex items-center justify-center py-2">
-                                <div className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-[10px] text-gray-700">
+                                <div className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
                                   <Clock className="w-3 h-3 inline mr-1" />
                                   Layover at {segmentArrival.city || AIRPORT_NAMES[segmentArrival.iataCode]?.city || segmentArrival.iataCode} • {layoverHours}h {layoverMins}m
                                 </div>
@@ -863,7 +863,7 @@ export default function FlightDetailsPage() {
 
             {/* Baggage & Policies */}
             <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <h2 className="text-sm font-bold text-gray-900 mb-3">Baggage & Policies</h2>
+              <h2 className="text-lg font-bold text-gray-900 mb-3">Baggage & Policies</h2>
 
               <div className="space-y-2">
                 {getTravelerPricings(flight)[0]?.fareDetailsBySegment ? (
@@ -875,9 +875,9 @@ export default function FlightDetailsPage() {
                       >
                         <div className="flex items-center gap-1.5 mb-1">
                           <Luggage className="w-3 h-3 text-gray-700" />
-                          <span className="font-semibold text-gray-900 text-xs">Segment {index + 1}</span>
+                          <span className="font-semibold text-gray-900 text-base">Segment {index + 1}</span>
                         </div>
-                        <div className="text-[10px] text-gray-600">
+                        <div className="text-sm text-gray-600">
                           {fareDetail.includedCheckedBags?.quantity ? (
                             <span className="flex items-center gap-1">
                               <Check className="w-3 h-3 text-gray-700" />
@@ -892,7 +892,7 @@ export default function FlightDetailsPage() {
                   )
                 ) : (
                   <div className="p-2 bg-gray-50 rounded border border-gray-200">
-                    <div className="text-[10px] text-gray-600">
+                    <div className="text-sm text-gray-600">
                       Baggage information will be provided after booking
                     </div>
                   </div>
@@ -904,11 +904,11 @@ export default function FlightDetailsPage() {
           {/* Booking Summary - Right Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-8 bg-white rounded-lg p-4 border border-gray-200">
-              <h2 className="text-sm font-bold text-gray-900 mb-3">Booking Summary</h2>
+              <h2 className="text-lg font-bold text-gray-900 mb-3">Booking Summary</h2>
 
               {/* Price Breakdown */}
               <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-xs text-gray-600">
+                <div className="flex justify-between text-base text-gray-600">
                   <span>Base Fare</span>
                   <span className="font-semibold">
                     {getFlightPrice(flight).currency} {parseFloat(getFlightPrice(flight).base.toString()).toLocaleString('en-US', {
@@ -925,7 +925,7 @@ export default function FlightDetailsPage() {
 
                   if (taxesAndFees > 0) {
                     return (
-                      <div className="flex justify-between text-xs text-gray-600">
+                      <div className="flex justify-between text-base text-gray-600">
                         <span>Taxes & Fees</span>
                         <span className="font-semibold">
                           {price.currency}{' '}
@@ -943,16 +943,16 @@ export default function FlightDetailsPage() {
 
               <div className="border-t border-gray-200 pt-3 mb-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-gray-900">Total Price</span>
+                  <span className="text-base font-semibold text-gray-900">Total Price</span>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-gray-900">
+                    <div className="text-2xl font-bold text-gray-900">
                       {getFlightPrice(flight).currency}{' '}
                       {parseFloat(getFlightPrice(flight).total.toString()).toLocaleString('en-US', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </div>
-                    <div className="text-[10px] text-gray-500">
+                    <div className="text-sm text-gray-500">
                       For {getTravelerPricings(flight).length || 1}{' '}
                       {getTravelerPricings(flight).length === 1 ? 'passenger' : 'passengers'}
                     </div>
@@ -962,15 +962,15 @@ export default function FlightDetailsPage() {
 
               {/* Features */}
               <div className="space-y-1.5 mb-4">
-                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                <div className="flex items-center gap-1.5 text-base text-gray-600">
                   <Check className="w-3 h-3 text-gray-700" />
                   <span>Instant confirmation</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                <div className="flex items-center gap-1.5 text-base text-gray-600">
                   <Check className="w-3 h-3 text-gray-700" />
                   <span>Mobile ticket</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                <div className="flex items-center gap-1.5 text-base text-gray-600">
                   <Check className="w-3 h-3 text-gray-700" />
                   <span>Flexible booking</span>
                 </div>
@@ -990,7 +990,7 @@ export default function FlightDetailsPage() {
               <button
                 onClick={handleContinueToBook}
                 disabled={isOfferExpired || isValidating}
-                className={`w-full px-4 py-3 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
+                className={`w-full px-4 py-3 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
                   isOfferExpired || isValidating
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-gray-900 text-white hover:bg-gray-800'
