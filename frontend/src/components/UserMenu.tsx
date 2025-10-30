@@ -6,6 +6,7 @@ import {
   User,
   Settings,
   LogOut,
+  Bell,
   ChevronDown,
   CreditCard,
   Shield,
@@ -88,6 +89,14 @@ export default function UserMenu({ user }: UserMenuProps) {
 
   return (
     <div className="flex items-center gap-3">
+      {/* Notifications */}
+      <button
+        onClick={() => router.push('/dashboard/notifications')}
+        className="relative p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition"
+      >
+        <Bell className="w-5 h-5" />
+      </button>
+
       {/* User Menu */}
       <div className="relative" ref={dropdownRef}>
         <button
