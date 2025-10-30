@@ -47,19 +47,27 @@ export default function CreditCard({
             WebkitBackfaceVisibility: 'hidden',
           }}
         >
-        {/* Subtle glow accents */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#ADF802]/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl"></div>
+        {/* Modern gradient glow accents - pink & cyan */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-pink-500/15 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-56 h-56 bg-cyan-400/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/8 rounded-full blur-3xl"></div>
 
-        {/* Subtle Pattern Overlay */}
-        <div className="absolute inset-0">
+        {/* Modern wave/spiral pattern overlay */}
+        <div className="absolute inset-0 opacity-30">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              {/* Simple dot pattern for minimal texture */}
+              {/* Spiral/wave pattern */}
+              <pattern id="waves" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                <path d="M0,50 Q25,30 50,50 T100,50" stroke="rgba(236,72,153,0.3)" fill="none" strokeWidth="1"/>
+                <path d="M0,60 Q25,40 50,60 T100,60" stroke="rgba(34,211,238,0.25)" fill="none" strokeWidth="1"/>
+                <path d="M0,70 Q25,50 50,70 T100,70" stroke="rgba(168,85,247,0.2)" fill="none" strokeWidth="1"/>
+              </pattern>
+              {/* Dot pattern for subtle texture */}
               <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-                <circle cx="15" cy="15" r="1" fill="white" opacity="0.15"/>
+                <circle cx="15" cy="15" r="1" fill="white" opacity="0.12"/>
               </pattern>
             </defs>
+            <rect width="100%" height="100%" fill="url(#waves)"/>
             <rect width="100%" height="100%" fill="url(#dots)"/>
           </svg>
         </div>
@@ -68,15 +76,15 @@ export default function CreditCard({
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-[#ADF802]/25 backdrop-blur-sm rounded-xl flex items-center justify-center border border-[#ADF802]/40 shadow-lg shadow-[#ADF802]/20">
-                <Plane className="w-4 h-4 text-[#ADF802] drop-shadow-[0_0_6px_rgba(173,248,2,0.5)]" />
+              <div className="w-9 h-9 bg-gradient-to-br from-pink-500/30 to-purple-500/25 backdrop-blur-sm rounded-xl flex items-center justify-center border border-pink-400/40 shadow-lg shadow-pink-500/30">
+                <Plane className="w-4 h-4 text-pink-300 drop-shadow-[0_0_8px_rgba(236,72,153,0.6)]" />
               </div>
               <span className="text-lg font-bold text-white tracking-wide drop-shadow-lg">bvodo</span>
             </div>
 
-            {/* Enhanced Chip Design */}
+            {/* Enhanced Chip Design with pink accent */}
             <div className="w-10 h-8 bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 rounded-md relative shadow-lg">
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#ADF802] rounded-full border-2 border-slate-800 shadow-[0_0_8px_rgba(173,248,2,0.6)]"></div>
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-pink-400 rounded-full border-2 border-slate-800 shadow-[0_0_8px_rgba(236,72,153,0.7)]"></div>
               <div className="grid grid-cols-3 grid-rows-3 gap-[0.5px] p-1.5">
                 {[...Array(9)].map((_, i) => (
                   <div key={i} className="bg-amber-600/50 rounded-[0.5px]"></div>
@@ -114,9 +122,9 @@ export default function CreditCard({
           </div>
         </div>
 
-        {/* Enhanced gradient overlay for depth and shimmer */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.08] to-transparent pointer-events-none"></div>
-        <div className="absolute inset-0 bg-gradient-to-bl from-[#ADF802]/5 via-transparent to-blue-500/5 pointer-events-none"></div>
+        {/* Enhanced gradient overlay for depth and shimmer - pink accent */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.08] to-pink-500/10 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-bl from-cyan-400/10 via-transparent to-purple-500/10 pointer-events-none"></div>
       </div>
 
         {/* Back Side - Usage Information */}

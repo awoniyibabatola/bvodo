@@ -361,8 +361,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Travel Metrics - SIMPLIFIED FOR MOBILE (2 cards) */}
-          <div className="grid grid-cols-2 gap-3 md:gap-4 flex-shrink-0 w-full max-w-[400px] mx-auto lg:mx-0 h-auto lg:h-[220px]">
+          {/* Travel Metrics - Spread to fill space */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 flex-1 w-full h-auto lg:h-[220px]">
             {/* Total Bookings */}
             <div className="group relative h-full">
               <div className="relative h-full bg-white rounded-lg p-4 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
@@ -391,29 +391,30 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Hotels & Flights - DESKTOP ONLY */}
+            {/* Hotels - Hidden on mobile, visible on desktop */}
             <div className="group relative h-full hidden lg:block">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
-                  <Hotel className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Hotels</span>
+                  <Hotel className="w-5 h-5 text-gray-900" />
+                  <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Hotels</span>
                 </div>
                 <div>
-                  <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.hotelsBooked || 0}</div>
-                  <div className="text-xs md:text-sm text-gray-600">Booked</div>
+                  <div className="text-3xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.hotelsBooked || 0}</div>
+                  <div className="text-sm text-gray-600 mt-1">Booked</div>
                 </div>
               </div>
             </div>
 
+            {/* Flights - Hidden on mobile, visible on desktop */}
             <div className="group relative h-full hidden lg:block">
-              <div className="relative h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
+              <div className="relative h-full bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-400 shadow-sm transition-all flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-2">
-                  <Plane className="w-4 h-4 text-gray-900" />
-                  <span className="text-[10px] md:text-xs text-gray-600 font-bold uppercase tracking-wide">Flights</span>
+                  <Plane className="w-5 h-5 text-gray-900" />
+                  <span className="text-xs text-gray-600 font-bold uppercase tracking-wide">Flights</span>
                 </div>
                 <div>
-                  <div className="text-xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.flightsTaken || 0}</div>
-                  <div className="text-xs md:text-sm text-gray-600">Taken</div>
+                  <div className="text-3xl md:text-2xl font-bold text-gray-900">{dashboardStats?.stats.flightsTaken || 0}</div>
+                  <div className="text-sm text-gray-600 mt-1">Taken</div>
                 </div>
               </div>
             </div>
