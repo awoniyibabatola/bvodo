@@ -162,7 +162,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Action Buttons */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           {/* Book Flight */}
           <Link
             href="/dashboard/flights/search"
@@ -194,6 +194,11 @@ export default function DashboardPage() {
               <ChevronRight className="w-6 h-6 md:w-5 md:h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
             </div>
           </Link>
+        </div>
+
+        {/* Policy Limits Card */}
+        <div className="mb-8">
+          <PolicyLimitsCard />
         </div>
 
         {/* AI Quick Booking Suggestions - HIDDEN ON MOBILE */}
@@ -469,11 +474,6 @@ export default function DashboardPage() {
               </div>
             </Link>
           </div>
-        </div>
-
-        {/* Policy Limits Card */}
-        <div className="mb-6 md:mb-8">
-          <PolicyLimitsCard />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4 md:gap-6 mt-8 md:mt-16">
