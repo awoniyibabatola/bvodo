@@ -41,7 +41,7 @@ export default function CreditCard({
       >
         {/* Front Side */}
         <div
-          className="relative bg-gradient-to-br from-slate-800 via-slate-700 to-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.3)] overflow-hidden flex flex-col justify-between p-5 min-h-[200px]"
+          className="relative bg-gradient-to-br from-[#0f1729] via-[#1a2332] to-[#0f1729] rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.3)] overflow-hidden flex flex-col justify-between p-5 min-h-[200px]"
           style={{
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
