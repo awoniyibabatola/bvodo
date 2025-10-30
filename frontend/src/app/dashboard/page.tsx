@@ -169,9 +169,6 @@ export default function DashboardPage() {
             className="group relative block rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition-all hover:shadow-2xl"
           >
             <div className="relative h-[160px] bg-gradient-to-br from-gray-900 to-black p-5 flex flex-col justify-between">
-              {/* Top corner accent */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-[#ADF802] opacity-10 blur-2xl group-hover:opacity-20 transition-opacity"></div>
-
               <div className="relative">
                 <div className="w-14 h-14 bg-[#ADF802] rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                   <Plane className="w-7 h-7 text-black" />
@@ -199,9 +196,6 @@ export default function DashboardPage() {
             className="group relative block rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition-all hover:shadow-2xl"
           >
             <div className="relative h-[160px] bg-gradient-to-br from-gray-800 to-gray-900 p-5 flex flex-col justify-between">
-              {/* Top corner accent */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-[#ADF802] opacity-10 blur-2xl group-hover:opacity-20 transition-opacity"></div>
-
               <div className="relative">
                 <div className="w-14 h-14 bg-[#ADF802] rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                   <Hotel className="w-7 h-7 text-black" />
