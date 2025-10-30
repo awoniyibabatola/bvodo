@@ -163,7 +163,7 @@ export default function ProfilePage() {
                     type="text"
                     value={editedUser.firstName}
                     onChange={(e) => setEditedUser({ ...editedUser, firstName: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-black focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-black focus:outline-none transition-colors"
                   />
                 ) : (
                   <div className="px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900">
@@ -182,7 +182,7 @@ export default function ProfilePage() {
                     type="text"
                     value={editedUser.lastName}
                     onChange={(e) => setEditedUser({ ...editedUser, lastName: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-black focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-black focus:outline-none transition-colors"
                   />
                 ) : (
                   <div className="px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900">
@@ -215,7 +215,7 @@ export default function ProfilePage() {
                     value={editedUser.phone}
                     onChange={(e) => setEditedUser({ ...editedUser, phone: e.target.value })}
                     placeholder="+1 (555) 000-0000"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-black focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-black focus:outline-none transition-colors"
                   />
                 ) : (
                   <div className="px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900">
@@ -236,7 +236,7 @@ export default function ProfilePage() {
                     value={editedUser.location}
                     onChange={(e) => setEditedUser({ ...editedUser, location: e.target.value })}
                     placeholder="City, Country"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-black focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:border-black focus:outline-none transition-colors"
                   />
                 ) : (
                   <div className="px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-900">
