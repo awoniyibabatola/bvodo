@@ -152,17 +152,10 @@ export default function BaggageSelection({
             <div className="text-center py-12">
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 max-w-md mx-auto">
                 <Briefcase className="w-12 h-12 text-yellow-600 mx-auto mb-3" />
-                <p className="text-gray-900 font-semibold mb-2">Extra Baggage Unavailable</p>
-                <p className="text-gray-600 text-sm mb-3">{error}</p>
-                <div className="text-left bg-white rounded-lg p-3 mb-4 border border-yellow-100">
-                  <p className="text-xs font-semibold text-gray-700 mb-2">Common reasons:</p>
-                  <ul className="text-xs text-gray-600 space-y-1">
-                    <li>• Baggage is already included in your ticket</li>
-                    <li>• Airline doesn't sell extra baggage online</li>
-                    <li>• Add baggage at check-in or airport</li>
-                    <li>• This fare type has restrictions</li>
-                  </ul>
-                </div>
+                <p className="text-gray-900 font-semibold mb-2">Extra Baggage Not Available</p>
+                <p className="text-gray-600 text-sm mb-4">
+                  We're unable to offer additional baggage options for this flight at this time. You may be able to add baggage during check-in or at the airport if needed.
+                </p>
                 <button
                   onClick={onClose}
                   className="w-full px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
@@ -176,15 +169,9 @@ export default function BaggageSelection({
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 max-w-md mx-auto">
                 <Briefcase className="w-12 h-12 text-blue-600 mx-auto mb-3" />
                 <p className="text-gray-900 font-semibold mb-2">No Extra Baggage Available</p>
-                <p className="text-gray-600 text-sm mb-3">
-                  No additional baggage options are available for purchase at this time.
+                <p className="text-gray-600 text-sm mb-4">
+                  No additional baggage options are available for purchase at this time. Please check your booking confirmation for included baggage allowance details.
                 </p>
-                <div className="text-left bg-white rounded-lg p-3 mb-4 border border-blue-100">
-                  <p className="text-xs font-semibold text-gray-700 mb-2">Good news:</p>
-                  <p className="text-xs text-gray-600">
-                    Your ticket likely already includes baggage allowance. Check your booking confirmation for details.
-                  </p>
-                </div>
                 <button
                   onClick={onClose}
                   className="w-full px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
