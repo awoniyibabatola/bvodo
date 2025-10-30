@@ -172,7 +172,7 @@ export default function DashboardPage() {
                 <div className="p-2.5 md:p-2 bg-gray-900 group-hover:bg-white rounded-lg transition-colors">
                   <Plane className="w-6 h-6 md:w-5 md:h-5 text-white group-hover:text-gray-900 transition-colors" />
                 </div>
-                <span className="text-base md:text-sm font-bold text-gray-900 group-hover:text-white transition-colors">Book Flight</span>
+                <span className="text-base md:text-sm font-light md:font-bold text-gray-900 group-hover:text-white transition-colors">Book Flight</span>
               </div>
               <ChevronRight className="w-6 h-6 md:w-5 md:h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
             </div>
@@ -188,7 +188,7 @@ export default function DashboardPage() {
                 <div className="p-2.5 md:p-2 bg-gray-700 group-hover:bg-white rounded-lg transition-colors">
                   <Hotel className="w-6 h-6 md:w-5 md:h-5 text-white group-hover:text-gray-700 transition-colors" />
                 </div>
-                <span className="text-base md:text-sm font-bold text-gray-700 group-hover:text-white transition-colors">Book Hotel</span>
+                <span className="text-base md:text-sm font-light md:font-bold text-gray-700 group-hover:text-white transition-colors">Book Hotel</span>
               </div>
               <ChevronRight className="w-6 h-6 md:w-5 md:h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
             </div>
@@ -376,15 +376,16 @@ export default function DashboardPage() {
 
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
-                  {/* Arrow above label */}
+                  {/* Arrow */}
                   <div className="mb-2">
                     <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
                   </div>
-                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Total Bookings</div>
-                  <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.totalBookings || 0}</div>
 
-                  {/* Horizontal line */}
-                  <div className="w-12 h-0.5 bg-gray-900 rounded-full"></div>
+                  {/* Horizontal line - 1px above title */}
+                  <div className="w-12 h-px bg-gray-900 mb-3"></div>
+
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Total Bookings</div>
+                  <div className="text-3xl font-bold text-gray-900">{dashboardStats?.stats.totalBookings || 0}</div>
                 </div>
               </div>
             </Link>
@@ -401,15 +402,16 @@ export default function DashboardPage() {
 
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
-                  {/* Arrow above label */}
+                  {/* Arrow */}
                   <div className="mb-2">
                     <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
                   </div>
-                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Destinations</div>
-                  <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.destinations || 0}</div>
 
-                  {/* Horizontal line */}
-                  <div className="w-12 h-0.5 bg-gray-900 rounded-full"></div>
+                  {/* Horizontal line - 1px above title */}
+                  <div className="w-12 h-px bg-gray-900 mb-3"></div>
+
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Destinations</div>
+                  <div className="text-3xl font-bold text-gray-900">{dashboardStats?.stats.destinations || 0}</div>
                 </div>
               </div>
             </div>
@@ -426,15 +428,16 @@ export default function DashboardPage() {
 
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
-                  {/* Arrow above label */}
+                  {/* Arrow */}
                   <div className="mb-2">
                     <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
                   </div>
-                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Hotels Booked</div>
-                  <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.hotelsBooked || 0}</div>
 
-                  {/* Horizontal line */}
-                  <div className="w-12 h-0.5 bg-gray-900 rounded-full"></div>
+                  {/* Horizontal line - 1px above title */}
+                  <div className="w-12 h-px bg-gray-900 mb-3"></div>
+
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Hotels Booked</div>
+                  <div className="text-3xl font-bold text-gray-900">{dashboardStats?.stats.hotelsBooked || 0}</div>
                 </div>
               </div>
             </Link>
@@ -451,15 +454,16 @@ export default function DashboardPage() {
 
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
-                  {/* Arrow above label */}
+                  {/* Arrow */}
                   <div className="mb-2">
                     <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
                   </div>
-                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Flights Taken</div>
-                  <div className="text-3xl font-bold text-gray-900 mb-3">{dashboardStats?.stats.flightsTaken || 0}</div>
 
-                  {/* Horizontal line */}
-                  <div className="w-12 h-0.5 bg-gray-900 rounded-full"></div>
+                  {/* Horizontal line - 1px above title */}
+                  <div className="w-12 h-px bg-gray-900 mb-3"></div>
+
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Flights Taken</div>
+                  <div className="text-3xl font-bold text-gray-900">{dashboardStats?.stats.flightsTaken || 0}</div>
                 </div>
               </div>
             </Link>
