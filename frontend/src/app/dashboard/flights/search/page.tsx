@@ -2301,15 +2301,30 @@ export default function FlightSearchPage() {
               const isCabinClassOutOfPolicy = !!(allowedCabinClasses && !allowedCabinClasses.includes(flightCabinClass));
               const isOutOfPolicy = isPriceOutOfPolicy || isCabinClassOutOfPolicy;
 
+              // Check if we're showing return flights
+              const isReturnFlightCard = hasRoundTrip && showReturnFlightSelection;
+
               return (
                 <div
                   key={index}
                   className={`relative z-0 rounded-xl shadow-sm transition-shadow border mb-4 ${
                     isOutOfPolicy
                       ? 'bg-gray-50 border-gray-300 opacity-60'
-                      : 'bg-white border-gray-200 hover:shadow-md'
+                      : isReturnFlightCard
+                        ? 'bg-gradient-to-br from-blue-50/30 to-white border-blue-200 hover:shadow-lg hover:border-blue-300'
+                        : 'bg-white border-gray-200 hover:shadow-md'
                   }`}
                 >
+                  {/* Return Flight Badge */}
+                  {isReturnFlightCard && !isOutOfPolicy && (
+                    <div className="absolute top-3 left-3 z-10">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 border border-blue-300 rounded-full shadow-sm">
+                        <Plane className="w-3.5 h-3.5 text-blue-700 -rotate-90" />
+                        <span className="text-xs font-bold text-blue-700">Return Flight</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Out of Policy Badge */}
                   {isOutOfPolicy && (
                     <div className="absolute top-3 right-3 z-10">
@@ -2366,7 +2381,9 @@ export default function FlightSearchPage() {
                     </div>
 
                     {/* Flight Route */}
-                    <div className="bg-gray-50 rounded-lg p-3 md:p-4">
+                    <div className={`rounded-lg p-3 md:p-4 ${
+                      isReturnFlightCard ? 'bg-blue-50/50' : 'bg-gray-50'
+                    }`}>
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="text-xl md:text-2xl font-bold text-gray-900">
@@ -2382,9 +2399,15 @@ export default function FlightSearchPage() {
 
                         <div className="flex-1 px-3 md:px-6">
                           <div className="relative">
-                            <div className="border-t-2 border-gray-300"></div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-50 px-1.5 md:px-2">
-                              <Plane className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 rotate-90" />
+                            <div className={`border-t-2 ${
+                              isReturnFlightCard ? 'border-blue-300' : 'border-gray-300'
+                            }`}></div>
+                            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-1.5 md:px-2 ${
+                              isReturnFlightCard ? 'bg-blue-50/50' : 'bg-gray-50'
+                            }`}>
+                              <Plane className={`w-3.5 h-3.5 md:w-4 md:h-4 rotate-90 ${
+                                isReturnFlightCard ? 'text-blue-500' : 'text-gray-400'
+                              }`} />
                             </div>
                           </div>
                           <div className="text-center mt-2">
@@ -2411,9 +2434,13 @@ export default function FlightSearchPage() {
 
                       {/* Layover Information - HIDDEN ON MOBILE */}
                       {stops > 0 && (
-                        <div className="mt-3 pt-3 border-t border-gray-200 hidden md:block">
+                        <div className={`mt-3 pt-3 border-t hidden md:block ${
+                          isReturnFlightCard ? 'border-blue-200' : 'border-gray-200'
+                        }`}>
                           <div className="flex items-start gap-2 text-xs">
-                            <div className="flex items-center gap-1.5 text-gray-700 font-semibold flex-shrink-0">
+                            <div className={`flex items-center gap-1.5 font-semibold flex-shrink-0 ${
+                              isReturnFlightCard ? 'text-blue-700' : 'text-gray-700'
+                            }`}>
                               <Clock className="w-4 h-4" />
                               <span>Layover{stops > 1 ? 's' : ''}:</span>
                             </div>
@@ -2429,11 +2456,19 @@ export default function FlightSearchPage() {
                                 const layoverMins = layoverMinutes % 60;
 
                                 return (
-                                  <div key={segIndex} className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 border border-gray-300 rounded-md">
-                                    <MapPin className="w-3 h-3 text-gray-600" />
+                                  <div key={segIndex} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg shadow-sm ${
+                                    isReturnFlightCard
+                                      ? 'bg-blue-50 border border-blue-300'
+                                      : 'bg-gray-100 border border-gray-300'
+                                  }`}>
+                                    <MapPin className={`w-3.5 h-3.5 ${
+                                      isReturnFlightCard ? 'text-blue-600' : 'text-gray-600'
+                                    }`} />
                                     <span className="font-bold text-gray-900">{segArrival.iataCode}</span>
                                     <span className="text-gray-400">•</span>
-                                    <span className="font-semibold text-gray-700">{layoverHours > 0 && `${layoverHours}h `}{layoverMins}m wait</span>
+                                    <span className={`font-semibold ${
+                                      isReturnFlightCard ? 'text-blue-700' : 'text-gray-700'
+                                    }`}>{layoverHours > 0 && `${layoverHours}h `}{layoverMins}m wait</span>
                                   </div>
                                 );
                               })}
