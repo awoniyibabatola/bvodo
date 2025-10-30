@@ -66,10 +66,61 @@ export default function ProfilePage() {
       .join(' ');
   };
 
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB');
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please upload an image file');
+        return;
+      }
+
+      // Convert to base64 for storage
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+
+        // Update user state
+        const updatedUser = { ...user, avatar: base64String };
+        setUser(updatedUser);
+        setEditedUser(updatedUser);
+
+        // Update localStorage
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const parsedUser = JSON.parse(userData);
+          parsedUser.avatarUrl = base64String;
+          localStorage.setItem('user', JSON.stringify(parsedUser));
+        }
+
+        // TODO: Upload to backend API
+        // uploadAvatarToBackend(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = () => {
-    // In a real app, you'd save to API here
     setUser(editedUser);
     setIsEditing(false);
+
+    // Update localStorage
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      parsedUser.firstName = editedUser.firstName;
+      parsedUser.lastName = editedUser.lastName;
+      parsedUser.phone = editedUser.phone;
+      parsedUser.location = editedUser.location;
+      localStorage.setItem('user', JSON.stringify(parsedUser));
+    }
+
     // TODO: Add API call to update user profile
   };
 
@@ -110,12 +161,30 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-24 h-24 bg-gray-100 rounded-2xl flex items-center justify-center text-black font-bold text-3xl border-4 border-white">
-                  {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
-                </div>
-                <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors">
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-2xl object-cover border-4 border-white"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-gray-100 rounded-2xl flex items-center justify-center text-black font-bold text-3xl border-4 border-white">
+                    {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                  </div>
+                )}
+                <label
+                  htmlFor="avatar-upload"
+                  className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                >
                   <Camera className="w-4 h-4 text-black" />
-                </button>
+                </label>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
               </div>
 
               {/* User Info */}

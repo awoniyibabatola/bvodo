@@ -101,9 +101,17 @@ export default function UserMenu({ user }: UserMenuProps) {
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center gap-3 pl-3 border-l border-gray-200 hover:bg-gray-50 rounded-r-xl transition-colors py-1 pr-2"
         >
-          <div className="w-10 h-10 bg-[#FF6B6B] rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white ring-2 ring-[#FF6B6B]/20">
-            {user.name?.charAt(0) || 'U'}
-          </div>
+          {user.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="w-10 h-10 rounded-full object-cover border-2 border-white ring-2 ring-[#FF6B6B]/20"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-[#FF6B6B] rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white ring-2 ring-[#FF6B6B]/20">
+              {user.name?.charAt(0) || 'U'}
+            </div>
+          )}
           <div className="hidden md:block text-left">
             <p className="text-sm font-semibold text-gray-900">{user.name || 'User'}</p>
             <p className="text-xs text-gray-500">{user.organization || ''}</p>
