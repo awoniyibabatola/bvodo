@@ -34,6 +34,7 @@ import { getApiEndpoint } from '@/lib/api-config';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
 import AirportAutocomplete from '@/components/AirportAutocomplete';
 import TravelClassSelector from '@/components/TravelClassSelector';
+import FancyLoader from '@/components/FancyLoader';
 import { getCityCode } from '@/utils/cityMapping';
 
 // Airline names mapping
@@ -1756,6 +1757,13 @@ export default function FlightSearchPage() {
           </div>
         )}
 
+        {/* Loading Indicator */}
+        {loading && (
+          <div className="mb-8">
+            <FancyLoader message="Searching for flights..." />
+          </div>
+        )}
+
         {/* Draft and Recent Bookings - Show only when no search results */}
         {!loading && flights.length === 0 && !error && (
           <div className="mb-8 space-y-6">
@@ -2172,10 +2180,10 @@ export default function FlightSearchPage() {
             })()}
 
             {/* Results Section with Sidebar */}
-            <div className="flex gap-4 lg:gap-6">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
               {/* Sidebar - Filters */}
-              <div className="hidden lg:block w-52 lg:w-56 flex-shrink-0">
-                <div className="bg-white rounded-lg border border-gray-200 p-4 sticky top-4">
+              <div className="w-full lg:w-52 lg:w-56 lg:flex-shrink-0">
+                <div className="bg-white rounded-lg border border-gray-200 p-4 lg:sticky lg:top-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-gray-900 flex items-center gap-2">
                       <Filter className="w-4 h-4" />
