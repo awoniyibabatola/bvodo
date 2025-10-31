@@ -1099,8 +1099,8 @@ export default function Home() {
           </div>
 
           {/* 3 Step Flow */}
-          <div className="grid lg:grid-cols-3 gap-8 lg:gap-6 relative">
-            {/* Connecting Lines */}
+          <div className="space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6 relative">
+            {/* Connecting Lines - Desktop Only */}
             <div className="hidden lg:block absolute top-1/3 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
 
             {/* Step 1: Search & Book */}
@@ -1163,6 +1163,14 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Mobile Arrow */}
+            <div className="lg:hidden flex justify-center -my-3">
+              <div className="flex flex-col items-center">
+                <div className="w-px h-8 bg-gradient-to-b from-gray-300 via-gray-400 to-gray-300"></div>
+                <div className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-l-transparent border-r-transparent border-t-gray-400"></div>
+              </div>
+            </div>
+
             {/* Step 2: Auto Approval */}
             <div className="relative group">
               <div className="bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 hover:border-[#ADF802] transition-all duration-500 hover:scale-105 hover:shadow-2xl">
@@ -1221,6 +1229,14 @@ export default function Home() {
                     Policy checks happen instantly, manager approves with one click
                   </p>
                 </div>
+              </div>
+            </div>
+
+            {/* Mobile Arrow */}
+            <div className="lg:hidden flex justify-center -my-3">
+              <div className="flex flex-col items-center">
+                <div className="w-px h-8 bg-gradient-to-b from-gray-300 via-gray-400 to-gray-300"></div>
+                <div className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-l-transparent border-r-transparent border-t-gray-400"></div>
               </div>
             </div>
 
