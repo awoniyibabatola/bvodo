@@ -28,6 +28,9 @@ import dynamic from 'next/dynamic';
 // Dynamically import AIChatbox to avoid SSR issues
 const AIChatbox = dynamic(() => import('@/components/AIChatbox'), { ssr: false });
 
+// Dynamically import FlowVisualization to avoid SSR issues with canvas
+const FlowVisualization = dynamic(() => import('@/components/FlowVisualization'), { ssr: false });
+
 export default function Home() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [flightPosition, setFlightPosition] = useState(0);
@@ -1080,6 +1083,9 @@ export default function Home() {
         </div>
         </div>
       </section>
+
+      {/* How It Works - Flow Visualization */}
+      <FlowVisualization />
 
       {/* Invoicing Feature Highlight */}
       <section className="w-full py-20">
