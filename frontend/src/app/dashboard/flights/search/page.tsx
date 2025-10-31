@@ -422,6 +422,7 @@ export default function FlightSearchPage() {
   const [showReturnFlightSelection, setShowReturnFlightSelection] = useState(false);
   const [showTransitionNotification, setShowTransitionNotification] = useState(false);
   const [loadingCardIndex, setLoadingCardIndex] = useState<number | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Sidebar Filter States
   const [filterStops, setFilterStops] = useState<number[]>([]);
@@ -1818,7 +1819,7 @@ export default function FlightSearchPage() {
         {/* Loading Indicator */}
         {loading && (
           <div className="mb-8">
-            <FancyLoader message="Searching for flights..." />
+            <FancyLoader message="Searching for flights..." icon={Plane} />
           </div>
         )}
 
@@ -2298,7 +2299,26 @@ export default function FlightSearchPage() {
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
               {/* Sidebar - Filters */}
               <div className="w-full lg:w-52 lg:w-56 lg:flex-shrink-0">
-                <div className="bg-white rounded-lg border border-gray-200 p-4 lg:sticky lg:top-4">
+                {/* Mobile Filter Toggle Button */}
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="lg:hidden w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 mb-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <SlidersHorizontal className="w-4 h-4 text-gray-700" />
+                    <span className="font-semibold text-gray-900">Filters & Sort</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-600">
+                      {filterStops.length + filterAirlines.length + filterDepartureTime.length > 0 &&
+                        `${filterStops.length + filterAirlines.length + filterDepartureTime.length} active`
+                      }
+                    </span>
+                    <ChevronRight className={`w-4 h-4 text-gray-600 transition-transform ${showFilters ? 'rotate-90' : ''}`} />
+                  </div>
+                </button>
+
+                <div className={`bg-white rounded-lg border border-gray-200 p-4 lg:sticky lg:top-4 ${showFilters ? 'block' : 'hidden lg:block'}`}>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-gray-900 flex items-center gap-2">
                       <Filter className="w-4 h-4" />
