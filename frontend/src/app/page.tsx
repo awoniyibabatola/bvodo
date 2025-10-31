@@ -28,9 +28,6 @@ import dynamic from 'next/dynamic';
 // Dynamically import AIChatbox to avoid SSR issues
 const AIChatbox = dynamic(() => import('@/components/AIChatbox'), { ssr: false });
 
-// Dynamically import FlowVisualization to avoid SSR issues with canvas
-const FlowVisualization = dynamic(() => import('@/components/FlowVisualization'), { ssr: false });
-
 export default function Home() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [flightPosition, setFlightPosition] = useState(0);
@@ -1084,8 +1081,228 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works - Flow Visualization */}
-      <FlowVisualization />
+      {/* How It Works - Simple Flow */}
+      <section className="w-full relative py-12 sm:py-16 lg:py-20 overflow-hidden bg-gradient-to-b from-white to-gray-50">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-gray-100 to-gray-100 rounded-full text-xs sm:text-sm font-semibold text-gray-700 mb-4 sm:mb-6 animate-bounce">
+              <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
+              How It Works
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+              Book Travel in 3 Simple Steps
+            </h2>
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto px-4">
+              From search to confirmation, everything is automated and compliant
+            </p>
+          </div>
+
+          {/* 3 Step Flow */}
+          <div className="grid lg:grid-cols-3 gap-8 lg:gap-6 relative">
+            {/* Connecting Lines */}
+            <div className="hidden lg:block absolute top-1/3 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+
+            {/* Step 1: Search & Book */}
+            <div className="relative group">
+              <div className="bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 hover:border-[#ADF802] transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+                {/* Step Number */}
+                <div className="absolute -top-4 left-8 w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:from-[#ADF802] group-hover:to-[#9DE002] group-hover:text-gray-900 transition-all duration-500">
+                  1
+                </div>
+
+                {/* Mockup */}
+                <div className="mt-6 mb-6 bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl p-6 min-h-[280px] flex flex-col justify-center relative overflow-hidden">
+                  {/* Animated background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ADF802]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                  {/* Search Bar */}
+                  <div className="relative z-10 space-y-4">
+                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 group-hover:shadow-md transition-all duration-300">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Plane className="w-5 h-5 text-gray-700" />
+                        <div className="flex-1">
+                          <div className="h-2 bg-gray-200 rounded w-20 mb-2"></div>
+                          <div className="h-3 bg-gray-900 rounded w-32"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <div className="h-2 bg-gray-200 rounded w-24"></div>
+                        <span>→</span>
+                        <div className="h-2 bg-gray-200 rounded w-24"></div>
+                      </div>
+                    </div>
+
+                    {/* Flight Card */}
+                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 animate-slide-up opacity-90 group-hover:opacity-100 transition-all duration-300">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="space-y-2 flex-1">
+                          <div className="h-2 bg-gray-900 rounded w-16"></div>
+                          <div className="h-2 bg-gray-300 rounded w-28"></div>
+                        </div>
+                        <div className="text-right">
+                          <div className="h-3 bg-[#ADF802] rounded w-16 ml-auto"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl py-3 px-4 text-center text-sm font-semibold group-hover:from-[#ADF802] group-hover:to-[#9DE002] group-hover:text-gray-900 transition-all duration-500 cursor-pointer">
+                      Book Now
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="text-center">
+                  <h3 className="text-xl font-bold mb-2 text-gray-900">Search & Select</h3>
+                  <p className="text-gray-600 text-sm">
+                    Find the best flights and hotels with real-time pricing from Amadeus
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2: Auto Approval */}
+            <div className="relative group">
+              <div className="bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 hover:border-[#ADF802] transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+                {/* Step Number */}
+                <div className="absolute -top-4 left-8 w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:from-[#ADF802] group-hover:to-[#9DE002] group-hover:text-gray-900 transition-all duration-500">
+                  2
+                </div>
+
+                {/* Mockup */}
+                <div className="mt-6 mb-6 bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl p-6 min-h-[280px] flex flex-col justify-center relative overflow-hidden">
+                  {/* Animated background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ADF802]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                  {/* Approval Flow */}
+                  <div className="relative z-10 space-y-4">
+                    {/* Policy Check */}
+                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 group-hover:shadow-md transition-all duration-300">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="h-2 bg-gray-900 rounded w-24 mb-2"></div>
+                          <div className="h-2 bg-gray-300 rounded w-32"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Manager Approval */}
+                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 animate-slide-up opacity-90 group-hover:opacity-100 transition-all duration-300">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="h-2 bg-gray-900 rounded w-28 mb-2"></div>
+                          <div className="h-2 bg-gray-300 rounded w-36"></div>
+                        </div>
+                        <div className="px-3 py-1 bg-[#ADF802] rounded-full text-xs font-semibold text-gray-900">
+                          Approved
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Processing */}
+                    <div className="flex items-center justify-center gap-2 text-gray-600 text-sm">
+                      <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-[#ADF802] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="text-center">
+                  <h3 className="text-xl font-bold mb-2 text-gray-900">Auto Approval</h3>
+                  <p className="text-gray-600 text-sm">
+                    Policy checks happen instantly, manager approves with one click
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3: Confirmed */}
+            <div className="relative group">
+              <div className="bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 hover:border-[#ADF802] transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+                {/* Step Number */}
+                <div className="absolute -top-4 left-8 w-12 h-12 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:from-[#ADF802] group-hover:to-[#9DE002] group-hover:text-gray-900 transition-all duration-500">
+                  3
+                </div>
+
+                {/* Mockup */}
+                <div className="mt-6 mb-6 bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl p-6 min-h-[280px] flex flex-col justify-center relative overflow-hidden">
+                  {/* Animated background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ADF802]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                  {/* Confirmation */}
+                  <div className="relative z-10 space-y-4">
+                    {/* Success Badge */}
+                    <div className="flex justify-center mb-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <CheckCircle className="w-10 h-10 text-white" strokeWidth={3} />
+                      </div>
+                    </div>
+
+                    {/* Booking Details */}
+                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 group-hover:shadow-md transition-all duration-300">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="h-2 bg-gray-300 rounded w-20"></div>
+                          <div className="h-2 bg-gray-900 rounded w-24"></div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="h-2 bg-gray-300 rounded w-24"></div>
+                          <div className="h-2 bg-gray-900 rounded w-20"></div>
+                        </div>
+                        <div className="border-t border-gray-200 pt-3 mt-3">
+                          <div className="flex items-center justify-between">
+                            <div className="h-3 bg-gray-900 rounded w-16 font-bold"></div>
+                            <div className="h-3 bg-[#ADF802] rounded w-20"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Invoice Badge */}
+                    <div className="flex items-center justify-center gap-2 text-xs text-gray-600">
+                      <FileText className="w-4 h-4" />
+                      <span className="font-medium">Invoice auto-generated</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="text-center">
+                  <h3 className="text-xl font-bold mb-2 text-gray-900">Booked & Done</h3>
+                  <p className="text-gray-600 text-sm">
+                    Tickets issued, invoice generated, expenses tracked automatically
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+            {[
+              { number: '2 mins', label: 'Average Booking Time' },
+              { number: '100%', label: 'Policy Compliance' },
+              { number: '30%', label: 'Cost Savings' },
+              { number: 'Zero', label: 'Manual Work' },
+            ].map((stat, index) => (
+              <div key={index} className="text-center group hover:scale-110 transition-transform duration-300">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-2">
+                  {stat.number}
+                </div>
+                <div className="text-xs sm:text-sm text-gray-600 font-medium">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Invoicing Feature Highlight */}
       <section className="w-full py-20">
