@@ -206,59 +206,6 @@ export default function Home() {
                 Learn More
               </Link>
             </div>
-
-            {/* Simple Flight Search */}
-            <div className="mt-8 p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <Plane className="w-5 h-5 text-gray-900" />
-                <h3 className="text-sm font-bold text-gray-900">Search Flights</h3>
-              </div>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const from = formData.get('from');
-                  const to = formData.get('to');
-                  const date = formData.get('date');
-
-                  // Redirect to login with flight search params
-                  window.location.href = `/login?redirect=/dashboard/flights/search?from=${from}&to=${to}&date=${date}`;
-                }}
-                className="space-y-3"
-              >
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="text"
-                    name="from"
-                    placeholder="From (e.g. LOS)"
-                    required
-                    className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none"
-                  />
-                  <input
-                    type="text"
-                    name="to"
-                    placeholder="To (e.g. LHR)"
-                    required
-                    className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none"
-                  />
-                </div>
-                <input
-                  type="date"
-                  name="date"
-                  required
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none"
-                />
-                <button
-                  type="submit"
-                  className="w-full px-4 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-semibold text-sm"
-                >
-                  Search Flights
-                </button>
-              </form>
-              <p className="text-xs text-gray-500 mt-3 text-center">Sign up to view prices and book</p>
-            </div>
-
             <div className="flex items-center gap-6 sm:gap-8 mt-8 sm:mt-8">
               <div>
                 <div className="text-lg sm:text-2xl lg:text-3xl font-bold text-gray-900">500+</div>
