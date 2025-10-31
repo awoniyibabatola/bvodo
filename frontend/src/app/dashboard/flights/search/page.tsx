@@ -1354,6 +1354,36 @@ export default function FlightSearchPage() {
           </Link>
         </div>
 
+        {/* Policy Badge - Visible before search */}
+        {policyLimit ? (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Briefcase className="w-4 h-4 text-blue-700" />
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-blue-600">Your Policy Limit</div>
+                  <div className="text-lg font-bold text-blue-700">${policyLimit.toLocaleString()}</div>
+                </div>
+              </div>
+              <span className="text-xs text-blue-600 font-medium">per flight</span>
+            </div>
+          </div>
+        ) : userPolicy === null && (
+          <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Briefcase className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-gray-500">Booking Policy</div>
+                <div className="text-sm font-semibold text-gray-700">No limit - All flights available</div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Page Header - SIMPLIFIED FOR MOBILE */}
         <div className="mb-4 md:mb-6 lg:mb-8">
           <h1 className="text-2xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
