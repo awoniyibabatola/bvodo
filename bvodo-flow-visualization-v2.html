@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bvodo - How It Works (Animated Flow)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            font-size: 20px;
+            color: #6b7280;
+        }
+
+        /* Flow Container */
+        .flow-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 1200px;
+        }
+
+        /* SVG Canvas for connections */
+        .connection-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Animated path */
+        .flow-path {
+            fill: none;
+            stroke: #3b82f6;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawPath 3s ease-out forwards;
+        }
+
+        @keyframes drawPath {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Animated dots traveling along path */
+        .flow-dot {
+            fill: #ADF802;
+            r: 6;
+        }
+
+        .flow-dot-pulse {
+            fill: #ADF802;
+            opacity: 0.3;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                r: 6;
+                opacity: 0.3;
+            }
+            50% {
+                r: 12;
+                opacity: 0;
+            }
+        }
+
+        /* Flow Nodes */
+        .flow-nodes {
+            position: relative;
+            z-index: 1;
+        }
+
+        .flow-node {
+            position: absolute;
+            width: 320px;
+            opacity: 0;
+            animation: fadeInScale 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Node positions */
+        .node-1 { top: 50px; left: 50px; animation-delay: 0.2s; }
+        .node-2 { top: 50px; right: 50px; animation-delay: 0.4s; }
+        .node-3 { top: 250px; left: 50%; transform: translateX(-50%); animation-delay: 0.6s; }
+        .node-4 { top: 450px; left: 100px; animation-delay: 0.8s; }
+        .node-5 { top: 450px; right: 100px; animation-delay: 1s; }
+        .node-6 { top: 650px; left: 50%; transform: translateX(-50%); animation-delay: 1.2s; }
+        .node-7 { top: 850px; left: 150px; animation-delay: 1.4s; }
+        .node-8 { top: 850px; right: 150px; animation-delay: 1.6s; }
+        .node-9 { top: 1050px; left: 50%; transform: translateX(-50%); animation-delay: 1.8s; }
+
+        /* Node Card */
+        .node-card {
+            background: #1f2937;
+            border-radius: 20px;
+            padding: 28px 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .node-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #ADF802;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .flow-node:hover .node-card::before {
+            transform: scaleX(1);
+        }
+
+        .flow-node:hover .node-card {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .node-card.success {
+            border: 2px solid #ADF802;
+        }
+
+        /* Node number badge */
+        .node-number {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 36px;
+            height: 36px;
+            background: #ADF802;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 14px;
+            color: #111827;
+            box-shadow: 0 4px 12px rgba(173, 248, 2, 0.4);
+        }
+
+        /* Icon */
+        .node-icon {
+            width: 56px;
+            height: 56px;
+            background: #374151;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .node-icon.success {
+            background: #ADF802;
+        }
+
+        .flow-node:hover .node-icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        /* Avatar */
+        .node-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto 16px;
+            border: 3px solid #374151;
+        }
+
+        /* Text */
+        .node-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .node-desc {
+            color: #9ca3af;
+            font-size: 13px;
+            line-height: 1.5;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .node-amount {
+            color: #ADF802;
+            font-size: 20px;
+            font-weight: 800;
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .node-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            margin: 8px auto;
+        }
+
+        .badge-success {
+            background: rgba(173, 248, 2, 0.1);
+            color: #ADF802;
+        }
+
+        .badge-processing {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        /* Company logo */
+        .company-logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #ADF802;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(173, 248, 2, 0.2);
+            z-index: 100;
+        }
+
+        .company-logo h2 {
+            font-size: 20px;
+            font-weight: 900;
+            color: #111827;
+        }
+
+        /* Progress indicator */
+        .progress-bar {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            max-width: 90%;
+            background: white;
+            padding: 20px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #ADF802 100%);
+            border-radius: 4px;
+            width: 0%;
+            animation: fillProgress 3s ease-out forwards;
+        }
+
+        @keyframes fillProgress {
+            to {
+                width: 100%;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .flow-node {
+                width: 280px;
+            }
+
+            .node-1 { top: 50px; left: 20px; }
+            .node-2 { top: 50px; right: 20px; }
+            .node-4 { top: 450px; left: 50px; }
+            .node-5 { top: 450px; right: 50px; }
+            .node-7 { top: 850px; left: 80px; }
+            .node-8 { top: 850px; right: 80px; }
+        }
+
+        @media (max-width: 768px) {
+            .flow-wrapper {
+                min-height: 2400px;
+            }
+
+            .flow-node {
+                width: calc(100% - 40px);
+                left: 20px !important;
+                right: auto !important;
+                transform: none !important;
+            }
+
+            .node-1 { top: 50px; }
+            .node-2 { top: 250px; }
+            .node-3 { top: 450px; }
+            .node-4 { top: 650px; }
+            .node-5 { top: 850px; }
+            .node-6 { top: 1050px; }
+            .node-7 { top: 1250px; }
+            .node-8 { top: 1450px; }
+            .node-9 { top: 1650px; }
+
+            .company-logo {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Decorative elements */
+        .deco-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        .deco-1 {
+            width: 400px;
+            height: 400px;
+            background: #ADF802;
+            top: 100px;
+            right: -100px;
+        }
+
+        .deco-2 {
+            width: 300px;
+            height: 300px;
+            background: #3b82f6;
+            bottom: 200px;
+            left: -80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="company-logo">
+            <h2>🏢 bvodo</h2>
+        </div>
+
+        <div class="header">
+            <h1>How bvodo Works</h1>
+            <p>End-to-end automated corporate travel journey</p>
+        </div>
+
+        <div class="flow-wrapper">
+            <!-- Decorative elements -->
+            <div class="deco-circle deco-1"></div>
+            <div class="deco-circle deco-2"></div>
+
+            <!-- SVG Connection Canvas -->
+            <svg class="connection-canvas" viewBox="0 0 1600 1200" preserveAspectRatio="xMidYMid meet">
+                <!-- Main flow path -->
+                <path class="flow-path" d="M 200,100 L 1400,100 L 800,300 L 250,500 L 1350,500 L 800,700 L 300,900 L 1300,900 L 800,1100" />
+
+                <!-- Animated dots along path -->
+                <circle class="flow-dot">
+                    <animateMotion dur="6s" repeatCount="indefinite">
+                        <mpath href="#flowPath" />
+                    </animateMotion>
+                </circle>
+
+                <!-- Pulse effects at key points -->
+                <circle class="flow-dot-pulse" cx="200" cy="100" />
+                <circle class="flow-dot-pulse" cx="800" cy="300" />
+                <circle class="flow-dot-pulse" cx="800" cy="700" />
+                <circle class="flow-dot-pulse" cx="800" cy="1100" />
+            </svg>
+
+            <!-- Flow Nodes -->
+            <div class="flow-nodes">
+                <!-- Node 1: Employee -->
+                <div class="flow-node node-1">
+                    <div class="node-card">
+                        <div class="node-number">1</div>
+                        <div class="node-avatar">CO</div>
+                        <div class="node-title">Employee Initiates</div>
+                        <div class="node-desc">Chioma needs to book a business trip to London</div>
+                    </div>
+                </div>
+
+                <!-- Node 2: Search -->
+                <div class="flow-node node-2">
+                    <div class="node-card">
+                        <div class="node-number">2</div>
+                        <div class="node-icon">✈️</div>
+                        <div class="node-title">Search & Select</div>
+                        <div class="node-desc">Lagos → London<br>Dec 15, 2024</div>
+                        <div class="node-amount">₦450,000</div>
+                    </div>
+                </div>
+
+                <!-- Node 3: Policy Check -->
+                <div class="flow-node node-3">
+                    <div class="node-card success">
+                        <div class="node-number">3</div>
+                        <div class="node-icon success">✓</div>
+                        <div class="node-title">Auto Policy Check</div>
+                        <div class="node-desc">✓ Within Budget<br>✓ Class Approved<br>✓ 5 Days Advance</div>
+                        <div class="node-badge badge-success">All Checks Passed</div>
+                    </div>
+                </div>
+
+                <!-- Node 4: Manager Notified -->
+                <div class="flow-node node-4">
+                    <div class="node-card">
+                        <div class="node-number">4</div>
+                        <div class="node-avatar">TA</div>
+                        <div class="node-title">Manager Notified</div>
+                        <div class="node-desc">Taiwo Adeyemi<br>Travel Manager</div>
+                        <div class="node-badge badge-processing">⏱ Pending Approval</div>
+                    </div>
+                </div>
+
+                <!-- Node 5: Approved -->
+                <div class="flow-node node-5">
+                    <div class="node-card success">
+                        <div class="node-number">5</div>
+                        <div class="node-icon success">👍</div>
+                        <div class="node-title">Approved!</div>
+                        <div class="node-desc">Approved by Taiwo<br>"Have a safe trip!"</div>
+                        <div class="node-badge badge-success">✓ Approved 2m ago</div>
+                    </div>
+                </div>
+
+                <!-- Node 6: Payment -->
+                <div class="flow-node node-6">
+                    <div class="node-card">
+                        <div class="node-number">6</div>
+                        <div class="node-icon">💳</div>
+                        <div class="node-title">Payment Processing</div>
+                        <div class="node-desc">Company Card •••• 4532</div>
+                        <div class="node-amount">₦450,000</div>
+                        <div class="node-badge badge-processing">Processing...</div>
+                    </div>
+                </div>
+
+                <!-- Node 7: Confirmed -->
+                <div class="flow-node node-7">
+                    <div class="node-card success">
+                        <div class="node-number">7</div>
+                        <div class="node-icon success">🎫</div>
+                        <div class="node-title">Booking Confirmed</div>
+                        <div class="node-desc">REF: BK12345<br>PNR: ABC123</div>
+                        <div class="node-badge badge-success">✓ Ticket Issued</div>
+                    </div>
+                </div>
+
+                <!-- Node 8: Invoice -->
+                <div class="flow-node node-8">
+                    <div class="node-card">
+                        <div class="node-number">8</div>
+                        <div class="node-icon">📄</div>
+                        <div class="node-title">Invoice Auto-Generated</div>
+                        <div class="node-desc">INV-001-2024<br>Sent to QuickBooks</div>
+                        <div class="node-badge badge-success">✓ Paid</div>
+                    </div>
+                </div>
+
+                <!-- Node 9: Complete -->
+                <div class="flow-node node-9">
+                    <div class="node-card success">
+                        <div class="node-number">9</div>
+                        <div class="node-icon success">🎉</div>
+                        <div class="node-title">Journey Complete!</div>
+                        <div class="node-desc">Calendar updated<br>Budget tracked<br>Reports generated</div>
+                        <div class="node-badge badge-success">✓ All Automated</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-label">BOOKING AUTOMATION PROGRESS</div>
+            <div class="progress-track">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
