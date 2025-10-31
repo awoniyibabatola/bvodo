@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bvodo - How It Works</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            font-size: 20px;
+            color: #6b7280;
+        }
+
+        .flow-container {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            padding: 40px;
+        }
+
+        /* SVG connecting lines */
+        .connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Flow cards */
+        .flow-card {
+            position: relative;
+            background: #1f2937;
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 1;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .flow-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .flow-card.success {
+            border: 2px solid #ADF802;
+        }
+
+        /* Icons */
+        .icon {
+            width: 64px;
+            height: 64px;
+            background: #374151;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        .icon.success {
+            background: #ADF802;
+        }
+
+        /* Avatar */
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            border: 3px solid #374151;
+        }
+
+        /* Text styles */
+        .flow-card h3 {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .flow-card p {
+            color: #9ca3af;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .flow-card .amount {
+            color: #ADF802;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 16px 0;
+        }
+
+        .flow-card .reference {
+            color: #60a5fa;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        /* Button */
+        .btn {
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: auto;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: scale(1.05);
+        }
+
+        .btn.success {
+            background: #ADF802;
+            color: #111827;
+        }
+
+        /* Status badges */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .status.approved {
+            background: rgba(173, 248, 2, 0.1);
+            color: #ADF802;
+        }
+
+        .status.processing {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        /* Company logo */
+        .company-logo {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            background: #ADF802;
+            padding: 20px 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(173, 248, 2, 0.2);
+        }
+
+        .company-logo h2 {
+            font-size: 24px;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .company-logo p {
+            font-size: 12px;
+            color: #374151;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .flow-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .flow-container {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .company-logo {
+                position: static;
+                margin-bottom: 40px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .flow-card {
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .flow-card:nth-child(1) { animation-delay: 0.1s; }
+        .flow-card:nth-child(2) { animation-delay: 0.2s; }
+        .flow-card:nth-child(3) { animation-delay: 0.3s; }
+        .flow-card:nth-child(4) { animation-delay: 0.4s; }
+        .flow-card:nth-child(5) { animation-delay: 0.5s; }
+        .flow-card:nth-child(6) { animation-delay: 0.6s; }
+        .flow-card:nth-child(7) { animation-delay: 0.7s; }
+        .flow-card:nth-child(8) { animation-delay: 0.8s; }
+
+        /* Pulse animation for processing */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .processing-indicator {
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="company-logo">
+            <h2>🏢 bvodo</h2>
+            <p>Corporate Travel</p>
+        </div>
+
+        <div class="header">
+            <h1>How bvodo Works</h1>
+            <p>End-to-end corporate travel management made simple</p>
+        </div>
+
+        <div class="flow-container">
+            <!-- Card 1: Employee -->
+            <div class="flow-card">
+                <div class="avatar">CO</div>
+                <h3>Welcome, Chioma!</h3>
+                <p>Employee needs to travel for client meeting in London</p>
+                <a href="#" class="btn success">📅 Book Travel</a>
+            </div>
+
+            <!-- Card 2: Search & Select -->
+            <div class="flow-card">
+                <div class="icon">✈️</div>
+                <h3>Search Flights</h3>
+                <p>Lagos → London</p>
+                <p style="font-size: 12px; color: #9ca3af;">Dec 15, 2024</p>
+                <div class="amount">₦450,000</div>
+                <a href="#" class="btn">Select Flight →</a>
+            </div>
+
+            <!-- Card 3: Policy Check -->
+            <div class="flow-card success">
+                <div class="icon success">✓</div>
+                <h3>Policy Check</h3>
+                <p>✓ Within Budget</p>
+                <p>✓ Class: Economy</p>
+                <p>✓ Advance: 5 days</p>
+                <div class="status approved">
+                    <span>●</span> All Checks Passed
+                </div>
+            </div>
+
+            <!-- Card 4: Manager Approval -->
+            <div class="flow-card">
+                <div class="avatar">TA</div>
+                <h3>Approval Required</h3>
+                <p><strong>Taiwo Adeyemi</strong><br>Travel Manager</p>
+                <p style="margin-top: 12px; font-size: 13px;">Chioma Okafor<br>Lagos → London<br><strong style="color: #ADF802;">₦450,000</strong></p>
+                <a href="#" class="btn success">✓ Approve</a>
+            </div>
+
+            <!-- Card 5: Approved -->
+            <div class="flow-card success">
+                <div class="icon success">👍</div>
+                <h3>Approved!</h3>
+                <p>by Taiwo Adeyemi</p>
+                <p style="font-style: italic; margin-top: 12px;">"Have a safe trip!"</p>
+                <div class="status approved">
+                    <span>●</span> Approved 2 mins ago
+                </div>
+            </div>
+
+            <!-- Card 6: Payment -->
+            <div class="flow-card processing-indicator">
+                <div class="icon">💳</div>
+                <h3>Processing Payment</h3>
+                <p>Company Credit Card</p>
+                <p>•••• 4532</p>
+                <div class="amount">₦450,000</div>
+                <div class="status processing">
+                    <span>●</span> Processing...
+                </div>
+            </div>
+
+            <!-- Card 7: Booking Confirmed -->
+            <div class="flow-card success">
+                <div class="icon success">🎫</div>
+                <h3>Booking Confirmed!</h3>
+                <p>Your flight is booked</p>
+                <p class="reference">REF: BK12345</p>
+                <p class="reference">PNR: ABC123</p>
+                <a href="#" class="btn success">View Ticket</a>
+            </div>
+
+            <!-- Card 8: Invoice -->
+            <div class="flow-card">
+                <div class="icon">📄</div>
+                <h3>Invoice Generated</h3>
+                <p class="reference">INV-001-2024</p>
+                <div class="amount">₦450,000</div>
+                <p style="color: #ADF802;">✓ Paid</p>
+                <a href="#" class="btn">📥 Download PDF</a>
+            </div>
+
+            <!-- Card 9: Travel Details -->
+            <div class="flow-card">
+                <div class="icon">📅</div>
+                <h3>Travel Details</h3>
+                <p><strong>Departure</strong><br>Dec 15, 08:30 AM</p>
+                <p style="margin-top: 8px;"><strong>Arrival</strong><br>Dec 15, 04:45 PM</p>
+                <a href="#" class="btn">Add to Calendar</a>
+            </div>
+
+            <!-- Card 10: Expense Tracking -->
+            <div class="flow-card">
+                <div class="icon">📊</div>
+                <h3>Budget Tracking</h3>
+                <p>Travel Budget Used</p>
+                <div class="amount">₦450k</div>
+                <p>of ₦500k limit</p>
+                <div style="width: 100%; background: #374151; height: 8px; border-radius: 4px; margin: 12px 0; overflow: hidden;">
+                    <div style="width: 90%; background: #ADF802; height: 100%;"></div>
+                </div>
+                <p style="font-size: 12px; color: #ADF802;">10% remaining</p>
+            </div>
+
+            <!-- Card 11: Reports -->
+            <div class="flow-card">
+                <div class="icon">📈</div>
+                <h3>Auto Reports</h3>
+                <p>Expense reports generated automatically</p>
+                <p style="margin-top: 12px; font-size: 12px;">✓ QuickBooks<br>✓ Email sent<br>✓ Dashboard updated</p>
+                <a href="#" class="btn">View Reports</a>
+            </div>
+
+            <!-- Card 12: Complete -->
+            <div class="flow-card success">
+                <div class="icon success">🎉</div>
+                <h3>All Done!</h3>
+                <p>Everything automated from booking to expense tracking</p>
+                <div class="status approved" style="margin-top: 20px;">
+                    <span>●</span> Journey Complete
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="value">15 mins</div>
+                <div class="label">Time Saved</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">₦50k</div>
+                <div class="label">Cost Saved</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">100%</div>
+                <div class="label">Policy Compliant</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">Zero</div>
+                <div class="label">Manual Work</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add hover effects
+        document.querySelectorAll('.flow-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.borderColor = '#ADF802';
+            });
+            card.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('success')) {
+                    this.style.borderColor = 'transparent';
+                }
+            });
+        });
+
+        // Button interactions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Button clicked:', this.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
