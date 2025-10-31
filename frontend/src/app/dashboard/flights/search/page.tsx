@@ -2299,26 +2299,164 @@ export default function FlightSearchPage() {
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
               {/* Sidebar - Filters */}
               <div className="w-full lg:w-52 lg:w-56 lg:flex-shrink-0">
-                {/* Mobile Filter Toggle Button */}
+                {/* Mobile Filter Floating Button */}
                 <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="lg:hidden w-full flex items-center justify-between px-4 py-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 mb-3"
+                  onClick={() => setShowFilters(true)}
+                  className="lg:hidden fixed bottom-6 right-6 z-40 flex items-center gap-3 px-4 py-3 bg-gray-900 text-white rounded-full shadow-lg hover:bg-gray-800 transition-all"
                 >
-                  <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="w-4 h-4 text-gray-700" />
-                    <span className="font-semibold text-gray-900">Filters & Sort</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-600">
-                      {filterStops.length + filterAirlines.length + filterDepartureTime.length > 0 &&
-                        `${filterStops.length + filterAirlines.length + filterDepartureTime.length} active`
-                      }
+                  <SlidersHorizontal className="w-4 h-4" />
+                  <span className="font-semibold">Filters</span>
+                  {filterStops.length + filterAirlines.length + filterDepartureTime.length > 0 && (
+                    <span className="px-2 py-0.5 bg-[#ADF802] text-gray-900 rounded-full text-xs font-bold">
+                      {filterStops.length + filterAirlines.length + filterDepartureTime.length}
                     </span>
-                    <ChevronRight className={`w-4 h-4 text-gray-600 transition-transform ${showFilters ? 'rotate-90' : ''}`} />
-                  </div>
+                  )}
                 </button>
 
-                <div className={`bg-white rounded-lg border border-gray-200 p-4 lg:sticky lg:top-4 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+                {/* Mobile Filter Modal */}
+                {showFilters && (
+                  <div className="lg:hidden fixed inset-0 z-50 flex items-end">
+                    {/* Backdrop */}
+                    <div
+                      className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                      onClick={() => setShowFilters(false)}
+                    ></div>
+
+                    {/* Modal Content */}
+                    <div className="relative w-full bg-white rounded-t-2xl shadow-2xl max-h-[85vh] flex flex-col animate-slide-up">
+                      {/* Header */}
+                      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                        <div className="flex items-center gap-2">
+                          <Filter className="w-5 h-5 text-gray-900" />
+                          <h3 className="text-lg font-bold text-gray-900">Filters & Sort</h3>
+                        </div>
+                        <button
+                          onClick={() => setShowFilters(false)}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition"
+                        >
+                          <X className="w-5 h-5 text-gray-600" />
+                        </button>
+                      </div>
+
+                      {/* Scrollable Filter Content */}
+                      <div className="flex-1 overflow-y-auto px-6 py-4">
+                        {/* Sort By */}
+                        <div className="mb-6">
+                          <label className="block text-sm font-semibold text-gray-900 mb-2">Sort By</label>
+                          <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as any)}
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
+                          >
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="duration">Duration</option>
+                            <option value="departure">Departure Time</option>
+                            <option value="co2">CO2 Emissions</option>
+                          </select>
+                        </div>
+
+                        {/* Stops */}
+                        <div className="mb-6">
+                          <label className="block text-sm font-semibold text-gray-900 mb-2">Stops</label>
+                          <div className="space-y-2">
+                            {[0, 1, 2].map(stopCount => (
+                              <label key={stopCount} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={filterStops.includes(stopCount)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setFilterStops([...filterStops, stopCount]);
+                                    } else {
+                                      setFilterStops(filterStops.filter(s => s !== stopCount));
+                                    }
+                                  }}
+                                  className="w-4 h-4 rounded border-gray-300"
+                                />
+                                <span className="text-sm text-gray-700">
+                                  {stopCount === 0 ? 'Non-stop' : stopCount === 1 ? '1 Stop' : '2+ Stops'}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Airlines */}
+                        <div className="mb-6">
+                          <label className="block text-sm font-semibold text-gray-900 mb-2">Airlines</label>
+                          <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-2">
+                            {[...new Set(flights.flatMap(f => getAirlineCodes(f)))].sort().map(code => (
+                              <label key={code} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={filterAirlines.includes(code)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setFilterAirlines([...filterAirlines, code]);
+                                    } else {
+                                      setFilterAirlines(filterAirlines.filter(a => a !== code));
+                                    }
+                                  }}
+                                  className="w-4 h-4 rounded border-gray-300"
+                                />
+                                <span className="text-sm text-gray-700">{AIRLINE_NAMES[code] || code}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Departure Time */}
+                        <div className="mb-6">
+                          <label className="block text-sm font-semibold text-gray-900 mb-2">Departure Time</label>
+                          <div className="space-y-2">
+                            {[
+                              { value: 'morning', label: 'Morning', icon: '🌅' },
+                              { value: 'afternoon', label: 'Afternoon', icon: '☀️' },
+                              { value: 'evening', label: 'Evening', icon: '🌇' },
+                              { value: 'night', label: 'Night', icon: '🌙' }
+                            ].map(time => (
+                              <label key={time.value} className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={filterDepartureTime.includes(time.value)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setFilterDepartureTime([...filterDepartureTime, time.value]);
+                                    } else {
+                                      setFilterDepartureTime(filterDepartureTime.filter(t => t !== time.value));
+                                    }
+                                  }}
+                                  className="w-4 h-4 rounded border-gray-300"
+                                />
+                                <span className="text-sm text-gray-700">{time.icon} {time.label}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footer Actions */}
+                      <div className="flex items-center gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                        <button
+                          onClick={clearAllFilters}
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-100 transition"
+                        >
+                          Clear All
+                        </button>
+                        <button
+                          onClick={() => setShowFilters(false)}
+                          className="flex-1 px-4 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition"
+                        >
+                          Apply Filters
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Desktop Sidebar - Hidden on Mobile */}
+                <div className="hidden lg:block bg-white rounded-lg border border-gray-200 p-4 lg:sticky lg:top-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-gray-900 flex items-center gap-2">
                       <Filter className="w-4 h-4" />
@@ -2374,7 +2512,7 @@ export default function FlightSearchPage() {
                   {/* Airlines */}
                   <div className="mb-6">
                     <label className="block text-sm font-semibold text-gray-900 mb-2">Airlines</label>
-                    <div className="max-h-48 overflow-y-auto scrollbar-hide space-y-2">
+                    <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-2">
                       {[...new Set(flights.flatMap(f => getAirlineCodes(f)))].sort().map(code => (
                         <label key={code} className="flex items-center gap-2 cursor-pointer">
                           <input
