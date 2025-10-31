@@ -144,8 +144,10 @@ export const inviteUser = async (req: Request, res: Response) => {
 
     const inviterName = inviterUser ? `${inviterUser.firstName} ${inviterUser.lastName}` : 'Your Administrator';
 
+    const invitationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/accept-invitation?token=${invitationToken}`;
+
     // Send invitation email
-    await sendTeamInvitationEmail(
+    const emailSent = await sendTeamInvitationEmail(
       email,
       firstName,
       lastName,
@@ -156,11 +158,17 @@ export const inviteUser = async (req: Request, res: Response) => {
       invitationToken
     );
 
-    const invitationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/accept-invitation?token=${invitationToken}`;
+    // Warn if email failed to send
+    if (!emailSent) {
+      logger.warn(`Invitation email failed to send to ${email}. User created but email not delivered.`);
+    }
 
     return res.status(201).json({
       success: true,
-      message: 'User invitation created successfully',
+      message: emailSent
+        ? 'User invitation created successfully and email sent'
+        : 'User invitation created but email failed to send. Please share the invitation link manually.',
+      emailSent,
       data: {
         user: {
           id: newUser.id,
