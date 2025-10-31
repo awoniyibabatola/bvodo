@@ -39,6 +39,7 @@ import {
   Maximize2,
   Minimize2,
   ChevronRight,
+  Briefcase,
 } from 'lucide-react';
 import AIChatbox from '@/components/AIChatbox';
 
@@ -826,32 +827,42 @@ export default function HotelSearchPage() {
           </div>
         </div>
 
-        {/* Page Header - SIMPLIFIED FOR MOBILE */}
-        <div className="mb-4 md:mb-6 flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
-              Search Hotels
-            </h1>
-            <p className="text-sm md:text-xs text-gray-600 hidden md:block">Find the perfect accommodation for your business trip</p>
+        {/* Policy Badge - Visible before search */}
+        {policyLimit ? (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Briefcase className="w-4 h-4 text-blue-700" />
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-blue-600">Your Policy Limit</div>
+                  <div className="text-lg font-bold text-blue-700">${policyLimit.toLocaleString()}</div>
+                </div>
+              </div>
+              <span className="text-xs text-blue-600 font-medium">per night</span>
+            </div>
           </div>
+        ) : userPolicy === null && (
+          <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Briefcase className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-gray-500">Booking Policy</div>
+                <div className="text-sm font-semibold text-gray-700">No limit - All hotels available</div>
+              </div>
+            </div>
+          </div>
+        )}
 
-          {/* Policy Limit Badge - Top Right */}
-          {policyLimit ? (
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-xs font-medium text-gray-500">Your Policy Limit</span>
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
-                <span className="text-lg font-bold text-blue-700">${policyLimit}</span>
-                <span className="text-xs text-blue-600">per night</span>
-              </div>
-            </div>
-          ) : userPolicy === null && (
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-xs font-medium text-gray-500">Booking Policy</span>
-              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg">
-                <span className="text-xs text-gray-600">No limit - All hotels available</span>
-              </div>
-            </div>
-          )}
+        {/* Page Header - SIMPLIFIED FOR MOBILE */}
+        <div className="mb-4 md:mb-6">
+          <h1 className="text-2xl md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 md:mb-2">
+            Search Hotels
+          </h1>
+          <p className="text-sm md:text-xs text-gray-600 hidden md:block">Find the perfect accommodation for your business trip</p>
         </div>
 
         {/* Search Mode Toggle */}
