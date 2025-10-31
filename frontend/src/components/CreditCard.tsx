@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plane } from 'lucide-react';
+import { Plane, Eye, EyeOff } from 'lucide-react';
 
 interface CreditCardProps {
   organizationName: string;
@@ -26,12 +26,24 @@ export default function CreditCard({
 }: CreditCardProps) {
   const isSmall = size === 'small';
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isBalanceVisible, setIsBalanceVisible] = useState(false);
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't flip card if clicking the eye icon
+    const target = e.target as HTMLElement;
+    if (target.closest('.balance-toggle')) {
+      return;
+    }
+    if (!disableInternalFlip) {
+      setIsFlipped(!isFlipped);
+    }
+  };
 
   return (
     <div className={`group relative ${className}`} style={{ perspective: '1000px' }}>
       <div
         className={`relative w-full ${!disableInternalFlip ? 'cursor-pointer' : ''}`}
-        onClick={() => !disableInternalFlip && setIsFlipped(!isFlipped)}
+        onClick={handleCardClick}
         style={{
           transformStyle: 'preserve-3d',
           transition: 'transform 0.6s',
@@ -100,6 +112,20 @@ export default function CreditCard({
               </div>
               <span className="text-lg font-extrabold text-black tracking-wide drop-shadow-sm">bvodo</span>
             </div>
+            {/* Toggle Balance Visibility */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsBalanceVisible(!isBalanceVisible);
+              }}
+              className="balance-toggle w-8 h-8 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-black/30 hover:bg-black/30 transition-colors"
+            >
+              {isBalanceVisible ? (
+                <Eye className="w-4 h-4 text-black" />
+              ) : (
+                <EyeOff className="w-4 h-4 text-black" />
+              )}
+            </button>
           </div>
         </div>
 
@@ -107,7 +133,11 @@ export default function CreditCard({
         <div className="relative z-10 py-3">
           <div className="text-black/70 text-xs font-bold uppercase tracking-wider mb-2">Available Balance</div>
           <div className="text-2xl md:text-3xl font-extrabold text-black tracking-tight drop-shadow-sm">
-            ${(availableBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            {isBalanceVisible ? (
+              `$${(availableBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+            ) : (
+              <span className="tracking-wider">$••••••</span>
+            )}
           </div>
         </div>
 
@@ -159,7 +189,11 @@ export default function CreditCard({
           <div className="mb-6">
             <div className="text-gray-500 text-[10px] font-medium uppercase tracking-wider mb-1">Available Balance</div>
             <div className="text-2xl font-bold text-gray-900">
-              ${(availableBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              {isBalanceVisible ? (
+                `$${(availableBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+              ) : (
+                <span className="tracking-wider">$••••••</span>
+              )}
             </div>
           </div>
 
@@ -168,13 +202,21 @@ export default function CreditCard({
             <div className="flex justify-between text-xs">
               <span className="text-gray-600">Used</span>
               <span className="text-gray-900 font-semibold">
-                ${(usageData.used || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                {isBalanceVisible ? (
+                  `$${(usageData.used || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                ) : (
+                  '$••••'
+                )}
               </span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-gray-600">Total</span>
               <span className="text-gray-900 font-semibold">
-                ${(usageData.total || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                {isBalanceVisible ? (
+                  `$${(usageData.total || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+                ) : (
+                  '$••••'
+                )}
               </span>
             </div>
             <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">

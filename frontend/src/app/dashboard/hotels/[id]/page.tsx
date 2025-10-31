@@ -67,12 +67,15 @@ export default function HotelDetailsPage() {
   const adults = parseInt(searchParams.get('adults') || '1');
   const rooms = parseInt(searchParams.get('rooms') || '1');
   const city = searchParams.get('city') || '';
+  const location = searchParams.get('location') || '';
 
   // Build back URL with search parameters preserved
+  // Search page uses different parameter names: location, checkInDate, checkOutDate
   const backToSearchUrl = `/dashboard/hotels/search?${new URLSearchParams({
-    ...(city && { city }),
-    ...(checkInDate && { checkIn: checkInDate }),
-    ...(checkOutDate && { checkOut: checkOutDate }),
+    ...(location && { location }), // Use 'location' for search page
+    ...(city && !location && { city }), // Fallback to city if location not present
+    ...(checkInDate && { checkInDate }), // Search page uses checkInDate
+    ...(checkOutDate && { checkOutDate }), // Search page uses checkOutDate
     ...(adults && { adults: adults.toString() }),
     ...(rooms && { rooms: rooms.toString() }),
   }).toString()}`;
@@ -89,6 +92,7 @@ export default function HotelDetailsPage() {
   const [groupByPolicy, setGroupByPolicy] = useState(true); // Group by refundable/non-refundable
   const [roomImageIndices, setRoomImageIndices] = useState<{ [key: number]: number }>({}); // Track current image for each room
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false); // About this property collapse state
+  const [expandedRoomDescriptions, setExpandedRoomDescriptions] = useState<{ [key: number]: boolean }>({}); // Track which room descriptions are expanded
 
   // Group booking modal state
   const [showPaymentSummary, setShowPaymentSummary] = useState(false);
@@ -136,11 +140,14 @@ export default function HotelDetailsPage() {
 
   // Debug: Log hotel address data
   useEffect(() => {
-    if (hotelOffers?.hotel?.address) {
-      console.log('Hotel address data:', hotelOffers.hotel.address);
-      console.log('Address lines:', hotelOffers.hotel.address.lines);
-      console.log('City name:', hotelOffers.hotel.address.cityName);
-      console.log('Country code:', hotelOffers.hotel.address.countryCode);
+    if (hotelOffers?.hotel) {
+      console.log('Hotel address data (location.address):', hotelOffers.hotel.location?.address);
+      console.log('Hotel address data (address):', hotelOffers.hotel.address);
+      if (hotelOffers.hotel.location?.address) {
+        console.log('  - line_one:', hotelOffers.hotel.location.address.line_one);
+        console.log('  - city_name:', hotelOffers.hotel.location.address.city_name);
+        console.log('  - country_code:', hotelOffers.hotel.location.address.country_code);
+      }
     }
   }, [hotelOffers]);
 
@@ -299,9 +306,9 @@ export default function HotelDetailsPage() {
           amenities: selectedOffer.room?.description?.facilities || [],
           mealPlan: selectedOffer.boardType || 'ROOM_ONLY',
           cancellationPolicy: selectedOffer.policies?.cancellation?.type || 'NON_REFUNDABLE',
-          address: hotel.address?.lines?.join(', ') || hotel.address?.cityName || 'N/A',
-          city: hotel.address?.cityName || hotel.name || 'Unknown',
-          country: hotel.address?.countryCode || hotel.address?.cityName || 'Unknown',
+          address: hotel.location?.address?.line_one || hotel.address?.lines?.join(', ') || '',
+          city: hotel.location?.address?.city_name || hotel.address?.cityName || hotel.name || '',
+          country: hotel.location?.address?.country_code || hotel.address?.countryCode || '',
           photoUrl: hotel.media && hotel.media.length > 0 ? (hotel.media[0].uri || hotel.media[0].url) : null,
         },
       };
@@ -997,14 +1004,29 @@ export default function HotelDetailsPage() {
                         // Build address from available data
                         const addressParts = [];
 
-                        // Add street address if available
-                        if (hotel.address?.lines?.length > 0) {
-                          addressParts.push(hotel.address.lines.join(', '));
+                        // Prioritize hotel.location.address (Duffel Stays API)
+                        const addr = hotel.location?.address || hotel.address;
+
+                        // Add street address if available (Duffel format)
+                        if (addr?.line_one) {
+                          addressParts.push(addr.line_one);
                         }
 
-                        // Add city - prioritize cityName over cityCode
-                        if (hotel.address?.cityName) {
-                          addressParts.push(hotel.address.cityName);
+                        // Add second address line if available
+                        if (addr?.line_two) {
+                          addressParts.push(addr.line_two);
+                        }
+
+                        // Fallback: Check for lines array (Amadeus format)
+                        if (!addr?.line_one && addr?.lines?.length > 0) {
+                          addressParts.push(addr.lines.join(', '));
+                        }
+
+                        // Add city - prioritize city_name (Duffel) over cityName (Amadeus)
+                        if (addr?.city_name) {
+                          addressParts.push(addr.city_name);
+                        } else if (addr?.cityName) {
+                          addressParts.push(addr.cityName);
                         } else if (hotel.cityCode) {
                           // Map common city codes to full names
                           const cityMap: { [key: string]: string } = {
@@ -1032,13 +1054,20 @@ export default function HotelDetailsPage() {
                           addressParts.push(cityMap[hotel.cityCode] || hotel.cityCode);
                         }
 
-                        // Add state/region if available
-                        if (hotel.address?.stateCode) {
-                          addressParts.push(hotel.address.stateCode);
+                        // Add region if available
+                        if (addr?.region) {
+                          addressParts.push(addr.region);
+                        } else if (addr?.stateCode) {
+                          addressParts.push(addr.stateCode);
+                        }
+
+                        // Add postal code if available
+                        if (addr?.postal_code) {
+                          addressParts.push(addr.postal_code);
                         }
 
                         // Add country
-                        if (hotel.address?.countryCode) {
+                        if (addr?.country_code) {
                           // Map country codes to full names
                           const countryMap: { [key: string]: string } = {
                             'US': 'United States',
@@ -1055,7 +1084,25 @@ export default function HotelDetailsPage() {
                             'CN': 'China',
                             'IN': 'India',
                           };
-                          addressParts.push(countryMap[hotel.address.countryCode] || hotel.address.countryCode);
+                          addressParts.push(countryMap[addr.country_code] || addr.country_code);
+                        } else if (addr?.countryCode) {
+                          // Fallback to Amadeus format
+                          const countryMap: { [key: string]: string } = {
+                            'US': 'United States',
+                            'GB': 'United Kingdom',
+                            'FR': 'France',
+                            'AE': 'United Arab Emirates',
+                            'AU': 'Australia',
+                            'SG': 'Singapore',
+                            'JP': 'Japan',
+                            'DE': 'Germany',
+                            'IT': 'Italy',
+                            'ES': 'Spain',
+                            'CA': 'Canada',
+                            'CN': 'China',
+                            'IN': 'India',
+                          };
+                          addressParts.push(countryMap[addr.countryCode] || addr.countryCode);
                         }
 
                         // If we have address parts, join them
@@ -1070,7 +1117,12 @@ export default function HotelDetailsPage() {
                     {hotel.name && (
                       <a
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                          hotel.name + (hotel.address?.cityName ? ` ${hotel.address.cityName}` : '') + (hotel.address?.countryCode ? ` ${hotel.address.countryCode}` : '')
+                          (() => {
+                            const addr = hotel.location?.address || hotel.address;
+                            return hotel.name +
+                              (addr?.city_name ? ` ${addr.city_name}` : addr?.cityName ? ` ${addr.cityName}` : '') +
+                              (addr?.country_code ? ` ${addr.country_code}` : addr?.countryCode ? ` ${addr.countryCode}` : '');
+                          })()
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -1538,11 +1590,33 @@ export default function HotelDetailsPage() {
                       {/* Left: Room Info */}
                       <div className="flex-1 p-3 lg:p-4">
                         {/* Room Description */}
-                        {offer.room?.description?.text && (
-                          <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                            {offer.room.description.text.toLowerCase().replace(/\b\w/g, (char: string) => char.toUpperCase())}
-                          </p>
-                        )}
+                        {offer.room?.description?.text && (() => {
+                          const description = offer.room.description.text.toLowerCase().replace(/\b\w/g, (char: string) => char.toUpperCase());
+                          const shouldTruncate = description.length > 150;
+                          const isExpanded = expandedRoomDescriptions[index] || false;
+
+                          return (
+                            <div className="text-xs text-gray-600 mb-3 leading-relaxed">
+                              <p>
+                                {!shouldTruncate || isExpanded ? description : `${description.substring(0, 150)}...`}
+                              </p>
+                              {shouldTruncate && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setExpandedRoomDescriptions(prev => ({
+                                      ...prev,
+                                      [index]: !prev[index]
+                                    }));
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800 font-medium mt-1"
+                                >
+                                  {isExpanded ? 'See less' : 'See more'}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                         {/* Room Features */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
@@ -1974,9 +2048,9 @@ export default function HotelDetailsPage() {
                 amenities: multiRoomData.rooms[0]?.offerDetails?.room?.description?.facilities || [],
                 mealPlan: multiRoomData.rooms[0]?.offerDetails?.boardType || 'ROOM_ONLY',
                 cancellationPolicy: multiRoomData.rooms[0]?.offerDetails?.policies?.cancellation?.type || 'NON_REFUNDABLE',
-                address: hotel.address?.lines?.join(', ') || hotel.address?.cityName || 'N/A',
-                city: hotel.address?.cityName || hotel.name || 'Unknown',
-                country: hotel.address?.countryCode || hotel.address?.cityName || 'Unknown',
+                address: hotel.location?.address?.line_one || hotel.address?.lines?.join(', ') || '',
+                city: hotel.location?.address?.city_name || hotel.address?.cityName || hotel.name || '',
+                country: hotel.location?.address?.country_code || hotel.address?.countryCode || '',
                 photoUrl: hotel.media && hotel.media.length > 0 ? (hotel.media[0].uri || hotel.media[0].url) : null,
               },
             };

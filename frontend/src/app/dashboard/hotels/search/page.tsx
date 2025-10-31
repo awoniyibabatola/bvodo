@@ -81,6 +81,8 @@ export default function HotelSearchPage() {
     email: '',
     organization: '',
   });
+  const [searchMode, setSearchMode] = useState<'location' | 'name'>('location');
+  const [hotelName, setHotelName] = useState('');
   const [address, setAddress] = useState('');
   const [checkInDate, setCheckInDate] = useState('');
   const [checkOutDate, setCheckOutDate] = useState('');
@@ -476,6 +478,16 @@ export default function HotelSearchPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (searchMode === 'name') {
+      handleSearchByName(e);
+    } else {
+      handleSearchByLocation(e);
+    }
+  };
+
+  const handleSearchByLocation = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     setError('');
     setCurrentLimit(20); // Reset limit on new search
@@ -521,6 +533,69 @@ export default function HotelSearchPage() {
         setHasMore(adaptedHotels.length >= 20);
       } else {
         setError(data.message || 'Failed to search hotels');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while searching hotels');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchByName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setCurrentLimit(20);
+    setShowSearchForm(false);
+
+    try {
+      if (!hotelName.trim()) {
+        setError('Please enter a hotel name');
+        setLoading(false);
+        return;
+      }
+
+      if (!checkInDate || !checkOutDate) {
+        setError('Please select check-in and check-out dates');
+        setLoading(false);
+        return;
+      }
+
+      const params = new URLSearchParams({
+        hotelName: hotelName.trim(),
+        checkInDate,
+        checkOutDate,
+        adults: adults.toString(),
+        provider: 'duffel',
+        maxResults: '20',
+      });
+
+      console.log('[Hotel Name Search] Searching for:', hotelName);
+      const response = await fetch(`${getApiEndpoint('hotels/search-by-name')}?${params}`);
+      const data = await response.json();
+
+      console.log('[Hotel Name Search] Response:', data);
+      if (data.data && data.data.length > 0) {
+        console.log('[Hotel Name Search] Found hotels:', data.data.map((h: any) => ({
+          name: h.hotel?.name,
+          location: h.searchLocation,
+          price: h.price?.total,
+          currency: h.price?.currency
+        })));
+      }
+
+      if (data.success) {
+        const adaptedHotels = data.data.map(adaptDuffelStaysData);
+        setHotels(adaptedHotels);
+        setHasMore(false); // Global search returns all matches at once
+
+        if (adaptedHotels.length === 0) {
+          setError(`No hotels found matching "${hotelName}". Try a different name or search by location.`);
+        } else {
+          console.log('[Hotel Name Search] Set', adaptedHotels.length, 'hotels to state');
+        }
+      } else {
+        setError(data.message || 'Failed to search hotels by name');
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred while searching hotels');
@@ -683,9 +758,14 @@ export default function HotelSearchPage() {
 
     // Filter by maximum price
     if (maxPrice > 0 && !fromAI) {
+      console.log('[Hotels Filter] Applying price filter:', maxPrice);
       filtered = filtered.filter(hotel => {
         const price = getHotelPrice(hotel);
-        return price > 0 && price <= maxPrice;
+        const withinBudget = price > 0 && price <= maxPrice;
+        if (!withinBudget && hotel.hotel?.name) {
+          console.log('[Hotels Filter] Filtered out:', hotel.hotel.name, 'Price:', price, 'Limit:', maxPrice);
+        }
+        return withinBudget;
       });
     }
 
@@ -774,23 +854,73 @@ export default function HotelSearchPage() {
           )}
         </div>
 
+        {/* Search Mode Toggle */}
+        <div className="mb-4 md:mb-6 flex gap-2 bg-gray-100 p-1 rounded-lg inline-flex">
+          <button
+            type="button"
+            onClick={() => setSearchMode('location')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              searchMode === 'location'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              <span>Search by Location</span>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSearchMode('name')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              searchMode === 'name'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4" />
+              <span>Search by Hotel Name</span>
+            </div>
+          </button>
+        </div>
+
         {/* Search Form - Desktop only, always hidden on mobile */}
         <div className="hidden md:block relative mb-6 md:mb-8">
           <form onSubmit={handleSearch} className="relative bg-white rounded-lg p-3 md:p-4 lg:p-5 border border-gray-200">
             {/* Location and Dates */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 mb-4 md:mb-6">
-              {/* Address/City */}
-              <div className="lg:col-span-3">
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Location</label>
-                <CityAutocomplete
-                  value={address}
-                  onChange={setAddress}
-                  placeholder="City or address"
-                  required
-                  className="py-2.5 md:py-3 text-sm border hover:border-gray-300"
-                />
-                <p className="text-[10px] text-gray-500 mt-1">City name or detailed address</p>
-              </div>
+              {/* Conditional: Location or Hotel Name */}
+              {searchMode === 'location' ? (
+                <div className="lg:col-span-3">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Location</label>
+                  <CityAutocomplete
+                    value={address}
+                    onChange={setAddress}
+                    placeholder="City or address"
+                    required
+                    className="py-2.5 md:py-3 text-sm border hover:border-gray-300"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-1">City name or detailed address</p>
+                </div>
+              ) : (
+                <div className="lg:col-span-4">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Hotel Name</label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={hotelName}
+                      onChange={(e) => setHotelName(e.target.value)}
+                      placeholder="e.g., Hilton, Marriott, Duffel Test Hotel"
+                      required
+                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-sm text-gray-900 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
+                    />
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-1">Search across all locations globally</p>
+                </div>
+              )}
 
               {/* Check-in Date */}
               <div className="lg:col-span-3">
@@ -825,7 +955,7 @@ export default function HotelSearchPage() {
               </div>
 
               {/* Nights Display */}
-              <div className="lg:col-span-3">
+              <div className={`lg:col-span-${searchMode === 'name' ? '2' : '3'}`}>
                 <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">Duration</label>
                 <div className="flex items-center h-[42px] md:h-[50px] px-3 md:px-4 bg-gray-50 rounded-lg border border-gray-200">
                   <span className="text-lg md:text-xl font-bold text-gray-900">{calculateNights()}</span>
@@ -872,23 +1002,25 @@ export default function HotelSearchPage() {
                 </div>
               </div>
 
-              {/* Search Radius */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">
-                  Radius (km)
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="number"
-                    value={radius}
-                    onChange={(e) => setRadius(Math.max(1, parseInt(e.target.value) || 5))}
-                    min={1}
-                    max={300}
-                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
-                  />
+              {/* Search Radius - Only for location search */}
+              {searchMode === 'location' && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5 md:mb-2">
+                    Radius (km)
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="number"
+                      value={radius}
+                      onChange={(e) => setRadius(Math.max(1, parseInt(e.target.value) || 5))}
+                      min={1}
+                      max={300}
+                      className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none hover:border-gray-300 min-h-[44px]"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Search Button */}
@@ -1411,9 +1543,24 @@ export default function HotelSearchPage() {
 
                       {/* Hotel Description - HIDDEN ON MOBILE */}
                       {hotel.hotel?.description && (
-                        <p className="hidden md:block text-[10px] md:text-xs text-gray-600 line-clamp-2 mb-3 md:mb-4 leading-relaxed">
-                          {hotel.hotel.description}
-                        </p>
+                        <div className="hidden md:block text-[10px] md:text-xs text-gray-600 mb-3 md:mb-4 leading-relaxed">
+                          <p>
+                            {hotel.hotel.description.length > 150
+                              ? `${hotel.hotel.description.substring(0, 150)}...`
+                              : hotel.hotel.description}
+                            {hotel.hotel.description.length > 150 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Toggle full description - we'll use the hotel detail page for this
+                                }}
+                                className="ml-1 text-blue-600 hover:text-blue-800 font-medium"
+                              >
+                                See more
+                              </button>
+                            )}
+                          </p>
+                        </div>
                       )}
                     </div>
 
@@ -1522,7 +1669,7 @@ export default function HotelSearchPage() {
                     </div>
 
                     <Link
-                      href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
+                      href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}&location=${encodeURIComponent(address)}`}
                       onClick={() => saveViewedHotel(hotel)}
                       className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium text-center"
                     >
@@ -1648,7 +1795,7 @@ export default function HotelSearchPage() {
 
                         {/* View Button */}
                         <Link
-                          href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
+                          href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}&location=${encodeURIComponent(address)}`}
                           className="flex-shrink-0 self-center px-4 py-2 bg-gray-900 text-white rounded-lg font-medium transition-all text-xs"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1768,7 +1915,7 @@ export default function HotelSearchPage() {
                         </div>
 
                         <Link
-                          href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}`}
+                          href={`/dashboard/hotels/${hotel.hotel?.hotelId}?checkIn=${checkInDate}&checkOut=${checkOutDate}&adults=${adults}&rooms=${roomQuantity}&location=${encodeURIComponent(address)}`}
                           onClick={() => saveViewedHotel(hotel)}
                           className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg font-medium text-center text-sm"
                         >
@@ -1861,17 +2008,35 @@ export default function HotelSearchPage() {
 
             {/* Form */}
             <form onSubmit={handleSearch} className="p-5 space-y-4">
-              {/* Location */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Location</label>
-                <CityAutocomplete
-                  value={address}
-                  onChange={setAddress}
-                  placeholder="City or address"
-                  required
-                  className="py-3 text-base border hover:border-gray-400"
-                />
-              </div>
+              {/* Conditional: Location or Hotel Name */}
+              {searchMode === 'location' ? (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Location</label>
+                  <CityAutocomplete
+                    value={address}
+                    onChange={setAddress}
+                    placeholder="City or address"
+                    required
+                    className="py-3 text-base border hover:border-gray-400"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Hotel Name</label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={hotelName}
+                      onChange={(e) => setHotelName(e.target.value)}
+                      placeholder="e.g., Hilton, Marriott, Duffel Test Hotel"
+                      required
+                      className="w-full pl-10 pr-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none min-h-[44px]"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Search across all locations globally</p>
+                </div>
+              )}
 
               {/* Check-in and Check-out */}
               <div className="grid grid-cols-2 gap-3">

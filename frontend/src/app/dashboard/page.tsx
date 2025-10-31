@@ -403,12 +403,9 @@ export default function DashboardPage() {
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
                   {/* Arrow */}
-                  <div className="mb-2">
+                  <div className="mb-3">
                     <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
                   </div>
-
-                  {/* Horizontal line - 1px above title */}
-                  <div className="w-12 h-px bg-gray-900 mb-3"></div>
 
                   <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Total Bookings</div>
                   <div className="text-3xl font-bold text-gray-900">{dashboardStats?.stats.totalBookings || 0}</div>
@@ -429,12 +426,9 @@ export default function DashboardPage() {
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
                   {/* Arrow */}
-                  <div className="mb-2">
+                  <div className="mb-3">
                     <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
                   </div>
-
-                  {/* Horizontal line - 1px above title */}
-                  <div className="w-12 h-px bg-gray-900 mb-3"></div>
 
                   <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Destinations</div>
                   <div className="text-3xl font-bold text-gray-900">{dashboardStats?.stats.destinations || 0}</div>
@@ -455,12 +449,9 @@ export default function DashboardPage() {
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
                   {/* Arrow */}
-                  <div className="mb-2">
+                  <div className="mb-3">
                     <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
                   </div>
-
-                  {/* Horizontal line - 1px above title */}
-                  <div className="w-12 h-px bg-gray-900 mb-3"></div>
 
                   <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Hotels Booked</div>
                   <div className="text-3xl font-bold text-gray-900">{dashboardStats?.stats.hotelsBooked || 0}</div>
@@ -481,12 +472,9 @@ export default function DashboardPage() {
                 {/* Content */}
                 <div className="flex-1 flex flex-col justify-end">
                   {/* Arrow */}
-                  <div className="mb-2">
+                  <div className="mb-3">
                     <ArrowRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gray-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1} />
                   </div>
-
-                  {/* Horizontal line - 1px above title */}
-                  <div className="w-12 h-px bg-gray-900 mb-3"></div>
 
                   <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-2">Flights Taken</div>
                   <div className="text-3xl font-bold text-gray-900">{dashboardStats?.stats.flightsTaken || 0}</div>

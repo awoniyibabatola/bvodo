@@ -53,8 +53,21 @@ interface Booking {
     lastName: string;
     email: string;
   };
-  flightBookings?: any[];
-  hotelBookings?: any[];
+  flightBookings?: Array<{
+    departureAirport: string;
+    arrivalAirport: string;
+    airline: string;
+    airlineCode?: string;
+  }>;
+  hotelBookings?: Array<{
+    photoUrl?: string;
+    rooms?: Array<{
+      guests?: Array<{
+        firstName: string;
+        lastName: string;
+      }>;
+    }>;
+  }>;
 }
 
 type ViewMode = 'list' | 'calendar' | 'table';
@@ -406,232 +419,283 @@ export default function BookingsPage() {
           </div>
         ) : viewMode === 'list' ? (
           <>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
               {filteredBookings.map((booking) => (
-                <div
+                <Link
                   key={booking.id}
-                  className="relative"
+                  href={`/dashboard/bookings/${booking.id}`}
+                  className="group relative block"
                 >
-                  {/* Card */}
-                  <div className="bg-white rounded-lg md:rounded-xl overflow-hidden border border-gray-200 hover:border-gray-900 transition shadow-sm">
-                    <div className="p-4 md:p-5">
+                  {/* Clean Minimal Card */}
+                  <div className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200">
+                    <div className="p-5">
                       {/* Desktop Layout */}
-                      <div className="hidden md:flex items-start justify-between">
-                        <div className="flex items-start gap-3 flex-1">
-                          {/* Icon */}
-                          <div className="p-2 rounded border border-gray-200 bg-white">
+                      <div className="hidden md:flex items-start gap-5">
+                        {/* Image/Icon - Hotel thumbnail, Airline logo, or Icon */}
+                        {booking.bookingType === 'hotel' && booking.hotelBookings?.[0]?.photoUrl ? (
+                          <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                            <img
+                              src={booking.hotelBookings[0].photoUrl}
+                              alt={booking.destination}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : booking.bookingType === 'flight' && booking.flightBookings?.[0]?.airlineCode ? (
+                          <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-white border border-gray-200 p-2 flex items-center justify-center">
+                            <img
+                              src={`https://images.kiwi.com/airlines/64/${booking.flightBookings[0].airlineCode}.png`}
+                              alt={booking.flightBookings[0].airline}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                // Fallback to icon if airline logo fails to load
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = '<div class="w-full h-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg></div>';
+                                }
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="p-2.5 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition flex-shrink-0">
                             {booking.bookingType === 'flight' ? (
-                              <Plane className="w-4 h-4 text-gray-700" />
+                              <Plane className="w-5 h-5 text-gray-600" />
                             ) : (
-                              <Hotel className="w-4 h-4 text-gray-700" />
+                              <Hotel className="w-5 h-5 text-gray-600" />
+                            )}
+                          </div>
+                        )}
+
+                        {/* Main Content */}
+                        <div className="flex-1 min-w-0">
+                          {/* Reference, Type & Status */}
+                          <div className="flex items-center gap-2.5 mb-3 flex-wrap">
+                            <h3 className="text-base font-semibold text-gray-900">
+                              {booking.bookingReference}
+                            </h3>
+                            <span className="text-xs text-gray-400">•</span>
+                            <span className="text-xs text-gray-500">
+                              {booking.bookingType === 'flight' ? 'Flight' : 'Hotel'}
+                            </span>
+                            <span
+                              className={`text-xs font-medium px-2.5 py-0.5 rounded inline-flex items-center gap-1 ${getStatusColor(
+                                booking.status
+                              )}`}
+                            >
+                              {getStatusIcon(booking.status)}
+                              {formatStatus(booking.status)}
+                            </span>
+                            {booking.isGroupBooking && (
+                              <span className="text-xs font-medium px-2.5 py-0.5 rounded bg-gray-50 text-gray-600">
+                                <Users className="w-3 h-3 inline mr-1" />
+                                {booking.numberOfTravelers} travelers
+                              </span>
                             )}
                           </div>
 
-                          {/* Booking Info */}
-                          <div className="flex-1 min-w-0">
-                            {/* Header with reference and badges */}
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <h3 className="text-sm font-bold text-gray-900">
-                                {booking.bookingReference}
-                              </h3>
-                              {booking.providerConfirmationNumber && (
-                                <span className="text-[10px] text-gray-600 font-medium">
-                                  {booking.bookingType === 'hotel' ? 'Ref:' : 'PNR:'} {booking.providerConfirmationNumber}
-                                </span>
+                          {/* Route - Simplified */}
+                          <div className="flex items-center gap-2.5 mb-3.5 text-sm">
+                            <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            <div className="flex items-center gap-2 text-gray-900 font-medium">
+                              {booking.bookingType === 'flight' && booking.flightBookings?.[0] ? (
+                                <>
+                                  <span>{booking.flightBookings[0].departureAirport}</span>
+                                  <span className="text-gray-400">→</span>
+                                  <span>{booking.flightBookings[0].arrivalAirport}</span>
+                                </>
+                              ) : (
+                                <>
+                                  {booking.origin && <span>{booking.origin}</span>}
+                                  {booking.origin && <span className="text-gray-400">→</span>}
+                                  <span>{booking.destination}</span>
+                                </>
                               )}
-                              <span
-                                className={`text-[10px] font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1 border ${getStatusColor(
-                                  booking.status
-                                )}`}
-                              >
-                                {getStatusIcon(booking.status)}
-                                {formatStatus(booking.status)}
+                            </div>
+                          </div>
+
+                          {/* Metadata Row - Compact */}
+                          <div className="flex items-center gap-5 text-xs flex-wrap">
+                            {/* Date */}
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                              <span className="text-gray-600">
+                                {formatDate(booking.departureDate)}
+                                {booking.returnDate && booking.bookingType === 'hotel' && (
+                                  <> - {formatDate(booking.returnDate)}</>
+                                )}
                               </span>
-                              {booking.isGroupBooking && (
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1 bg-gray-50 text-gray-700 border border-gray-200">
-                                  <Users className="w-2.5 h-2.5" />
-                                  Group ({booking.numberOfTravelers})
-                                </span>
-                              )}
                             </div>
 
-                            {/* Route/Destination Info */}
-                            <div className="bg-gray-50 rounded p-2 mb-2 border border-gray-200">
-                              <div className="flex items-center gap-1.5 text-gray-900 font-semibold mb-1">
-                                <MapPin className="w-3 h-3 text-gray-600" />
-                                <span className="text-xs">
-                                  {booking.origin && `${booking.origin} → `}
-                                  {booking.destination}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-4 text-[10px] text-gray-600 pl-4">
-                                <div className="flex items-center gap-1">
-                                  <Calendar className="w-3 h-3 text-gray-500" />
-                                  <span>{formatDate(booking.departureDate)}</span>
-                                  {booking.returnDate && (
-                                    <span>→ {formatDate(booking.returnDate)}</span>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Users className="w-3 h-3 text-gray-500" />
-                                  <span>
-                                    {booking.passengers}{' '}
-                                    {booking.passengers === 1 ? 'passenger' : 'passengers'}
-                                  </span>
-                                </div>
-                              </div>
+                            {/* Travelers/Guests with Names */}
+                            <div className="flex items-center gap-2">
+                              <Users className="w-3.5 h-3.5 text-gray-400" />
+                              <span className="text-gray-600">
+                                {booking.passengerDetails?.[0] ? (
+                                  <>
+                                    {booking.passengerDetails[0].firstName} {booking.passengerDetails[0].lastName}
+                                    {booking.passengers > 1 && <span className="text-gray-400"> +{booking.passengers - 1}</span>}
+                                  </>
+                                ) : booking.hotelBookings?.[0]?.rooms?.[0]?.guests?.[0] ? (
+                                  <>
+                                    {booking.hotelBookings[0].rooms[0].guests[0].firstName} {booking.hotelBookings[0].rooms[0].guests[0].lastName}
+                                    {booking.passengers > 1 && <span className="text-gray-400"> +{booking.passengers - 1}</span>}
+                                  </>
+                                ) : (
+                                  <>{booking.passengers} {booking.passengers === 1 ? 'person' : 'people'}</>
+                                )}
+                              </span>
                             </div>
 
-                            {/* Footer info */}
-                            <div className="space-y-3">
-                              {/* Guest Names */}
-                              {booking.passengerDetails && booking.passengerDetails.length > 0 && (
-                                <div className="flex items-start gap-2">
-                                  <Users className="w-3 h-3 text-gray-600 mt-0.5 flex-shrink-0" />
-                                  <div className="flex-1">
-                                    <div className="text-[10px] font-semibold text-gray-700 mb-1">
-                                      {booking.isGroupBooking && booking.groupName ? (
-                                        <span className="text-gray-900">{booking.groupName}</span>
-                                      ) : (
-                                        <span>{booking.bookingType === 'flight' ? 'Passengers' : 'Guests'}:</span>
-                                      )}
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                      {booking.passengerDetails.slice(0, 3).map((passenger, idx) => (
-                                        <div key={idx} className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 border border-gray-200 rounded">
-                                          <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center text-gray-700 font-bold text-[9px]">
-                                            {passenger.firstName.charAt(0)}{passenger.lastName.charAt(0)}
-                                          </div>
-                                          <span className="text-[10px] font-medium text-gray-900">
-                                            {passenger.firstName} {passenger.lastName}
-                                          </span>
-                                        </div>
-                                      ))}
-                                      {booking.passengerDetails.length > 3 && (
-                                        <div className="flex items-center px-2.5 py-1 bg-gray-100 border border-gray-200 rounded-lg">
-                                          <span className="text-xs font-semibold text-gray-600">
-                                            +{booking.passengerDetails.length - 3} more
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Booker Info */}
-                              <div className="flex items-center gap-1.5 text-sm text-gray-500 pt-2 border-t border-gray-100">
-                                <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center text-gray-700 font-semibold text-[9px]">
-                                  {booking.user.firstName.charAt(0)}{booking.user.lastName.charAt(0)}
-                                </div>
-                                <span className="text-[10px]">
-                                  Booked by <span className="font-semibold text-gray-700">{booking.user.firstName} {booking.user.lastName}</span> on {formatDate(booking.bookedAt)}
-                                </span>
-                              </div>
+                            {/* Price */}
+                            <div className="flex items-center gap-2">
+                              <DollarSign className="w-3.5 h-3.5 text-gray-400" />
+                              <span className="text-gray-900 font-semibold">
+                                {booking.currency} ${booking.totalPrice.toLocaleString('en-US')}
+                              </span>
                             </div>
                           </div>
                         </div>
 
-                        {/* Price and Actions */}
-                        <div className="text-right ml-4 flex flex-col items-end gap-2">
-                          <div className="bg-gray-50 rounded px-3 py-2 border border-gray-200">
-                            <div className="text-[10px] text-gray-600 mb-0.5">Total Price</div>
-                            <div className="text-sm font-bold text-gray-900">
-                              ${booking.totalPrice.toLocaleString()}
-                            </div>
-                            <div className="text-[10px] text-gray-500 mt-0.5">{booking.currency}</div>
+                        {/* Right Side: Subtle View Indicator */}
+                        <div className="flex items-center flex-shrink-0">
+                          <div className="p-2 rounded-lg bg-gray-50 group-hover:bg-gray-900 transition">
+                            <Eye className="w-4 h-4 text-gray-600 group-hover:text-white transition" />
                           </div>
-                          <Link
-                            href={`/dashboard/bookings/${booking.id}`}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-900 text-white rounded text-xs font-semibold hover:bg-gray-800 transition"
-                          >
-                            <Eye className="w-3 h-3" />
-                            <span>View Details</span>
-                          </Link>
                         </div>
                       </div>
 
-                      {/* Mobile Layout - Simplified & Modern */}
+                      {/* Mobile Layout - Clean & Minimal */}
                       <div className="md:hidden space-y-4">
-                        {/* Header */}
-                        <div className="flex items-start gap-3">
-                          <div className="p-2.5 rounded-lg bg-gray-50">
-                            {booking.bookingType === 'flight' ? (
-                              <Plane className="w-5 h-5 text-gray-900" />
+                        {/* Header Row */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3 flex-1 min-w-0">
+                            {/* Image/Icon - Hotel thumbnail, Airline logo, or Icon */}
+                            {booking.bookingType === 'hotel' && booking.hotelBookings?.[0]?.photoUrl ? (
+                              <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                                <img
+                                  src={booking.hotelBookings[0].photoUrl}
+                                  alt={booking.destination}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ) : booking.bookingType === 'flight' && booking.flightBookings?.[0]?.airlineCode ? (
+                              <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-white border border-gray-200 p-2 flex items-center justify-center">
+                                <img
+                                  src={`https://images.kiwi.com/airlines/64/${booking.flightBookings[0].airlineCode}.png`}
+                                  alt={booking.flightBookings[0].airline}
+                                  className="w-full h-full object-contain"
+                                  onError={(e) => {
+                                    // Fallback to icon if airline logo fails to load
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      parent.innerHTML = '<div class="w-full h-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path></svg></div>';
+                                    }
+                                  }}
+                                />
+                              </div>
                             ) : (
-                              <Hotel className="w-5 h-5 text-gray-900" />
+                              <div className="p-2.5 rounded-lg bg-gray-50 flex-shrink-0">
+                                {booking.bookingType === 'flight' ? (
+                                  <Plane className="w-4 h-4 text-gray-700" />
+                                ) : (
+                                  <Hotel className="w-4 h-4 text-gray-700" />
+                                )}
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <h3 className="text-base font-semibold text-gray-900 truncate">
+                                {booking.bookingReference}
+                              </h3>
+                              <div className="text-xs text-gray-500 mt-0.5">
+                                {booking.bookingType === 'flight' ? 'Flight' : 'Hotel'}
+                              </div>
+                            </div>
+                          </div>
+                          <span
+                            className={`text-[10px] font-medium px-2 py-1 rounded inline-flex items-center gap-1 whitespace-nowrap flex-shrink-0 ${getStatusColor(
+                              booking.status
+                            )}`}
+                          >
+                            {getStatusIcon(booking.status)}
+                            {formatStatus(booking.status)}
+                          </span>
+                        </div>
+
+                        {/* Route - Simplified */}
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                          <div className="flex items-center gap-2 text-gray-900 font-medium flex-1 min-w-0">
+                            {booking.bookingType === 'flight' && booking.flightBookings?.[0] ? (
+                              <>
+                                <span className="truncate">{booking.flightBookings[0].departureAirport}</span>
+                                <span className="text-gray-400 flex-shrink-0">→</span>
+                                <span className="truncate">{booking.flightBookings[0].arrivalAirport}</span>
+                              </>
+                            ) : (
+                              <>
+                                {booking.origin && <span className="truncate">{booking.origin}</span>}
+                                {booking.origin && <span className="text-gray-400 flex-shrink-0">→</span>}
+                                <span className="truncate">{booking.destination}</span>
+                              </>
                             )}
                           </div>
-                          <div className="flex-1">
-                            <h3 className="text-base font-bold text-gray-900 mb-1.5">
-                              {booking.bookingReference}
-                            </h3>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span
-                                className={`text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 ${getStatusColor(
-                                  booking.status
-                                )}`}
-                              >
-                                {getStatusIcon(booking.status)}
-                                {formatStatus(booking.status)}
-                              </span>
-                              {booking.isGroupBooking && (
-                                <span className="text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 bg-gray-100 text-gray-700">
-                                  <Users className="w-3.5 h-3.5" />
-                                  Group ({booking.numberOfTravelers})
-                                </span>
-                              )}
-                            </div>
-                          </div>
                         </div>
 
-                        {/* Destination & Travel Info */}
-                        <div className="space-y-2.5">
-                          <div className="flex items-center gap-2 text-gray-900">
-                            <MapPin className="w-4 h-4 text-gray-600 flex-shrink-0" />
-                            <span className="text-sm font-semibold">
-                              {booking.origin && `${booking.origin} → `}
-                              {booking.destination}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-700">
-                            <Calendar className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                            <span className="text-sm">
-                              {formatDate(booking.departureDate)}
-                              {booking.returnDate && ` → ${formatDate(booking.returnDate)}`}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-700">
-                            <Users className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                            <span className="text-sm">
-                              {booking.passengers} {booking.passengers === 1 ? 'passenger' : 'passengers'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Price & CTA */}
-                        <div className="pt-4 border-t border-gray-200 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Total Price</span>
-                            <div className="text-right">
-                              <div className="text-lg font-bold text-gray-900">
-                                ${booking.totalPrice.toLocaleString()}
+                        {/* Info Grid - Cleaner */}
+                        <div className="space-y-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                            <div>
+                              <div className="text-gray-500">
+                                {booking.bookingType === 'hotel' ? 'Check-in - Check-out' : 'Travel Date'}
                               </div>
-                              <div className="text-xs text-gray-500">{booking.currency}</div>
+                              <div className="font-medium text-gray-900">
+                                {formatDate(booking.departureDate)}
+                                {booking.returnDate && booking.bookingType === 'hotel' && (
+                                  <> - {formatDate(booking.returnDate)}</>
+                                )}
+                              </div>
                             </div>
                           </div>
-                          <Link
-                            href={`/dashboard/bookings/${booking.id}`}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition"
-                          >
-                            <Eye className="w-4 h-4" />
-                            <span>View Details</span>
-                          </Link>
+                          <div className="flex items-center gap-2">
+                            <Users className="w-3.5 h-3.5 text-gray-400" />
+                            <div className="min-w-0 flex-1">
+                              <div className="text-gray-500">
+                                {booking.bookingType === 'hotel' ? 'Guests' : 'Travelers'}
+                              </div>
+                              <div className="font-medium text-gray-900 truncate">
+                                {booking.passengerDetails?.[0] ? (
+                                  <>
+                                    {booking.passengerDetails[0].firstName} {booking.passengerDetails[0].lastName}
+                                    {booking.passengers > 1 && <span className="text-gray-400"> +{booking.passengers - 1}</span>}
+                                  </>
+                                ) : booking.hotelBookings?.[0]?.rooms?.[0]?.guests?.[0] ? (
+                                  <>
+                                    {booking.hotelBookings[0].rooms[0].guests[0].firstName} {booking.hotelBookings[0].rooms[0].guests[0].lastName}
+                                    {booking.passengers > 1 && <span className="text-gray-400"> +{booking.passengers - 1}</span>}
+                                  </>
+                                ) : (
+                                  <>{booking.passengers} {booking.passengers === 1 ? 'person' : 'people'}</>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Price - Bottom */}
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                          <div className="text-xs text-gray-500">Total Cost</div>
+                          <div className="text-base font-semibold text-gray-900">
+                            {booking.currency} ${booking.totalPrice.toLocaleString('en-US')}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
 
@@ -827,7 +891,7 @@ export default function BookingsPage() {
                         {booking.passengers}
                       </td>
                       <td className="px-3 md:px-4 py-3 text-xs md:text-sm font-medium text-gray-900">
-                        ${booking.totalPrice.toLocaleString()}
+                        ${booking.totalPrice.toLocaleString('en-US')}
                       </td>
                       <td className="px-3 md:px-4 py-3">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}>
