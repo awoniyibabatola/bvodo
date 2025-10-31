@@ -29,6 +29,7 @@ import {
   Leaf,
   ArrowUpDown,
   Shield,
+  TrendingUp,
 } from 'lucide-react';
 import { getApiEndpoint } from '@/lib/api-config';
 import UnifiedNavBar from '@/components/UnifiedNavBar';
@@ -420,6 +421,7 @@ export default function FlightSearchPage() {
   const [selectedOutboundFlight, setSelectedOutboundFlight] = useState<any>(null);
   const [showReturnFlightSelection, setShowReturnFlightSelection] = useState(false);
   const [showTransitionNotification, setShowTransitionNotification] = useState(false);
+  const [loadingCardIndex, setLoadingCardIndex] = useState<number | null>(null);
 
   // Sidebar Filter States
   const [filterStops, setFilterStops] = useState<number[]>([]);
@@ -446,6 +448,62 @@ export default function FlightSearchPage() {
 
     // Normalize to lowercase for comparison
     return cabinClass.toLowerCase().replace(/\s+/g, '_');
+  };
+
+  // Popular destinations for flights
+  const popularDestinations = [
+    {
+      city: 'New York',
+      code: 'JFK',
+      description: 'Business Hub',
+      image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=400&auto=format&fit=crop',
+    },
+    {
+      city: 'London',
+      code: 'LHR',
+      description: 'Financial Center',
+      image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&auto=format&fit=crop',
+    },
+    {
+      city: 'Dubai',
+      code: 'DXB',
+      description: 'Luxury & Trade',
+      image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&auto=format&fit=crop',
+    },
+    {
+      city: 'Tokyo',
+      code: 'NRT',
+      description: 'Tech & Innovation',
+      image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&auto=format&fit=crop',
+    },
+  ];
+
+  // Quick search handler for destination cards
+  const handleQuickSearch = async (destination: any, cardIndex: number) => {
+    setLoadingCardIndex(cardIndex);
+
+    // Set form values
+    setTo(destination.code);
+    setToDisplay(destination.city);
+
+    // Set default dates (next week for 3 days)
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    const returnDay = new Date(nextWeek);
+    returnDay.setDate(returnDay.getDate() + 3);
+
+    const departure = nextWeek.toISOString().split('T')[0];
+    const returnDt = returnDay.toISOString().split('T')[0];
+
+    setDepartureDate(departure);
+    setReturnDate(returnDt);
+
+    // Wait a moment then trigger search
+    setTimeout(() => {
+      setLoadingCardIndex(null);
+      // Scroll to search form
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 800);
   };
 
   // Function to get full descriptive fare name
@@ -2036,6 +2094,63 @@ export default function FlightSearchPage() {
                 <p className="text-xs text-gray-500">
                   Your bookings will appear here once you start searching
                 </p>
+              </div>
+            )}
+
+            {/* Popular Destinations */}
+            {!loadingBookings && draftBookings.length === 0 && recentBookings.length === 0 && (
+              <div className="mt-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-1 h-4 bg-gray-900 rounded-full"></div>
+                  <TrendingUp className="w-4 h-4 text-gray-600" />
+                  <h2 className="text-sm font-semibold text-gray-900">Popular Destinations</h2>
+                </div>
+                {/* MOBILE: Horizontal scroll | DESKTOP: Grid */}
+                <div className="overflow-x-auto md:overflow-x-visible pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
+                  <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 min-w-max md:min-w-0">
+                    {popularDestinations.map((destination, index) => {
+                      const cardIndex = 100 + index;
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => handleQuickSearch(destination, cardIndex)}
+                          disabled={loadingCardIndex === cardIndex}
+                          className="group relative bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed w-[240px] md:w-auto flex-shrink-0"
+                        >
+                          {loadingCardIndex === cardIndex && (
+                            <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+                              <div className="flex flex-col items-center gap-2">
+                                <div className="w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
+                                <span className="text-sm font-medium text-gray-700">Setting up...</span>
+                              </div>
+                            </div>
+                          )}
+                          <div className="relative h-32 overflow-hidden">
+                            <img
+                              src={destination.image}
+                              alt={destination.city}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div className="absolute bottom-3 left-3 right-3">
+                              <h3 className="text-white font-bold text-base mb-0.5">{destination.city}</h3>
+                              <p className="text-white/90 text-xs">{destination.description}</p>
+                            </div>
+                          </div>
+                          <div className="p-3 bg-gray-50 group-hover:bg-gray-100 transition-colors">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-gray-600 font-medium">{destination.code}</span>
+                              <span className="text-gray-900 font-semibold flex items-center gap-1">
+                                Quick Search
+                                <ChevronRight className="w-3 h-3" />
+                              </span>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             )}
           </div>
