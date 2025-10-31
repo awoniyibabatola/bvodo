@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bvodo Flow - Simple</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            padding: 40px 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            color: #111827;
+            margin-bottom: 32px;
+        }
+
+        .mermaid {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>How bvodo Works</h1>
+
+        <div class="mermaid">
+graph LR
+    A[Employee Books Travel] --> B[Policy Check]
+    B --> C[Manager Approves]
+    C --> D[Auto Payment]
+    D --> E[Booking Confirmed]
+    E --> F[Invoice Generated]
+
+    style A fill:#ADF802,stroke:#111827,stroke-width:2px
+    style B fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style C fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style D fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style E fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style F fill:#ADF802,stroke:#111827,stroke-width:2px
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bvodo - How It Works Flow Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            font-size: 20px;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            display: inline-block;
+            background: #ADF802;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 40px;
+        }
+
+        .diagram-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .mermaid {
+            text-align: center;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 32px 24px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card .icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .export-buttons {
+            text-align: center;
+            margin-top: 32px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            margin: 0 8px;
+            background: #111827;
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 2px solid #111827;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #ADF802;
+            color: #111827;
+            border-color: #ADF802;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #111827;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #111827;
+        }
+
+        .info-box {
+            background: #f9fafb;
+            border-left: 4px solid #ADF802;
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-top: 32px;
+        }
+
+        .info-box h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .diagram-container {
+                padding: 20px;
+            }
+
+            .btn {
+                display: block;
+                margin: 8px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏢 bvodo</div>
+            <h1>How bvodo Works</h1>
+            <p>Automated Corporate Travel Management in 9 Simple Steps</p>
+        </div>
+
+        <div class="diagram-container">
+            <div class="mermaid">
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#ADF802',
+    'primaryTextColor': '#111827',
+    'primaryBorderColor': '#111827',
+    'lineColor': '#3b82f6',
+    'secondaryColor': '#f9fafb',
+    'tertiaryColor': '#e5e7eb',
+    'fontSize': '16px',
+    'fontFamily': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+  }
+}}%%
+
+graph TD
+    Start([👤 Employee: Chioma<br/>Needs London Trip]) --> Search
+
+    Search[✈️ Search Flights<br/>Lagos → London<br/>₦450,000] --> Policy
+
+    Policy{🛡️ Auto Policy Check<br/>Budget • Class • Advance}
+
+    Policy -->|✓ All Checks Pass| Approval[🔔 Manager Notification<br/>Taiwo Adeyemi]
+    Policy -->|✗ Violation| Reject[❌ Booking Blocked<br/>Policy Requirements Shown]
+
+    Approval --> Decision{👤 Manager Review}
+
+    Decision -->|✓ Approved| Payment[💳 Auto Payment<br/>Company Card ••4532<br/>₦450,000]
+    Decision -->|✗ Rejected| Reject
+
+    Payment --> Confirm[🎫 Booking Confirmed<br/>PNR: ABC123<br/>Ticket Issued]
+
+    Confirm --> Invoice[📄 Invoice Generated<br/>INV-001-2024<br/>Sent to QuickBooks]
+
+    Invoice --> Automation[⚡ Auto Actions]
+
+    Automation --> Calendar[📅 Calendar Updated<br/>Flight Added]
+    Automation --> Budget[📊 Budget Tracked<br/>₦450k / ₦500k Used]
+    Automation --> Report[📈 Reports Generated<br/>Expense Auto-Filed]
+
+    Calendar --> Complete
+    Budget --> Complete
+    Report --> Complete
+
+    Complete([🎉 Journey Complete<br/>100% Automated])
+
+    style Start fill:#ADF802,stroke:#111827,stroke-width:3px,color:#111827
+    style Search fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style Policy fill:#fbbf24,stroke:#d97706,stroke-width:2px,color:#111827
+    style Approval fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style Payment fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff
+    style Confirm fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style Invoice fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style Automation fill:#fbbf24,stroke:#d97706,stroke-width:2px,color:#111827
+    style Complete fill:#ADF802,stroke:#111827,stroke-width:3px,color:#111827
+    style Reject fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style Decision fill:#fbbf24,stroke:#d97706,stroke-width:2px,color:#111827
+    style Calendar fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style Budget fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style Report fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="icon">⚡</div>
+                <div class="value">15 mins</div>
+                <div class="label">Average Booking Time</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">💰</div>
+                <div class="value">30%</div>
+                <div class="label">Cost Savings</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">✓</div>
+                <div class="value">100%</div>
+                <div class="label">Policy Compliance</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">🤖</div>
+                <div class="value">Zero</div>
+                <div class="label">Manual Data Entry</div>
+            </div>
+        </div>
+
+        <div class="export-buttons">
+            <button class="btn" onclick="exportDiagram('svg')">📥 Export as SVG</button>
+            <button class="btn" onclick="exportDiagram('png')">📥 Export as PNG</button>
+            <button class="btn btn-secondary" onclick="copyToClipboard()">📋 Copy Mermaid Code</button>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 How to Use This Diagram</h3>
+            <p>
+                <strong>For Landing Page:</strong> Export as SVG and embed in your website.<br>
+                <strong>For Presentations:</strong> Export as PNG for PowerPoint/Keynote.<br>
+                <strong>For Editing:</strong> Copy the Mermaid code and paste into <a href="https://mermaid.live" target="_blank" style="color: #111827; font-weight: 600;">mermaid.live</a> to customize.<br>
+                <strong>For Documentation:</strong> Include the Mermaid code in your README or docs.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        // Export diagram as SVG
+        function exportDiagram(format) {
+            const svg = document.querySelector('.mermaid svg');
+
+            if (format === 'svg') {
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const blob = new Blob([svgData], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'bvodo-flow-diagram.svg';
+                link.click();
+                URL.revokeObjectURL(url);
+                alert('✅ SVG exported! You can now use it in design tools or on your website.');
+            } else if (format === 'png') {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                const svgData = new XMLSerializer().serializeToString(svg);
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+
+                img.onload = function() {
+                    canvas.width = img.width * 2; // 2x for retina
+                    canvas.height = img.height * 2;
+                    ctx.scale(2, 2);
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+
+                    canvas.toBlob(function(blob) {
+                        const pngUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = pngUrl;
+                        link.download = 'bvodo-flow-diagram.png';
+                        link.click();
+                        URL.revokeObjectURL(pngUrl);
+                        URL.revokeObjectURL(url);
+                        alert('✅ PNG exported! Perfect for presentations and documents.');
+                    });
+                };
+
+                img.src = url;
+            }
+        }
+
+        // Copy Mermaid code to clipboard
+        function copyToClipboard() {
+            const mermaidCode = document.querySelector('.mermaid').textContent;
+            navigator.clipboard.writeText(mermaidCode).then(() => {
+                alert('✅ Mermaid code copied to clipboard! You can now paste it into mermaid.live to edit or customize.');
+            });
+        }
+
+        // Add some animation on load
+        window.addEventListener('load', () => {
+            const svg = document.querySelector('.mermaid svg');
+            if (svg) {
+                svg.style.opacity = '0';
+                svg.style.transform = 'scale(0.95)';
+                svg.style.transition = 'all 0.6s ease-out';
+
+                setTimeout(() => {
+                    svg.style.opacity = '1';
+                    svg.style.transform = 'scale(1)';
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
